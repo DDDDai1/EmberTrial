@@ -1,0 +1,31 @@
+# Unreal-generated files (also applies to future project plugins).
+**/Binaries/
+**/DerivedDataCache/
+**/Intermediate/
+**/Saved/
+
+# IDE-generated state. Keep .vsconfig because it describes required components.
+**/.vs/
+**/.idea/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.VC.opendb
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.code-workspace
+
+# Local builds, backups, raw traces, videos and crash dumps.
+/Artifacts/
+/Docs/Reports/Raw/
+*.utrace
+*.ucache
+*.dmp
+
+# Operating-system metadata.
+Thumbs.db
+Desktop.ini
+.DS_Store
