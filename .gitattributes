@@ -1,5 +1,8 @@
 # Normalize source/document text, keeping Windows command files CRLF.
 * text=auto
+.gitattributes text eol=lf
+.gitignore text eol=lf
+.vsconfig text eol=lf
 *.md text eol=lf
 *.cpp text eol=lf
 *.h text eol=lf

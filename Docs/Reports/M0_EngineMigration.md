@@ -1,6 +1,6 @@
 # UE 5.4.4 → 5.5.4 基线校准
 
-日期：2026-09-18。状态：已确认目标版本，准备迁移。
+迁移执行：2026-09-18；记录更新：2026-09-19。状态：版本配置、解决方案生成与 UE 5.5.4 C++ 构建全部完成，等待用户交互运行复验。
 
 ## 已确认
 
@@ -18,8 +18,31 @@
 
 ## 结果
 
-- 迁移前检查点：待记录。
-- 配置修改：待执行。
-- 5.5.4 C++ 构建：待执行。
+- 迁移前检查点：`3562f61`，Git / LFS；212 个 UE 资产的 LFS 完整性检查通过。
+- 配置修改：EngineAssociation 已改为 `5.5`；两个 Target 的 IncludeOrderVersion 已改为 Unreal5_5。DefaultBuildSettings 仍为 V5，玩法代码未改动。
+- 5.5.4 解决方案生成：成功，退出码 0，用时约 48 秒；日志在 `EmberTrial/Saved/Logs/M0_GenerateProjectFiles_UE55.log`。
+- 5.5.4 C++ 构建：成功，退出码 0；UHT、编译、链接和 receipt 写入完成，共 12 个 action，用时 59.18 秒。本次最多两个并行任务，未修改全局编译配置。
+- 实际编译器：MSVC 14.38.33145，可执行工具链位于安装目录 `14.38.33130`；Windows SDK 为 `10.0.22621.0`。
+- 产物复核：EmberTrialEditor.target 为 5.5.4 / Win64 / Development / Editor；`.uproject` 关联 5.5，重新生成的 vcxproj 引用 UE_5.5，不再引用 UE_5.4。
+- 生成器同步更新 `.vsconfig` 的 Unreal Workspace、ATL 与 Windows 11 SDK 组件建议；没有自动安装或卸载这些组件。
+- Gameplay C++ 实现和 Content 资产本次未修改、未批量重保存。
 - 5.5.4 交互运行：待用户复验。
 - 下一步基础 Actor / 蓝图练习：目标版本复验通过后再下发。
+
+## 日志与复核范围
+
+- 构建日志：`E:\UE_Project\Demo\EmberTrial\Saved\Logs\M0_Build_UE55.log`。
+- 生成日志：`E:\UE_Project\Demo\EmberTrial\Saved\Logs\M0_GenerateProjectFiles_UE55.log`。
+- 两份日志另存至 `E:\UE_Project\Demo\Artifacts\M0`，避免常规运行记录被覆盖；原始日志目录已被 Git 忽略。
+- 本次新增差异通过 `git diff --check`；迁移前模板既有的尾随空白未批量清理。
+- Git LFS 完整性已检查；原基线 212 个资源对象均可用。未配置远端或上传资产。
+- 仅凭构建成功不能断言蓝图、地图与输入在新版本下全部正常；仍保留下面的手动验收。
+
+## 构建完成后的用户手动验证
+
+1. 双击 `E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，确认打开的是 UE 5.5.4；可在“帮助 / Help → 关于 Unreal Editor”查看版本。
+2. 等待首次着色器 / 资源处理完成，在 ThirdPersonMap 点击 Play，测试 WASD、鼠标转向和空格跳跃。
+3. 停止后再运行一次，确认行为一致，然后保存工程。
+4. 回复“5.5.4 复验正常”，或给出异常现象 / 时间，我读取最新日志继续检查。
+
+构建已完成，现在可以打开工程。此后使用 5.5.4；不要用 5.4 直接保存已经由新版本修改的资产。若需要回退，我基于迁移前检查点处理，不通过只改 EngineAssociation 猜测兼容性。
