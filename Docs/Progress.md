@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-**UE 5.5.4 的构建与基础运行复验已通过，M0-01 / M0-02 完成。现在进入 M0-03，等待用户手动创建基础 C++ Actor 和蓝图子类；M0 整体尚未完成。**
+**M0-01 / M0-02 / M0-03 已完成。当前下发 M0-04A，等待用户手动实现靠近提示和候选目标切换；M0 整体尚未完成。**
 
 - 工作区：`E:\UE_Project\Demo`。
 - 实际 UE 工程：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，已存在。
@@ -23,30 +23,32 @@
 8. 将项目关联和两个 Target 对齐到 5.5，重新生成解决方案并通过 5.5.4 正常 C++ 构建（59.18 秒）。
 9. 新构建使用 MSVC 14.38.33145 / Windows SDK 10.0.22621.0；receipt 确认为 5.5.4 / Win64 / Development / Editor。
 10. 迁移后检查点为 `861be2b`；用户回复“5.5.4 复验正常”，最新日志确认新版本与 ThirdPersonMap 的 PIE 启停。
-11. 下发 `Docs/M0_03_PracticeActor.md`，包含设计契约、仅存在于文档中的参考代码、蓝图配置、实例验证与报错入口；未代写对应 Source / 蓝图资产。
+11. 用户手动完成 M0-03，实际约 15 分钟。源码符合组件 / 反射 / Tick 契约，运行日志确认两个实例每次各输出一次；A 改为 Target_Changed 后独立生效，基础输入正常。
+12. 蓝图子类和两个外部 Actor 文件均已落盘；本轮未代改用户源码。下发 M0-04A 指南，尚未添加 getter 或创建接口 / Widget。
 
-详细证据见 `Docs/Reports/M0_01_Verification.md`、`Docs/Reports/M0_EngineMigration.md` 和 `Docs/Reports/M0_01_UE55_Runtime.md`。画面与输入结果来自用户实机确认；我核对日志与工程配置。
+详细证据见 `Docs/Reports/M0_01_Verification.md`、`Docs/Reports/M0_EngineMigration.md`、`Docs/Reports/M0_01_UE55_Runtime.md` 和 `Docs/Reports/M0_03_Verification.md`。画面与输入结果来自用户实机确认；我核对源码、文件、日志与工程配置。
 
 ## 现在由用户执行
 
-按 `Docs/M0_03_PracticeActor.md` 完成这一批练习：
+按 [M0-04A 指南](M0_04A_InteractionPrompt.md) 完成这一批练习：
 
-1. 创建 Actor 父类的 ETPracticeActor，手动实现组件、PracticeLabel 与 PrintPracticeInfo；关闭编辑器后正常 Build。
-2. 创建 `/Game/EmberTrial/Blueprints/Practice/BP_ETPracticeActor`，选择 Cube，连接 BeginPlay → PrintPracticeInfo。
-3. 在 ThirdPersonMap 放两个实例，各设置 Target_A / Target_B；Play 时各输出一次 `[M0-03]` 日志。
-4. 修改 A 的标签后再次运行，确认不必重编译 C++，保存并报告结果。遇到复杂问题由我接手。
+1. 保存并关闭 UE，给 ETPracticeActor 添加 GetPracticeLabel，正常 Build 后重开工程。
+2. 创建接口和 UMG 提示，在现有角色蓝图保存候选数组并管理一个 Widget。
+3. 给练习物体添加 Sphere，通过事件通知角色注册 / 移除目标。
+4. 验证 A / B 提示、范围重叠切换 / 回退、出生已在范围内、连续 PIE 和基础输入。
+5. 保存并报告结果及实际用时；复杂问题由我接手排查。
 
 ## 下一轮我优先做什么
 
-- 检查用户新增 ETPracticeActor 的 h / cpp、实际构建输出、蓝图与场景结果。
+- 检查 getter、蓝图资产变化、最新日志和用户功能反馈。
 - 若报错，读取本地文件和日志直接排查；需要蓝图上下文时再请用户补图。
-- 验收 M0-03 并复盘组件、反射暴露和实例覆盖；通过后下发 M0-04 最小交互 / UMG 原型。
+- 验收 M0-04A 后下发 B（按键交互），再推进 C（暂停菜单 / 输入恢复）；不提前把完整 M0-04 标记为完成。
 
 ## 仍待确认
 
 - 每周可投入时间、期望投递日期、是否有手柄：已询问，尚未收到答案。
 - 日志报告约 15554 MB 可用物理内存总量；可接受资源预算仍待补充。
-- M0-03：等待用户实现与验收；目前只有任务文档，尚无对应类 / 蓝图 / 测试结果。
+- M0-04A：只有任务指南，尚未实施或测试；M0-03 的 15 分钟不直接外推整个 Demo 工期。
 
 ## 持续协作原则
 
