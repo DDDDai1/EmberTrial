@@ -21,6 +21,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Practice")
 	void PrintPracticeInfo();
 
+	UFUNCTION(BlueprintPure, Category = "Practice")
+	FText GetPracticeLabel() const;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Practice", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> SceneRoot;

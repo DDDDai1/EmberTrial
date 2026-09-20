@@ -18,6 +18,20 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 
 迁移后的编译通过检查点为 `861be2b`，保留版本变化的清晰差异。提交号和验证结果记录到 Progress 与迁移报告。
 
+M0-03 检查点为 `6259374`，包含 Actor 练习和后续交互提示指南。
+
+### M0-04 阶段检查点
+
+本阶段的检查点提交标题约定为 **`feat: complete M0 interaction and pause prototype`**，用于保存用户已验收的 A / B / C 源码、蓝图、接口、UMG、输入映射、场景外部 Actor，以及验收记录和下一批动画指南。动画指南已下发不代表动画资产已制作。
+
+用下面命令查找该提交及其实际提交号；以 Git 历史是否存在为准，不把未提交工作区当成已保存检查点：
+
+```powershell
+git log --oneline --all --grep="complete M0 interaction and pause prototype"
+```
+
+该检查点只在本地保存，不包含 Saved / Intermediate / Binaries、原始运行日志或 Artifacts 备份，也不是外部备份。项目尚未通过打包验收。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。

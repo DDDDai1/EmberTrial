@@ -26,4 +26,8 @@ void AETPracticeActor::PrintPracticeInfo()
 	UE_LOG(LogTemp, Display, TEXT("[M0-03] Actor=%s Label=%s"), *GetName(), *PracticeLabel.ToString());
 }
 
+FText AETPracticeActor::GetPracticeLabel() const
+{
+	return PracticeLabel;
+}
 
