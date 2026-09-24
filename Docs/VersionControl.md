@@ -54,6 +54,16 @@ git log --oneline --all --grep="checkpoint M0 defensive animations before correc
 
 仍保留 `DefaultEditor.ini` 预览配置改动在工作区，不纳入本检查点；未上传远端。补修完成后再保存验收通过版本。
 
+### M0-05B 补修复验与 C1 交接检查点
+
+本轮标题为 **`chore: record M0 correction review and prepare montage guide`**。保存用户已修正时长与受击参数的五个资产文件、复验记录、C1 前置读取脚本与手动指南。B 仍剩闪避 0 帧左上臂 Z 一项，C1 仅下发步骤，不能把本提交当作 B / C1 全部验收通过。
+
+```powershell
+git log --oneline --all --grep="record M0 correction review and prepare montage guide"
+```
+
+之前的补修前检查点为 `30a8289`。本轮仍不纳入 DefaultEditor.ini 的预览配置，不上传远端。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。
