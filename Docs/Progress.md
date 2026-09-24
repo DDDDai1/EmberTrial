@@ -1,10 +1,10 @@
 # 当前开发状态
 
-更新日期：2026-09-20。
+更新日期：2026-09-24。验收与数值校验发生于 2026-09-21，本次继续完成归档和下一批交接。
 
 ## 当前阶段
 
-**M0-01 / M0-02 / M0-03 / M0-04 已完成。当前进入 M0-05 动画四动作试验，下发 M0-05A：零成本动画路线与第一段攻击占位，等待用户手动实施。M0 整体尚未完成。**
+**M0-01 / M0-02 / M0-03 / M0-04 / M0-05A 已完成。M0-05A 用户手动约 80 分钟，已核对烘焙资产、骨架、采样数与角色绑定。当前进入 M0-05B：按已校准的数值制作原地闪避／受击占位。M0-05 总任务及 M0 整体尚未完成。**
 
 - 工作区：`E:\UE_Project\Demo`。
 - 实际 UE 工程：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，已存在。
@@ -35,30 +35,34 @@
 20. 核对最新资产及日志：最终角色保存后观察到 9 组完整 opened / Resume requested / closed，最终片段无匹配的蓝图错误；全日志有两条已解决的中途编译错误。详细区分用户验收与日志样本，见 C 报告。
 21. 用户确认没有现成攻击 / 闪避 / 受击动画，选择零成本占位。已盘点现有 Manny / Quinn、移动动画及 CR_Mannequin_Body；尚未读取当前玩家实际 Mesh / Skeleton / Anim Class 绑定。
 22. 下发 M0-05A：独立动画试场、模板 Control Rig、第一段原地挥击和 Animation Sequence 烘焙。后续再补闪避 / 受击与 Montage 接入，本轮未制作动画资产。
+23. 2026-09-21 观察到 L_M0_AnimationLab、LS_M0_Attack_01、CR_Mannequin_Body 与 Anim Details；用户提出需要具体姿势数值。新增 M0_05A_AttackPoseValues.md，包含五帧六个 FK 控制器的完整 L/R/S。独立引擎临时 Rig 求值与 31 帧线性采样通过；没有给原 Sequence 打 key、保存或烘焙，蒙皮外观及播放仍待用户确认。
+24. 用户随后确认数值姿势检查通过：0 / 12 帧正常，五帧均已打 key，两个 FK/IK 开关为 False，Linear 已设置，连续播放正常。将姿势制作与 Sequencer 预览记为用户验收通过；资产保存、动画烘焙、独立播放、root 漂移、玩家绑定和实际用时仍待反馈。
+25. 用户约 80 分钟完成 M0-05A，确认 Control Rig、关键帧、独立播放、无 root 漂移、保存及回原场景基础输入 / E / P 均正常。独立 UE API 检查确认 SKM_Quinn_Simple 与攻击动画共用 SK_Mannequin，Anim Class 为 ABP_Quinn_C，ABP_Quinn 的父类为 ABP_Manny_C；动画为 31 个帧间隔 / 32 个采样点 / 1.0333333 秒，Root Motion=False，root 采样不漂移。A 验收完成。
+26. 下发 M0-05B：新建两个 Sequence，使用双臂 FK 与 spine_01_ctrl 完成原地右侧闪避和受击后仰，之后烘焙并在 Manny / Quinn_Simple 上预览。参数已通过独立临时 Rig 求值；用户尚未实施 B，未生成或保存 B 的 UE 资产。
 
-详细证据见 `Docs/Reports/M0_01_Verification.md`、`Docs/Reports/M0_EngineMigration.md`、`Docs/Reports/M0_01_UE55_Runtime.md`、`Docs/Reports/M0_03_Verification.md`、`Docs/Reports/M0_04A_Debugging.md`、`Docs/Reports/M0_04A_Verification.md`、`Docs/Reports/M0_04B_Verification.md` 和 `Docs/Reports/M0_04C_Verification.md`。区分用户实机反馈、我直接观察的排障结果与尚未实测的方案。
+详细证据见 `Docs/Reports` 下各阶段报告；本轮新增 [M0-05A 验收](Reports/M0_05A_Verification.md) 与 [M0-05B 数值校验](Reports/M0_05B_PoseValuesVerification.md)。区分用户实机反馈、我直接读取的数据与尚未实测的方案。
 
 ## 现在由用户执行
 
-按 [M0-05A：零成本动画路线与第一段攻击占位](M0_05A_AnimationSource.md) 操作，预计 60–120 分钟。本批无需改 C++ 或进行 C++ Build：
+执行 [M0-05B：原地闪避／受击占位](M0_05B_DefensiveAnimations.md)，预计 60–100 分钟，可以分两次完成，无需 C++ Build：
 
-1. 记录当前玩家 Mesh、Skeleton、Anim Class 和 AnimBP Parent，保持这些绑定不变。
-2. 建立 L_M0_AnimationLab 和 LS_M0_Attack_01，用 SKM_Manny + CR_Mannequin_Body 制作原地挥击占位。
-3. 烘焙 AS_M0_Attack_01，在关闭 Sequencer 后独立播放，检查时长、Skeleton 和 root 漂移。
-4. 保存制作源和输出，回 ThirdPersonMap 快速验证基础输入、E、P 没有变化。
-5. 按文档反馈结果 / 用时；动画时序用短视频，控制器或菜单用截图，报错用文字。复杂 Rig / 烘焙问题由我接管。
+1. 在已有动画试场中另建 LS_M0_Dodge_01，先做 0 / 4 帧，方向正常后补齐五帧；按指南设置脊柱与双臂 FK。
+2. 烘焙 AS_M0_Dodge_01，独立播放并检查 root / 脚固定，预览 Manny 与 Quinn_Simple。
+3. 再建 LS_M0_HitReact_01，按同一路线制作并烘焙受击。
+4. 保存地图、两个 Sequence 与两段新动画，检查原攻击动画及 ThirdPersonMap 的基础输入、E、P。
+5. 按 B 第 7 节报告结果与两段各自用时；先完成闪避也可以反馈。截图用于姿势／菜单，视频用于时序，文字用于错误日志。
 
 ## 下一轮我优先做什么
 
-- 核对实际骨架 / Anim Class、第一段动画独立播放结果、root 是否漂移和制作成本。
+- 核对 B 两段动画的落盘、骨架、时长、独立播放、Quinn_Simple 外观与制作成本。
 - 若报错，读取本地文件和日志直接排查；需要蓝图上下文时再请用户补图。
-- A 通过后推进 M0-05B 闪避 / 受击占位，再做 C 的 Montage / Slot 与位移实机试验；首次打包仍属于 M0-06。
+- B 通过后推进 C 的 Montage / Slot 与位移实机试验；首次打包仍属于 M0-06。
 
 ## 仍待确认
 
 - 每周可投入时间、期望投递日期、是否有手柄：已询问，尚未收到答案。
 - 日志报告约 15554 MB 可用物理内存总量；可接受资源预算仍待补充。
-- M0-05A：目前只有操作指南，未实施或测试。M0-04 已报告手动用时约 190 分钟（60 + 10 + 40 + 80），未计入此前未记录的协助排障；不直接外推整个 Demo 工期。
+- M0-05B：待用户制作、预览、烘焙及验收。M0-04 已报告手动用时约 190 分钟，M0-05A 约 80 分钟，两批合计 270 分钟；助手排障、参数校准和此前未记录投入另计，不直接外推整个 Demo 工期。
 
 ## 持续协作原则
 

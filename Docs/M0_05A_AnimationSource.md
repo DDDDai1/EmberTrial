@@ -1,6 +1,6 @@
 # M0-05A：零成本动画路线与第一段攻击占位
 
-日期：2026-09-20。引擎：UE 5.5.4。前置：M0-04 已完成。状态：**待用户手动实施，尚未制作或验证本批动画**。
+日期：2026-09-20；验收更新：2026-09-21。引擎：UE 5.5.4。前置：M0-04 已完成。状态：**M0-05A 已完成，手动用时约 80 分钟。验收见 [报告](Reports/M0_05A_Verification.md)，下一步进入 [M0-05B](M0_05B_DefensiveAnimations.md)。以下步骤保留供复盘。**
 
 用户已确认没有现成攻击 / 闪避 / 受击动画，采用模板与 Control Rig 的零成本占位路线。本批预计 60–120 分钟，首次接触 Sequencer / Control Rig 时以实际用时为准；同一处操作卡住约 15–20 分钟就反馈，由我接管复杂部分。
 
@@ -33,16 +33,16 @@
 
 现有 Animations 目录包含移动、待机、跳跃 / 落地；本轮文件名检索没有发现攻击 / 闪避 / 受击或 Montage 资源。文件名不能证明资产全部用途，因此不声称已逐个打开审查。
 
-**先用约 5 分钟记录当前玩家实际绑定，不修改它：**
+**记录当前玩家实际绑定的方法（本工程已完成核对，不必重做）：**
 
 1. 打开 BP_ThirdPersonCharacter，Components 中选 **Mesh (CharacterMesh0)**。
 2. 在 Details 记录 **Skeletal Mesh Asset、Animation Mode、Anim Class** 的实际值。
 3. 用 Skeletal Mesh 旁的浏览按钮定位资产，打开其编辑器，在 Asset Details 查 **Skeleton**，记录资产名 / 路径。
 4. 用 Anim Class 对应资产的浏览按钮打开当前 Anim Blueprint，查看 **Class Settings → Parent Class**，记录名称。ABP_Quinn 可能是子动画蓝图；不要为了找不到 AnimGraph 随意改父类。
 
-把这些名称放到最终回复中即可。当前角色外观不能可靠证明它用了哪个骨架或 Anim Class；本轮没有通过 UI 读取这些绑定。
+2026-09-21 已通过用户反馈与只读 UE API 核实：玩家 Mesh=SKM_Quinn_Simple，Skeleton=SK_Mannequin，Animation Mode=Animation Blueprint，Anim Class=ABP_Quinn_C，ABP_Quinn 的父类为 ABP_Manny_C。外观和 `_C` 类名本身不能代替 Skeleton / ParentClass 检查。
 
-本批制作使用 **SKM_Manny + CR_Mannequin_Body**，当前玩家保持原样。制作完成后再依据实际 Skeleton 关系决定接入方式；不同 Skeleton 资产不能只因骨骼名称相似就直接互换。
+本批制作使用 **SKM_Manny + CR_Mannequin_Body**，当前玩家保持原样。已确认输出攻击动画与玩家共用同一 SK_Mannequin，可在 C 阶段据此验证 Montage / Slot；不同 Skeleton 资产不能只因骨骼名称相似就直接互换。
 
 ## 3. 建立独立动画试场
 
@@ -99,7 +99,9 @@ root_ctrl / global_ctrl
 
 ### 4.2 五个关键姿势
 
-通过上面的控制测试后，用右上臂 / 前臂 / 手控制器调整姿势；左上臂和前臂只调整一次，使左手处在身体前方的警戒位置。根据本地骨骼轴观察效果，不把世界 XYZ 角度硬套到各个控制器。
+**若视觉描述不易操作，直接使用新增的 [五帧 Location / Rotation / Scale 数值表](M0_05A_AttackPoseValues.md)。其中包含六个手臂控制器在五帧的完整值、具体填写面板、FK 开关与关键帧操作；已在 UE 5.5.4 临时 Rig 中求值。先做 0 和 12 帧确认，再补另外三帧。本次数值版先用 Linear 插值。**
+
+通过上面的控制测试后，用右上臂 / 前臂 / 手控制器调整姿势；左上臂和前臂保持身体前方的警戒位置。数值表填写的是 Anim Details 中的控制器局部值，不是世界坐标或骨骼自身的 Transform。
 
 | 帧 | 姿势 | 视觉标准 |
 |---:|---|---|
@@ -124,8 +126,10 @@ root_ctrl / global_ctrl
 
 ## 5. 烘焙成 Animation Sequence
 
+本工程已完成本节。复现时保留 30 fps、播放范围 Start=0 / End=31，先停止 Sequencer 播放。已核对本次输出为 31 个帧间隔、32 个采样点、1.0333333 秒。
+
 1. 保存 LS_M0_Attack_01 和动画试场地图。
-2. 在 Sequencer 左侧，右键人偶的 **Skeletal Mesh Actor 绑定行**，找到 **Bake Animation Sequence**，不是对 Control Rig 控制器单独导出。
+2. 若 Sequencer 左侧仍有控制器名称搜索，先清空搜索。找到最上层人偶 **M0_AnimationDummy** 的 Actor 绑定行（其下面才是 CR_Mannequin_Body 和各控制器），右键这行，选择 **Bake Animation Sequence**。不要右键具体手臂控制器或紫色 Control Rig section 来找该菜单。
 3. 保存为 `/Game/EmberTrial/Animations/Practice/Clips/AS_M0_Attack_01`。
 4. 导出范围用本次播放范围；保留骨骼变换导出，关闭 **Export in World Space**（若面板提供），避免把场景中人偶的摆放位置烘焙为世界位移。其余导出设置先保持默认。
 5. 记录导出面板与结果的采样率 / 帧数 / 时长，确认与约 1 秒的片段一致。如果出现多分钟空白片段，先修正播放范围再导出。

@@ -1,0 +1,51 @@
+{
+  "engine": "5.5.4",
+  "rig": "/Game/Characters/Mannequins/Rigs/CR_Mannequin_Body",
+  "mesh": "/Game/Characters/Mannequins/Meshes/SKM_Manny",
+  "space": "Anim Details local control value, relative to control offset",
+  "rotation_order_in_table": ["X (Roll)", "Y (Pitch)", "Z (Yaw)"],
+  "location_all_six_controls": [0, 0, 0],
+  "scale_all_six_controls": [1, 1, 1],
+  "frames": {
+    "0": {
+      "upperarm_r_fk_ctrl": [0, -20, 15],
+      "lowerarm_r_fk_ctrl": [0, 0, 70],
+      "hand_r_fk_ctrl": [0, 0, 0],
+      "upperarm_l_fk_ctrl": [0, -20, 25],
+      "lowerarm_l_fk_ctrl": [0, 0, 70],
+      "hand_l_fk_ctrl": [0, 0, 0]
+    },
+    "8": {
+      "upperarm_r_fk_ctrl": [0, 10, -55],
+      "lowerarm_r_fk_ctrl": [0, 0, 80],
+      "hand_r_fk_ctrl": [0, 0, 0],
+      "upperarm_l_fk_ctrl": [0, -20, 25],
+      "lowerarm_l_fk_ctrl": [0, 0, 70],
+      "hand_l_fk_ctrl": [0, 0, 0]
+    },
+    "12": {
+      "upperarm_r_fk_ctrl": [0, 0, 75],
+      "lowerarm_r_fk_ctrl": [0, 0, -20],
+      "hand_r_fk_ctrl": [0, 0, 0],
+      "upperarm_l_fk_ctrl": [0, -20, 25],
+      "lowerarm_l_fk_ctrl": [0, 0, 70],
+      "hand_l_fk_ctrl": [0, 0, 0]
+    },
+    "22": {
+      "upperarm_r_fk_ctrl": [0, -15, 25],
+      "lowerarm_r_fk_ctrl": [0, 0, 60],
+      "hand_r_fk_ctrl": [0, 0, 0],
+      "upperarm_l_fk_ctrl": [0, -20, 25],
+      "lowerarm_l_fk_ctrl": [0, 0, 70],
+      "hand_l_fk_ctrl": [0, 0, 0]
+    },
+    "30": {
+      "upperarm_r_fk_ctrl": [0, -20, 15],
+      "lowerarm_r_fk_ctrl": [0, 0, 70],
+      "hand_r_fk_ctrl": [0, 0, 0],
+      "upperarm_l_fk_ctrl": [0, -20, 25],
+      "lowerarm_l_fk_ctrl": [0, 0, 70],
+      "hand_l_fk_ctrl": [0, 0, 0]
+    }
+  }
+}

@@ -32,6 +32,16 @@ git log --oneline --all --grep="complete M0 interaction and pause prototype"
 
 该检查点只在本地保存，不包含 Saved / Intermediate / Binaries、原始运行日志或 Artifacts 备份，也不是外部备份。项目尚未通过打包验收。
 
+### M0-05A 阶段检查点
+
+本阶段检查点标题为 **`feat: complete M0 attack animation prototype`**，包含已验收的攻击动画、制作 Sequence、动画试场、数值及资产检查脚本、验收记录和下一批 B 指南。B 指南及参数已校准，不代表闪避／受击 UE 资产已制作。
+
+```powershell
+git log --oneline --all --grep="complete M0 attack animation prototype"
+```
+
+以 Git 中实际提交为准。用户产生的 `DefaultEditor.ini` 共享预览场景配置改动保留在工作区，本检查点未纳入该预览配置；原始检查日志与临时报告继续排除。无远端上传。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。
