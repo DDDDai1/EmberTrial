@@ -42,6 +42,18 @@ git log --oneline --all --grep="complete M0 attack animation prototype"
 
 以 Git 中实际提交为准。用户产生的 `DefaultEditor.ini` 共享预览场景配置改动保留在工作区，本检查点未纳入该预览配置；原始检查日志与临时报告继续排除。无远端上传。
 
+### M0-05B 补修前检查点
+
+本轮检查点标题为 **`chore: checkpoint M0 defensive animations before corrections`**。保存用户已制作的闪避 / 受击 AS、源 Sequence、旧路径文件、动画试场，以及只读审查脚本、六项待修记录和手动补修指南。
+
+这是**补修前版本**，不表示 M0-05B 验收通过：播放范围与四个关键帧数值仍待修正。以实际 Git 历史是否存在为准：
+
+```powershell
+git log --oneline --all --grep="checkpoint M0 defensive animations before corrections"
+```
+
+仍保留 `DefaultEditor.ini` 预览配置改动在工作区，不纳入本检查点；未上传远端。补修完成后再保存验收通过版本。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。
