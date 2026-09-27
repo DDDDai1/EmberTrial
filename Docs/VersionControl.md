@@ -64,6 +64,16 @@ git log --oneline --all --grep="record M0 correction review and prepare montage 
 
 之前的补修前检查点为 `30a8289`。本轮仍不纳入 DefaultEditor.ini 的预览配置，不上传远端。
 
+### C1 播放修复与 C2 组件准备检查点
+
+本轮标题为 **`fix: correct M0 montage speed gate and prepare action component`**。记录用户保存的速度分支修复、C1 Montage / Input / Slot 资产、最终闪避补修、只读图表检查脚本和 C2-01 指南。
+
+```powershell
+git log --oneline --all --grep="correct M0 montage speed gate"
+```
+
+以实际 Git 历史为准。本检查点表示 B 补修与 C1 播放故障已处理，不表示 C1 全部边界或 C2 实现已验收。新的动作组件只在指南中提供参考代码，尚未创建。DefaultEditor.ini 的预览配置继续留在工作区，原始日志 / 报告不入库，无远端上传。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。

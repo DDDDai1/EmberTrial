@@ -1,8 +1,8 @@
 # M0-05B 闪避／受击动画验收记录
 
-更新：2026-09-24。**最新结论：补修后六项差异已解决五项，仅闪避 0 帧左上臂 Z 仍需从 15 改为 25 并重新烘焙。已下发 C1 指南，开头先收尾此项，再直接继续 Montage；B 尚未完全通过，C1 尚未由用户实施。**
+更新：2026-09-27。**最新结论：B 补修通过。只读复核的全部目标关键帧 / 范围差异为 0；闪避 0 帧左上臂 Z=25，重烘焙左手首尾位置一致。结合用户此前的视觉与基础输入反馈，B 验收完成。C1 速度分支修复已保存，用户确认播放恢复；当前进入 C2-01 组件准备。**
 
-下文“首次验收”保留补修前证据；最新结果见末尾“补修复验”，不要把之前的 1.033 秒当作当前两段时长。
+下文保留首次与中间复验的历史证据；最新结果见末尾“最终补修复核（2026-09-27）”，不要把历史待修状态或 1.033 秒当作当前两段结果。
 
 ## 首次验收结论
 
@@ -100,3 +100,11 @@ B 复验通过后再下发 C：先 Montage / Slot 与按键播放，再动作状
 [inspect_m0_montage_prereqs.py](../../Scripts/Editor/inspect_m0_montage_prereqs.py) 只读检查确认：当前玩家仍用 SKM_Quinn_Simple / ABP_Quinn_C，实际 IMC 为 `/Game/ThirdPerson/Input/IMC_Default`；ABP_Manny 的 AnimGraph 存在一个 DefaultSlot，Always Update Source Pose=False；ABP_Quinn 无独立 AnimGraph。原始 JSON / 日志在本机 `Docs/Reports/Raw/M0_05C1_Prerequisites.*`，检查进程返回 0，0 errors / 0 warnings。
 
 该检查枚举图表节点，不声称已经验证图内所有引脚连线。C1 指南复用此 Slot，并要求用户 Compile 与实际播放验证；本轮未生成 Montage / Input Action，也未修改角色或 AnimBP。Montage Play、Is Any Montage Playing 及混合参数语义已结合本机 5.5.4 源码核对。
+
+## 最终补修复核（2026-09-27）
+
+再次运行同一只读资产检查，`M0_REVIEW_FINDINGS: 0`。闪避 0 帧 upperarm_l_fk_ctrl.Rotation.Z 已为 25；目标关键帧和范围全部匹配。闪避 AS 仍为 21 个帧间隔 / 22 个采样点 / 0.700 秒，受击仍为 19 / 20 / 0.633 秒。
+
+闪避 Raw / Compressed 求值中的左手首尾位置差均为 0 cm；root、pelvis、双脚位置保持固定。共同骨架与关闭 AS Root Motion 的约定不变。提取进程成功，0 errors / 0 warnings。最终数据在本机 `Docs/Reports/Raw/M0_05B_AssetInspection.json`，原始日志为 `M0_05C1_Handoff.log`。
+
+结合已记录的用户动画预览和基础回归，B 补修完成，不再要求重复打 key / 烘焙。后续在 C2 / C3 实机组合中继续验证动作观感。手动用时仍按用户已明确报告的 100 分钟记录，最后一次收尾未单独补报，不能自行估算补入。

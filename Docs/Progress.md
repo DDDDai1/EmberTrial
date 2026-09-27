@@ -1,10 +1,10 @@
 # 当前开发状态
 
-更新日期：2026-09-24。已复核 M0-05B 补修资产，C1 操作指南已下发。
+更新日期：2026-09-27。B 最终补修通过；C1 速度分支修复已保存且用户确认播放恢复；C2-01 指南已下发。
 
 ## 当前阶段
 
-**M0-01 / M0-02 / M0-03 / M0-04 / M0-05A 已完成。M0-05B 首轮 80 分钟 + 补修 20 分钟，六项差异已解决五项，只剩闪避 0 帧左上臂 Z。当前下发 C1：先按 §0 收尾这一项，再直接做 Montage / Slot 与按键播放。B 尚未完全通过，C1 待用户操作；M0-05 总任务及 M0 整体未完成。**
+**M0-01 / M0-02 / M0-03 / M0-04 / M0-05A / M0-05B 已完成。C1 播放故障已修复并完成磁盘连线复核，完整边界回归待明确反馈。用户要求进入下一步，现下发 C2-01：由用户创建并挂载基础 C++ 动作组件，暂不替换 C1 播放逻辑。C2-02 的复杂状态 / 回调由助手接手；M0-05 总任务及 M0 整体未完成。**
 
 - 工作区：`E:\UE_Project\Demo`。
 - 实际 UE 工程：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，已存在。
@@ -46,28 +46,33 @@
 31. 闪避保存后的 0 帧 upperarm_l_fk_ctrl.Rotation.Z 仍是 15，末帧为 25，AS 左手首尾仍差约 5.27 cm；review_findings 剩 1 项，未误记 B 全部通过。当前受击实际源已变为 LS_M0_HitResult_01，旧 _02 加载后指向 _01；更新指南避免沿用过期路径说明。
 32. C1 前置只读盘点确认玩家仍为 SKM_Quinn_Simple / ABP_Quinn_C，IMC_Default 正在使用；ABP_Manny 已有 DefaultSlot，Always Update Source Pose=False，ABP_Quinn 无独立 AnimGraph。下发 C1 细化指南：先关闭重开确认闪避最后一项，再复用已有 Slot 创建三段 Montage 与 1/2/3 调试播放。助手未修改 UE 资产，C1 实机待用户实施。
 
-详细证据见 [M0-05B 验收与补修复验](Reports/M0_05B_Verification.md)。此前的 [B 数值校验](Reports/M0_05B_PoseValuesVerification.md) 只针对临时 Rig 参数，不能替代用户制作资产的复核。区分用户实机反馈、我直接读取的数据与尚未实测的方案。
+33. 用户实现 C1 后报告 1/2/3 无动作且无日志。助手读取输入 / 引用及图表引脚，定位水平速度 <=3 的 True / False 执行线接反，静止时提前 Return。用户自行交换并确认修好；2026-09-27 再读落盘图表，确认 True 进入忙碌检查、False 返回。详见 C1 排障记录。
+34. 同轮 B 最终只读复核：全部目标 key / 范围差异为 0；闪避 0 帧左臂 Z=25，烘焙左手首尾位置差 0 cm。时长、共同骨架、Root Motion=False 和固定 root / 双脚均保持正确，B 补修验收完成。
+35. C1 三个 IA / 上排数字映射正确，Montage 默认引用有效，实际 AM 名称均带 _Montage 后缀；混合时间 0.05 / 0.10 秒、Auto Blend Out=True，已有 DefaultSlot 的 Always Update Source Pose=True。用户未在本条反馈逐项确认长按 / 暂停等完整边界，不扩大验收结论。
+36. 按手动实践分工下发 C2-01：用户创建 UETPracticeActionComponent、基础状态枚举 / 只读接口、正常 Build、装配一个 PracticeAction 并核对初始化日志。助手本轮只更新文档和读取脚本，未创建该类、未改写 UE 资产；后续助手实现动作状态 / 回调 / 位移等复杂部分。
+
+详细证据见 [M0-05B 验收与补修复验](Reports/M0_05B_Verification.md) 与 [C1 排障与交接](Reports/M0_05C1_Verification.md)。上方编号条目按发生顺序保留历史，当前结论以本页开头为准。区分用户实机反馈、我直接读取的数据与尚未实测的方案。
 
 ## 现在由用户执行
 
-执行 [M0-05C1：Montage 与角色播放](M0_05C1_MontagePlayback.md)，预计 45–70 分钟，无需 C++ Build：
+执行 [M0-05C2-01：创建并挂载动作组件](M0_05C2_01_ActionComponent.md)，预计 25–40 分钟，需要关闭 UE 后做一次正常 C++ Build：
 
-1. 先按 §0 更新闪避 0 帧左上臂 Z=25，明确打 key，保存并关闭重开确认，再重烘焙；受击无需重复制作。若 key 不保留，反馈后由助手排障。
-2. 直接继续创建三个 Montage，在 ABP_Manny 复用现有 DefaultSlot 并开启 Always Update Source Pose。
-3. 在已有 IMC_Default 加入 1/2/3 的三个 Started 输入，共用 TryPlayPracticeMontage。站定落地才接受请求，用 Is Any Montage Playing 防止重复启动。
-4. 完成单次播放、长按 / 忙碌拒绝、暂停恢复、E / P 和三次 PIE 验收，再按指南末尾模板反馈。当前闪避仍为原地姿势，实际位移留到 C2。
+1. 创建 ActorComponent 子类 ETPracticeActionComponent，实现指南中的基础枚举、查询接口和初始化日志。
+2. 关闭 UE，Development Editor / Win64 Build 成功后重开。
+3. BP_ThirdPersonCharacter 添加一个 PracticeAction，验证两个纯查询节点，Compile / Save。
+4. 每次 Play 一条 Component ready；原 1/2/3、E/P 与基础输入回归。C1 尚未测完的边界在此补齐，然后按本指南模板反馈。
 
 ## 下一轮我优先做什么
 
-- 同时复核 B 最后一个 key / AS 首尾，以及 C1 的 Montage、Slot、输入接线和播放日志；用户若导出新 AS 版本，明确引用关系。
+- 审查用户创建的组件、C++ Build 和蓝图装配，确认完整 C1 回归结果。
 - 若报错，读取本地文件和日志直接排查；需要蓝图上下文时再请用户补图。
-- B 与 C1 通过后进入 C2 动作状态 / CharacterMovement 位移，再完成 C3 回归 / 录制；首次打包仍属于 M0-06。
+- 接手 C2-02 状态 / Montage 生命周期 / 打断实现，用户完成资源赋值与输入接线；随后 C2-03 CharacterMovement 位移、C3 回归 / 录制。首次打包仍属于 M0-06。
 
 ## 仍待确认
 
 - 每周可投入时间、期望投递日期、是否有手柄：已询问，尚未收到答案。
 - 日志报告约 15554 MB 可用物理内存总量；可接受资源预算仍待补充。
-- M0-05B：待闪避 0 帧左上臂 Z=25 与重烘焙首尾复验。M0-04 约 190 分钟，M0-05A 约 80 分钟，M0-05B 约 100 分钟，三批已报告手动用时合计 370 分钟；C1、助手排障、参数校准和此前未记录投入另计，不直接外推整个 Demo 工期。
+- C1 完整边界项及实际用时、B 最后收尾用时尚待明确补报。M0-04 约 190 分钟，M0-05A 约 80 分钟，M0-05B 已报告约 100 分钟，三批已报告手动用时合计 370 分钟；其他未报告投入不自行补算。
 
 ## 持续协作原则
 

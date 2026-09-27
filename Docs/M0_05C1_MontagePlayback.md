@@ -2,6 +2,8 @@
 
 日期：2026-09-24。引擎：UE 5.5.4。预计手动 **45–70 分钟**，含开头最后一处 B 补修；无需 C++ Build。
 
+**2026-09-27 状态更新：**用户已完成播放逻辑并修复速度 Branch 的 True / False 接反问题，确认播放恢复；只读复核保存连线正确，B 最后一个关键帧也已通过。以下 §0 是历史步骤，无需重做。实际 Montage 名称是 `AM_M0_Attack_01_Montage` / `AM_M0_Dodge_01_Montage` / `AM_M0_HitResult_01_Montage`，引用有效，不要求去掉后缀。下一步见 [C2-01 组件准备](M0_05C2_01_ActionComponent.md)，完整边界验收仍以 §6 为准。
+
 本批由你创建 Montage / Input Action、连接基础蓝图，我负责审查与复杂排障。按顺序做，每个小节都有可以看到的结果；卡住约 15–20 分钟就反馈。
 
 ## 0. 先收尾闪避的一个关键帧
@@ -167,6 +169,8 @@ Consume Input 保持默认；本批没有同键竞争。保存。
 | 6 | 从同一个 Get Anim Instance 的结果拖出 **Is Any Montage Playing**，结果接 Branch | True → Return；False → §5.3 |
 
 `3.0` 是水平速度阈值，单位 cm/s，允许落地站定后的极小残余速度。`Vector Length XY` 有时显示为 `VSize XY`，只取水平速度，不直接把 Velocity 向量接进 Boolean。
+
+**本工程曾出现的易错点：**“速度 <= 3”的 Branch 是 **True → 下一步忙碌检查，False → Return**。站定时 `0 <= 3` 为 True，必须允许继续；如果接反，三个输入都会安静地提前返回，编译不会报错。它与后面的“Is Any Montage Playing=True 就返回”方向不同，不能把两个 Branch 按相同方向接线。
 
 第 6 步使用 **Is Any Montage Playing**，不要替换成 Montage Is Active。本机 5.5.4 实现中，前者会在 Montage 实例仍留存时返回 True，包含尚未完成清理的淡出阶段，适合本批避免连续重启；这里不额外维护 `bIsAttacking` 或定时器。
 
