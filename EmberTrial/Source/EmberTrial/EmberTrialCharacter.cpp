@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "EmberTrialCharacter.h"
+#include "ETPracticeActionComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -58,6 +59,7 @@ void AEmberTrialCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+	PracticeActionComponent = FindComponentByClass<UETPracticeActionComponent>();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -78,7 +80,7 @@ void AEmberTrialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AEmberTrialCharacter::StartPracticeAwareJump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		// Moving
@@ -95,6 +97,10 @@ void AEmberTrialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void AEmberTrialCharacter::Move(const FInputActionValue& Value)
 {
+	if (IsValid(PracticeActionComponent) && !PracticeActionComponent->IsPracticeActionIdle())
+	{
+		return;
+	}
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -114,6 +120,15 @@ void AEmberTrialCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
+}
+
+void AEmberTrialCharacter::StartPracticeAwareJump()
+{
+	if (IsValid(PracticeActionComponent) && !PracticeActionComponent->IsPracticeActionIdle())
+	{
+		return;
+	}
+	Jump();
 }
 
 void AEmberTrialCharacter::Look(const FInputActionValue& Value)

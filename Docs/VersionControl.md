@@ -74,6 +74,20 @@ git log --oneline --all --grep="correct M0 montage speed gate"
 
 以实际 Git 历史为准。本检查点表示 B 补修与 C1 播放故障已处理，不表示 C1 全部边界或 C2 实现已验收。新的动作组件只在指南中提供参考代码，尚未创建。DefaultEditor.ini 的预览配置继续留在工作区，原始日志 / 报告不入库，无远端上传。
 
+### C2-01 基础组件检查点
+
+**92a2c63**，标题 **`feat: checkpoint M0 action component scaffold`**。保存用户手动创建的基础组件、已挂载组件的玩家蓝图以及 C1 完整验收记录。C2-01 用户实际约 40 分钟，Build / 三次 PIE / 基础功能与 C1 边界通过。
+
+### C2-02 实现与手动交接检查点
+
+本轮标题为 **`feat: implement M0 action lifecycle and interruption`**。包含动作组件状态 / 回调 / 打断与清理、Character 输入限制、综合自动测试、验收记录和手动接线指南。
+
+```powershell
+git log --oneline --all --grep="implement M0 action lifecycle and interruption"
+```
+
+正常 C++ Build 和 1 项综合自动测试通过；本提交**不表示 C2-02 玩家蓝图接线及 PIE 已验收**。三个 Montage 赋值、三条 IA 替换和 E 门控由用户接下来执行；之后另建资产验收检查点。DefaultEditor.ini 的原有预览配置改动继续保留在工作区，Raw 原始日志不纳入提交，无远端上传。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。
