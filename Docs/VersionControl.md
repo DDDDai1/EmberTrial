@@ -98,6 +98,10 @@ git log --oneline --all --grep="accept M0 action lifecycle and prepare dodge con
 
 以实际 Git 历史为准；DefaultEditor.ini 仍不纳入，未上传远端。
 
+### C2-03A 验收与 B 手动交接检查点
+
+本次检查点标题为 **`docs: accept dodge configuration and guide manual C++ implementation`**，保存用户手动新增的两个头文件属性、A 验收、B 手动代码指南与最新协作约定。仅 A 已通过；B 的 C++ 只存在于 Markdown 代码块，未写入工程或构建。DefaultEditor.ini 仍保留在工作区。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。

@@ -63,6 +63,12 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "M0|Practice Action", meta = (ClampMin = "0.0"))
     float AttackMaxHorizontalSpeed = 3.0f;
 
+    UPROPERTY(EditDefaultsOnly, Category = "M0|Practice Action|Dodge", meta = (ClampMin = "1.0", ClampMax = "300.0", Units = "cm"))
+    float DodgeDistance = 150.0f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "M0|Practice Action|Dodge", meta = (ClampMin = "0.05", ClampMax = "0.50", Units = "s"))
+    float DodgeDuration = 0.30f;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient,
         Category = "M0|Practice Action", meta = (AllowPrivateAccess = "true"))
     EETPracticeActionState CurrentState = EETPracticeActionState::Idle;
