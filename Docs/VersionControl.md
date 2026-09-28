@@ -88,6 +88,16 @@ git log --oneline --all --grep="implement M0 action lifecycle and interruption"
 
 正常 C++ Build 和 1 项综合自动测试通过；本提交**不表示 C2-02 玩家蓝图接线及 PIE 已验收**。三个 Montage 赋值、三条 IA 替换和 E 门控由用户接下来执行；之后另建资产验收检查点。DefaultEditor.ini 的原有预览配置改动继续保留在工作区，Raw 原始日志不纳入提交，无远端上传。
 
+### C2-02 实机验收检查点
+
+本轮标题为 **`feat: accept M0 action lifecycle and prepare dodge configuration`**，保存用户本轮已保存的玩家 / 练习物体蓝图、C2-02 实机验收记录及 C2-03A 手动参数指南。用户约 15 分钟，全部实机验收通过。C2-02 代码检查点为 `55c46cd`；本批不改 C++，C2-03 的配置和位移尚未实施。
+
+```powershell
+git log --oneline --all --grep="accept M0 action lifecycle and prepare dodge configuration"
+```
+
+以实际 Git 历史为准；DefaultEditor.ini 仍不纳入，未上传远端。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。
