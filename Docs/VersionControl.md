@@ -108,6 +108,12 @@ git log --oneline --all --grep="accept M0 action lifecycle and prepare dodge con
 
 仅用户已经写入的 C++ 进入该检查点；助手本轮只更新文档，没有替用户补代码。DefaultEditor.ini 原有改动仍不纳入，原始日志摘要在 Raw 中本地保存，无远端上传。
 
+### C2-03B 最终验收与 C 手动交接检查点
+
+本次标题为 **`feat: accept M0 dodge guards and prepare movement regression`**，保存用户补入的保护 / SourceTime / Lifecycle 用例，以及编译排障、B 验收记录和 C2-03C 手动指南。补修前检查点为 `a2d34e0`。B 实现与实机验收完成，C 的新测试仅存在于文档，不表示已经构建或执行。
+
+仍仅保存本地；DefaultEditor.ini 原有改动不纳入，Raw 筛选日志不入库。用户本轮约 30 分钟，与 B 首轮 50 分钟分开登记。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。

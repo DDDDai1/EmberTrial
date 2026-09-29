@@ -2,9 +2,13 @@
 
 日期：2026-09-29。预计手动 **20–30 分钟**。本批不重做动画、蓝图或整套实机矩阵。
 
+> 最终验收：用户补修约 **30 分钟**，Build / Lifecycle / 短回归通过；本地日志确认 8 + 1 条拒绝、150.0 cm、SourceTime=0.300，以及与约 119 FPS 相符的新样本。**C2-03B 已完成，本页无需重做。** 下一步是 [C2-03C 位移专项自动回归](M0_05C2_03C_DodgeAutomation.md)。下方排障过程保留为历史。
+
+> 编译排障更新：新增测试曾放在第一次 Walking 设置后，早于 `using State` 声明，导致 State / Dodging 及连带报错。本次用户明确授权助手处理；复读磁盘已确认测试位于空中拒绝循环后的第二次 Walking 设置之后，顺序正确。两项保护和 SourceTime 也已写入并经静态核对。现在从**第 5 节 Build 和自动回归**继续，由用户执行；本次未由助手构建或运行测试。
+
 你报告的正常配置下的位移、碰撞、暂停、打断与旧功能结果已记录，实际约 50 分钟。源码复核发现 `RequestPracticeAction` **漏了原指南第 5 节的整个 Dodging 校验块**；其余六个相关函数忽略空白和注释后与指南一致。先补齐这个小范围遗漏，再完成 B 验收。
 
-仍按约定：**我只写文档，不直接改工程 C++。** 以下新增测试与计时日志未由助手编译或运行，需你执行验证。
+默认仍按约定：**我只写文档，只有你明确要求时才直接操作工程 C++。** 本次编译排障有明确授权，后续 Build 和自动回归仍由你执行。以下新增测试与计时日志未由助手编译或运行。
 
 ## 1. 为什么正常试玩和旧测试能通过
 
@@ -110,6 +114,8 @@ E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Tests\ETPracticeActionTests.cpp
 ```
 
 把下面整个代码块插在这个 **恢复 Walking 的语句后**、原 `Grounded attack accepted` 测试前。原有后续测试全部保留。
+
+注意：文件里有两次 `Movement->SetMovementMode(MOVE_Walking)`，要选**空中拒绝 for 循环之后的第二次**，不要选 `SetComponentTickEnabled(false)` 后的第一次。插入点上方应已出现 `using State = EETPracticeActionState;`。`State` 是局部类型别名，只能在声明之后使用；插得过早会使 `State::Dodging` 无法解析，并连带出现 bStarted / TestFalse 报错。
 
 ```cpp
     // Guard regressions: these requests must fail before any animation or motion starts.

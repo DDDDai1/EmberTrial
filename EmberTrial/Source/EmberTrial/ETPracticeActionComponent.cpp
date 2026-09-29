@@ -134,6 +134,19 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
         return RejectRequest(RequestedState, TEXT("ExternalMontage"));
     }
 
+    if (RequestedState == EETPracticeActionState::Dodging)
+    {
+        if (!FMath::IsFinite(DodgeDistance) || DodgeDistance < 1.0f || DodgeDistance > 300.0f
+            || !FMath::IsFinite(DodgeDuration) || DodgeDuration < 0.05f || DodgeDuration > 0.50f)
+        {
+            return RejectRequest(RequestedState, TEXT("InvalidDodgeConfig"));
+        }
+        if (Movement->HasRootMotionSources())
+        {
+            return RejectRequest(RequestedState, TEXT("ExternalRootMotion"));
+        }
+    }
+
     // Retire the old serial before stopping: its end callback may already be queued.
     if (bCanInterrupt)
     {
@@ -316,6 +329,7 @@ void UETPracticeActionComponent::StopDodgeMovement(const TCHAR* Reason)
         ? FVector::Dist2D(DodgeStartLocation, Character->GetActorLocation()) : 0.0f;
     const float Elapsed = GetWorld()
         ? GetWorld()->GetTimeSeconds() - DodgeStartWorldTime : 0.0f;
+    const float SourceTime = DodgeSource->GetTime();
     if (Movement)
     {
         const bool bStillOwned =
@@ -334,8 +348,8 @@ void UETPracticeActionComponent::StopDodgeMovement(const TCHAR* Reason)
     DodgeSource.Reset();
     DodgeMovement.Reset();
     UE_LOG(LogETPracticeAction, Display,
-        TEXT("[M0-05C2] DodgeMove End Reason=%s Travel2D=%.1f Elapsed=%.3f"),
-        Reason, Travel2D, Elapsed);
+        TEXT("[M0-05C2] DodgeMove End Reason=%s Travel2D=%.1f Elapsed=%.3f SourceTime=%.3f"),
+        Reason, Travel2D, Elapsed, SourceTime);
 }
 
 void UETPracticeActionComponent::UpdateDodgeMovement()

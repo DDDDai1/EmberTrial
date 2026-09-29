@@ -11,6 +11,8 @@
 #include "GameFramework/WorldSettings.h"
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationCommon.h"
+#include "GameFramework/RootMotionSource.h"
+#include <limits>
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETPracticeActionLifecycleTest,
     "EmberTrial.M0.PracticeAction.Lifecycle",
@@ -76,6 +78,87 @@ bool FETPracticeActionLifecycleTest::RunTest(const FString& Parameters)
         TestFalse(TEXT("Airborne request refused"), Component->RequestPracticeAction(Action));
     }
     Movement->SetMovementMode(MOVE_Walking);
+
+    // Guard regressions: these requests must fail before any animation or motion starts.
+    const float SavedDistance = Component->DodgeDistance;
+    const float SavedDuration = Component->DodgeDuration;
+    struct FInvalidDodgeCase
+    {
+        const TCHAR* Name;
+        float Distance;
+        float Duration;
+    };
+    const FInvalidDodgeCase InvalidCases[] =
+    {
+        {TEXT("Zero distance"), 0.0f, 0.30f},
+        {TEXT("Negative distance"), -1.0f, 0.30f},
+        {TEXT("Too large distance"), 301.0f, 0.30f},
+        {TEXT("NaN distance"), std::numeric_limits<float>::quiet_NaN(), 0.30f},
+        {TEXT("Zero duration"), 150.0f, 0.0f},
+        {TEXT("Negative duration"), 150.0f, -0.10f},
+        {TEXT("Too long duration"), 150.0f, 0.60f},
+        {TEXT("Infinite duration"), 150.0f, std::numeric_limits<float>::infinity()}
+    };
+    for (const FInvalidDodgeCase& Case : InvalidCases)
+    {
+        Component->DodgeDistance = Case.Distance;
+        Component->DodgeDuration = Case.Duration;
+        const bool bStarted = Component->RequestPracticeAction(State::Dodging);
+        TestFalse(FString::Printf(TEXT("%s refused"), Case.Name), bStarted);
+        TestTrue(FString::Printf(TEXT("%s leaves Idle"), Case.Name),
+            Component->IsPracticeActionIdle());
+        TestFalse(FString::Printf(TEXT("%s starts no montage"), Case.Name),
+            Mesh->GetAnimInstance()->IsAnyMontagePlaying());
+        TestFalse(FString::Printf(TEXT("%s creates no dodge source"), Case.Name),
+            Component->DodgeSource.IsValid());
+        // Avoid advancing an invalid source if this regression ever fails.
+        if (bStarted || !Component->IsPracticeActionIdle()
+            || Component->DodgeSource.IsValid())
+        {
+            Component->CancelPracticeAction();
+            Component->DodgeDistance = SavedDistance;
+            Component->DodgeDuration = SavedDuration;
+            TestWorld.ForwardErrorMessages(this);
+            return false;
+        }
+    }
+    Component->DodgeDistance = SavedDistance;
+    Component->DodgeDuration = SavedDuration;
+
+    // A foreign pending source must also block a new dodge.
+    TSharedPtr<FRootMotionSource_ConstantForce> ForeignSource =
+        MakeShared<FRootMotionSource_ConstantForce>();
+    ForeignSource->InstanceName = FName(TEXT("M0GuardTestForeignSource"));
+    ForeignSource->AccumulateMode = ERootMotionAccumulateMode::Override;
+    ForeignSource->Force = FVector(10.0f, 0.0f, 0.0f);
+    ForeignSource->Duration = 1.0f;
+    const uint16 ForeignID = Movement->ApplyRootMotionSource(ForeignSource);
+    if (!TestTrue(TEXT("Foreign source registered"),
+        ForeignID != static_cast<uint16>(ERootMotionSourceID::Invalid)))
+    {
+        return false;
+    }
+    TestFalse(TEXT("Foreign root motion blocks dodge"),
+        Component->RequestPracticeAction(State::Dodging));
+    TestTrue(TEXT("Foreign source rejection leaves Idle"), Component->IsPracticeActionIdle());
+    TestFalse(TEXT("Foreign source rejection starts no montage"),
+        Mesh->GetAnimInstance()->IsAnyMontagePlaying());
+    TestFalse(TEXT("Foreign source rejection creates no owned source"),
+        Component->DodgeSource.IsValid());
+    Component->CancelPracticeAction();
+    TestTrue(TEXT("Cancellation preserves foreign source"),
+        Movement->GetRootMotionSourceByID(ForeignID).Get() == ForeignSource.Get()
+        && !ForeignSource->Status.HasFlag(ERootMotionSourceStatusFlags::MarkedForRemoval));
+
+    // This fixture disables movement ticking, so explicitly drain its marked sources.
+    Movement->RemoveRootMotionSourceByID(ForeignID);
+    Movement->CurrentRootMotion.CleanUpInvalidRootMotion(0.0f, *Character, *Movement);
+    TestFalse(TEXT("Guard fixture leaves no root motion sources"), Movement->HasRootMotionSources());
+    if (HasAnyErrors())
+    {
+        TestWorld.ForwardErrorMessages(this);
+        return false;
+    }
 
     if (!TestTrue(TEXT("Grounded attack accepted"), Component->RequestPracticeAction(State::Attacking))) return false;
     TestTrue(TEXT("Busy tick enabled"), Component->IsComponentTickEnabled());
