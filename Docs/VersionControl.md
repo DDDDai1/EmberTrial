@@ -102,6 +102,12 @@ git log --oneline --all --grep="accept M0 action lifecycle and prepare dodge con
 
 本次检查点标题为 **`docs: accept dodge configuration and guide manual C++ implementation`**，保存用户手动新增的两个头文件属性、A 验收、B 手动代码指南与最新协作约定。仅 A 已通过；B 的 C++ 只存在于 Markdown 代码块，未写入工程或构建。DefaultEditor.ini 仍保留在工作区。
 
+### C2-03B 首轮实现与补修前检查点
+
+本次标题为 **`chore: checkpoint M0 dodge before guard correction`**，保留用户已实现的位移 / 清理源码、50 分钟实机反馈、源码审查、计时与帧率证据，以及局部补修指南。**这是补修前版本**：RequestPracticeAction 缺少参数 / 外部位移源保护，120 上限样本仍需核实；不表示 B 最终验收通过。
+
+仅用户已经写入的 C++ 进入该检查点；助手本轮只更新文档，没有替用户补代码。DefaultEditor.ini 原有改动仍不纳入，原始日志摘要在 Raw 中本地保存，无远端上传。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。

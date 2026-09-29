@@ -1,8 +1,10 @@
 # M0-05C2-03B：手动接入 CharacterMovement 闪避位移
 
+> 2026-09-29 复核：用户已实现并报告正常场景全部通过，约 **50 分钟**；源码漏了第 5 节的参数 / 外部位移源保护块，120 上限样本的实际更新节奏也需补证据。现在只做 [保护补修与针对性回归](M0_05C2_03B_GuardCorrection.md)，不用重做本页。B 暂记待补修。
+
 日期：2026-09-28。引擎：UE 5.5.4。预计手动 **45–75 分钟**，包括代码、正常 Build 和分组测试；以实际反馈为准。
 
-**遵循最新约定：所有 C++ 代码由你手动写入，我只提供文档、审查和排障建议，直到你明确要求我直接修改。** 本页代码已按当前工程和本机 5.5.4 API 静态核对，尚未写入工程、编译或运行；C2-02 的旧自动测试通过不能证明新增位移通过。
+**遵循最新约定：所有 C++ 代码由你手动写入，我只提供文档、审查和排障建议，直到你明确要求我直接修改。** 本页代码下发时已按当前工程和本机 5.5.4 API 静态核对，当时尚未写入工程、编译或运行；当前实现及验收状态见页首更新。C2-02 的旧自动测试通过不能证明新增位移通过。
 
 C2-03A 已验收，实际约 10 分钟。你添加的 `DodgeDistance=150`、`DodgeDuration=0.30` 保留。此批不创建新类，不改蓝图输入，不改 Character / AnimBP / AS。
 
@@ -351,6 +353,7 @@ void UETPracticeActionComponent::StopDodgeMovement(const TCHAR* Reason)
         ? FVector::Dist2D(DodgeStartLocation, Character->GetActorLocation()) : 0.0f;
     const float Elapsed = GetWorld()
         ? GetWorld()->GetTimeSeconds() - DodgeStartWorldTime : 0.0f;
+    const float SourceTime = DodgeSource->GetTime();
     if (Movement)
     {
         const bool bStillOwned =
@@ -369,12 +372,14 @@ void UETPracticeActionComponent::StopDodgeMovement(const TCHAR* Reason)
     DodgeSource.Reset();
     DodgeMovement.Reset();
     UE_LOG(LogETPracticeAction, Display,
-        TEXT("[M0-05C2] DodgeMove End Reason=%s Travel2D=%.1f Elapsed=%.3f"),
-        Reason, Travel2D, Elapsed);
+        TEXT("[M0-05C2] DodgeMove End Reason=%s Travel2D=%.1f Elapsed=%.3f SourceTime=%.3f"),
+        Reason, Travel2D, Elapsed, SourceTime);
 }
 ```
 
 重复调用会立即返回。用 ID 加共享指针身份确认自己拥有的源，不清空 CharacterMovement 的全部 Root Motion。引擎移除源是先标记、在移动更新中清理；这里也清除当前水平速度，避免取消后沿用本次闪避速度。`Travel2D` 是起终点的水平直线距离，不是沿墙转弯的路径长度；碰撞时小于 150 属于可能的正常结果。
+
+2026-09-29 增加诊断字段 `SourceTime`，在 Reset 前读取位移源累计模拟时间。`Elapsed` 是世界时间采样差，可能少计起步所在帧；不要用它单独判断位移源提前结束。现有实现者按补修指南添加两处日志改动即可。
 
 ### 8.3 检查位移结束 / 离地
 

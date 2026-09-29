@@ -7,6 +7,8 @@
 class ACharacter;
 class UAnimInstance;
 class UAnimMontage;
+class UCharacterMovementComponent;
+struct FRootMotionSource;
 
 UENUM(BlueprintType)
 enum class EETPracticeActionState : uint8
@@ -86,10 +88,23 @@ private:
     uint32 ActionSerial = 0;
     bool bEndingPlay = false;
 
+    UPROPERTY(Transient)
+    TWeakObjectPtr<UCharacterMovementComponent> DodgeMovement;
+
+    TSharedPtr<FRootMotionSource> DodgeSource;
+    FVector DodgeStartLocation = FVector::ZeroVector;
+    float DodgeStartWorldTime = 0.0f;
+
     UAnimMontage* ResolveMontage(EETPracticeActionState State) const;
     void ReleaseAction(bool bStopMontage, const TCHAR* Reason);
     void HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted, uint32 Serial);
     bool RejectRequest(EETPracticeActionState RequestedState, const TCHAR* Reason) const;
+
+
+    bool StartDodgeMovement(ACharacter* Character, UCharacterMovementComponent* Movement);
+    void StopDodgeMovement(const TCHAR* Reason);
+    void UpdateDodgeMovement();
+    void HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted, uint32 Serial);
 
 #if WITH_DEV_AUTOMATION_TESTS
     friend class FETPracticeActionLifecycleTest;
