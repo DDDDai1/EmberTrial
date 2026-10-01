@@ -108,5 +108,6 @@ private:
 
 #if WITH_DEV_AUTOMATION_TESTS
     friend class FETPracticeActionLifecycleTest;
+	friend class FETPracticeDodgeMovementTest;
 #endif
 };

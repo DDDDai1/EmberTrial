@@ -1,5 +1,7 @@
 # M0-05C2-03C：真实位移的专项自动回归
 
+> 最终验收（2026-10-01 整理）：用户 9 月 29 日约 **30 分钟**完成，Build、DodgeMovement 两次和 Lifecycle 回归报告 Success；源码与指南一致，本地日志确认一次新测试 Success，三种固定步长均为 150.05 cm / 0.3001 s。C2-03 / C2 已完成，本页不用重做。下一步见 [C3 组合演示](M0_05C3_CombinedDemo.md)。
+
 日期：2026-09-29；UE 5.5.4。预计手动 **30–45 分钟**。C2-03B 已验收：首次实现 50 分钟、补修 30 分钟；无需重做 B。
 
 本批只增加测试入口，不改变玩家规则或蓝图。**下面的代码只存在于本文，助手已按本机引擎声明和当前工程静态核对，未写入工程、编译或运行。** 仍由你手动实现和验证。
@@ -36,6 +38,8 @@ E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\ETPracticeActionComponent.h
 这里只让新测试设置临时组件的资源、检查持有的位移源；不把这些字段改成 public，不新增 UFUNCTION / UPROPERTY，不修改玩家蓝图参数。
 
 ## 3. 新建一个普通 .cpp 文件
+
+如果 VS 看不到 **Tests**（不是 Texts），先按 [VS 目录查看与同步指南](VS_FileVisibility.md) 切换文件夹视图。目录已经存在，不用清缓存或重复创建。解决方案视图中的逻辑分组不一定与当前磁盘同步。
 
 准确路径：
 
@@ -255,7 +259,7 @@ bool FETPracticeDodgeMovementTest::RunTest(const FString& Parameters)
 
 1. 保存头文件和新 `.cpp`，确认 UE 已关闭。
 2. VS 使用原来的 **Development Editor / Win64** 配置正常 Build。
-3. 如果 VS 的项目树没显示新文件，但文件确实位于指定 Source 目录，可先重新生成项目文件再打开解决方案；不要往 Intermediate 中补一份，也不要删除 Saved 排障。
+3. 如果 VS 的项目树没显示新文件，先用文件夹视图或 Ctrl+O 按完整路径确认；若需要同步解决方案树，再按 [目录同步指南](VS_FileVisibility.md) 轻量生成项目文件，无需清缓存。不要往 Intermediate 中补一份，也不要删除 Saved 排障。
 4. 成功后打开 UE，**停止 PIE**，在 Output Log 控制台执行：
 
 ```text

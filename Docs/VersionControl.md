@@ -114,6 +114,12 @@ git log --oneline --all --grep="accept M0 action lifecycle and prepare dodge con
 
 仍仅保存本地；DefaultEditor.ini 原有改动不纳入，Raw 筛选日志不入库。用户本轮约 30 分钟，与 B 首轮 50 分钟分开登记。
 
+### C2-03C 验收与 C3 交接检查点
+
+本次标题为 **`feat: accept M0 dodge movement regression and prepare combined demo`**，保存用户手动完成的新位移测试和测试友元、C2-03 / C2 验收记录、VS 目录同步说明，以及 C3 组合演示指南。上个 B 验收检查点为 `ac9eaa1`。
+
+用户 C 实际约 30 分钟，Build / 两次新测试 / 旧测试报告通过；本地直接核实一次 DodgeMovement 和一次 Lifecycle Success，重复通过依用户反馈登记。C3 视频和首次打包仍待完成。本次保持用户源码原样，DefaultEditor.ini 原有改动不纳入，无远端上传，视频与 Raw 筛选证据不入普通 Git。
+
 ## 3. 你需要知道的日常规则
 
 1. UE 中修改资产后先保存，Git 才能记录磁盘上的结果；未保存的蓝图不在提交中。
