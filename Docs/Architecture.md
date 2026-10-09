@@ -1,0 +1,115 @@
+# EmberTrial：架构与生命周期
+
+版本：1.0；更新：2026-10-09。**M1-04与M1-05A / B1 / B2 / C1已验收。**当前[C1结果](Reports/M1_05C1_Verification.md)51Source / 25cpp / 清单40：真实追击 / 停走 / 失败等待、共享攻击支持离线AI、最小阵营及玩家真实受伤 / 受击 / HUD成立。BT自动攻击待C2，性能尚未测量。采用[分层验收与复用](AcceptanceWorkflow_Options.md)，完整测试工具尚未建设。最终目标见[Introduction](../Introduction.md)，实时状态见[Progress](Progress.md)。
+
+## 1. 模块边界
+
+~~~mermaid
+flowchart LR
+    Assembly["Blueprint / 配置装配"] --> Core["EmberTrial：核心 Runtime"]
+    Assembly --> UI["EmberTrialUI：UI Runtime"]
+    UI -->|公开查询 / 命令 / 事件| Core
+    Editor["后期 EmberTrialEditor"] -.依赖运行时数据定义.-> Core
+~~~
+
+| 模块 | 当前状态 | 规则 |
+|---|---|---|
+| EmberTrial | 已有角色、练习动作 / 位移、交互Actor、ASC / 属性集 / 就绪、正式轻攻击Ability / Tag、命中组件 / Notify与原有自动测试 | 不依赖UMG / EmberTrialUI / Editor模块 |
+| EmberTrialUI | 入口、LocalPlayerSubsystem、双Widget / Bootstrap与Presenter已实现 / 验收 | 公开UMG / 私有核心和GameplayAbilities依赖；核心仍不依赖UI |
+| EmberTrialEditor | 尚未创建 | 真正需要编辑器校验器时再建，禁止进入 Game 目标 |
+
+CLion CodeModel 用于索引；真实编译由 UBT / UHT 执行。每个模块使用自己的 Definitions 和搜索路径，避免混合导入 / 导出宏。
+
+## 2. 对象归属与实施状态
+
+| 对象 | 当前状态 | 所有权 / 后续职责 |
+|---|---|---|
+| AEmberTrialCharacter / BP_ThirdPersonCharacter | 现有唯一玩家身体，A1 / A2及原功能回归已通过 | 持有原生ASC / 属性子对象；一次初始化 / 就绪契约与真实Effect边界已验证 |
+| AEmberTrialGameMode | 项目默认 / ThirdPersonMap 的模板类，回归通过 | M0 对照入口保留 |
+| AETGameMode / BP_ETGameMode | 新地图已实际使用，M1-02B 通过 | M1 本局规则与默认类选择，之后接重试 / 通关 |
+| AETPlayerController / BP_ETPlayerController | Blueprint 装配、控制 / 结束日志和原功能已通过 | 控制 / Possess 与本地 UI 装配；身体更换时不能保留旧数据订阅 |
+| UETUILocalPlayerSubsystem | C1 已实现并验收 | 原生 PlayerControllerChanged / Pawn 委托、立即快照、弱引用和 EndPlay 清理 |
+| UETUIBootstrapComponent | 双Widget与唯一Presenter所有权已通过；两重建入口 / 重订阅结束保护已实现 | Controller上创建 / 移除Widget；UPROPERTY持有Presenter与当前Widget；移除前主动解绑 |
+| UETLifecycleStatusWidget | C2-01 已验收；Never + DisableNativeTick | 订阅 C1、立即快照、事件 SetText、移除前主动解绑；不缓存 Pawn / 修改玩法 |
+| BP_ETLifecycleProbePawn | C2-02 已创建 / 验收，保留 Tests 资产 | 隔离的裸 Pawn，不设默认 / 不放场景；Controller 测试入口已按用户反馈删除 |
+| UAbilitySystemComponent / IAbilitySystemInterface | A1 已接入 / 验收 | Character 原生子对象，Owner=Avatar=Character；关联刷新与结束保护，见 ADR-002 |
+| UETHealthAttributeSet / GameplayReady | A2已实施 / 验收；C2死亡夹限已接入 | ASC管理Health / MaxHealth；一次初始化 / Ready；State.Dead时Base / Current保持0，死亡不撤销Ready |
+| UETGA_LightAttack / GA_ET_LightAttack / GA_ET_EnemyLightAttack | M1-04战斗与M1-05C1共享AI攻击已验收 | 单人ServerOnly / Standalone；校验本身体 / Controller / 阵营 / 动作；玩家25与敌人10独立资源，身体关系查询在Apply前过滤；Montage / Trace / GE生命周期共享，BT自动请求待C2 |
+| UETCombatTraceComponent | B1 / C2已验收 | 原生单组件，窗口内Tick / 骨骼后采样、实例身份与去重；CancelActiveAttack立即清序号 / 窗口，开窗死亡已实测Tick0；不依赖GAS / UI |
+| UETANS_AttackWindow | M1-04B1已实现 / 验收 | 资产通知只路由Mesh / Montage实例ID / 通知身份，身体运行状态留Trace |
+| UETCombatLifeComponent | C1 / C2已验收 | 单身体Health与Ready快照；受击Handle所有权；死亡锁 / 一份Loose Dead Tag先于取消，结束释放；无Tick |
+| UETGA_HitReact / GA_ET_HitReact | C1已验收；C2死亡封锁已接入 | ServerOnly离线权威执行，无Controller目标可用；拥有受击Tag，取消正式攻击 / 练习位移；死亡时不能激活 / 重启 |
+| BP_ETCombatTrainingTarget | C1已配置 / 验收；C2目标死亡通过 | 独立ASC / 100生命，胶囊Overlap与Quinn；真实损伤自动受击，归零冻结、再次候选TargetDead拒绝 |
+| GE_ET_LightAttackDamage | M1-04B2已创建 / 验收 | Instant单Health Add(Base)，由能力SetByCaller.HealthDelta传值，沿用Current / Base夹限 |
+| GE_ET_Test_* | A2-02五个Instant测试资产已创建 / 验收 | Tests/Effects保留样例；C1已复用Damage25建立玩家4简单开发损伤入口，留到C2 / D |
+| UETHealthPresenter / FETHealthViewData | B1已实现，功能验收通过 | 弱引用数据源、native属性委托句柄、订阅后快照 / Ready状态 / 变化去重 / 清理 |
+| UETHealthHUDWidget / WBP_ETHealthHUD | B2已创建 / 验收；Never + DisableNativeTick | 仅订阅Presenter并立即读取快照，事件更新 / 主动解绑，不缓存ASC或业务属性 |
+| BP_ETHealthProbeCharacter / BP_ETHealthWaitingCharacter_Rebuilt | 已创建 / B3验收通过 | 原生EmberTrialCharacter子蓝图；40/80与非法100/60，隔离测试 / 不设默认玩家；旧Duplicate Waiting样例停用 |
+| AETAIController / BP_ETMeleeEnemy | M1-05A已实现 / 验收；Public AIModule / UHT / 双Build通过 | 管理受控身体 / Ready、弱引用与解绑；敌人直接继承共享原生Character、独立生命 / 正式受击死亡；BodyCharacter避免继承成员遮蔽 |
+| 原生EnemyPerception / BB_ETMeleeEnemy / BP_ETMeleeAIController | B1已验收；B2三键 / BT配置已实施，25cpp / 双Build通过 | 感知与唯一有效玩家目标，BB各Controller独立；追加CanPursue / Float停止距离；BP只配置资源 |
+| UETBTService_Pursuit / UETBTTask_PursuitMove / BT_ETMeleeEnemy | M1-05B2已验收，等待父连接补修关闭 | Service每0.2秒请求Controller距离决策；Task继承引擎Move To并保留NodeMemory / 取消 / 清理；BT根Service、左门控Both / Selector右侧Wait0.5秒；已保存运行结构确认父连接正确，失败请求间隔约0.550秒；配置与每敌人运行状态分开 |
+
+**B2已验收：**Controller订阅身体Attacking / HitReact / Dead，忙碌与目标失效关门控、取消路径并清速度；150停 / 200恢复采用迟滞，StopDistance由Controller写Float黑板键，Move To读取且不叠加胶囊半径。失去目标保留等待，自身死亡 / Ready撤销 / UnPossess / EndPlay停止整树并解绑。两个辅助头文件实际在Public/AI，cpp为Private/AI；指南建议Private收口，目录差异不改变当前行为，不为本轮增加功能检查。节点无自定义共享可变身体状态，Build.cs保持原依赖。运行已支持追击 / 停走与死亡 / 暂停清理，活动Move受击与有效目标无路径等待均通过；性能测量仍未进行。
+
+M1-05路线采用AI Perception + Blackboard / Behavior Tree，A身体 / 控制权 / 导航、B1有效玩家、B2真实Move To、C1共享攻击 / 玩家受伤均已验收。生命 / 感知订阅各自归属，Ready不代表存活；目标暂停中保留、停止清空。轻攻击ServerOnly且限定离线Standalone，分别校验本地Player与AI控制的Enemy；玩家胶囊支持命中。核心Public AIModule已构建，依旧不依赖UI；C2自动朝向 / BT攻击、D组合交战分别验证。详细边界见[M1-05路线](M1_05_EnemyRoadmap.md)。
+
+角色沿用 AEmberTrialCharacter 名称，取代最初计划中的 AETCharacter 占位名，不复制玩家移动实现。理由与迁移边界见 [ADR-001](ADR/ADR_001_FrameworkReuse.md)。
+
+本批 Public 目录与 API 宏开放的是受控类型 / 接口，不开放私有状态。蓝图负责选择资源和组件装配；规则、数据所有权和清理责任需要继续落在明确的 C++ 类型中。
+
+## 3. 初始化与清理原则
+
+- 模块 StartupModule 属于进程级加载，不等于世界 / 角色 / ASC 就绪。
+- GameMode 每局随 World 创建；Controller 可更换 Pawn，切图仍须重新装配。
+- 本地 UI Subsystem 由 LocalPlayer 自动创建；使用引擎的 PlayerControllerChanged，核心 Controller 不包含 UI 类型。Initialize 补读已存在的 Controller，订阅后立即读取 Pawn；C1 已验收。
+- C2-01 已实现：UI Bootstrap 只服务本地玩家，Widget 每次 Construct 先清旧订阅，再订阅 C1 并读当前快照；Widget 不缓存 Pawn。
+- C2-01 已实现：Bootstrap 移除 / 重建面板时先调用 StopObserving，再 RemoveFromParent，不等待旧 Widget GC；NativeDestruct 幂等清理。面板不改变输入模式、焦点或暂停，只读 / 不命中鼠标。
+- B1已实现：Pawn变化时先解绑旧订阅，再检查新对象；订阅OnGameplayReadyChanged并立即查询，读取快照和订阅增量。B3验证真正不同生命数据源。
+- A2-01已实施：Character属性初始化只成功执行一次；ActorInfo与OnGameplayReadyChanged分开。M1-04A正式攻击由Character持有授予Handle，C1受击由CombatLife持有自己的Handle，各自幂等并清理。
+- 切图 / EndPlay / UI 关闭各自移除已注册的订阅；LocalPlayer 存活不能成为保留旧 World Actor 的理由。
+
+Controller / Pawn观察、Widget装配 / 重建、真正的新Pawn更换与ASC关联均已验收。Probe是裸Pawn，正式重生仍未实现。ASC取舍见 [ADR-002](ADR/ADR_002_ASCOnCharacter.md)；ActorInfo有效不等于GameplayReady。A2已实现一次设置初值 / 就绪通知 / EndPlay撤销，验证真实Effect的Current / Base范围、最大值策略与修改后Ensure不重置。Ready暂表示最小属性链完成，不表示受控制或存活；正式能力 / 装备 / 存档接入后要扩展就绪前置条件。
+
+B1已实现：Bootstrap强持有唯一Presenter；Presenter先解绑旧Pawn / ASC，再绑定当前角色就绪事件并立即查询，Ready时订阅两属性native事件。DTO只保存展示状态 / 名字 / 数值 / 比例，不保留Actor对象；变化快照发布前提交缓存。Restart只刷新数据源订阅，保持Presenter身份 / View订阅且不写Gameplay；结束Shutdown，GC兜底不广播。日志直接验证Presenter早于Ready、修改后重订阅不重置和单次变化。B1漏写的旧重建入口结束标记已在B2补齐。
+
+B2已实现：原生Health Widget只订阅Presenter DTO并立即快照，不Tick；NativeConstruct只渲染，显式StartObserving管理订阅，NativeDestruct幂等清理。Bootstrap移除前主动解绑，EndPlay先移除View再Shutdown；临时强持有旧Widget验证其存活时也不再收事件。Designer布局 / Class装配由蓝图负责。17轮PIE中41组创建清理，无解绑后View更新，早于Ready订阅和晚加入已有值快照均有直接证据。
+
+B3已验收：原生Character子蓝图共用现有核心实现，各自ASC / 属性 / 初值独立；真实GE修改旧身体属性时当前HUD不变，旧 / 当前对象销毁、Unsupported / Waiting / None、新实例与Ready先于Possess的快照 / 清理通过。临时Controller与Level Blueprint入口已清理；没有生产Character测试开关或伪造Ready。新Rebuilt样例从原生类创建，最终保留非法100/60。测试只覆盖同步初始化的两种订阅顺序，未来异步能力 / 装备就绪须另测。
+
+## 4. 过渡基线
+
+**M1-05C1已进入运行基线：**共享身体EETCombatTeam / 只读关系查询，Player可伤害Enemy或Neutral训练身体、Enemy只伤害Player、Neutral不主动造成轻攻击伤害；不据Controller临时存在与否推断敌友。Ability依赖身体公开查询，不依赖具体ETAIController / UI；阵营分类尚未接GenericTeamID。独立Enemy GA10和玩家25共享原生实现，C1真实命中 / 同方拒绝与取消清理通过；[证据边界](Reports/M1_05C1_Verification.md)区分直接日志与用户反馈。C2再用同一查询做自动攻击决策，当前没有BT主动攻击循环。
+
+PracticeAction、练习目标、原型提示与暂停菜单现在仍在使用。它们帮助验证模块和对象变化后的行为。正式能力 / UI 接入时逐步迁移：同一动作只有一个可信状态源，正式 GAS 不与练习动作状态机并行驱动同一角色。
+
+[M1-04A实现](M1_04A_LightAttackAbility.md)已验收：UETGA_LightAttack与原生Ability.Attack.Light / State.Attacking，Character在Ready后保存自己授予的Spec Handle；攻击由Montage Task完成 / 取消并让GAS清理Owned Tag。左键 / 1走正式能力，2暂留练习闪避且互斥；3在A阶段为过渡练习受击，C1已改正式命令。移动 / 跳跃与E同时查询两种状态；Practice外部Montage条件已改为仍活动的实例，停止后的淡出允许接续。B2真实伤害、C1正式受击与C2一次死亡均已接入并验收。
+
+[B1实现](M1_04B1_AttackTrace.md)已验收：Character唯一CombatTrace持有身体Mesh、准确Montage实例ID、AttackSerial和弱目标集合，原生Notify只路由通知；Ability登记准确播放实例，结束先撤销检测 / 委托再Super停止Montage。窗口内Tick在Mesh更新后采样，Visibility扫掠以目标Overlap / 世界Block区分，身体至拳检查及遇阻关闭防隔墙命中。每次攻击去重、窗口开关不清集合；候选交Ability，组件不依赖GAS / UI，B1不扣血。
+
+[B2实现](M1_04B2_GameplayEffectDamage.md)已验收：Ability校验单人来源、合法Ready非零血目标与GE契约；攻击者ASC为每个目标单独创建Spec / Hit Context，以SetByCaller.HealthDelta传负健康增量并应用到目标ASC，沿用属性Base / Current夹限。Instant成功使用WasSuccessfullyApplied，Apply后读取重新验证的弱引用；GE由资产配置、正伤害数值由GA配置，不新增Trace / Widget扣血逻辑。
+
+[C1已实现](M1_04C1_HitReaction.md)：原生单CombatLife独立观察本身体Health，Ready后一次订阅 / 授予受击能力，撤销前清理自己拥有的句柄；只立即读取直接Health减量的GEModData，不保存临时回调指针。HitReact能力拥有State.HitReact、取消攻击与Practice位移，Montage完成 / 取消后GAS清理Tag；不操作生命或UI。ServerOnly用于离线权威身体，支持无Controller目标，未实现网络同步。3已改正式命令、4已复用简单损伤图；实机及清理见[C1结果](Reports/M1_04C1_Verification.md)。
+
+[C2已验收](M1_04C2_DeathState.md)：CombatLife先提交bDead / 自己的一份Loose State.Dead Tag，再立即关闭Trace / 取消当前身体能力和练习位移；死亡封锁独立于攻击 / 受击完成。Health归零不受GEModData过滤限制，Ready快照0也需提交；AttributeSet按Dead Tag夹Health Base / Current为0，UI保持Ready0。结束仅移除本组件拥有的一份Tag，不重置死亡锁。主体九轮PIE / 七组一次死亡与Tag释放、真实闪避中取消等规则已核对；10月7日助手补实测WindowOpen后死亡，在同毫秒主动WindowClose(AttackEnd)、Tick0、取消能力并封锁，结束释放Tag。见[C2核查](Reports/M1_04C2_Verification.md)与[D链路汇总](M1_04D_CombatReview.md)。冻结姿势是占位，倒地动画 / 新身体重试后续接入。
+
+M1-02B 使用地图级 GameMode Override；项目默认启动 / Cook 地图在 M1-07 的阶段包中切换并验证。当前旧 M0 包仍对应其原版本，不代表新源码已打包。
+
+## 5. 文档与证据
+
+- [M1-02A 模块验收](Reports/M1_02A_Verification.md)：已通过。
+- [M1-02B Framework 验收](Reports/M1_02B_Verification.md)：已通过；源码写法、直接日志与用户反馈的边界已记录。
+- [M1-02C1 验收](Reports/M1_02C1_Verification.md)：已通过，直接日志与用户实机反馈区分记录。
+- [M1-02C2-01 验收](Reports/M1_02C2_01_Verification.md)：已通过；五份文件、原生 Tick 契约、三轮 PIE / 旧 Widget 解绑与反馈边界已核对。
+- [C2-02 / M1-02 总验收](Reports/M1_02_Verification.md)：已通过；真实新实例切换、旧 / 当前对象销毁、None 后恢复与清理边界已记录。
+- [M1-03A1 验收](Reports/M1_03A1_Verification.md)：已通过；源码 / receipt / 刷新与清理日志及用户反馈边界已记录。
+- [M1-03A2-01验收](Reports/M1_03A2_01_Verification.md)：属性 / 初始化 / GameplayReady已通过，日志实际配置差异与用户最终反馈分别记录。
+- [M1-03A2总验收](Reports/M1_03A2_Verification.md)：真实Effect / Current与Base动态边界已通过，直接日志与最终用户恢复反馈区分记录。
+- [M1-03B1验收](Reports/M1_03B1_Verification.md)：功能通过，直接日志 / 用户反馈与源码补项区分记录；原操作文档保留。
+- [M1-03B2验收](Reports/M1_03B2_Verification.md)：血条View / 晚加入 / 存活旧Widget解绑与结束保护已通过，直接记录与用户反馈区分。
+- [M1-03B3验收](Reports/M1_03B3_Verification.md)：主体与Waiting局部收尾通过，非法100/60 / 合法40/80路径和归属 / 数据流已核对，B阶段补项全部关闭。
+- [M1-03C数据流汇总](M1_03C_DataFlowReview.md)与[总验收](Reports/M1_03_Verification.md)：当时33份源码 / 清单29项资产不变，复用A / B已接受证据；两条时序、引用归属、源码入口与专项触发清单已整理，无需重复搭旧入口。
+- [M1-04A验收](Reports/M1_04A_Verification.md)：37份源码、双目标receipt / 18cpp索引、13组攻击开始结束 / 标签清理 / 取消 / 暂停与Lifecycle Success核对；用户实机全项通过。清单32项，实际新增GA / IA两份，另补登既有IMC；B1方案未写入源码。
+- [M1-04B1验收](Reports/M1_04B1_Verification.md)：当时41份源码 / 双receipt / 20cpp索引，19组登记清理、去重 / 取消 / 遮挡日志与全项用户反馈通过，资产清单33项；B1只产生命中候选，后续B2才接伤害。验收没有代写工程Source。
+- [M1-04B2验收](Reports/M1_04B2_Verification.md)：41份源码中四文件与指南一致，其余37份不变；双receipt / 20cpp、10条真实伤害与拒绝 / 配置 / 窗口内暂停、23组清理核对，全项反馈通过，清单34项；真实伤害完成、受击 / 死亡待C。
+- UE5.5.4测试资产创建约定：含原生AttributeSet默认子对象的Character蓝图，从原生类创建新资产；本机Duplicate导致旧Waiting默认成员指针失效，与Epic UE-273844一致。保留原生子对象 / 归属保护，不能移除检查绕过问题；[局部收尾](M1_03B3_Closure.md)已实施通过，新样例替代旧失效资产。
+- 后续在 Pawn 更换、GameplayReady 与 UI 数据流真实接入后补充时序和测试结果；图中计划节点不记作已完成功能。

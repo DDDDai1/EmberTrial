@@ -2,11 +2,13 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
+**2026-10-09现状：**本地已有16次提交，分支`main`，最近一次为`5d84916`（M0闪避回归与组合演示指南）；当前没有Git远端。M0后续与M1最新开发成果仍有大量未提交改动，不代表没有Git，也不代表GitHub已备份。当前运行验收已到M1-05C1，开发暂不进入C2。下面新增第5–7节给出本次提交范围和CLion操作；前面的阶段检查点说明保留为历史记录。
+
 ## 1. 已配置内容
 
 - `.gitignore` 排除编译产物、Intermediate、Saved、缓存和 IDE 临时文件；这些文件可重新生成。
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
-- 源码、Config、`.uproject`、`.vsconfig`、文档和实际 Content 进入版本管理。
+- 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
 - 当前没有远端，没有上传。这里只是本地历史，不是异地备份。
 
@@ -139,3 +141,76 @@ git lfs ls-files
 ```
 
 `git status` 看哪些文件变化，`git log` 看提交历史，`git lfs ls-files` 看哪些二进制文件由 LFS 管理。你当前不需要额外执行这些命令才能继续练习。
+
+## 5. 本次.gitignore设计：哪些提交，哪些留在本地
+
+本次直接修改根目录[.gitignore](../.gitignore)，保留[.gitattributes](../.gitattributes)原有LFS规则。只隐藏可重新生成的文件、本机偏好与原始产物，不通过忽略源码或蓝图来缩小Commit列表。
+
+| 路径 / 文件 | 本次处理 | 原因 |
+| --- | --- | --- |
+| 根.gitignore / .gitattributes / Introduction.md | 提交 | 忽略规则、LFS规则与项目介绍必须随仓库保存 |
+| EmberTrial/EmberTrial.uproject | 提交 | 引擎关联、模块与插件定义 |
+| EmberTrial/Source全部，包括Tests、Build.cs、Target.cs | 提交 | 运行源码、模块构建规则与已有自动回归；测试源码也属于项目 |
+| EmberTrial/Content全部 | 提交，二进制资产走LFS | Blueprint、UMG、GA、GE、BB、BT、输入、动画、Sequence、模型、材质及地图均可能是运行或制作依赖；保留模板资源与Tests样例 |
+| Content/__ExternalActors__与__ExternalObjects__ | 提交，走LFS | 外部Actor / 对象是地图内容，不是缓存；不能只提交.umap而遗漏它们 |
+| Config/DefaultEngine.ini、DefaultGame.ini、DefaultInput.ini、DefaultEditor.ini | 提交 | 共享输入、碰撞 / 引擎、打包与编辑器预览设置；DefaultEditor.ini现有改动是共享预览配置，可纳入本次完整检查点 |
+| Config/DefaultEditorSettings.ini | 本地忽略 | 当前只有PreferredAccessor=CLionSourceCodeAccessor，属于本机代码编辑器偏好 |
+| Config/DefaultEditorPerProjectUserSettings.ini | 本地忽略，先按第6节取消跟踪 | 当前只有Content Browser选择路径；已在旧历史中跟踪，单改.gitignore不会取消跟踪 |
+| EmberTrial/.vsconfig | 提交 | 描述VS2022构建组件；使用CLion依然需要对应编译工具链 |
+| Docs，包括ADR、操作指南、Reports中的.md、Data和AssetManifest.csv | 提交 | 设计、进度、参数、资源来源与可读验收摘要；Raw子目录除外 |
+| Scripts中的.py、Tools/Refresh-CLion.ps1 | 提交 | 资产检查与索引再生成工具；脚本的EngineRoot可显式传入其他安装路径 |
+| Build中的手工图标 / 平台资源 | 保留提交资格 | 不忽略整个Build文件夹；仅忽略Cook生成的FileOpenOrder |
+| Binaries / Intermediate / Saved / DerivedDataCache | 本地忽略 | 构建产物、生成代码、自动保存、运行日志和缓存 |
+| .idea / .vs、.sln / .vcxproj等 | 本地忽略 | IDE生成状态；更换IDE或重新生成即可恢复 |
+| EmberTrial/.run | 本地忽略 | 当前EmberTrialEditor.run.xml含本机E盘工程、D盘引擎绝对路径；可按CLion指南重新配置 |
+| EmberTrial/CMakeLists.txt、cmake-build-*、compile_commands.json、CMake缓存 | 本地忽略 | 当前CMakeLists由Refresh-CLion脚本生成；其他位置未来手写的CMakeLists不会被此规则误忽略 |
+| CMakeUserPresets.json | 本地忽略 | 个人CMake参数；共享CMakePresets.json保留提交资格 |
+| Artifacts、Docs/Reports/Raw、.log / .utrace / .ucache / .dmp | 本地忽略 | 安装包、视频、备份、原始日志与Trace；验收摘要照常提交 |
+| Python缓存 / 虚拟环境、临时文件、Blender编号备份 | 本地忽略 | 可再生成；实际.blend / .fbx / .psd源资产保留并按现有LFS规则管理 |
+| .env及其环境变体 | 本地忽略 | 本机环境配置；.env.example / .env.sample / .env.template保留 |
+
+当前Content有259个.uasset / .umap提交候选；AssetManifest的40项是重点资源来源记录，**不是仅提交40个资产的白名单**。不要按文件名看不懂、是不是模板或是不是Tests来删选Content。
+
+原始证据留在本地，因此GitHub上的验收文档仍可读，但其中指向Raw / Artifacts的本地证据链接不会有仓库文件。需要交付作品时，再按发布安排提供视频、试玩包与整理后的证据附件。本次规则用于开发仓库，不把Commit视为发布试玩包。
+
+## 6. 在CLion提交前，仅需一次取消旧个人配置跟踪
+
+本次查到**一份已经被Git跟踪、现在应忽略的文件**。在CLion底部Terminal中运行：
+
+```powershell
+Set-Location 'E:\UE_Project\Demo'
+git rm --cached -- EmberTrial/Config/DefaultEditorPerProjectUserSettings.ini
+```
+
+只移除索引中的这一个路径，磁盘文件保留，当前编辑器设置继续可用；不删除文件，也不清空整个索引。.gitignore本身不会影响已跟踪文件，这是[Git官方规则](https://git-scm.com/docs/gitignore)。
+
+运行后Commit列表出现该文件的删除记录是正确结果：**把这条删除和.gitignore一起提交**。该删除表示新版本不再管理它，不表示删除本机设置或擦除旧提交历史。助手本次只改忽略文件与本文，没有替你修改索引 / Commit / 远端。
+
+可选检查，输出应为空：
+
+```powershell
+git ls-files --cached --ignored --exclude-standard
+```
+
+若不为空，只把输出发给我；不要自行执行整个仓库的清缓存或强制添加忽略文件。
+
+## 7. 在CLion提交并上传的顺序
+
+1. 保存UE源码 / 资产与文档，回到CLion并刷新版本控制文件列表；无需为了.gitignore改动重新Build。仓库根应为E:\UE_Project\Demo，包含EmberTrial和Docs，不要另建嵌套仓库。
+2. 打开**Commit工具窗口**。把第5节应提交的修改、新文件与真实重命名纳入本次提交；Unversioned Files里新增源码、GA / BT / UI等资产、文档与Tools都需要加入Git。忽略目录里的文件不需要强制加入。
+3. 当前已有部分暂存文件出现AM / RM：表示暂存版本与工作区最新版本不同。**如果启用了Staging Area，把应提交的Unstaged最新变化也Stage进去**；不要只提交现在Staged中的旧版本。如果使用默认Changelist提交模式，选中需要保存的全部最新变化，检查文件预览。Character旧路径删除与新Public / Private路径新增应一起包含。
+4. 同时包含第6节那一条个人配置的删除。建议本次Commit标题：`chore: checkpoint EmberTrial through M1-05C1 and refine gitignore`。本次保存当前完整开发检查点，后续再按每批功能建立小提交。CLion的Commit / Staging操作见[官方说明](https://www.jetbrains.com/help/clion/commit-and-push-changes.html)。
+5. 本机Git LFS已安装，当前.git/config与pre-push hook已有LFS配置，.gitattributes对.uasset / .umap已核对为lfs。提交时保留.gitattributes；不用重新添加同样的track规则。首次提交完成后，可在Terminal运行`git lfs fsck`确认本地LFS对象，再Push；若报错发完整文本，先处理对象错误。
+6. 当前远端列表为空。由你在GitHub创建目标仓库后，在CLion的Git远端管理中添加`origin`及该仓库URL，再使用Push上传main。Commit保存本地历史，Push才上传；正常LFS pre-push hook会同时传输所需资产对象。创建用于接收现有历史的空仓库时，不额外初始化README / License / .gitignore，避免产生第二套初始历史；如果目标仓库已经有内容，先告诉我具体状态再合并，不强制覆盖。
+7. Push完成后，在GitHub检查Source、Config、Content、Docs、Tools与.gitattributes均存在；本机缓存、.run、Saved、Artifacts和Raw不会显示是预期结果。LFS的配置与提交规则见[GitHub官方说明](https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage)。
+
+本次规则修改与只读核对不包含提交、上传、历史重写或新功能开发。运行构建与内容保持M1-05C1当前基线；等你完成Git整理后再决定何时进入C2。
+
+## 8. 本次规则核对结果（2026-10-09）
+
+- 用Git实际忽略规则核对335个保留路径，包含全部51份Source、259个Content资产，以及共享Config / .vsconfig / 工具 / 文档和未来手写CMake、源美术、环境示例文件；没有误忽略。
+- 25个本地文件样例全部匹配忽略规则，覆盖UE产物、CLion / VS状态、本机两份偏好、包 / Trace / Raw、Python缓存与Blender备份。
+- 全部259个.uasset / .umap的filter属性为lfs；本次只核对属性和已有hook，不将它当作全部LFS对象完整性或GitHub上传成功证明。首次Commit后的fsck / Push由用户执行。
+- 新规则下Untracked从95减为93：排除本机.run启动XML与DefaultEditorSettings.ini；其余大量新文件是实际开发成果，继续显示是正确结果。
+- 已跟踪且匹配忽略规则的路径恰好一份：DefaultEditorPerProjectUserSettings.ini，等待用户按第6节取消跟踪。Source与C1清单40资产哈希均保持一致，.gitattributes内容未改。
+- 本次两份文本文档的Git空白检查通过，无需重新编译或重做Gameplay验收。

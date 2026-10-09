@@ -1,0 +1,138 @@
+#include "Abilities/ETGA_HitReact.h"
+#include "Abilities/ETGameplayTags.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "AbilitySystemComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
+#include "Characters/EmberTrialCharacter.h"
+#include "ETPracticeActionComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogETHitReact, Log, All);
+
+UETGA_HitReact::UETGA_HitReact()
+{
+    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+    NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
+    ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateNo;
+    bRetriggerInstancedAbility = false;
+
+    FGameplayTagContainer AssetTags;
+    AssetTags.AddTag(ETGameplayTags::Ability_HitReact);
+    SetAssetTags(AssetTags);
+    ActivationOwnedTags.AddTag(ETGameplayTags::State_HitReact);
+    ActivationBlockedTags.AddTag(ETGameplayTags::State_HitReact);
+    ActivationBlockedTags.AddTag(ETGameplayTags::State_Dead);
+    CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Attack_Light);
+}
+
+bool UETGA_HitReact::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
+    const FGameplayAbilityActorInfo* ActorInfo,
+    const FGameplayTagContainer* SourceTags,
+    const FGameplayTagContainer* TargetTags,
+    FGameplayTagContainer* OptionalRelevantTags) const
+{
+    if (!ActorInfo || !Super::CanActivateAbility(
+        Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+    {
+        return false;
+    }
+    AEmberTrialCharacter* Character =
+        Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get());
+    float Health = 0.0f;
+    float MaxHealth = 0.0f;
+    if (!IsValid(Character) || Character->IsCombatDead() || !Character->HasAuthority() ||
+        ActorInfo->OwnerActor.Get() != Character ||
+        Character->GetAbilitySystemComponent() != ActorInfo->AbilitySystemComponent.Get() ||
+        !Character->GetGameplayHealthSnapshot(Health, MaxHealth) ||
+        !FMath::IsFinite(Health) || !FMath::IsFinite(MaxHealth) ||
+        MaxHealth < 1.0f || Health <= 0.0f || Health > MaxHealth ||
+        UGameplayStatics::IsGamePaused(Character))
+    {
+        return false;
+    }
+    return IsValid(HitReactMontage) && IsValid(ActorInfo->GetAnimInstance());
+}
+
+void UETGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+    const FGameplayAbilityActorInfo* ActorInfo,
+    const FGameplayAbilityActivationInfo ActivationInfo,
+    const FGameplayEventData* TriggerEventData)
+{
+    (void)TriggerEventData;
+    AEmberTrialCharacter* Character = ActorInfo
+        ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
+    UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
+    if (!IsValid(Character) || Character->IsCombatDead() || !IsValid(ASC) || !IsValid(HitReactMontage) ||
+        !CommitAbility(Handle, ActorInfo, ActivationInfo) ||
+        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Attacking))
+    {
+        // Do not overlap a formal attack if its cancellation is still deferred.
+        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+        return;
+    }
+
+    if (UETPracticeActionComponent* Practice =
+        Character->FindComponentByClass<UETPracticeActionComponent>())
+    {
+        Practice->CancelPracticeAction();
+    }
+    Character->StopJumping();
+    Character->ConsumeMovementInputVector();
+    if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
+    {
+        Movement->StopMovementImmediately();
+    }
+
+    MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+        this, NAME_None, HitReactMontage, 1.0f, NAME_None, true, 0.0f, 0.0f, true);
+    if (!MontageTask)
+    {
+        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+        return;
+    }
+    MontageTask->OnCompleted.AddDynamic(this, &ThisClass::HandleMontageCompleted);
+    MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::HandleMontageAborted);
+    MontageTask->OnCancelled.AddDynamic(this, &ThisClass::HandleMontageAborted);
+    UE_LOG(LogETHitReact, Display,
+        TEXT("[M1-04C1] Hit begin Character=%s Montage=%s"),
+        *GetNameSafe(Character), *GetNameSafe(HitReactMontage.Get()));
+    MontageTask->ReadyForActivation();
+}
+
+void UETGA_HitReact::HandleMontageCompleted()
+{
+    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
+}
+
+void UETGA_HitReact::HandleMontageAborted()
+{
+    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
+}
+
+void UETGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle,
+    const FGameplayAbilityActorInfo* ActorInfo,
+    const FGameplayAbilityActivationInfo ActivationInfo,
+    bool bReplicateEndAbility, bool bWasCancelled)
+{
+    if (!IsEndAbilityValid(Handle, ActorInfo))
+    {
+        return;
+    }
+    if (ScopeLockCount > 0)
+    {
+        Super::EndAbility(Handle, ActorInfo, ActivationInfo,
+            bReplicateEndAbility, bWasCancelled);
+        return;
+    }
+    const FString CharacterName = GetNameSafe(ActorInfo->AvatarActor.Get());
+    const TWeakObjectPtr<UAbilitySystemComponent> ASC = ActorInfo->AbilitySystemComponent;
+    MontageTask = nullptr;
+    Super::EndAbility(Handle, ActorInfo, ActivationInfo,
+        bReplicateEndAbility, bWasCancelled);
+    UE_LOG(LogETHitReact, Display,
+        TEXT("[M1-04C1] Hit end Character=%s Cancelled=%d HitTag=%d"),
+        *CharacterName, bWasCancelled ? 1 : 0,
+        ASC.IsValid() && ASC->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) ? 1 : 0);
+}

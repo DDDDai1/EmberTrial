@@ -1,0 +1,453 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
+#include "../../Public/Characters/EmberTrialCharacter.h"
+#include "../../ETPracticeActionComponent.h"
+#include "Engine/LocalPlayer.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/Controller.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputActionValue.h"
+#include "AbilitySystemComponent.h"
+#include "Abilities/GameplayAbilityTypes.h"
+#include "GameFramework/PlayerController.h"
+#include "Attributes/ETHealthAttributeSet.h"
+#include "Abilities/ETGA_LightAttack.h"
+#include "Abilities/ETGameplayTags.h"
+#include "GameplayAbilitySpec.h"
+#include "Combat/ETCombatTraceComponent.h"
+#include "Combat/ETCombatLifeComponent.h"
+
+DEFINE_LOG_CATEGORY(LogTemplateCharacter);
+
+DEFINE_LOG_CATEGORY_STATIC(LogETAbilityFoundation, Log, All);
+//////////////////////////////////////////////////////////////////////////
+// AEmberTrialCharacter
+
+AEmberTrialCharacter::AEmberTrialCharacter()
+{
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
+	AbilitySystemComponent->SetIsReplicated(false);
+
+	HealthAttributes = CreateDefaultSubobject<UETHealthAttributeSet>(TEXT("HealthAttributes"));
+
+    CombatTraceComponent = CreateDefaultSubobject<UETCombatTraceComponent>(TEXT("CombatTrace"));
+
+    CombatLifeComponent = CreateDefaultSubobject<UETCombatLifeComponent>(TEXT("CombatLife"));
+
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+		
+	// Don't rotate when the controller rotates. Let that just affect the camera.
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
+
+	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
+	// instead of recompiling to adjust them
+	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->AirControl = 0.35f;
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
+
+	// Create a camera boom (pulls in towards the player if there is a collision)
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+
+	// Create a follow camera
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
+	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+}
+
+void AEmberTrialCharacter::BeginPlay()
+{
+	// Call the base class  
+	bAbilitySystemShuttingDown = false;
+	Super::BeginPlay();
+	PracticeActionComponent = FindComponentByClass<UETPracticeActionComponent>();
+	RefreshEmberAbilityActorInfo(TEXT("BeginPlay"));
+	EnsureGameplayInitialized();
+	GrantLightAttackAbility();
+}
+
+UAbilitySystemComponent* AEmberTrialCharacter::GetAbilitySystemComponent() const
+{
+    return AbilitySystemComponent.Get();
+}
+
+void AEmberTrialCharacter::GrantLightAttackAbility()
+{
+    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown || !HasAuthority() ||
+        !LightAttackAbilityClass || LightAttackAbilityHandle.IsValid())
+    {
+        return;
+    }
+    if (LightAttackAbilityClass->HasAnyClassFlags(CLASS_Abstract))
+    {
+        UE_LOG(LogETAbilityFoundation, Error,
+            TEXT("[M1-04A] Invalid abstract LightAttackAbilityClass Character=%s"),
+            *GetNameSafe(this));
+        return;
+    }
+
+    const FGameplayAbilitySpec Spec(LightAttackAbilityClass.Get(), 1, INDEX_NONE, this);
+    LightAttackAbilityHandle = AbilitySystemComponent->GiveAbility(Spec);
+    if (!LightAttackAbilityHandle.IsValid())
+    {
+        UE_LOG(LogETAbilityFoundation, Error,
+            TEXT("[M1-04A] Grant failed Character=%s Class=%s"),
+            *GetNameSafe(this), *GetNameSafe(LightAttackAbilityClass.Get()));
+        return;
+    }
+    UE_LOG(LogETAbilityFoundation, Display,
+        TEXT("[M1-04A] Granted Character=%s Class=%s Handle=%s"),
+        *GetNameSafe(this), *GetNameSafe(LightAttackAbilityClass.Get()),
+        *LightAttackAbilityHandle.ToString());
+}
+
+bool AEmberTrialCharacter::RequestLightAttack()
+{
+    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
+        !LightAttackAbilityHandle.IsValid())
+    {
+        UE_LOG(LogETAbilityFoundation, Display,
+            TEXT("[M1-04A] Request rejected Character=%s Reason=NotReadyOrNotGranted"),
+            *GetNameSafe(this));
+        return false;
+    }
+    const FGameplayAbilitySpec* Spec =
+        AbilitySystemComponent->FindAbilitySpecFromHandle(LightAttackAbilityHandle);
+    if (!Spec || Spec->IsActive())
+    {
+        UE_LOG(LogETAbilityFoundation, Display,
+            TEXT("[M1-04A] Request rejected Character=%s Reason=MissingSpecOrBusy"),
+            *GetNameSafe(this));
+        return false;
+    }
+
+    const bool bAccepted = AbilitySystemComponent->TryActivateAbility(
+        LightAttackAbilityHandle, false);
+    UE_LOG(LogETAbilityFoundation, Display,
+        TEXT("[M1-04A] Request Character=%s Accepted=%d"),
+        *GetNameSafe(this), bAccepted ? 1 : 0);
+    return bAccepted;
+}
+
+void AEmberTrialCharacter::CancelLightAttack()
+{
+    if (IsValid(AbilitySystemComponent) && LightAttackAbilityHandle.IsValid())
+    {
+        AbilitySystemComponent->CancelAbilityHandle(LightAttackAbilityHandle);
+    }
+}
+
+EETCombatTeam AEmberTrialCharacter::GetCombatTeam() const
+{
+    return CombatTeam;
+}
+
+bool AEmberTrialCharacter::CanDealCombatDamageTo(
+    const AEmberTrialCharacter* TargetBody) const
+{
+    if (!IsValid(TargetBody) || TargetBody == this ||
+        IsActorBeingDestroyed() || TargetBody->IsActorBeingDestroyed())
+    {
+        return false;
+    }
+
+    switch (CombatTeam)
+    {
+    case EETCombatTeam::Player:
+        return TargetBody->GetCombatTeam() == EETCombatTeam::Enemy ||
+            TargetBody->GetCombatTeam() == EETCombatTeam::Neutral;
+    case EETCombatTeam::Enemy:
+        return TargetBody->GetCombatTeam() == EETCombatTeam::Player;
+    default:
+        return false;
+    }
+}
+
+bool AEmberTrialCharacter::RequestHitReact()
+{
+    return !bAbilitySystemShuttingDown && IsGameplayReady() && !IsCombatDead() &&
+        IsValid(CombatLifeComponent) && CombatLifeComponent->RequestHitReact();
+}
+
+bool AEmberTrialCharacter::IsCombatDead() const
+{
+    return IsValid(CombatLifeComponent) && CombatLifeComponent->IsDead();
+}
+
+bool AEmberTrialCharacter::IsFormalActionIdle() const
+{
+    return !bAbilitySystemShuttingDown && IsGameplayReady() && !IsCombatDead() &&
+        IsValid(AbilitySystemComponent) &&
+        !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dead) &&
+        !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) &&
+        !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_HitReact);
+}
+
+bool AEmberTrialCharacter::IsGameplayReady() const
+{
+    return bGameplayReady && !bAbilitySystemShuttingDown &&
+        IsValid(AbilitySystemComponent) && IsValid(HealthAttributes);
+}
+
+bool AEmberTrialCharacter::GetGameplayHealthSnapshot(float& OutHealth, float& OutMaxHealth) const
+{
+    OutHealth = 0.0f;
+    OutMaxHealth = 0.0f;
+    if (!IsGameplayReady())
+    {
+        return false;
+    }
+
+    OutHealth = HealthAttributes->GetHealth();
+    OutMaxHealth = HealthAttributes->GetMaxHealth();
+    return true;
+}
+
+void AEmberTrialCharacter::SetGameplayReady(bool bNewReady)
+{
+    if (bGameplayReady == bNewReady)
+    {
+        return;
+    }
+
+    bGameplayReady = bNewReady;
+    UE_LOG(LogETAbilityFoundation, Display,
+        TEXT("[M1-03A2-01] Ready changed Character=%s Ready=%d"),
+        *GetNameSafe(this), bGameplayReady ? 1 : 0);
+    OnGameplayReadyChanged.Broadcast(this, bGameplayReady);
+}
+
+bool AEmberTrialCharacter::EnsureGameplayInitialized()
+{
+    if (!HasActorBegunPlay() || bAbilitySystemShuttingDown || IsActorBeingDestroyed())
+    {
+        return false;
+    }
+
+    if (!IsValid(AbilitySystemComponent) || !AbilitySystemComponent->AbilityActorInfo.IsValid() ||
+        AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get() != this ||
+        AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get() != this ||
+        !IsValid(HealthAttributes) ||
+        AbilitySystemComponent->GetSet<UETHealthAttributeSet>() != HealthAttributes.Get())
+    {
+        SetGameplayReady(false);
+        UE_LOG(LogETAbilityFoundation, Error,
+            TEXT("[M1-03A2-01] Missing gameplay dependencies Character=%s"), *GetNameSafe(this));
+        return false;
+    }
+
+    if (bStartupAttributesInitialized)
+    {
+        UE_LOG(LogETAbilityFoundation, Display,
+            TEXT("[M1-03A2-01] Already initialized Character=%s Health=%.1f MaxHealth=%.1f"),
+            *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth());
+        return IsGameplayReady();
+    }
+
+    if (!FMath::IsFinite(InitialMaxHealth) || !FMath::IsFinite(InitialHealth) ||
+        InitialMaxHealth < 1.0f || InitialHealth < 0.0f || InitialHealth > InitialMaxHealth)
+    {
+        UE_LOG(LogETAbilityFoundation, Warning,
+            TEXT("[M1-03A2-01] Invalid startup health Character=%s Health=%.1f MaxHealth=%.1f"),
+            *GetNameSafe(this), InitialHealth, InitialMaxHealth);
+        return false;
+    }
+
+    AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetMaxHealthAttribute(), InitialMaxHealth);
+    AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(), InitialHealth);
+    bStartupAttributesInitialized = true;
+
+    UE_LOG(LogETAbilityFoundation, Display,
+        TEXT("[M1-03A2-01] Health initialized Character=%s Health=%.1f MaxHealth=%.1f"),
+        *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth());
+    SetGameplayReady(true);
+    return IsGameplayReady();
+}
+
+void AEmberTrialCharacter::RefreshEmberAbilityActorInfo(const TCHAR* Reason)
+{
+    if (bAbilitySystemShuttingDown || IsActorBeingDestroyed())
+    {
+        return;
+    }
+
+    if (!IsValid(AbilitySystemComponent) || !AbilitySystemComponent->AbilityActorInfo.IsValid())
+    {
+        UE_LOG(LogETAbilityFoundation, Error,
+            TEXT("[M1-03A1] Missing ASC or ActorInfo Character=%s Reason=%s"),
+            *GetNameSafe(this), Reason);
+        return;
+    }
+
+    const bool bNeedsInit =
+        AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get() != this ||
+        AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get() != this;
+
+    if (bNeedsInit)
+    {
+        AbilitySystemComponent->InitAbilityActorInfo(this, this);
+    }
+    else
+    {
+        AbilitySystemComponent->RefreshAbilityActorInfo();
+    }
+
+    UE_LOG(LogETAbilityFoundation, Display,
+        TEXT("[M1-03A1] ActorInfo ready Character=%s Reason=%s Mode=%s ASC=%s Owner=%s Avatar=%s Controller=%s"),
+        *GetNameSafe(this), Reason, bNeedsInit ? TEXT("Init") : TEXT("Refresh"),
+        *GetNameSafe(AbilitySystemComponent.Get()),
+        *GetNameSafe(AbilitySystemComponent->GetOwnerActor()),
+        *GetNameSafe(AbilitySystemComponent->GetAvatarActor()),
+        *GetNameSafe(AbilitySystemComponent->AbilityActorInfo->PlayerController.Get()));
+}
+
+void AEmberTrialCharacter::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+    if (HasActorBegunPlay())
+    {
+        RefreshEmberAbilityActorInfo(TEXT("PossessedBy"));
+    }
+}
+
+void AEmberTrialCharacter::UnPossessed()
+{
+    Super::UnPossessed();
+    if (HasActorBegunPlay())
+    {
+        RefreshEmberAbilityActorInfo(TEXT("UnPossessed"));
+    }
+}
+
+void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    bAbilitySystemShuttingDown = true;
+    SetGameplayReady(false);
+
+    if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->AbilityActorInfo.IsValid())
+    {
+        AbilitySystemComponent->CancelAllAbilities();
+        if (LightAttackAbilityHandle.IsValid())
+        {
+            AbilitySystemComponent->ClearAbility(LightAttackAbilityHandle);
+        }
+        AbilitySystemComponent->RemoveAllGameplayCues();
+        AbilitySystemComponent->ClearActorInfo();
+
+        UE_LOG(LogETAbilityFoundation, Display,
+            TEXT("[M1-03A1] ActorInfo cleared Character=%s Reason=%d"),
+            *GetNameSafe(this), static_cast<int32>(EndPlayReason));
+    }
+    LightAttackAbilityHandle = FGameplayAbilitySpecHandle();
+    Super::EndPlay(EndPlayReason);
+}
+//////////////////////////////////////////////////////////////////////////
+// Input
+
+void AEmberTrialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	// Add Input Mapping Context
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+	
+	// Set up action bindings
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+		
+		// Jumping
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AEmberTrialCharacter::StartPracticeAwareJump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+
+		// Moving
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEmberTrialCharacter::Move);
+
+		// Looking
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEmberTrialCharacter::Look);
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+}
+
+void AEmberTrialCharacter::Move(const FInputActionValue& Value)
+{
+    if (!IsFormalActionIdle())
+    {
+        return;
+    }
+
+	if (IsValid(PracticeActionComponent) && !PracticeActionComponent->IsPracticeActionIdle())
+	{
+		return;
+	}
+	// input is a Vector2D
+	FVector2D MovementVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
+	{
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get forward vector
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	
+		// get right vector 
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		// add movement 
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
+	}
+}
+
+void AEmberTrialCharacter::StartPracticeAwareJump()
+{
+    if (!IsFormalActionIdle())
+    {
+        return;
+    }
+
+	if (IsValid(PracticeActionComponent) && !PracticeActionComponent->IsPracticeActionIdle())
+	{
+		return;
+	}
+	Jump();
+}
+
+void AEmberTrialCharacter::Look(const FInputActionValue& Value)
+{
+	// input is a Vector2D
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
+	{
+		// add yaw and pitch input to controller
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}

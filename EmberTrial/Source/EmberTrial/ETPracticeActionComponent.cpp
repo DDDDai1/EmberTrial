@@ -129,7 +129,7 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
         return RejectRequest(RequestedState, TEXT("MissingAnimInstance"));
     }
 
-    if (IsPracticeActionIdle() && AnimInstance->IsAnyMontagePlaying())
+    if (IsPracticeActionIdle() && AnimInstance->GetCurrentActiveMontage() != nullptr)
     {
         return RejectRequest(RequestedState, TEXT("ExternalMontage"));
     }

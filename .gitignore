@@ -1,10 +1,18 @@
-# Unreal-generated files (also applies to future project plugins).
+# Repository: E:/UE_Project/Demo; UE project: EmberTrial/.
+# Commit Source, shared Config, Content (including external actors/objects),
+# .uproject, .uplugin, .vsconfig, Docs, Scripts and Tools.
+# Unreal binary assets are tracked through .gitattributes / Git LFS.
+
+# Unreal-generated files, including generated files in project plugins.
 **/Binaries/
 **/DerivedDataCache/
 **/Intermediate/
 **/Saved/
 
-# IDE-generated state. Keep .vsconfig because it describes required components.
+# Cook-generated file access order. Keep other Build resources, such as icons.
+**/Build/**/FileOpenOrder/
+
+# IDE-generated state. .vsconfig remains a shared toolchain description.
 **/.vs/
 **/.idea/
 *.sln
@@ -12,18 +20,63 @@
 *.opensdf
 *.sdf
 *.VC.db
-*.VC.VC.opendb
+*.VC.opendb
+*.ipch
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
 *.code-workspace
 
+# Local CLion launcher contains this machine's project and engine paths.
+/EmberTrial/.run/
+
+# UE-generated CLion code model; regenerate with Tools/Refresh-CLion.ps1.
+# Do not ignore every CMakeLists.txt: future hand-written tools may need one.
+/EmberTrial/CMakeLists.txt
+**/cmake-build-*/
+**/CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+CMakeUserPresets.json
+/EmberTrial/cmake_install.cmake
+/EmberTrial/CTestTestfile.cmake
+/EmberTrial/Makefile
+/EmberTrial/Testing/
+
+# Current files contain only the local IDE choice / Content Browser selection.
+# Shared DefaultEngine/Game/Input/Editor.ini must remain version-controlled.
+/EmberTrial/Config/DefaultEditorSettings.ini
+/EmberTrial/Config/DefaultEditorPerProjectUserSettings.ini
+
 # Local builds, backups, raw traces, videos and crash dumps.
 /Artifacts/
 /Docs/Reports/Raw/
+*.log
 *.utrace
 *.ucache
 *.dmp
+
+# Python helper caches / local virtual environments; keep the .py sources.
+**/__pycache__/
+*.pyc
+*.pyo
+**/.venv/
+**/venv/
+
+# Editor backups; actual .blend / .fbx / .psd source art remains visible.
+*.tmp
+*.bak
+*.orig
+*.rej
+*~
+*.blend[0-9]*
+
+# Local environment secrets; retain shareable example files.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
 
 # Operating-system metadata.
 Thumbs.db

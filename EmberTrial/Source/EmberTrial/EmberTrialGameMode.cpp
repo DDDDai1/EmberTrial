@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "EmberTrialGameMode.h"
-#include "EmberTrialCharacter.h"
+#include "Public/Characters/EmberTrialCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 AEmberTrialGameMode::AEmberTrialGameMode()
