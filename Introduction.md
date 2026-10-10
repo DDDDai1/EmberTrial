@@ -1,6 +1,6 @@
 # 《烬火试炼》Ember Trial — UE5 求职 Demo 开发计划
 
-版本：v1.4 · 更新日期：2026-10-06 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
+版本：v1.4 · 更新日期：2026-10-10 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 >
@@ -846,7 +846,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-10，M0 / M1-02 / M1-03 / M1-04 / M1-05完成。**身体 / 属性 / HUD与攻击 → Trace → GE伤害 → 受击 / 死亡链路成立；[M1-04总验收](Docs/Reports/M1_04_Verification.md)保存共享生命层窗中死亡证据。[M1-05总验收](Docs/Reports/M1_05_Verification.md)已通过独立敌人、感知 / 导航追击、停步转向与自动交战、取消 / 有限重试 / 暂停与生命中止；[D复盘](Docs/M1_05D_EnemyCombatReview.md)复用证据，不新增代码 / 资产、Build / PIE或必录视频。当前53Source / 26cpp / 清单40与C2一致；累计用户手动1521分钟（25小时21分钟） / 等待120，本章147 / 等待25，D无新增用户实耗。主体已提交9cdbc75，当前C2 / D文档按[D末尾清单](Docs/M1_05D_EnemyCombatReview.md#9-本章需要commit--push的内容固定放在文档最后)追加上传；Raw留本地。C++仍先写文档、用户手动，采用[方案B](Docs/AcceptanceWorkflow_Options.md)，未受影响旧矩阵不重做。下一开发章M1-06主菜单、失败重试 / 检查点原型待实施；冻结死亡表现、Blender模型、新阶段包、性能与投递准备后续完善，不宣称最终作品完成。首次打包见[M0-06](Docs/Reports/M0_06_Verification.md)，生命周期见[M1-02](Docs/Reports/M1_02_Verification.md)，属性数据见[M1-03](Docs/Reports/M1_03_Verification.md)，排期见[M0-07](Docs/Reports/M0_07_Calibration.md)，实时状态见[Progress](Docs/Progress.md)。第一批环境记录保留在Docs/M0_Setup.md，以下为原M0路线：
+**截至2026-10-10，M0 / M1-02 / M1-03 / M1-04 / M1-05完成，M1-06A功能已验收。**[M1-05总验收](Docs/Reports/M1_05_Verification.md)通过独立身体、感知 / 追击、自动交战与生命 / 暂停中止；[A报告](Docs/Reports/M1_06A_Verification.md)核对独立无Pawn菜单、开始 / 禁用继续 / PIE退出、三次切图 / 新HUD与输入交接。当前59Source / 29cpp / 来源清单44，双目标Build通过，原51Source / 40资产保持此前版本；空HUD初始化Warning已定位，非阻塞局部补修随下批原生构建，当前未改Source。A手动45 / 等待5，累计用户手动1566分钟（26小时06分钟） / 等待125；具体键鼠与最终BP配置依据用户全项反馈。HEAD仍8843ffa，本批按[A最后清单](Docs/M1_06A_MainMenu.md#13-本批需要commit--push的内容固定放在文档最后)重新Stage六新Source完整实现后由用户Commit / Push；Raw留本地。C++仍先写文档、用户手动，采用[方案B](Docs/AcceptanceWorkflow_Options.md)。[M1-06路线](Docs/M1_06_FlowRoadmap.md)的B失败整图重试、C会话检查点、D暂停迁移尚未下发；检查点先是当前进程会话快照，非磁盘存档，M5再实现跨启动继续 / 版本与回退。正式死亡表现、Blender模型、当前阶段包、性能与投递准备后续完善，不宣称最终作品完成。首次打包见[M0-06](Docs/Reports/M0_06_Verification.md)，生命周期见[M1-02](Docs/Reports/M1_02_Verification.md)，属性数据见[M1-03](Docs/Reports/M1_03_Verification.md)，排期见[M0-07](Docs/Reports/M0_07_Calibration.md)，实时状态见[Progress](Docs/Progress.md)。第一批环境记录保留在Docs/M0_Setup.md，以下为原M0路线：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。

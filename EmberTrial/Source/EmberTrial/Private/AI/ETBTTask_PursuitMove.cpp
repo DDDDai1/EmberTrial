@@ -8,8 +8,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogETPursuitMove, Log, All);
 
 namespace
 {
-    const FName TargetActorKey(TEXT("TargetActor"));
-    const FName StopDistanceKey(TEXT("PursuitStopDistance"));
+    const FName PursuitMoveTargetActorKey(TEXT("TargetActor"));
+    const FName PursuitMoveStopDistanceKey(TEXT("PursuitStopDistance"));
 
     const TCHAR* DescribeMoveResult(EBTNodeResult::Type Result)
     {
@@ -29,9 +29,9 @@ UETBTTask_PursuitMove::UETBTTask_PursuitMove(
 {
     NodeName = TEXT("ET Pursuit Move To");
     bNotifyTaskFinished = true;
-    BlackboardKey.SelectedKeyName = TargetActorKey;
+    BlackboardKey.SelectedKeyName = PursuitMoveTargetActorKey;
+    AcceptableRadius.SetKey(PursuitMoveStopDistanceKey);
     AcceptableRadius = 150.0f;
-    AcceptableRadius.SetKey(StopDistanceKey);
     bAllowPartialPath = false;
     bTrackMovingGoal = true;
     bRequireNavigableEndLocation = true;

@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-10最新现状：**用户已提交C2主体`9cdbc7505861a88cfa3ce6d3c7ac1270d2b60f53`，本机main HEAD与缓存origin/main同哈希；origin仍`https://github.com/DDDDai1/EmberTrial.git`。本轮未再次联网验证远端 / LFS。M1-05整章通过，[D复盘](M1_05D_EnemyCombatReview.md)与[总验收](Reports/M1_05_Verification.md)新增，运行Source / UE资产不变；待提交C2验收收尾可与D文档合并为`docs: close M1-05 enemy combat milestone`。个人Editor配置取消跟踪删除仍在暂存区，磁盘文件保留，不重复git rm。具体清单见[D最后一节](M1_05D_EnemyCombatReview.md#9-本章需要commit--push的内容固定放在文档最后)；TLS历史保留第9节。
+**2026-10-10最新现状：**本机main HEAD与缓存origin/main均为`8843ffae10ffe10235a9630fdbc2cbb9f23f540f`，本轮未联网核验远端 / LFS。M1-06A功能已验收，八Source / 四UE资产 / 两Config与收尾文档待提交；[A报告](Reports/M1_06A_Verification.md)已落盘。**六个新Source为AM，暂存的是初始骨架，工作区才有完整实现；先重新Stage这六份文件最新改动，再Commit。**按[A最后清单](M1_06A_MainMenu.md#13-本批需要commit--push的内容固定放在文档最后)上传，可带上个人Editor配置取消跟踪删除记录，磁盘文件保留，不重复git rm。Raw / 缓存 / 构建产物留本地；助手未代Stage / Commit / Push。推荐标题`feat: add standalone main menu and game entry`。
 
 ## 1. 已配置内容
 
@@ -10,7 +10,7 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
 - 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
-- 当前origin已配置为GitHub的DDDDai1/EmberTrial；首次Push失败，当前远端尚无提交分支。只有Push完成才能作为远端备份，详见第9节。
+- 当前origin已配置为GitHub的DDDDai1/EmberTrial；首次Push失败后用户已完成Push，当前本机缓存origin/main为8843ffa。本轮未联网确认最新远端状态；后续每批Commit / Push完成才算远端备份，首次故障记录保留在第9节。
 
 ## 2. 第一个可恢复检查点
 
@@ -287,3 +287,5 @@ git config --local --unset http.sslBackend
 - C1 / C2主体历史继续保留；主体已进入9cdbc75。本轮整章核查通过，待提交C2收尾与D复盘可合并为`docs: close M1-05 enemy combat milestone`，按D最后清单选择实际文档变化；不重复提交没有差异的源码 / 资产。
 
 如果上传失败，保留完整Git / LFS输出，按实际失败阶段排查；不Force Push、不重写历史。当前源资产的授权登记仍需在对外展示时持续核对，GitHub上传结果本身不替代资产来源记录。
+
+2026-10-10追加：M1-05文档收尾已进入8843ffa。当前新增M1-06路线 / A指南和状态更新只代表下发，不代表六新类 / 菜单资产已实现。A按最后清单将实际新增Source / BP / Widget / Map、DefaultEngine / DefaultGame共享地图配置与验收摘要提交；Raw / 生成索引 / 包仍忽略，个人偏好暂存删除随用户下次提交。
