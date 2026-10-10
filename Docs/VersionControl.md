@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-09最新现状：**用户确认首次Push已完成；本机main HEAD与已更新的origin/main跟踪记录同为`e91659304721b6f7ae789275fbfa8bfdfe01fc4a`，本地17次提交，远端origin为`https://github.com/DDDDai1/EmberTrial.git`。这是用户上传结果与本地记录核对，没有本轮再次联网查询或单独验证全部远端LFS对象。之前TLS排障见第9节，保留为历史；本轮[M1-05C2指南](M1_05C2_BehaviorTreeMeleeAttack.md)已下发待手动实施。个人配置取消跟踪的删除仍在暂存区、本文排障更新尚未Commit，和C2收尾一起提交即可；不重复取消跟踪。用户决定以后每章收尾Commit / Push，具体规则见第10节与每章指南最后清单。
+**2026-10-10最新现状：**用户已提交C2主体`9cdbc7505861a88cfa3ce6d3c7ac1270d2b60f53`，本机main HEAD与缓存origin/main同哈希；origin仍`https://github.com/DDDDai1/EmberTrial.git`。本轮未再次联网验证远端 / LFS。M1-05整章通过，[D复盘](M1_05D_EnemyCombatReview.md)与[总验收](Reports/M1_05_Verification.md)新增，运行Source / UE资产不变；待提交C2验收收尾可与D文档合并为`docs: close M1-05 enemy combat milestone`。个人Editor配置取消跟踪删除仍在暂存区，磁盘文件保留，不重复git rm。具体清单见[D最后一节](M1_05D_EnemyCombatReview.md#9-本章需要commit--push的内容固定放在文档最后)；TLS历史保留第9节。
 
 ## 1. 已配置内容
 
@@ -284,6 +284,6 @@ git config --local --unset http.sslBackend
 - 资产按现有LFS规则提交；临时GE None、Debug True、测试默认血量等先恢复再Commit。源码、Config共享规则、手写工具、Markdown摘要不能为减少文件数而被忽略。
 - Binaries / Intermediate / Saved / DerivedDataCache、IDE本机状态 / .run、生成CMake、Artifacts、Raw / Trace / Dump按.gitignore留本地。不用清缓存或强制添加被忽略文件。
 - 当前个人偏好的暂存删除记录随下一次Commit包含；本机文件保留。若已提交便不重复处理。本次未改.gitignore / .gitattributes、未执行Stage / Commit / Push。
-- 已上传的C1历史继续保留；C2通过前不把它写成已实现。推荐C2提交标题`feat: add enemy facing and behavior tree melee attack`，通过后再使用。
+- C1 / C2主体历史继续保留；主体已进入9cdbc75。本轮整章核查通过，待提交C2收尾与D复盘可合并为`docs: close M1-05 enemy combat milestone`，按D最后清单选择实际文档变化；不重复提交没有差异的源码 / 资产。
 
 如果上传失败，保留完整Git / LFS输出，按实际失败阶段排查；不Force Push、不重写历史。当前源资产的授权登记仍需在对外展示时持续核对，GitHub上传结果本身不替代资产来源记录。

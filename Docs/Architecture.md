@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本：1.0；更新：2026-10-09。**M1-04与M1-05A / B1 / B2 / C1已验收；C2设计已下发、尚未实施。**当前运行仍[C1结果](Reports/M1_05C1_Verification.md)51Source / 25cpp / 清单40。新[C2指南](M1_05C2_BehaviorTreeMeleeAttack.md)计划加入实例化BT近战任务、身体Spec查询、Controller攻击资格与有限重试；运行验证和性能测量均待完成。采用[分层验收与复用](AcceptanceWorkflow_Options.md)，完整测试工具尚未建设。最终目标见[Introduction](../Introduction.md)，实时状态见[Progress](Progress.md)。
+版本：1.0；更新：2026-10-10。**M1-04与M1-05整章已验收。**[总验收](Reports/M1_05_Verification.md)与[D复盘](M1_05D_EnemyCombatReview.md)汇总53Source / 26cpp / 清单40对应的自动追击 / 转向 / BT攻击、匹配Spec结束 / 取消、世界时间重试和生命中止。D无运行改动 / 重复构建；性能尚未测量，正式工具台未建设，采用[方案B](AcceptanceWorkflow_Options.md)。最终目标见[Introduction](../Introduction.md)，实时状态见[Progress](Progress.md)。
 
 ## 1. 模块边界
 
@@ -34,7 +34,7 @@ CLion CodeModel 用于索引；真实编译由 UBT / UHT 执行。每个模块�
 | BP_ETLifecycleProbePawn | C2-02 已创建 / 验收，保留 Tests 资产 | 隔离的裸 Pawn，不设默认 / 不放场景；Controller 测试入口已按用户反馈删除 |
 | UAbilitySystemComponent / IAbilitySystemInterface | A1 已接入 / 验收 | Character 原生子对象，Owner=Avatar=Character；关联刷新与结束保护，见 ADR-002 |
 | UETHealthAttributeSet / GameplayReady | A2已实施 / 验收；C2死亡夹限已接入 | ASC管理Health / MaxHealth；一次初始化 / Ready；State.Dead时Base / Current保持0，死亡不撤销Ready |
-| UETGA_LightAttack / GA_ET_LightAttack / GA_ET_EnemyLightAttack | M1-04战斗与M1-05C1共享AI攻击已验收 | 单人ServerOnly / Standalone；校验本身体 / Controller / 阵营 / 动作；玩家25与敌人10独立资源，身体关系查询在Apply前过滤；Montage / Trace / GE生命周期共享，BT自动请求待C2 |
+| UETGA_LightAttack / GA_ET_LightAttack / GA_ET_EnemyLightAttack | M1-04战斗与M1-05C1共享AI攻击已验收 | 单人ServerOnly / Standalone；校验本身体 / Controller / 阵营 / 动作；玩家25与敌人10独立资源，身体关系查询在Apply前过滤；Montage / Trace / GE生命周期共享，BT自动请求在C2已验收 |
 | UETCombatTraceComponent | B1 / C2已验收 | 原生单组件，窗口内Tick / 骨骼后采样、实例身份与去重；CancelActiveAttack立即清序号 / 窗口，开窗死亡已实测Tick0；不依赖GAS / UI |
 | UETANS_AttackWindow | M1-04B1已实现 / 验收 | 资产通知只路由Mesh / Montage实例ID / 通知身份，身体运行状态留Trace |
 | UETCombatLifeComponent | C1 / C2已验收 | 单身体Health与Ready快照；受击Handle所有权；死亡锁 / 一份Loose Dead Tag先于取消，结束释放；无Tick |
@@ -46,14 +46,14 @@ CLion CodeModel 用于索引；真实编译由 UBT / UHT 执行。每个模块�
 | UETHealthHUDWidget / WBP_ETHealthHUD | B2已创建 / 验收；Never + DisableNativeTick | 仅订阅Presenter并立即读取快照，事件更新 / 主动解绑，不缓存ASC或业务属性 |
 | BP_ETHealthProbeCharacter / BP_ETHealthWaitingCharacter_Rebuilt | 已创建 / B3验收通过 | 原生EmberTrialCharacter子蓝图；40/80与非法100/60，隔离测试 / 不设默认玩家；旧Duplicate Waiting样例停用 |
 | AETAIController / BP_ETMeleeEnemy | M1-05A已实现 / 验收；Public AIModule / UHT / 双Build通过 | 管理受控身体 / Ready、弱引用与解绑；敌人直接继承共享原生Character、独立生命 / 正式受击死亡；BodyCharacter避免继承成员遮蔽 |
-| 原生EnemyPerception / BB_ETMeleeEnemy / BP_ETMeleeAIController | B1已验收；B2三键 / BT配置已实施，25cpp / 双Build通过 | 感知与唯一有效玩家目标，BB各Controller独立；追加CanPursue / Float停止距离；BP只配置资源 |
+| 原生EnemyPerception / BB_ETMeleeEnemy / BP_ETMeleeAIController | B1 / B2 / C2已验收，四键BB / 双Build / 26cpp | 感知唯一存活玩家，非同步目标 / 追击 / 停止距离 / 近战资格；Controller90停 / 100恢复 / 100攻击、0.5世界时间重试；BP只配置资源 |
 | UETBTService_Pursuit / UETBTTask_PursuitMove / BT_ETMeleeEnemy | M1-05B2已验收，等待父连接补修关闭 | Service每0.2秒请求Controller距离决策；Task继承引擎Move To并保留NodeMemory / 取消 / 清理；BT根Service、左门控Both / Selector右侧Wait0.5秒；已保存运行结构确认父连接正确，失败请求间隔约0.550秒；配置与每敌人运行状态分开 |
 
-**B2已验收：**Controller订阅身体Attacking / HitReact / Dead，忙碌与目标失效关门控、取消路径并清速度；150停 / 200恢复采用迟滞，StopDistance由Controller写Float黑板键，Move To读取且不叠加胶囊半径。失去目标保留等待，自身死亡 / Ready撤销 / UnPossess / EndPlay停止整树并解绑。两个辅助头文件实际在Public/AI，cpp为Private/AI；指南建议Private收口，目录差异不改变当前行为，不为本轮增加功能检查。节点无自定义共享可变身体状态，Build.cs保持原依赖。运行已支持追击 / 停走与死亡 / 暂停清理，活动Move受击与有效目标无路径等待均通过；性能测量仍未进行。
+**B2阶段历史（已验收，距离随后由C2调整）：**Controller订阅身体Attacking / HitReact / Dead，忙碌与目标失效关门控、取消路径并清速度；150停 / 200恢复采用迟滞，StopDistance由Controller写Float黑板键，Move To读取且不叠加胶囊半径。失去目标保留等待，自身死亡 / Ready撤销 / UnPossess / EndPlay停止整树并解绑。两个辅助头文件实际在Public/AI，cpp为Private/AI；指南建议Private收口，目录差异不改变当前行为，不为本轮增加功能检查。节点无自定义共享可变身体状态，Build.cs保持原依赖。运行已支持追击 / 停走与死亡 / 暂停清理，活动Move受击与有效目标无路径等待均通过；性能测量仍未进行。
 
-M1-05路线采用AI Perception + Blackboard / Behavior Tree，A身体 / 控制权 / 导航、B1有效玩家、B2真实Move To、C1共享攻击 / 玩家受伤均已验收。生命 / 感知订阅各自归属，Ready不代表存活；目标暂停中保留、停止清空。轻攻击ServerOnly且限定离线Standalone，分别校验本地Player与AI控制的Enemy；玩家胶囊支持命中。核心Public AIModule已构建，依旧不依赖UI；C2自动朝向 / BT攻击、D组合交战分别验证。详细边界见[M1-05路线](M1_05_EnemyRoadmap.md)。
+M1-05路线采用AI Perception + Blackboard / Behavior Tree，A身体 / 控制权 / 导航、B1有效玩家、B2真实Move To、C1共享攻击 / 玩家受伤均已验收。生命 / 感知订阅各自归属，Ready不代表存活；目标暂停中保留、停止清空。轻攻击ServerOnly且限定离线Standalone，分别校验本地Player与AI控制的Enemy；玩家胶囊支持命中。核心Public AIModule已构建，依旧不依赖UI；C2自动朝向 / BT攻击已通过；D已完成交战链路复盘与证据收尾，没有新增运行改动。详细边界见[M1-05路线](M1_05_EnemyRoadmap.md)。
 
-**C2待实施设计：**原生Task头 / cpp均在Private/AI，使用每Controller节点实例、弱引用与Own Spec结束句柄。准备期间停步并按360deg/s转向，接受后锁Yaw；完成来自OnAbilityEnded，取消先解绑再取消自己Handle，Abort与Forced Stop清理幂等，Serial处理同步重入。Controller增加CanMeleeAttack与0.5秒世界时间重试，StopTree Guard阻止取消回调重新开门控。BB增加非同步Bool，BT左攻击Sequence用Lower Priority（不因自己Busy中止），正常结束Wait0.6；中追击Both、右Wait0.5沿用。距离计划90停 / 100恢复 / 100攻击，不改真实Trace。四现有 / 两新Source待用户输入，当前代码计数与已验收B2参数未提前改变；UI / 伤害 / 受击模块不增加反向依赖。
+**C2已实施并验收：**原生Task头实际Public/AI、cpp Private/AI，include使用AI路径；每Controller独立实例 / 弱引用 / Own Spec结束句柄。准备停步转向、接受后锁Yaw；匹配OnAbilityEnded，取消先解绑再取消自己Handle，Serial保护同步重入，Abort与Forced Stop幂等清理。Controller四键 / 0.5世界时间重试、StopTree Guard；BT左攻击Lower Priority避免自身Busy中止，正常收招0.6，中追击Both与右Wait0.5保留。90停 / 100恢复 / 100攻击，真实Trace25cm / 8–14帧不改。53Source / 26cpp，自动伤害 / 取消 / 失败等待 / 生命与暂停清理通过；UI / 伤害模块无反向依赖。具体BT属性与画面按用户实测，未逐字段解析资产或做性能测量。
 
 角色沿用 AEmberTrialCharacter 名称，取代最初计划中的 AETCharacter 占位名，不复制玩家移动实现。理由与迁移边界见 [ADR-001](ADR/ADR_001_FrameworkReuse.md)。
 
@@ -80,7 +80,7 @@ B3已验收：原生Character子蓝图共用现有核心实现，各自ASC / 属
 
 ## 4. 过渡基线
 
-**M1-05C1已进入运行基线：**共享身体EETCombatTeam / 只读关系查询，Player可伤害Enemy或Neutral训练身体、Enemy只伤害Player、Neutral不主动造成轻攻击伤害；不据Controller临时存在与否推断敌友。Ability依赖身体公开查询，不依赖具体ETAIController / UI；阵营分类尚未接GenericTeamID。独立Enemy GA10和玩家25共享原生实现，C1真实命中 / 同方拒绝与取消清理通过；[证据边界](Reports/M1_05C1_Verification.md)区分直接日志与用户反馈。C2再用同一查询做自动攻击决策，当前没有BT主动攻击循环。
+**M1-05C1已进入运行基线：**共享身体EETCombatTeam / 只读关系查询，Player可伤害Enemy或Neutral训练身体、Enemy只伤害Player、Neutral不主动造成轻攻击伤害；不据Controller临时存在与否推断敌友。Ability依赖身体公开查询，不依赖具体ETAIController / UI；阵营分类尚未接GenericTeamID。独立Enemy GA10和玩家25共享原生实现，C1真实命中 / 同方拒绝与取消清理通过；[证据边界](Reports/M1_05C1_Verification.md)区分直接日志与用户反馈。C2已用同一查询接入自动攻击决策 / 任务循环；[D复盘](M1_05D_EnemyCombatReview.md)说明AI提出意图、能力决定接受、Trace决定候选和GE结算的边界。
 
 PracticeAction、练习目标、原型提示与暂停菜单现在仍在使用。它们帮助验证模块和对象变化后的行为。正式能力 / UI 接入时逐步迁移：同一动作只有一个可信状态源，正式 GAS 不与练习动作状态机并行驱动同一角色。
 

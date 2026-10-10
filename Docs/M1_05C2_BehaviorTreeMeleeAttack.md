@@ -1,6 +1,6 @@
 # M1-05C2：停步转向与行为树自动近战攻击
 
-下发：2026-10-09；引擎固定 **UE 5.5.4**。前置：[C1已验收](Reports/M1_05C1_Verification.md)，用户已完成GitHub Push。本指南是**待用户实施的代码与操作方案**，尚未Build / PIE，不表示自动交战已经通过。本轮不进入M1-05D。
+下发：2026-10-09；复核：2026-10-10；引擎固定 **UE 5.5.4**。**C2已实施并验收通过，无待补项。**用户15:20全项完成，手动35 / 等待5分钟，源码与双构建 / 26cpp索引、真实自动交战 / 有限重试 / 清理核对，见[验收报告](Reports/M1_05C2_Verification.md)。以下保留实施步骤供复盘，已通过项无需重做。主体已提交9cdbc75，本轮只追加收尾文档；后续[D复盘](M1_05D_EnemyCombatReview.md)已完成，整章通过，以下实施步骤无需重做。
 
 继续约定：**所有C++由你按本文手动写入；需要我接管时明确告诉我。**本章不新增Controller测试函数 / 按键。最后一节列出本章Commit / Push内容；以后各开发章也采用这一形式。
 
@@ -73,10 +73,10 @@ ROOT
 | 局部新增 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\Characters\EmberTrialCharacter.cpp` |
 | 本章用全文替换头文件 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Public\AI\ETAIController.h` |
 | 局部替换 / 新增函数 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\AI\ETAIController.cpp` |
-| 新建全文 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\AI\ETBTTask_MeleeAttack.h` |
+| 新建全文（实际路径） | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Public\AI\ETBTTask_MeleeAttack.h` |
 | 新建全文 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\AI\ETBTTask_MeleeAttack.cpp` |
 
-新Task头文件按原方案放**Private/AI**，cpp同目录include `"ETBTTask_MeleeAttack.h"`。如果已经像既有BT节点一样创建在**Public/AI**，保留该唯一头文件即可，cpp第一行改成`"AI/ETBTTask_MeleeAttack.h"`，具体补修见6.1；不要在两处创建同名副本。`.generated.h`由UHT生成，不手工创建。
+实际Task头文件在**Public/AI**，cpp在Private/AI，第一行include `"AI/ETBTTask_MeleeAttack.h"`；本指南现按已验收布局统一。原下发建议两者均Private/AI，但用户创建在Public，6.1记录当时的一行路径补修；无需为目录差异搬迁或创建同名副本。`.generated.h`由UHT生成，不手工创建。
 
 ## 4. Character与Controller代码
 
@@ -520,7 +520,7 @@ void AETAIController::StopEnemyBehaviorTree(const TCHAR* Reason)
 
 ### 5.1 ETBTTask_MeleeAttack.h全文
 
-在第3节指定的**Private/AI**创建。该Task设置`bCreateNodeInstance=true`，弱引用 / 委托 / 阶段都属于每个Controller自己的节点实例，不存在行为树共享CDO里的敌人运行状态。
+在第3节实际使用的**Public/AI**保存该头文件。该Task设置`bCreateNodeInstance=true`，弱引用 / 委托 / 阶段都属于每个Controller自己的节点实例，不存在行为树共享CDO里的敌人运行状态。
 
 ```cpp
 #pragma once
@@ -608,10 +608,10 @@ private:
 
 ### 5.2 ETBTTask_MeleeAttack.cpp全文
 
-下面是一整份新cpp，第一行按头文件与cpp同在Private/AI给出；如果头文件已在Public/AI，第一行使用6.1的修正。尤其留意正确GAS include为**`Abilities/GameplayAbilityTypes.h`**，不是之前曾报错的根目录`GameplayAbilityTypes.h`。
+下面是一整份cpp，第一行现已统一为实际Public/AI头文件路径。尤其留意正确GAS include为**`Abilities/GameplayAbilityTypes.h`**，不是之前曾报错的根目录`GameplayAbilityTypes.h`。
 
 ```cpp
-#include "ETBTTask_MeleeAttack.h"
+#include "AI/ETBTTask_MeleeAttack.h"
 #include "AI/ETAIController.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "AbilitySystemComponent.h"
@@ -1213,6 +1213,14 @@ slomo1、100/100、25/10、GE恢复、Debug False、Save All：
 
 本指南已按本机UE5.5.4接口静态核对：OnAbilityEnded传入FAbilityEndedData，包含AbilitySpecHandle / bWasCancelled；CancelAbilityHandle只取消指定Handle；BT Task的Execute / Tick / Abort / OnTaskFinished与GetTaskStatus / FinishLatentTask可用，Forced Stop走任务中止清理。这里是接口与逻辑审查，**尚未编译这份待手动实现的代码，也没有实机通过结论**。
 
+### 10.1 实施收尾（2026-10-10）
+
+上面第10节的未实施 / 计数说明保留下发时口径；**当前以本节和验收报告为准**。用户15:20报告完成、无失败，手动35（10 / 10 / 15） / 等待5；四旧 / 两新Source与16段代码一致，其余47Source未改，53Source / 26cpp / 清单40。双receipt晚于源码，实际CLion编译数据库包含26cpp。
+
+七轮初始化、58次Prepare闭合为54次Finish与4次Abort；17Enemy Begin / End均匹配、Tag0。100→90→80、活动攻击受击取消后恢复、玩家四次25杀死敌人、玩家死亡当前任务ContextLost清理、暂停恢复均有直接日志。None GE41次拒绝平均0.5541秒，范围0.549–0.633；GE15:18:59正常保存，下一轮真实10点伤害恢复。固定朝向 / 侧移表现、具体输入与最终配置按用户实测登记，不伪称画面复验。
+
+[详细报告](Reports/M1_05C2_Verification.md)无待补项；项目累计1521 / 等待120分钟，M1-05累计147 / 等待25。主体已提交9cdbc75，本轮收尾摘要与资产清单待用户追加Commit / Push，清单见下面最后一节。D未下发，不重做本章或旧UI矩阵。
+
 ## 11. 本章需要Commit / Push的内容（固定放在文档最后）
 
 **顺序：**完成第8节并反馈 → 我核查 / 更新验收与清单文档 → 你保存全部文件 → CLion查看最新差异、Commit → Push到现有origin/main。普通章节不再Share Project建新仓库。Commit是本地记录，Push才上传；不要仅Commit旧暂存版本。
@@ -1225,10 +1233,10 @@ slomo1、100/100、25/10、GE恢复、Debug False、Save All：
 | 修改 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\Characters\EmberTrialCharacter.cpp` |
 | 修改 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Public\AI\ETAIController.h` |
 | 修改 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\AI\ETAIController.cpp` |
-| 新增 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\AI\ETBTTask_MeleeAttack.h` |
+| 新增 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Public\AI\ETBTTask_MeleeAttack.h` |
 | 新增 | `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\AI\ETBTTask_MeleeAttack.cpp` |
 
-新文件需要纳入提交。**本次实际头文件已创建在`E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Public\AI\ETBTTask_MeleeAttack.h`，按6.1补修后，提交该Public路径，替代表格中的Private头文件路径，不提交两份。**两新文件当前已加入暂存且显示AM；修正include后按11.5把最新工作区变化也Stage，避免提交旧暂存内容。UHT生成的.generated.h不在此清单，它属于Intermediate，不提交。本章不要求修改Build.cs / .uproject / 旧Service / Move Task；出现其他源码差异先看具体内容再决定。
+这六份源码现已进入9cdbc75，无新增差异时不需再次加入或修改。头文件实际Public路径已统一，不存在Private同名副本。AM / RM的检查仍适用于后续最新修改，当前两新文件已提交，不再显示AM。UHT生成的.generated.h属于Intermediate，不提交。本章没有修改Build.cs / .uproject / 旧Service / Move Task。
 
 ### 11.2 本章UE资产
 
@@ -1265,3 +1273,11 @@ slomo1、100/100、25/10、GE恢复、Debug False、Save All：
 4. 在GitHub确认新提交标题 / 哈希和新增Task、BT / BB等资产已出现。没有变化的旧文件不必重传；后续若上传失败，发CLion Git控制台完整错误文本，我按真实阶段排查。
 
 本轮助手仅生成操作方案和更新协作文档，没有代替你Stage / Commit / Push、写Source、Build或修改UE资产。日后验收收尾内容插在本节之前，**Push清单始终位于开发指南最后**。
+
+### 11.6 当前实际需要追加上传的收尾内容（2026-10-10）
+
+用户已提交主体9cdbc75，本机HEAD与缓存origin/main同哈希；无需重新提交六Source与四项UE资产。本轮只纳入实际新增 / 修改的：`Docs/Reports/M1_05C2_Verification.md`、`Docs/AssetManifest.csv`、本指南、`Introduction.md`、`Docs/Progress.md`、`Docs/Backlog.md`、`Docs/Architecture.md`、`Docs/M1_05_EnemyRoadmap.md`、`Docs/AcceptanceWorkflow_Options.md`、`Docs/VersionControl.md`，以及**仍待提交的个人Editor偏好取消跟踪删除记录**。
+
+建议追加Commit标题 **`docs: accept M1-05C2 and record verification evidence`**，再Push现有main → origin/main。Raw摘录 / JSON继续忽略；不重复执行git rm，不移动头文件，不制造新的Source / 资产差异。本次复核没有代替用户操作Git或再次联网验证远端。
+
+后续D已完成复盘，可将本节待提交的C2验收文档与D文档合并为一次收尾提交；最新完整范围见[D最后清单](M1_05D_EnemyCombatReview.md#9-本章需要commit--push的内容固定放在文档最后)，推荐`docs: close M1-05 enemy combat milestone`。六份源码与四份资产无新变化，不要求再次修改或提交。
