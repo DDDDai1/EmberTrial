@@ -25,9 +25,10 @@ public:
     UFUNCTION(BlueprintPure, Category = "EmberTrial|AI")
     AEmberTrialCharacter* GetSensedPlayer() const;
 
-    // Native BT nodes request a fresh decision; mutable state belongs here.
     void UpdatePursuitDecision();
     bool IsPursuitAllowed() const;
+    bool IsMeleeAttackAllowed() const;
+    void NotifyMeleeAttackAttemptFinished();
 
 protected:
     virtual void BeginPlay() override;
@@ -51,11 +52,19 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI",
         meta = (ClampMin = "1.0", Units = "cm"))
-    float PursuitStopDistance = 150.0f;
+    float PursuitStopDistance = 90.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI",
         meta = (ClampMin = "1.0", Units = "cm"))
-    float PursuitResumeDistance = 200.0f;
+    float PursuitResumeDistance = 100.0f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI",
+        meta = (ClampMin = "1.0", Units = "cm"))
+    float MeleeAttackDistance = 100.0f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI",
+        meta = (ClampMin = "0.1", Units = "s"))
+    float MeleeRetryDelay = 0.5f;
 
     TWeakObjectPtr<AEmberTrialCharacter> ObservedBody;
     TWeakObjectPtr<AEmberTrialCharacter> SensedPlayer;
@@ -72,6 +81,9 @@ private:
     bool bTreeStarted = false;
     bool bPursuitAllowed = false;
     bool bHoldingDistance = false;
+    bool bMeleeAttackAllowed = false;
+    bool bStoppingTree = false;
+    double NextMeleeAttemptTime = 0.0;
 
     UFUNCTION()
     void HandleBodyReadyChanged(AEmberTrialCharacter* BodyCharacter, bool bReady);
@@ -95,6 +107,8 @@ private:
     void ClearSensedPlayer(const TCHAR* Reason);
     void SetPursuitAllowed(bool bNewAllowed, const TCHAR* Reason,
         float Distance, bool bForceStop = false);
+    void SetMeleeAttackAllowed(bool bNewAllowed, const TCHAR* Reason,
+        float Distance);
     void StopPursuitMovement();
     void TryStartEnemyBehaviorTree();
     void StopEnemyBehaviorTree(const TCHAR* Reason);

@@ -148,6 +148,13 @@ bool AEmberTrialCharacter::RequestLightAttack()
     return bAccepted;
 }
 
+FGameplayAbilitySpecHandle AEmberTrialCharacter::GetLightAttackSpecHandle() const
+{
+    return !bAbilitySystemShuttingDown && IsGameplayReady() &&
+        !IsCombatDead() && IsValid(AbilitySystemComponent)
+        ? LightAttackAbilityHandle : FGameplayAbilitySpecHandle();
+}
+
 void AEmberTrialCharacter::CancelLightAttack()
 {
     if (IsValid(AbilitySystemComponent) && LightAttackAbilityHandle.IsValid())

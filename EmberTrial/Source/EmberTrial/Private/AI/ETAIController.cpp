@@ -14,6 +14,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISense_Sight.h"
+#include "Engine/World.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETAIController, Log, All);
 
@@ -21,6 +22,7 @@ namespace
 {
     const FName TargetActorKey(TEXT("TargetActor"));
     const FName CanPursueKey(TEXT("CanPursue"));
+    const FName MeleeAttackKey(TEXT("CanMeleeAttack"));
     const FName StopDistanceKey(TEXT("PursuitStopDistance"));
     constexpr float ArrivalTolerance = 1.0f;
 
@@ -144,7 +146,7 @@ bool AETAIController::InitializeEnemyBlackboard()
         Board->GetBlackboardAsset() != EnemyBlackboardAsset.Get())
     {
         UE_LOG(LogETAIController, Warning,
-            TEXT("[M1-05B1] Blackboard unavailable Controller=%s Asset=%s"),
+            TEXT("[M1-05C2] Blackboard unavailable Controller=%s Asset=%s"),
             *GetNameSafe(this), *GetNameSafe(EnemyBlackboardAsset.Get()));
         return false;
     }
@@ -158,35 +160,39 @@ bool AETAIController::InitializeEnemyBlackboard()
         !AEmberTrialCharacter::StaticClass()->IsChildOf(ObjectKey->BaseClass.Get()))
     {
         UE_LOG(LogETAIController, Warning,
-            TEXT("[M1-05B1] Invalid TargetActor key Controller=%s Expected=ObjectWithCharacterCompatibleBase"),
+            TEXT("[M1-05C2] Invalid TargetActor key Controller=%s"),
             *GetNameSafe(this));
         return false;
     }
 
     const FBlackboard::FKey GateID = Board->GetKeyID(CanPursueKey);
     const FBlackboard::FKey DistanceID = Board->GetKeyID(StopDistanceKey);
+    const FBlackboard::FKey MeleeID = Board->GetKeyID(MeleeAttackKey);
     if (GateID == FBlackboard::InvalidKey ||
-        DistanceID == FBlackboard::InvalidKey ||
+        DistanceID == FBlackboard::InvalidKey || MeleeID == FBlackboard::InvalidKey ||
         Board->GetKeyType(GateID) != UBlackboardKeyType_Bool::StaticClass() ||
-        Board->GetKeyType(DistanceID) != UBlackboardKeyType_Float::StaticClass())
+        Board->GetKeyType(DistanceID) != UBlackboardKeyType_Float::StaticClass() ||
+        Board->GetKeyType(MeleeID) != UBlackboardKeyType_Bool::StaticClass())
     {
         UE_LOG(LogETAIController, Warning,
-            TEXT("[M1-05B2] Invalid pursuit keys Controller=%s Expected=CanPursue:Bool,PursuitStopDistance:Float"),
+            TEXT("[M1-05C2] Invalid decision keys Controller=%s Expected=TargetActor:Object,CanPursue:Bool,PursuitStopDistance:Float,CanMeleeAttack:Bool"),
             *GetNameSafe(this));
         return false;
     }
-    Board->SetValueAsBool(CanPursueKey, false);
     Board->ClearValue(TargetActorKey);
+    Board->SetValueAsBool(CanPursueKey, false);
+    Board->SetValueAsBool(MeleeAttackKey, false);
     Board->SetValueAsFloat(StopDistanceKey, PursuitStopDistance);
     UE_LOG(LogETAIController, Display,
-        TEXT("[M1-05B1] Blackboard ready Controller=%s Asset=%s Target=None"),
-        *GetNameSafe(this), *GetNameSafe(EnemyBlackboardAsset.Get()));
+        TEXT("[M1-05C2] Blackboard ready Controller=%s Asset=%s Stop=%.1f Melee=%.1f"),
+        *GetNameSafe(this), *GetNameSafe(EnemyBlackboardAsset.Get()),
+        PursuitStopDistance, MeleeAttackDistance);
     return true;
 }
 
 bool AETAIController::CanObservePlayer() const
 {
-    return !bEndingPlay && bBlackboardReady && HasAuthority() &&
+    return !bEndingPlay && !bStoppingTree && bBlackboardReady && HasAuthority() &&
         ObservedBody.Get() == GetPawn() && IsLiveBody(ObservedBody.Get());
 }
 
@@ -199,8 +205,11 @@ AEmberTrialCharacter* AETAIController::GetSensedPlayer() const
 bool AETAIController::HasValidPursuitConfig() const
 {
     return FMath::IsFinite(PursuitStopDistance) &&
-        FMath::IsFinite(PursuitResumeDistance) && PursuitStopDistance >= 1.0f &&
-        PursuitResumeDistance > PursuitStopDistance + ArrivalTolerance;
+        FMath::IsFinite(PursuitResumeDistance) &&
+        FMath::IsFinite(MeleeAttackDistance) && FMath::IsFinite(MeleeRetryDelay) &&
+        PursuitStopDistance >= 1.0f &&
+        PursuitResumeDistance > PursuitStopDistance + ArrivalTolerance &&
+        MeleeAttackDistance >= PursuitResumeDistance && MeleeRetryDelay >= 0.1f;
 }
 
 bool AETAIController::IsPursuitAllowed() const
@@ -217,26 +226,72 @@ bool AETAIController::IsPursuitAllowed() const
         Movement->IsMovingOnGround();
 }
 
+bool AETAIController::IsMeleeAttackAllowed() const
+{
+    const AEmberTrialCharacter* BodyCharacter = ObservedBody.Get();
+    const AEmberTrialCharacter* PlayerBody = GetSensedPlayer();
+    const UBlackboardComponent* Board = GetBlackboardComponent();
+    const UWorld* World = GetWorld();
+    const UCharacterMovementComponent* Movement = IsValid(BodyCharacter)
+        ? BodyCharacter->GetCharacterMovement() : nullptr;
+    if (!bMeleeAttackAllowed || !HasValidPursuitConfig() ||
+        !IsValid(BodyCharacter) || !IsValid(PlayerBody) || !IsValid(Board) ||
+        !IsValid(World) || World->GetNetMode() != NM_Standalone || World->IsPaused() ||
+        World->GetTimeSeconds() < NextMeleeAttemptTime ||
+        Board->GetValueAsObject(TargetActorKey) != PlayerBody ||
+        !BodyCharacter->IsFormalActionIdle() ||
+        !BodyCharacter->CanDealCombatDamageTo(PlayerBody) ||
+        !BodyCharacter->GetLightAttackSpecHandle().IsValid() ||
+        !IsValid(Movement) || !Movement->IsMovingOnGround())
+    {
+        return false;
+    }
+    const float Distance = FVector::Dist2D(BodyCharacter->GetActorLocation(),
+        PlayerBody->GetActorLocation());
+    return FMath::IsFinite(Distance) && Distance <= MeleeAttackDistance;
+}
+
+void AETAIController::NotifyMeleeAttackAttemptFinished()
+{
+    UWorld* World = GetWorld();
+    if (!bTreeStarted || !CanObservePlayer() || !HasValidPursuitConfig() ||
+        !IsValid(World))
+    {
+        return;
+    }
+    NextMeleeAttemptTime = static_cast<double>(World->GetTimeSeconds()) +
+        MeleeRetryDelay;
+    SetMeleeAttackAllowed(false, TEXT("RetryCooldown"), -1.0f);
+    UE_LOG(LogETAIController, Display,
+        TEXT("[M1-05C2] Melee retry Controller=%s Delay=%.2f NextWorldTime=%.3f"),
+        *GetNameSafe(this), MeleeRetryDelay, NextMeleeAttemptTime);
+}
+
 void AETAIController::UpdatePursuitDecision()
 {
     AEmberTrialCharacter* BodyCharacter = ObservedBody.Get();
     AEmberTrialCharacter* PlayerBody = GetSensedPlayer();
     UBlackboardComponent* Board = GetBlackboardComponent();
+    const auto CloseBoth = [this](const TCHAR* Reason, float Distance)
+    {
+        SetMeleeAttackAllowed(false, Reason, Distance);
+        SetPursuitAllowed(false, Reason, Distance);
+    };
     if (!CanObservePlayer() || !IsValid(Board))
     {
-        SetPursuitAllowed(false, TEXT("BodyUnavailable"), -1.0f);
+        CloseBoth(TEXT("BodyUnavailable"), -1.0f);
         return;
     }
     if (!HasValidPursuitConfig())
     {
-        SetPursuitAllowed(false, TEXT("InvalidDistanceConfig"), -1.0f);
+        CloseBoth(TEXT("InvalidDistanceConfig"), -1.0f);
         return;
     }
     if (!IsValid(PlayerBody) ||
         Board->GetValueAsObject(TargetActorKey) != PlayerBody)
     {
         bHoldingDistance = false;
-        SetPursuitAllowed(false, TEXT("NoTarget"), -1.0f);
+        CloseBoth(TEXT("NoTarget"), -1.0f);
         return;
     }
 
@@ -244,7 +299,12 @@ void AETAIController::UpdatePursuitDecision()
         PlayerBody->GetActorLocation());
     if (!FMath::IsFinite(Distance))
     {
-        SetPursuitAllowed(false, TEXT("InvalidDistance"), -1.0f);
+        CloseBoth(TEXT("InvalidDistance"), -1.0f);
+        return;
+    }
+    if (!BodyCharacter->CanDealCombatDamageTo(PlayerBody))
+    {
+        CloseBoth(TEXT("CombatTeam"), Distance);
         return;
     }
     if (Distance <= PursuitStopDistance + ArrivalTolerance)
@@ -259,17 +319,23 @@ void AETAIController::UpdatePursuitDecision()
     UCharacterMovementComponent* Movement = BodyCharacter->GetCharacterMovement();
     if (!BodyCharacter->IsFormalActionIdle())
     {
-        SetPursuitAllowed(false, TEXT("Busy"), Distance);
+        CloseBoth(TEXT("Busy"), Distance);
+        return;
     }
-    else if (!IsValid(Movement) || !Movement->IsMovingOnGround())
+    if (!IsValid(Movement) || !Movement->IsMovingOnGround())
     {
-        SetPursuitAllowed(false, TEXT("OffGround"), Distance);
+        CloseBoth(TEXT("OffGround"), Distance);
+        return;
     }
-    else
-    {
-        SetPursuitAllowed(!bHoldingDistance,
-            bHoldingDistance ? TEXT("NearTarget") : TEXT("CanChase"), Distance);
-    }
+    const UWorld* World = GetWorld();
+    const bool bCanTry = IsValid(World) && World->GetNetMode() == NM_Standalone &&
+        World->GetTimeSeconds() >= NextMeleeAttemptTime &&
+        Distance <= MeleeAttackDistance &&
+        BodyCharacter->GetLightAttackSpecHandle().IsValid();
+    SetMeleeAttackAllowed(bCanTry, bCanTry ? TEXT("InRange") :
+        TEXT("RangeCooldownOrAbility"), Distance);
+    SetPursuitAllowed(!bHoldingDistance,
+        bHoldingDistance ? TEXT("NearTarget") : TEXT("CanChase"), Distance);
 }
 
 void AETAIController::SetPursuitAllowed(bool bNewAllowed, const TCHAR* Reason,
@@ -299,6 +365,29 @@ void AETAIController::SetPursuitAllowed(bool bNewAllowed, const TCHAR* Reason,
             TEXT("[M1-05B2] Pursuit gate Controller=%s Allowed=%d Reason=%s Distance2D=%.1f Holding=%d"),
             *GetNameSafe(this), bNewAllowed ? 1 : 0, Reason, Distance,
             bHoldingDistance ? 1 : 0);
+    }
+}
+
+void AETAIController::SetMeleeAttackAllowed(bool bNewAllowed,
+    const TCHAR* Reason, float Distance)
+{
+    const bool bChanged = bMeleeAttackAllowed != bNewAllowed;
+    bMeleeAttackAllowed = bNewAllowed;
+    if (bBlackboardReady)
+    {
+        if (UBlackboardComponent* Board = GetBlackboardComponent())
+        {
+            if (Board->GetValueAsBool(MeleeAttackKey) != bNewAllowed)
+            {
+                Board->SetValueAsBool(MeleeAttackKey, bNewAllowed);
+            }
+        }
+    }
+    if (bChanged)
+    {
+        UE_LOG(LogETAIController, Display,
+            TEXT("[M1-05C2] Melee gate Controller=%s Allowed=%d Reason=%s Distance2D=%.1f"),
+            *GetNameSafe(this), bNewAllowed ? 1 : 0, Reason, Distance);
     }
 }
 
@@ -350,10 +439,13 @@ void AETAIController::TryStartEnemyBehaviorTree()
 
 void AETAIController::StopEnemyBehaviorTree(const TCHAR* Reason)
 {
+    TGuardValue<bool> StopGuard(bStoppingTree, true);
     const bool bWasStarted = bTreeStarted;
     bTreeStarted = false;
     bTreeStartAttempted = false;
     bHoldingDistance = false;
+    NextMeleeAttemptTime = 0.0;
+    SetMeleeAttackAllowed(false, Reason, -1.0f);
     SetPursuitAllowed(false, Reason, -1.0f);
     if (UBehaviorTreeComponent* TreeComponent =
         Cast<UBehaviorTreeComponent>(GetBrainComponent()))
@@ -530,6 +622,7 @@ void AETAIController::ClearSensedPlayer(const TCHAR* Reason)
     const FString OldPlayerName = GetNameSafe(OldPlayer);
     SensedPlayer.Reset();
     bHoldingDistance = false;
+    SetMeleeAttackAllowed(false, Reason, -1.0f);
     // Abort the old move before clearing its goal key.
     SetPursuitAllowed(false, Reason, -1.0f, bHadTarget);
     RemoveDeadSubscription(ObservedTargetASC, TargetDeadHandle);

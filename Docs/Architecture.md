@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本：1.0；更新：2026-10-09。**M1-04与M1-05A / B1 / B2 / C1已验收。**当前[C1结果](Reports/M1_05C1_Verification.md)51Source / 25cpp / 清单40：真实追击 / 停走 / 失败等待、共享攻击支持离线AI、最小阵营及玩家真实受伤 / 受击 / HUD成立。BT自动攻击待C2，性能尚未测量。采用[分层验收与复用](AcceptanceWorkflow_Options.md)，完整测试工具尚未建设。最终目标见[Introduction](../Introduction.md)，实时状态见[Progress](Progress.md)。
+版本：1.0；更新：2026-10-09。**M1-04与M1-05A / B1 / B2 / C1已验收；C2设计已下发、尚未实施。**当前运行仍[C1结果](Reports/M1_05C1_Verification.md)51Source / 25cpp / 清单40。新[C2指南](M1_05C2_BehaviorTreeMeleeAttack.md)计划加入实例化BT近战任务、身体Spec查询、Controller攻击资格与有限重试；运行验证和性能测量均待完成。采用[分层验收与复用](AcceptanceWorkflow_Options.md)，完整测试工具尚未建设。最终目标见[Introduction](../Introduction.md)，实时状态见[Progress](Progress.md)。
 
 ## 1. 模块边界
 
@@ -52,6 +52,8 @@ CLion CodeModel 用于索引；真实编译由 UBT / UHT 执行。每个模块�
 **B2已验收：**Controller订阅身体Attacking / HitReact / Dead，忙碌与目标失效关门控、取消路径并清速度；150停 / 200恢复采用迟滞，StopDistance由Controller写Float黑板键，Move To读取且不叠加胶囊半径。失去目标保留等待，自身死亡 / Ready撤销 / UnPossess / EndPlay停止整树并解绑。两个辅助头文件实际在Public/AI，cpp为Private/AI；指南建议Private收口，目录差异不改变当前行为，不为本轮增加功能检查。节点无自定义共享可变身体状态，Build.cs保持原依赖。运行已支持追击 / 停走与死亡 / 暂停清理，活动Move受击与有效目标无路径等待均通过；性能测量仍未进行。
 
 M1-05路线采用AI Perception + Blackboard / Behavior Tree，A身体 / 控制权 / 导航、B1有效玩家、B2真实Move To、C1共享攻击 / 玩家受伤均已验收。生命 / 感知订阅各自归属，Ready不代表存活；目标暂停中保留、停止清空。轻攻击ServerOnly且限定离线Standalone，分别校验本地Player与AI控制的Enemy；玩家胶囊支持命中。核心Public AIModule已构建，依旧不依赖UI；C2自动朝向 / BT攻击、D组合交战分别验证。详细边界见[M1-05路线](M1_05_EnemyRoadmap.md)。
+
+**C2待实施设计：**原生Task头 / cpp均在Private/AI，使用每Controller节点实例、弱引用与Own Spec结束句柄。准备期间停步并按360deg/s转向，接受后锁Yaw；完成来自OnAbilityEnded，取消先解绑再取消自己Handle，Abort与Forced Stop清理幂等，Serial处理同步重入。Controller增加CanMeleeAttack与0.5秒世界时间重试，StopTree Guard阻止取消回调重新开门控。BB增加非同步Bool，BT左攻击Sequence用Lower Priority（不因自己Busy中止），正常结束Wait0.6；中追击Both、右Wait0.5沿用。距离计划90停 / 100恢复 / 100攻击，不改真实Trace。四现有 / 两新Source待用户输入，当前代码计数与已验收B2参数未提前改变；UI / 伤害 / 受击模块不增加反向依赖。
 
 角色沿用 AEmberTrialCharacter 名称，取代最初计划中的 AETCharacter 占位名，不复制玩家移动实现。理由与迁移边界见 [ADR-001](ADR/ADR_001_FrameworkReuse.md)。
 

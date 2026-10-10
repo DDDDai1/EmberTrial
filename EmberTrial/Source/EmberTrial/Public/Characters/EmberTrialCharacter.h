@@ -125,6 +125,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
 	bool RequestLightAttack();
 
+	FGameplayAbilitySpecHandle GetLightAttackSpecHandle() const;
+
 	UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
 	void CancelLightAttack();
 

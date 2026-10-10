@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-09现状：**本地已有16次提交，分支`main`，最近一次为`5d84916`（M0闪避回归与组合演示指南）；当前没有Git远端。M0后续与M1最新开发成果仍有大量未提交改动，不代表没有Git，也不代表GitHub已备份。当前运行验收已到M1-05C1，开发暂不进入C2。下面新增第5–7节给出本次提交范围和CLion操作；前面的阶段检查点说明保留为历史记录。
+**2026-10-09最新现状：**用户确认首次Push已完成；本机main HEAD与已更新的origin/main跟踪记录同为`e91659304721b6f7ae789275fbfa8bfdfe01fc4a`，本地17次提交，远端origin为`https://github.com/DDDDai1/EmberTrial.git`。这是用户上传结果与本地记录核对，没有本轮再次联网查询或单独验证全部远端LFS对象。之前TLS排障见第9节，保留为历史；本轮[M1-05C2指南](M1_05C2_BehaviorTreeMeleeAttack.md)已下发待手动实施。个人配置取消跟踪的删除仍在暂存区、本文排障更新尚未Commit，和C2收尾一起提交即可；不重复取消跟踪。用户决定以后每章收尾Commit / Push，具体规则见第10节与每章指南最后清单。
 
 ## 1. 已配置内容
 
@@ -10,7 +10,7 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
 - 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
-- 当前没有远端，没有上传。这里只是本地历史，不是异地备份。
+- 当前origin已配置为GitHub的DDDDai1/EmberTrial；首次Push失败，当前远端尚无提交分支。只有Push完成才能作为远端备份，详见第9节。
 
 ## 2. 第一个可恢复检查点
 
@@ -175,7 +175,7 @@ git lfs ls-files
 
 ## 6. 在CLion提交前，仅需一次取消旧个人配置跟踪
 
-本次查到**一份已经被Git跟踪、现在应忽略的文件**。在CLion底部Terminal中运行：
+规则整理时查到**一份已经被Git跟踪、应改为本地保留的文件**。当前用户已执行取消跟踪，Git显示暂存删除，尚待Commit；**不需要重复执行下面命令**。以下保留当时在CLion底部Terminal使用的一次性步骤：
 
 ```powershell
 Set-Location 'E:\UE_Project\Demo'
@@ -198,10 +198,10 @@ git ls-files --cached --ignored --exclude-standard
 
 1. 保存UE源码 / 资产与文档，回到CLion并刷新版本控制文件列表；无需为了.gitignore改动重新Build。仓库根应为E:\UE_Project\Demo，包含EmberTrial和Docs，不要另建嵌套仓库。
 2. 打开**Commit工具窗口**。把第5节应提交的修改、新文件与真实重命名纳入本次提交；Unversioned Files里新增源码、GA / BT / UI等资产、文档与Tools都需要加入Git。忽略目录里的文件不需要强制加入。
-3. 当前已有部分暂存文件出现AM / RM：表示暂存版本与工作区最新版本不同。**如果启用了Staging Area，把应提交的Unstaged最新变化也Stage进去**；不要只提交现在Staged中的旧版本。如果使用默认Changelist提交模式，选中需要保存的全部最新变化，检查文件预览。Character旧路径删除与新Public / Private路径新增应一起包含。
+3. 整理前部分暂存文件出现AM / RM：表示暂存版本与工作区最新版本不同。**如果启用了Staging Area，把应提交的Unstaged最新变化也Stage进去**；不要只提交Staged中的旧版本。如果使用默认Changelist提交模式，选中需要保存的全部最新变化，检查文件预览。Character旧路径删除与新Public / Private路径新增应一起包含；目前这些开发改动已进入e916593。
 4. 同时包含第6节那一条个人配置的删除。建议本次Commit标题：`chore: checkpoint EmberTrial through M1-05C1 and refine gitignore`。本次保存当前完整开发检查点，后续再按每批功能建立小提交。CLion的Commit / Staging操作见[官方说明](https://www.jetbrains.com/help/clion/commit-and-push-changes.html)。
 5. 本机Git LFS已安装，当前.git/config与pre-push hook已有LFS配置，.gitattributes对.uasset / .umap已核对为lfs。提交时保留.gitattributes；不用重新添加同样的track规则。首次提交完成后，可在Terminal运行`git lfs fsck`确认本地LFS对象，再Push；若报错发完整文本，先处理对象错误。
-6. 当前远端列表为空。由你在GitHub创建目标仓库后，在CLion的Git远端管理中添加`origin`及该仓库URL，再使用Push上传main。Commit保存本地历史，Push才上传；正常LFS pre-push hook会同时传输所需资产对象。创建用于接收现有历史的空仓库时，不额外初始化README / License / .gitignore，避免产生第二套初始历史；如果目标仓库已经有内容，先告诉我具体状态再合并，不强制覆盖。
+6. 初次建立远端时，在CLion的Git远端管理中添加origin与GitHub仓库URL，再使用Push上传main；**本次origin已经创建，直接按第9节重试Push即可**。Commit保存本地历史，Push才上传；正常LFS pre-push hook会同时传输所需资产对象。以后创建用于接收现有历史的空仓库时，不额外初始化README / License / .gitignore，避免产生第二套初始历史；如果目标仓库已有内容，先核对再合并。
 7. Push完成后，在GitHub检查Source、Config、Content、Docs、Tools与.gitattributes均存在；本机缓存、.run、Saved、Artifacts和Raw不会显示是预期结果。LFS的配置与提交规则见[GitHub官方说明](https://docs.github.com/en/repositories/working-with-files/managing-large-files/configuring-git-large-file-storage)。
 
 本次规则修改与只读核对不包含提交、上传、历史重写或新功能开发。运行构建与内容保持M1-05C1当前基线；等你完成Git整理后再决定何时进入C2。
@@ -212,5 +212,78 @@ git ls-files --cached --ignored --exclude-standard
 - 25个本地文件样例全部匹配忽略规则，覆盖UE产物、CLion / VS状态、本机两份偏好、包 / Trace / Raw、Python缓存与Blender备份。
 - 全部259个.uasset / .umap的filter属性为lfs；本次只核对属性和已有hook，不将它当作全部LFS对象完整性或GitHub上传成功证明。首次Commit后的fsck / Push由用户执行。
 - 新规则下Untracked从95减为93：排除本机.run启动XML与DefaultEditorSettings.ini；其余大量新文件是实际开发成果，继续显示是正确结果。
-- 已跟踪且匹配忽略规则的路径恰好一份：DefaultEditorPerProjectUserSettings.ini，等待用户按第6节取消跟踪。Source与C1清单40资产哈希均保持一致，.gitattributes内容未改。
+- 规则修改时，已跟踪且匹配忽略规则的路径恰好一份：DefaultEditorPerProjectUserSettings.ini；随后用户已取消跟踪、删除记录待Commit。Source与C1清单40资产哈希均保持一致，.gitattributes内容未改。
 - 本次两份文本文档的Git空白检查通过，无需重新编译或重做Gameplay验收。
+
+## 9. 首次Push的curl35 / schannel TLS断连（2026-10-09）
+
+截图提示GitHub仓库创建成功，但发送Git数据时SSL/TLS连接失败。这是传输阶段的错误；目前没有发现GitHub拒收文件大小、LFS对象或非快进分支的证据。不能仅凭错误就认定.gitignore或项目源码有问题。
+
+### 9.1 已完成的只读检查
+
+- origin：`https://github.com/DDDDai1/EmberTrial.git`；本地main最新e916593，工作区只有个人配置的暂存删除。
+- Git 2.49.0.windows.1；全局http.proxy指向127.0.0.1:7897，监听进程为verge-mihomo。
+- 在沙箱外测试代理和直连访问github.com，均HTTP200、TLS证书验证结果0；默认Git读取远端main成功 / Exit0，无该分支。
+- `HTTP/1.1 + OpenSSL`通过现有代理读取全部远端refs成功 / Exit0；直连Git + HTTP/1.1读取同样成功。两次全部refs输出为空，当前远端没有已发布分支 / 标签。
+- 这些测试使用临时-c参数，没有修改用户Git配置、执行Commit / Push或改变代理程序。沙箱内首次测试连接失败，不拿它作为用户真实网络故障的结论。
+
+目前只能确定首次Push的TLS连接中断，而此刻查询可以成功；**“代理故障”或“schannel必然有缺陷”都未被证明**。下面使用已验证能连接的替代配置重试实际上传，结果仍需用户Push确认。
+
+### 9.2 在CLion中执行的推荐处理
+
+1. 打开CLion Terminal，执行：
+
+```powershell
+Set-Location 'E:\UE_Project\Demo'
+git config --local http.version HTTP/1.1
+git config --local http.sslBackend openssl
+```
+
+这两项配置只作用于当前仓库，选择HTTP/1.1和OpenSSL连接实现；保留正常证书验证。它们的含义见[Git官方配置说明](https://git-scm.com/docs/git-config)。助手已用同样参数完成只读远端查询，但没有代替用户写入.git/config。
+
+2. 在CLion Commit窗口提交剩余的个人配置删除记录；本文排障更新也可一起提交。推荐标题：`chore: finish local editor preference cleanup and document GitHub push recovery`。删除记录保留本机文件，作用是让新版本不再跟踪它。
+3. 使用CLion的**Git → Push**，确认本地main推往origin/main；直接重试现有仓库，不再执行Share Project on GitHub创建第二个仓库。首次Push设置上游即可；也可以在同一Terminal明确执行：
+
+```powershell
+git push -u origin main
+```
+
+4. 完成应看到main已推送 / 已设置跟踪。可用以下只读命令确认远端main：
+
+```powershell
+git rev-parse HEAD
+git ls-remote origin refs/heads/main
+```
+
+两个提交哈希一致，再到GitHub查看Source / Content / Docs；LFS传输成功随Push结果确认。当前诊断未完成实际上传，也未宣称全部LFS对象已远端备份。
+
+### 9.3 若仍出现同样的TLS断连
+
+已验证本机Git直连读取远端也可用。先用**单次绕过Git代理**的方式重试，不改全局代理、不要求切换代理软件：
+
+```powershell
+git -c http.proxy= push -u origin main
+```
+
+该-c参数仅在此次命令有效，使用前一节已设置的HTTP/1.1 / OpenSSL。若仍失败，把CLion Git控制台或Terminal中的完整错误文本发给我，保留LFS上传结果和最后的RPC / TLS错误；按实际失败阶段继续判断。GitHub的网络问题排查说明见[官方文档](https://docs.github.com/en/get-started/using-github/troubleshooting-connectivity-problems)。
+
+这里不设置sslVerify=false，也不盲目调大postBuffer：截图指向TLS连接失败；Git官方说明postBuffer增加主要针对不支持chunked传输的特定HTTP端点，不是大部分Push错误的通用修复。恢复本仓库原有协议默认值时（这两项在本次处理前未配置）可执行：
+
+```powershell
+git config --local --unset http.version
+git config --local --unset http.sslBackend
+```
+
+## 10. 每章完成后的Commit / Push约定（2026-10-09用户新增）
+
+用户按每章完成进度上传；**从M1-05C2开始，开发指南最后必须列出本章需要Push的内容**：必需源码、必需可编辑UE资产、指南与验收 / 清单文档，实际发生改动才纳入的配置 / 地图，以及留本地的产物。后续补修 / 实施收尾插在清单之前，不把清单挤到文档中间。当前完整示例见[C2最后一节](M1_05C2_BehaviorTreeMeleeAttack.md#11-本章需要commit--push的内容固定放在文档最后)。
+
+执行顺序：用户手动实现 / Save All → 正常构建与相关检查 → 发完成反馈 → 助手读取代码、资产与日志并更新验收摘要 / AssetManifest / Progress → 用户在CLion检查最新差异、Commit → Push到origin/main → GitHub确认最新提交。无需GitHub插件、重新Share Project或改为另一个仓库。
+
+- Stage / Changelist只纳入本章实际交付与已有明确待提交项；出现AM / RM时，将应提交的最新Unstaged变化也纳入，避免提交旧暂存版本。原生新文件与Content资产同样需要加入。
+- 资产按现有LFS规则提交；临时GE None、Debug True、测试默认血量等先恢复再Commit。源码、Config共享规则、手写工具、Markdown摘要不能为减少文件数而被忽略。
+- Binaries / Intermediate / Saved / DerivedDataCache、IDE本机状态 / .run、生成CMake、Artifacts、Raw / Trace / Dump按.gitignore留本地。不用清缓存或强制添加被忽略文件。
+- 当前个人偏好的暂存删除记录随下一次Commit包含；本机文件保留。若已提交便不重复处理。本次未改.gitignore / .gitattributes、未执行Stage / Commit / Push。
+- 已上传的C1历史继续保留；C2通过前不把它写成已实现。推荐C2提交标题`feat: add enemy facing and behavior tree melee attack`，通过后再使用。
+
+如果上传失败，保留完整Git / LFS输出，按实际失败阶段排查；不Force Push、不重写历史。当前源资产的授权登记仍需在对外展示时持续核对，GitHub上传结果本身不替代资产来源记录。

@@ -743,11 +743,12 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 保存变更前后版本和沟通记录。若没有真实策划、美术、动画同事参与，明确标注为个人项目中的协作流程演练；资源规范和需求卡能证明方法，不能替代真实团队履历。
 
-### 13.5 手动实践与问题接管约定（v1.2，2026-09-28 用户更新）
+### 13.5 手动实践与问题接管约定（v1.3，2026-10-09 用户更新）
 
 - **所有 C++ 代码编写与修改，包括复杂实现和修复，默认由我输出到操作文档，由用户手动写入工程；直到用户明确表示需要我直接操作，才接管源码修改。** 普通报错反馈不自动等于接管授权。本约定覆盖旧文档中的“复杂 C++ 由助手直接实现”。
 - 创建工程 / C++ 类 / 蓝图、基础节点和编辑器配置继续由用户实践。我逐次说明目标、入口、名称 / 父类 / 路径、代码、步骤、预期结果和验收，不一次布置整个系统。
 - 2026-10-04补充：蓝图说明逐节点写出白色执行线、数据引脚、Target、Is Valid的Input Object与有效 / 无效分支；验收逐组列准备、操作、画面 / 日志预期及清理恢复，不用笼统转述旧章节替代关键步骤。B1文档按用户要求保留原样，B2起执行此规范。
+- 2026-10-09补充：用户已完成GitHub首次Push，之后按每章完成进度Commit / Push。每份后续开发指南最后固定列出本章需提交的源码、UE资产、文档与实际改动时才包含的文件，并说明忽略产物留本地；用户完成反馈、我更新验收 / 清单后再上传。收尾内容插在Push清单之前，清单始终在指南最后；助手不自动代替用户Stage / Commit / Push。当前入口为[Docs/M1_05C2_BehaviorTreeMeleeAttack.md](Docs/M1_05C2_BehaviorTreeMeleeAttack.md)，完整版本控制约定见[VersionControl](Docs/VersionControl.md)。
 - 我可以先检查工程、准备文档、审查代码和设计测试；不在用户练习期间悄悄完成同一份基础实现。用户要求接手后即可直接处理，不反复确认。
 - 遇到复杂架构、编译 / 链接 / Cook / 崩溃、跨系统状态错误或难以描述的问题，我先读取实际代码和日志定位，给出修正代码与验证步骤。C++ 修复仍按上面的手动规则；其他操作依照用户授权范围执行。
 - 用户只需描述最后一个操作和异常现象即可启动排查，不需要先猜根因。能提供完整文本日志最好；蓝图连线 / 布局用截图，时序 / 动画问题用短视频。具体模板见 `Docs/IssueTemplate.md`。
@@ -845,7 +846,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-09，M0 / M1-02 / M1-03 / M1-04已完成，M1-05A / B1 / B2 / C1验收通过。**正式身体 / 属性 / HUD与攻击 → 窗口 → 真实伤害 → 受击 / 死亡链路已成立；[M1-04总验收](Docs/Reports/M1_04_Verification.md)保存窗口内死亡证据。[M1-05路线](Docs/M1_05_EnemyRoadmap.md)已完成独立敌人、视觉感知、真实追击与失败等待；[B2等待父连接补修](Docs/Reports/M1_05B2_Verification.md)已关闭。最新[C1共享攻击 / 阵营 / 玩家受伤](Docs/Reports/M1_05C1_Verification.md)通过，三份既有源码修改、双构建记录与25cpp索引、真实10点玩家伤害 / HUD、同方过滤及取消清理已核对；第二次连续命中与玩家反击的缺失日志样本按用户实测反馈记录。当前51Source / 40资产，本批手动35 / 等待5分钟，累计手动1486分钟（24小时46分钟）/ 等待115；[C1最终基线](Docs/Reports/Raw/M1_05C1_Baseline.json)无待补项。下一批M1-05C2停步转向与BT自动攻击任务尚未下发或实施；C1可手动请求敌人攻击，不代表自动交战循环已经完成。所有C++仍默认先写文档，由用户手动实现；采用[方案B：分层验收与复用](Docs/AcceptanceWorkflow_Options.md)，不重复搭建未受影响的旧UI / 属性检查。助手本轮只读复核并更新文档。冻结死亡姿势是占位，正式重试、Blender关键模型、当前阶段包、性能实测与投递准备后续完善。首次打包见[M0-06验收](Docs/Reports/M0_06_Verification.md)，对象生命周期见[M1-02总验收](Docs/Reports/M1_02_Verification.md)，属性数据链见[M1-03总验收](Docs/Reports/M1_03_Verification.md)，排期见[M0-07校准](Docs/Reports/M0_07_Calibration.md)，实时状态以[Progress](Docs/Progress.md)为准。第一批环境记录保留在Docs/M0_Setup.md，以下为原M0路线：
+**截至2026-10-09，M0 / M1-02 / M1-03 / M1-04已完成，M1-05A / B1 / B2 / C1验收通过。**正式身体 / 属性 / HUD与攻击 → 窗口 → 真实伤害 → 受击 / 死亡链路已成立；[M1-04总验收](Docs/Reports/M1_04_Verification.md)保存窗口内死亡证据。[M1-05路线](Docs/M1_05_EnemyRoadmap.md)已完成独立敌人、视觉感知、真实追击与失败等待；[B2等待父连接补修](Docs/Reports/M1_05B2_Verification.md)已关闭。最新[C1共享攻击 / 阵营 / 玩家受伤](Docs/Reports/M1_05C1_Verification.md)通过，三份既有源码修改、双构建记录与25cpp索引、真实10点玩家伤害 / HUD、同方过滤及取消清理已核对；第二次连续命中与玩家反击的缺失日志样本按用户实测反馈记录。当前51Source / 40资产，本批手动35 / 等待5分钟，累计手动1486分钟（24小时46分钟）/ 等待115；[C1最终基线](Docs/Reports/Raw/M1_05C1_Baseline.json)无待补项。当前[M1-05C2停步转向与BT自动攻击指南](Docs/M1_05C2_BehaviorTreeMeleeAttack.md)已下发待用户手动实施，四现有 / 两新文件代码仅在文档，尚未Build / PIE；每章最后固定附Commit / Push清单，用户已确认首次GitHub Push完成；C1可手动请求敌人攻击，不代表自动交战循环已经完成。所有C++仍默认先写文档，由用户手动实现；采用[方案B：分层验收与复用](Docs/AcceptanceWorkflow_Options.md)，不重复搭建未受影响的旧UI / 属性检查。助手本轮只读复核并更新文档。冻结死亡姿势是占位，正式重试、Blender关键模型、当前阶段包、性能实测与投递准备后续完善。首次打包见[M0-06验收](Docs/Reports/M0_06_Verification.md)，对象生命周期见[M1-02总验收](Docs/Reports/M1_02_Verification.md)，属性数据链见[M1-03总验收](Docs/Reports/M1_03_Verification.md)，排期见[M0-07校准](Docs/Reports/M0_07_Calibration.md)，实时状态以[Progress](Docs/Progress.md)为准。第一批环境记录保留在Docs/M0_Setup.md，以下为原M0路线：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
