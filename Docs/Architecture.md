@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本：1.0；更新：2026-10-11。**M1-05与M1-06A / B功能已验收。**当前65Source / 32cpp / 清单45；[B报告](Reports/M1_06B_Verification.md)确认Core会话整图重试 / 返回菜单、死亡封锁后通知、Controller失败组件 / View和菜单空HUD补修落地。A已提交d5eb9aa、B待用户Push；本轮助手只核查证据和更新文档，未代改工程 / 运行Build或PIE。检查点 / Continue和统一暂停仍C / D计划，性能尚未测量，正式工具台未建设，采用[方案B](AcceptanceWorkflow_Options.md)。最终目标见[Introduction](../Introduction.md)，实时状态见[Progress](Progress.md)。
+版本：1.0；更新：2026-10-11。**M1-05与M1-06A / B已验收，B完整实现已提交4b83b66；[C指南](M1_06C_SessionCheckpoints.md)已下发待手动实施。**当前工程仍65Source / 32cpp / 清单45，C架构仅在文档，未代改工程或运行Build / PIE。[B报告](Reports/M1_06B_Verification.md)仍未跟踪，纳入C清单。统一暂停为D计划，性能尚未测量，正式工具台未建设，采用[方案B](AcceptanceWorkflow_Options.md)。最终目标见[Introduction](../Introduction.md)，实时状态见[Progress](Progress.md)。
 
 ## 1. 模块边界
 
@@ -116,10 +116,14 @@ M1-02B使用地图级GameMode Override；M1-06A已把Game Default Map切到菜�
 - UE5.5.4测试资产创建约定：含原生AttributeSet默认子对象的Character蓝图，从原生类创建新资产；本机Duplicate导致旧Waiting默认成员指针失效，与Epic UE-273844一致。保留原生子对象 / 归属保护，不能移除检查绕过问题；[局部收尾](M1_03B3_Closure.md)已实施通过，新样例替代旧失效资产。
 - 后续在 Pawn 更换、GameplayReady 与 UI 数据流真实接入后补充时序和测试结果；图中计划节点不记作已完成功能。
 
-## 8. M1-06流程（A / B已验收，C / D计划）
+## 8. M1-06流程（A / B已验收，C已下发待实施，D计划）
 
 A已将菜单世界与战斗世界分开：Core Menu GameMode不生成Pawn / Spectator / HUD，Controller Class由BP装配；UI模块Menu Controller持有唯一菜单Widget、UI Only / 焦点，Widget只发命令 / 渲染状态。地图使用软引用并加入Cook列表；游戏Controller BeginPlay恢复Game Only、隐藏鼠标、设置首次点击捕获策略并Flush。菜单→战斗、旧页清理 / 新HUD100与PIE退出有日志，具体键鼠操作据用户反馈。核心不依赖UI，现有LocalPlayer / Presenter重绑逻辑沿用。A发现的默认InitializeHUDForPlayer空AHUD Warning已在B用菜单专属空覆盖关闭，不调用Super，未改变战斗HUD流程。
 
 B已实现：GameInstanceSubsystem保存地图包名 / 当前请求，一次请求校验后解除暂停再OpenLevel，所属GI的PostLoad确认 / 失败释放门控；仅当前请求使用OriginWorld弱引用，结束即释放。正式GameMode登记地图，支持直接PIE；菜单开始路由统一服务。Life在原Death sealed之后广播原生事件，Controller FailureFlow订阅当前Life并查死亡快照，一次NextTick让旧死亡 / 初始输入回调结束后再显示失败View。Widget只发意图，UI组件管理暂停 / 焦点、旧Pawn / 结束解绑与取消一次任务；旧P函数新增死亡拒绝，未把UI并入Core或改HUD数据流。[B报告](Reports/M1_06B_Verification.md)核对六新 / 七旧Source、双构建 / 32cpp、三次Retry和四次MainMenu到达、新100及旧事件清理；None预检恢复已测，真实引擎TravelFailure尚未实测。
 
-C再加入稳定检查点ID与GameMode出生选择；B重试已回入口并重建双方生命、AI与HUD。检查点仅当前进程有效，退出后继续能力消失，版本化磁盘存档留M5。D再把旧Pawn暂停业务迁到Controller所属UI，统一输入 / 暂停所有者。C / D尚未创建或验收，详见[M1-06路线](M1_06_FlowRoadmap.md)。
+[C指南](M1_06C_SessionCheckpoints.md)已给出稳定Entry / Checkpoint_A、GameMode出生选择与菜单继续的两新 / 八旧Source，尚未写入工程。RunSession区分已确认地图 / ID与待定意图；FindPlayerStart在生成Pawn前使用待定ID，绕过旧StartSpot / 无有效Start时WorldSettings原点兜底。唯一Entry是地图契约，缺失检查点ID回入口；StartPlay报告实际选择，PostLoad成功后确认快照，失败保留原会话。开始新试炼确认后重置到Entry，重试 / 继续沿用最近ID，不保存Transform / Actor / ASC。
+
+原生CheckpointStart继承PlayerStart，Sphere只接受本地受控、存活且Ready身体，重复ID / 同ID不激活；一次NextTick补出生重叠，原生事件更新占位Label，结束清Timer / Overlap / Session委托，无常驻Tick。MainMenu Controller沿用一次请求 / UI输入边界；View只发继续意图和渲染资格。菜单BeginPlay早于PostLoad清待定请求，继续资格查询读取已确认快照，点击另受pending门控，避免到达菜单后按钮永久禁用。
+
+失效ID检查复用一个仅编辑器PIE有效的GameMode开发命令，不新搭Controller验收图或在PIE编译测试蓝图；数据注入后走正式死亡 / Retry，校验Entry回退与会话修正。C尚无构建 / 实机结果，重复ID / 缺失Entry保护也未称为已测。检查点仅当前进程有效，退出后继续能力消失，版本化磁盘存档留M5。D再把旧Pawn暂停业务迁到Controller所属UI，统一输入 / 暂停所有者，尚未下发；详见[M1-06路线](M1_06_FlowRoadmap.md)。

@@ -1,6 +1,6 @@
 # M1-06B：真实死亡、失败界面与整图重试
 
-下发 / 验收更新：2026-10-11；UE **5.5.4**。前置[A功能验收](Reports/M1_06A_Verification.md)通过，A已提交`d5eb9aa`；**本批已由用户手动实施并验收通过，无待补功能检查。**[B报告](Reports/M1_06B_Verification.md)记录65Source / 32cpp / 来源清单45，六新 / 七旧Source、失败整图重试 / 返回菜单及空HUD补修通过。实际手动80分钟（代码40 / 资产30 / 检查10）、构建等待5。B仍待用户重新Stage最新完整实现后Commit / Push，本机HEAD / 缓存origin仍A，本轮未联网验证远端。下文保留实施指南；助手本次只核查证据与更新文档，未代改工程或Build / PIE。
+下发 / 验收更新：2026-10-11；UE **5.5.4**。前置[A功能验收](Reports/M1_06A_Verification.md)通过；**本批已由用户手动实施并验收通过，无待补功能检查。**[B报告](Reports/M1_06B_Verification.md)记录65Source / 32cpp / 来源清单45，六新 / 七旧Source、失败整图重试 / 返回菜单及空HUD补修通过。实际手动80分钟（代码40 / 资产30 / 检查10）、构建等待5。**后续已核对B完整实现提交4b83b66，旧六AM骨架及个人设置删除已处理；B报告仍未跟踪，随[C清单](M1_06C_SessionCheckpoints.md#13-本批需要commit--push的内容固定放在文档最后)加入。**HEAD / 缓存origin一致，本轮未联网验证远端。下文保留实施指南，14.1.1重新Stage步骤可复用；助手未代改工程或Build / PIE。
 
 继续所有C++先写文档、由你手动实现；普通报错不自动授权源码接管。使用[方案B](AcceptanceWorkflow_Options.md)，验收走正式重试 / 返回菜单按钮，只有一个很小的旧P菜单门控改动，没有临时Controller测试图。目录与文件名大小写按表填写，generated include始终是头文件最后一个include。
 
@@ -1416,7 +1416,7 @@ Main Menu Map恢复、100/100、4=Damage25、slomo1、Debug False / Save All：
 
 选择第2节全部13份实际变化Source：Session / FailureWidget / FailureFlow各头与cpp；CombatLife头 / cpp、MenuGameMode头 / cpp、ETGameMode.cpp、MainMenuController头 / cpp。Build.cs / Target / .uproject / ETPlayerController.cpp / 旧Bootstrap本批无必需改动，不提交生成的UHT / Unity cpp或索引文件。
 
-推荐Commit标题：`feat: add death screen and session-based level retry`。**本次已实际发现六个新文件均为AM：暂存区只有类骨架，完整代码在工作区。**在CLion对这六个文件重新Stage最新修改，同时加入七个既有Source的修改；提交前看Staged Diff确认Session / Widget / Flow的完整实现，避免只提交早期暂存内容。
+推荐Commit标题：`feat: add death screen and session-based level retry`。**验收时曾发现六个新文件为AM：暂存区只有类骨架，完整代码在工作区；后续已全部提交4b83b66，不再重复暂存。**以下14.1.1保留为日后“Stage后又修改”的简单操作；提交前看Staged Diff确认完整实现，避免只提交早期暂存内容。
 
 #### 14.1.1 CLion重新Stage最新修改：简单步骤
 
@@ -1453,10 +1453,10 @@ BP_ETMainMenuController只有确有父类刷新 / 必要配置保存变化才加
 - `Docs/M1_06B_FailureAndRetry.md`、`Docs/M1_06_FlowRoadmap.md`。
 - 本批更新的`Docs/Progress.md`、`Docs/Backlog.md`、`Docs/Architecture.md`、`Docs/VersionControl.md`、`Docs/AcceptanceWorkflow_Options.md`、`Introduction.md`。
 - 已保存的`Docs/Reports/M1_06B_Verification.md`和`Docs/AssetManifest.csv`（一新Widget / 两旧BP实际哈希，清单45项）。
-- 原暂存个人设置`EmberTrial/Config/DefaultEditorPerProjectUserSettings.ini`取消跟踪删除记录仍在；可随本批提交，磁盘个人设置保留，**不再执行删除磁盘文件或重复git rm**。
+- 原个人设置`EmberTrial/Config/DefaultEditorPerProjectUserSettings.ini`取消跟踪删除已进入4b83b66，磁盘个人设置保留，**不再执行删除磁盘文件或重复git rm**。
 
 ### 14.4 留本地与最后操作
 
 Raw核查 / 日志、Artifacts包 / 视频、Binaries / Intermediate / Saved / DDC、`.idea` / `.run`、生成CMake / compile_commands与索引留本地，不Force Add绕过忽略规则。
 
-本批完成、恢复配置并取得验收后，在CLion选择以上**实际变化**，检查13源码全文与三必需资产，再Commit → Push已有origin/main。A已提交`d5eb9aa`，不再按旧AM提示重复提交A文件或改写历史。助手不代Stage / Commit / Push；上传失败给原始错误文本，我再定位。
+本批功能 / 实现已进入4b83b66，当前仅补交尚未跟踪的B验收报告与实际文档更新，不按旧AM提示重复提交已进入历史的Source / 资产。后续C按[C第13节](M1_06C_SessionCheckpoints.md#13-本批需要commit--push的内容固定放在文档最后)选择实际变化，重新Stage → Commit → Push已有origin/main。助手不代Stage / Commit / Push；上传失败给原始错误文本，我再定位。

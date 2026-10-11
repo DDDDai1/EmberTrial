@@ -16,13 +16,16 @@ class EMBERTRIALUI_API UETMainMenuWidget : public UUserWidget
 
 public:
     bool HasRequiredLayout() const;
-    void ShowReady();
+    void ShowReady(bool bCanContinue);
     void ShowPending(const FText& Message);
-    void ShowError(const FText& Message);
+    void ShowError(const FText& Message, bool bCanContinue);
     void FocusStartButton();
 
     UPROPERTY(BlueprintAssignable, Category = "EmberTrial|Menu")
     FETMenuActionRequested OnStartRequested;
+
+    UPROPERTY(BlueprintAssignable, Category = "EmberTrial|Menu")
+    FETMenuActionRequested OnContinueRequested;
 
     UPROPERTY(BlueprintAssignable, Category = "EmberTrial|Menu")
     FETMenuActionRequested OnQuitRequested;
@@ -35,6 +38,9 @@ private:
 
     UFUNCTION()
     void HandleStartClicked();
+
+    UFUNCTION()
+    void HandleContinueClicked();
 
     UFUNCTION()
     void HandleQuitClicked();
@@ -52,4 +58,5 @@ private:
     TObjectPtr<UTextBlock> StatusText;
 
     bool bBusy = false;
+    bool bContinueAvailable = false;
 };

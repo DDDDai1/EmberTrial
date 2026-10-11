@@ -25,6 +25,9 @@ private:
     void HandleStartRequested();
 
     UFUNCTION()
+    void HandleContinueRequested();
+
+    UFUNCTION()
     void HandleQuitRequested();
 
     void HandleSessionFailure(UWorld* FailedWorld, const FText& Message);

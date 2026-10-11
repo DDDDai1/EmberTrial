@@ -1,6 +1,6 @@
 # M1-06：主菜单、失败重试与检查点原型
 
-下发：2026-10-10；更新：2026-10-11；UE **5.5.4**。前置[M1-05总验收](Reports/M1_05_Verification.md)通过。**A / B功能已验收，A已提交d5eb9aa、B待用户Push，C / D尚未下发。**[B报告](Reports/M1_06B_Verification.md)核对RunSession、死亡封锁后通知、Controller失败流程 / View、菜单接入 / 旧P门控和空HUD补修。当前65Source / 32cpp / 来源清单45；B手动80 / 等待5，A+B125 / 10，项目累计1646 / 130分钟。本轮助手只做收尾，未代改工程或构建 / PIE。
+下发：2026-10-10；更新：2026-10-11；UE **5.5.4**。前置[M1-05总验收](Reports/M1_05_Verification.md)通过。**A / B功能已验收，B完整实现已提交4b83b66；[C指南](M1_06C_SessionCheckpoints.md)已下发，待用户手动实施，D未下发。**[B报告](Reports/M1_06B_Verification.md)仍未跟踪，纳入C末尾清单。本机HEAD与缓存origin/main一致，本轮未联网核验远端。当前工程仍65Source / 32cpp / 来源清单45；B手动80 / 等待5，A+B125 / 10，项目累计1646 / 130分钟。C代码仅在指南，未改工程Source / 资产或运行Build / PIE，不提前计入预计工时。
 
 继续约定：C++全部先写在文档，由你手动实现；Blueprint配置步骤保持具体，难操作或报错需要你明确授权后接管。按[方案B](AcceptanceWorkflow_Options.md)只检查新增流程与受影响边界；各开发批次最后列出Commit / Push内容。
 
@@ -28,20 +28,21 @@
 | --- | --- | --- | --- |
 | **[A 主菜单入口](M1_06A_MainMenu.md)，功能已验收** | 独立菜单地图、开始 / 禁用继续 / PIE退出、进入战斗后的输入恢复 | 六新 / 两旧Source、四新资产、启动 / Cook配置；C2374关闭。当时空HUD初始化Warning已在B收口 | 实际45分钟：代码10、资产30、检查5；构建等待5。原估60–100 / 检查8–12保留作计划参考 |
 | **[B 真实失败与整图重试](M1_06B_FailureAndRetry.md)，功能已验收** | Death sealed后显示失败页，重试 / 返回菜单只接受一次 | 六新 / 七旧Source；Core会话地图 / 请求、UI当前Life订阅与一次NextTick呈现、菜单路由 / 空HUD补修；一新Widget / 两旧BP，旧P加死亡拒绝。三Retry / 四返回菜单与清理通过 | 实际80分钟：代码40、资产30、检查10；构建等待5。原估90–150 / 检查10–15保留作参考 |
-| C 会话检查点与菜单继续 | 两个稳定出生标识、激活检查点、死亡 / 菜单继续使用最近ID | 会话只存地图与ID；GameMode按ID选择PlayerStart，非法ID回退入口；菜单开始清空会话、继续资格来自真实快照 | 80–130分钟，检查10–15；复用B实际重载链路 |
+| **[C 会话检查点与菜单继续](M1_06C_SessionCheckpoints.md)，已下发待实施** | Entry / Checkpoint_A、激活检查点、死亡 / 菜单继续使用最近ID | 两新 / 八旧Source；待定ID在生成Pawn前参与选择，成功到达再确认快照；唯一入口 / 缺失ID回退，开始重置、继续资格与会话文案；一新BP / 两旧资产 | 80–130分钟，四组检查10–15；复用B重载链路与一个PIE开发命令，不搭测试蓝图 |
 | D 暂停迁移与章末闭环 | 暂停 / 失败页统一由Controller所属UI协调，P继续 / 返回菜单，证据收尾 | 迁出玩家BP里旧菜单实例 / 清理业务；输入 / 暂停交接只有一个所有者；复盘现有证据，确有新边界才窄补 | 60–100分钟，相关检查10–15；复盘本身不再搭验收图 |
 
-全章原暂估**5–8小时用户有效投入**，构建 / Cook等待另列；A+B实际125 / 等待10，C / D仍按表内预算规划，不提前计入工时。当前项目累计手动1646 / 等待130分钟。旧菜单已有成熟输入边界，A / B先保留，再在D定向迁移。每批通过并提交后再推进下一批。
+全章原暂估**5–8小时用户有效投入**，构建 / Cook等待另列；A+B实际125 / 等待10，C已下发、D仍计划，预算不提前计入工时。当前项目累计手动1646 / 等待130分钟。旧菜单已有成熟输入边界，A / B / C先保留，再在D定向迁移。每批通过并提交后再推进下一批。
 
 ## 3. 对象归属与低耦合边界
 
 | 对象 | 归属 / 职责 |
 | --- | --- |
 | Menu GameMode（核心） | 当前菜单世界的规则：不生成玩家Pawn / Spectator / HUD；Controller Class由菜单GameMode BP装配，不反向引用UI模块 |
-| MainMenu Controller（UI模块） | 本地菜单世界的View创建、按钮命令、UI Only / 焦点和结束清理；B已统一调用会话服务，C再加入Continue意图 |
-| MainMenu Widget | 只展示按钮 / 状态，发送开始 / 退出意图；Blueprint负责布局，C++负责按钮事件；不Cast角色、无ASC、不负责存档规则 |
-| Run Session（B已实现，GameInstanceSubsystem） | 跨地图保留地图包名与请求状态，C再加会话检查点ID；不长期持有旧World、Controller、Pawn、Widget或ASC；不依赖UMG |
-| 游戏GameMode（B已登记地图，C待扩展） | 当前世界生成新身体；C按会话ID选择出生位置、校验或回退；不处理UMG输入 |
+| MainMenu Controller（UI模块） | 本地菜单世界的View创建、按钮命令、UI Only / 焦点和结束清理；B已统一调用会话服务，C指南增加Continue意图，尚未实施 |
+| MainMenu Widget | 展示按钮 / 状态，发送开始 / 退出意图，C待加入继续；Blueprint负责布局，C++负责按钮事件；不Cast角色、无ASC、不负责存档规则 |
+| Run Session（B已实现，GameInstanceSubsystem） | 跨地图保留地图包名与请求状态，C指南扩展稳定ID、待定请求与已确认快照；不长期持有旧World、Controller、Pawn、Widget或ASC；不依赖UMG |
+| 游戏GameMode（B已登记地图，C已下发待实施） | C在生成身体前按稳定ID选择PlayerStart、校验唯一入口与缺失ID回退；出生完成通知实际选择，避免把无效ID继续保存；不处理UMG输入 |
+| CheckpointStart（C计划新增） | 继承PlayerStart，原生Sphere接收合法本地存活身体的Overlap；一次NextTick补出生重叠，事件更新占位反馈，EndPlay解绑；无逐帧检测 |
 | Controller所属UI协调（B失败已实现，D暂停待迁移） | 根据当前身体死亡显示失败页、解绑旧源、控制输入 / 暂停；旧P暂保留Pawn，UI模块依赖核心公开接口 |
 | LocalPlayer Subsystem / Presenter / HUD（现有） | LocalPlayer切图后绑定新Controller / Pawn；旧事件主动解绑，新健康快照推动既有HUD；沿用既有真实实现 |
 | Actor / GAS / AI（现有） | 新地图实例重新初始化独立属性 / 能力；旧AI任务 / 委托 / Trace结束；不由菜单直接修复它们的状态 |
@@ -73,6 +74,6 @@ M1-06先采用**非无缝OpenLevel整图重建**，适合目前的小房间与�
 
 ## 6. 本章需要Commit / Push的内容（固定放在文档最后）
 
-实际改动以各批指南最后的清单为准：A见[M1_06A_MainMenu.md](M1_06A_MainMenu.md)，本批B见[M1_06B_FailureAndRetry.md](M1_06B_FailureAndRetry.md#14-本批需要commit--push的内容固定放在文档最后)。每批提交必需源码、可编辑BP / Widget / 地图、共享配置、指南与验收摘要 / 清单；不提交Raw日志、视频、包、生成CMake / compile_commands、UE / IDE缓存。
+实际改动以各批指南最后的清单为准：本批见[C第13节](M1_06C_SessionCheckpoints.md#13-本批需要commit--push的内容固定放在文档最后)。每批提交必需源码、可编辑BP / Widget / 地图、共享配置、指南与验收摘要 / 清单；不提交Raw日志、视频、包、生成CMake / compile_commands、UE / IDE缓存。
 
-A实现 / 资产 / 收尾已提交`d5eb9aa`，不重复提交。B已验收：13源码、三必需资产、B指南 / 本报告 / 来源清单与状态文档由用户Commit / Push；**当前六个新B文件均为AM，暂存区是类骨架，须重新Stage完整实现。**个人编辑器配置取消跟踪删除仍暂存，可随B提交，磁盘文件保留。空HUD补修已在实际Source并验证；完整清单以B第14节为准。
+A / B实现已进入`4b83b66`，旧AM骨架与个人设置取消跟踪删除已提交，不重复处理，磁盘个人设置保留。B报告仍未跟踪，需随C文档加入。C完成后按清单加入十份Source、三份必需资产和实际验收摘要 / 清单更新；目前仅指南与状态文档变化，不把未来源码 / 资产称作已完成。

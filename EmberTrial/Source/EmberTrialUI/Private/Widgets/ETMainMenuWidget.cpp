@@ -18,20 +18,24 @@ void UETMainMenuWidget::NativeOnInitialized()
     if (!HasRequiredLayout())
     {
         UE_LOG(LogETMainMenuView, Warning,
-            TEXT("[M1-06A] Missing menu BindWidget Widget=%s"),
+            TEXT("[M1-06C] Missing menu BindWidget Widget=%s"),
             *GetNameSafe(this));
         return;
     }
     StartButton->OnClicked.AddUniqueDynamic(
-        this, &UETMainMenuWidget::HandleStartClicked);
+        this, &ThisClass::HandleStartClicked);
+    ContinueButton->OnClicked.AddUniqueDynamic(
+        this, &ThisClass::HandleContinueClicked);
     QuitButton->OnClicked.AddUniqueDynamic(
-        this, &UETMainMenuWidget::HandleQuitClicked);
+        this, &ThisClass::HandleQuitClicked);
 }
 
-void UETMainMenuWidget::ShowReady()
+void UETMainMenuWidget::ShowReady(bool bCanContinue)
 {
-    ApplyState(false, FText::FromString(
-        TEXT("尚无存档，继续功能暂不可用。")));
+    bContinueAvailable = bCanContinue;
+    ApplyState(false, FText::FromString(bCanContinue
+        ? TEXT("可继续本次试炼；关闭游戏后会话检查点清除。")
+        : TEXT("尚无本次试炼；开始后可在当前进程内继续。")));
 }
 
 void UETMainMenuWidget::ShowPending(const FText& Message)
@@ -39,8 +43,9 @@ void UETMainMenuWidget::ShowPending(const FText& Message)
     ApplyState(true, Message);
 }
 
-void UETMainMenuWidget::ShowError(const FText& Message)
+void UETMainMenuWidget::ShowError(const FText& Message, bool bCanContinue)
 {
+    bContinueAvailable = bCanContinue;
     ApplyState(false, Message);
 }
 
@@ -52,7 +57,7 @@ void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
         return;
     }
     StartButton->SetIsEnabled(!bBusy);
-    ContinueButton->SetIsEnabled(false);
+    ContinueButton->SetIsEnabled(!bBusy && bContinueAvailable);
     QuitButton->SetIsEnabled(!bBusy);
     StatusText->SetText(Message);
 }
@@ -71,6 +76,14 @@ void UETMainMenuWidget::HandleStartClicked()
     if (!bBusy)
     {
         OnStartRequested.Broadcast();
+    }
+}
+
+void UETMainMenuWidget::HandleContinueClicked()
+{
+    if (!bBusy && bContinueAvailable)
+    {
+        OnContinueRequested.Broadcast();
     }
 }
 

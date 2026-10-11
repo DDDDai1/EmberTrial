@@ -1,14 +1,14 @@
 # 当前开发状态
 
-更新日期：2026-10-11。**M1-05整章与M1-06A / B功能已验收，B无待补检查。**[B报告](Reports/M1_06B_Verification.md)核对六新 / 七旧Source、双目标receipt / 32cpp索引、真实死亡失败页、三次重试 / 四次返回菜单、None预检恢复与旧源清理。当前65Source / 32cpp / 来源清单45；本批手动80（代码40 / 资产30 / 检查10）、等待5，累计手动1646 / 等待130分钟。菜单空HUD Warning已消失；Class配置缺失过程已恢复并记录。HEAD / 缓存origin/main仍A提交d5eb9aa，B待用户Commit / Push，六个新Source为AM，需重新Stage完整实现。个人设置删除仍暂存，磁盘文件保留；C++手动与方案B继续，C / D未下发。本轮助手只做证据和文档收尾，未代改Source / UE资产、Build / PIE或提交。
+更新日期：2026-10-11。**M1-05整章与M1-06A / B已验收；[M1-06C指南](M1_06C_SessionCheckpoints.md)已下发，待用户手动实施，D未下发。**B完整实现已提交4b83b66，本机HEAD / 缓存origin/main一致，旧AM骨架与个人设置删除已处理；本轮未联网核验远端。[B报告](Reports/M1_06B_Verification.md)仍未跟踪，随C提交。当前工程仍65Source / 32cpp / 来源清单45，C预计完成后67 / 33 / 46，未提前登记。B快照后仅RunSession.cpp换行字节调整，功能代码一致；当前Source和45资产已作为C下发基线保留。累计手动1646 / 等待130分钟不变；C++手动与方案B继续，本轮只生成指南 / 状态与本地静态证据，未代改Source / UE资产、Build / PIE或提交。
 
 ## 当前阶段
 
-**完整战斗链路验收到M1-05整章，菜单 / 失败重试验收到M1-06B。**ASC / 属性 / GameplayReady → Presenter → HUD、独立身体与生命周期，以及攻击 → Trace → GE → 受击 / 死亡已成立；自动追击 → 转向 → BT攻击 → 能力结束 / 有限重试与清理已通过。M1-03见[数据流汇总](M1_03C_DataFlowReview.md)，M1-04见[战斗汇总](M1_04D_CombatReview.md)，M1-05见[敌人交战复盘](M1_05D_EnemyCombatReview.md)。菜单隔离与新世界输入交接、真实死亡失败页 / 整图重试 / 返回菜单已通过；检查点、暂停迁移、倒地表现、当前阶段包和性能后续实现，当前不代表最终作品完成。
+**完整战斗链路验收到M1-05整章，菜单 / 失败重试验收到M1-06B。**ASC / 属性 / GameplayReady → Presenter → HUD、独立身体与生命周期，以及攻击 → Trace → GE → 受击 / 死亡已成立；自动追击 → 转向 → BT攻击 → 能力结束 / 有限重试与清理已通过。M1-03见[数据流汇总](M1_03C_DataFlowReview.md)，M1-04见[战斗汇总](M1_04D_CombatReview.md)，M1-05见[敌人交战复盘](M1_05D_EnemyCombatReview.md)。菜单隔离与新世界输入交接、真实死亡失败页 / 整图重试 / 返回菜单已通过；检查点与菜单继续已下发待实施，暂停迁移、倒地表现、当前阶段包和性能后续实现，当前不代表最终作品完成。
 
 **M1-04C2历史时序缺口已关闭。**19:53:24.529 WindowOpen，19:53:39.113死亡提交 → WindowClose(AttackEnd) → Disarm.Tick0 → 当前能力Cancelled1 / AttackingTag0 → Death sealed；结束Dead Tag Remaining0。助手当时经授权使用slomo0.01等待日志确认后按4并恢复1，随后保存100/100与Debug False。此为上一章证据，不是本次C1接管；冻结姿势、重试与新包后续完善。
 
-**当前操作：按[M1-06B最后Push清单](M1_06B_FailureAndRetry.md#14-本批需要commit--push的内容固定放在文档最后)重新Stage六个新Source的完整实现，提交13源码 / 三资产 / 文档与清单，再Push。**B验收已关闭，无需重复三组检查。下一批C接会话检查点与Continue，D统一暂停所有者；待用户明确进入后下发。本轮不直接进入C。
+**当前操作：按[C第2节](M1_06C_SessionCheckpoints.md#2-准备与文件清单)保存并关闭UE，手动实施两新 / 八旧Source，再按第8节双目标Build / 索引、第9节资产配置、第10节四组短检查执行。**本批预算80–130分钟，检查10–15；正式开始 / 重试 / 继续和一个仅PIE有效的开发命令构成复用入口，不搭测试蓝图。按第11节反馈，我读取日志；通过后按第13节Commit / Push。B不重测，D尚未进入。
 
 - 工作区：`E:\UE_Project\Demo`。
 - 实际 UE 工程：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，已存在。
@@ -149,7 +149,7 @@ C2实施反馈：用户全项报告完成，手动25分钟（代码10 / 资产10
 
 2026-10-10 C2验收：用户15:20全项完成，手动35 / 等待5；四旧 / 两新源码、16代码片段一致，其余47Source不变；53Source / 26cpp / 清单40、双receipt与实际compile_commands核对。七轮初始化、58Prepare闭合为54Finish+4Abort、17Enemy Begin-End / Tag0；41次拒绝平均0.5541秒，GE恢复后真实伤害、100→90→80、玩家四次25、受击恢复与玩家死亡活动任务取消均有日志。朝向 / 具体输入与最终配置据反馈。仅四清单资产改变，其余36不变；[报告](Reports/M1_05C2_Verification.md) / [基线](Reports/Raw/M1_05C2_Baseline.json)无待补，累计1521 / 120，本章147 / 25。主体已提交9cdbc75，当前新增收尾文档留给用户追加上传。
 
-- M1-05 A / B / C / D完成，[总验收](Reports/M1_05_Verification.md)无待补；M1-06A已提交，B功能通过待用户Push，C / D未下发；所有C++继续先写文档，不重复M1-05专项或旧UI矩阵。
+- M1-05 A / B / C / D完成，[总验收](Reports/M1_05_Verification.md)无待补；M1-06A / B实现已提交4b83b66，C已下发待实施、D未下发；所有C++继续先写文档，不重复M1-05专项或旧UI矩阵。
 - 沿用D专项触发清单，数字3 / 4目前保留；正式失败整图重试已通过，倒地表现、检查点、当前阶段包和投递准备后续完成。
 - 沿用C章专项触发清单，只在相关实现变化或出现失败时补查；同类临时入口再次需要时先评估复用，不搭建大型测试平台。
 
@@ -162,6 +162,8 @@ C2实施反馈：用户全项报告完成，手动25分钟（代码10 / 资产10
 2026-10-11 M1-06B下发：A全部59Source / 44资产保持已接受版本、HEAD / 缓存origin为d5eb9aa；仅已有个人设置删除仍暂存。六新 / 七旧Source的代码只写入[B指南](M1_06B_FailureAndRetry.md)：Core RunSession存地图 / 一次请求，Life Death sealed后通知，Controller失败组件观察当前Life / 一次NextTick呈现、暂停 / 焦点，Widget只发意图；菜单统一请求与空HUD补修、旧OpenPauseMenu增加死亡Branch。详细Designer / 三组10–15分钟相关检查与末尾Push清单已保存；预估90–150分钟，未新增工程Source / 资产、Build / PIE或实耗。实施后预计65Source / 32cpp / 清单45，但目前仍59 / 29 / 44，累计1566 / 125不变。
 
 2026-10-11 M1-06B收尾：用户15:05全项完成，手动80（代码40 / 资产30 / 检查10）、等待5；65Source / 32cpp、八个全文片段与局部死亡 / GameMode追加核对，原52Source保持A哈希。日志七组Session、七页显示 / 移除、十一组Life / Flow / HUD清理闭合，三次Retry / 四次MainMenu / 五次NewRun到达，敌人10→0致死与训练目标死亡隔离成立。None预检恢复及最终Map保存 / 返回菜单有证据；具体输入和失败页中Stop按用户反馈，Class缺失后保存 / 恢复已记录。菜单空HUD Warning关闭，验收窗口无相关Error。新增失败Widget / 更新两BP哈希，清单45且42旧资产不变；[报告](Reports/M1_06B_Verification.md)与[基线](Reports/Raw/M1_06B_Baseline.json)无待补。累计1646 / 130，M1-06 A+B125 / 10；本轮只更新文档 / 清单 / 本地证据，六个AM新Source需用户重新Stage最新代码，C / D未下发。
+
+2026-10-11 M1-06C下发：用户授权进入本批；B完整实现 / 资产已提交4b83b66，B报告仍未跟踪纳入本批清单。新增[C指南](M1_06C_SessionCheckpoints.md)，十个完整文件代码仅在Markdown；稳定Entry / Checkpoint_A、生成Pawn前选择待定ID、到达确认实际快照、原生Overlap / 一次NextTick、菜单继续 / 开始重置与会话文案、唯一入口 / 缺失ID回退。无新测试蓝图，四组10–15分钟使用正式流程 / 既有4 / 仅PIE生效的ke开发命令；预计80–130分钟，未计实耗。当前65Source / 32cpp / 清单45保持下发基线；C实现后预计67 / 33 / 46，未新增实际源码 / 资产、Build或PIE。累计1646 / 130不变，D未下发。
 
 ## 工时与已确认约束
 

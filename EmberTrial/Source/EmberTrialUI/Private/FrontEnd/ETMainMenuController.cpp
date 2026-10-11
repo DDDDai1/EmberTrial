@@ -31,7 +31,7 @@ void AETMainMenuController::BeginPlay()
     if (!Session.IsValid() || !MainMenuWidgetClass)
     {
         UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06B] Missing session or MainMenuWidgetClass Controller=%s"),
+            TEXT("[M1-06C] Missing session or MainMenuWidgetClass Controller=%s"),
             *GetNameSafe(this));
         return;
     }
@@ -41,16 +41,19 @@ void AETMainMenuController::BeginPlay()
     if (!IsValid(MenuWidget.Get()) || !MenuWidget->HasRequiredLayout())
     {
         UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06B] Menu creation or layout failed Controller=%s"),
+            TEXT("[M1-06C] Menu creation or layout failed Controller=%s"),
             *GetNameSafe(this));
         RemoveMenuWidget();
         return;
     }
     MenuWidget->OnStartRequested.AddUniqueDynamic(
         this, &ThisClass::HandleStartRequested);
+    MenuWidget->OnContinueRequested.AddUniqueDynamic(
+        this, &ThisClass::HandleContinueRequested);
     MenuWidget->OnQuitRequested.AddUniqueDynamic(
         this, &ThisClass::HandleQuitRequested);
-    MenuWidget->ShowReady();
+    const bool bCanContinue = Session->HasContinueSnapshot();
+    MenuWidget->ShowReady(bCanContinue);
     if (!MenuWidget->AddToPlayerScreen(100))
     {
         RemoveMenuWidget();
@@ -61,9 +64,9 @@ void AETMainMenuController::BeginPlay()
         this, MenuWidget.Get(), EMouseLockMode::DoNotLock, true);
     MenuWidget->FocusStartButton();
     UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06B] Menu ready Controller=%s Widget=%s Pawn=%s Session=%s"),
+        TEXT("[M1-06C] Menu ready Controller=%s Widget=%s Pawn=%s Continue=%d"),
         *GetNameSafe(this), *GetNameSafe(MenuWidget.Get()), *GetNameSafe(GetPawn()),
-        *GetNameSafe(Session.Get()));
+        bCanContinue ? 1 : 0);
 }
 
 void AETMainMenuController::HandleStartRequested()
@@ -74,13 +77,30 @@ void AETMainMenuController::HandleStartRequested()
         return;
     }
     bTransitionPending = true;
-    MenuWidget->ShowPending(FText::FromString(TEXT("正在进入试炼…")));
+    MenuWidget->ShowPending(FText::FromString(TEXT("正在开始新试炼…")));
     FText Error;
     if (!Session.IsValid() ||
         !Session->RequestNewRun(GetWorld(), GameplayMap.ToSoftObjectPath(), Error))
     {
         RecoverAfterFailure(Error.IsEmpty()
             ? FText::FromString(TEXT("试炼会话不可用，请重试。")) : Error);
+    }
+}
+
+void AETMainMenuController::HandleContinueRequested()
+{
+    if (bEndingPlay || bTransitionPending || !IsLocalController() ||
+        !IsValid(MenuWidget.Get()) || !GetWorld())
+    {
+        return;
+    }
+    bTransitionPending = true;
+    MenuWidget->ShowPending(FText::FromString(TEXT("正在继续本次试炼…")));
+    FText Error;
+    if (!Session.IsValid() || !Session->RequestContinue(GetWorld(), Error))
+    {
+        RecoverAfterFailure(Error.IsEmpty()
+            ? FText::FromString(TEXT("试炼会话不可用，请重新开始。")) : Error);
     }
 }
 
@@ -94,7 +114,7 @@ void AETMainMenuController::HandleQuitRequested()
     bTransitionPending = true;
     MenuWidget->ShowPending(FText::FromString(TEXT("正在退出…")));
     UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06B] Quit requested Controller=%s"), *GetNameSafe(this));
+        TEXT("[M1-06C] Quit requested Controller=%s"), *GetNameSafe(this));
     UKismetSystemLibrary::QuitGame(this, this, EQuitPreference::Quit, false);
 }
 
@@ -114,7 +134,8 @@ void AETMainMenuController::RecoverAfterFailure(const FText& Message)
     {
         return;
     }
-    MenuWidget->ShowError(Message);
+    MenuWidget->ShowError(Message,
+        Session.IsValid() && Session->HasContinueSnapshot());
     bShowMouseCursor = true;
     UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
         this, MenuWidget.Get(), EMouseLockMode::DoNotLock, true);
@@ -128,11 +149,13 @@ void AETMainMenuController::RemoveMenuWidget()
         const FString PreviousName = GetNameSafe(MenuWidget.Get());
         MenuWidget->OnStartRequested.RemoveDynamic(
             this, &ThisClass::HandleStartRequested);
+        MenuWidget->OnContinueRequested.RemoveDynamic(
+            this, &ThisClass::HandleContinueRequested);
         MenuWidget->OnQuitRequested.RemoveDynamic(
             this, &ThisClass::HandleQuitRequested);
         MenuWidget->RemoveFromParent();
         UE_LOG(LogETMainMenu, Display,
-            TEXT("[M1-06B] Menu removed Controller=%s Widget=%s"),
+            TEXT("[M1-06C] Menu removed Controller=%s Widget=%s"),
             *GetNameSafe(this), *PreviousName);
     }
     MenuWidget = nullptr;
@@ -149,7 +172,7 @@ void AETMainMenuController::EndPlay(const EEndPlayReason::Type EndPlayReason)
     Session.Reset();
     RemoveMenuWidget();
     UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06B] Menu controller end Controller=%s Reason=%d"),
+        TEXT("[M1-06C] Menu controller end Controller=%s Reason=%d"),
         *GetNameSafe(this), static_cast<int32>(EndPlayReason));
     Super::EndPlay(EndPlayReason);
 }

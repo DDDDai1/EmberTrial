@@ -12,4 +12,15 @@ class EMBERTRIAL_API AETGameMode : public AGameModeBase
 public:
 	AETGameMode();
 	virtual void StartPlay() override;
+
+	UFUNCTION(Exec, meta = (DevelopmentOnly))
+	void ETDebugSetCheckpointId(FName TestId);
+
+protected:
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+	virtual AActor* FindPlayerStart_Implementation(AController* Player,
+		const FString& IncomingName) override;
+
+private:
+	FName SelectedSpawnId = NAME_None;
 };

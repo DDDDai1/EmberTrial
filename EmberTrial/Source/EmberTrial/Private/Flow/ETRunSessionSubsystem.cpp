@@ -1,7 +1,11 @@
 #include "Flow/ETRunSessionSubsystem.h"
+#include "Characters/EmberTrialCharacter.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 #include "Logging/LogMacros.h"
 #include "Misc/PackageName.h"
@@ -16,6 +20,7 @@ void UETRunSessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
     bShuttingDown = false;
     ResetPendingTravel();
     GameplayPackage.Reset();
+    ActiveCheckpointId = NAME_None;
     PostLoadHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(
         this, &ThisClass::HandlePostLoadMap);
     if (GEngine)
@@ -24,7 +29,7 @@ void UETRunSessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
             this, &ThisClass::HandleTravelFailure);
     }
     UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Session ready Session=%s"), *GetNameSafe(this));
+        TEXT("[M1-06C] Session ready Session=%s"), *GetNameSafe(this));
 }
 
 void UETRunSessionSubsystem::Deinitialize()
@@ -39,9 +44,11 @@ void UETRunSessionSubsystem::Deinitialize()
     TravelFailureHandle.Reset();
     ResetPendingTravel();
     OnTravelFailed.Clear();
+    OnCheckpointChanged.Clear();
     GameplayPackage.Reset();
+    ActiveCheckpointId = NAME_None;
     UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Session end Session=%s"), *GetNameSafe(this));
+        TEXT("[M1-06C] Session end Session=%s"), *GetNameSafe(this));
     Super::Deinitialize();
 }
 
@@ -51,72 +58,207 @@ FString UETRunSessionSubsystem::GetWorldPackage(UWorld* World)
         ? UWorld::RemovePIEPrefix(World->GetOutermost()->GetName()) : FString();
 }
 
+bool UETRunSessionSubsystem::IsGameplayIntent(EETRunTravelIntent Intent)
+{
+    return Intent == EETRunTravelIntent::NewRun ||
+        Intent == EETRunTravelIntent::Retry ||
+        Intent == EETRunTravelIntent::Continue;
+}
+
 const TCHAR* UETRunSessionSubsystem::GetIntentName(EETRunTravelIntent Intent)
 {
     switch (Intent)
     {
     case EETRunTravelIntent::NewRun: return TEXT("NewRun");
     case EETRunTravelIntent::Retry: return TEXT("Retry");
+    case EETRunTravelIntent::Continue: return TEXT("Continue");
     case EETRunTravelIntent::MainMenu: return TEXT("MainMenu");
     default: return TEXT("None");
     }
 }
 
-void UETRunSessionSubsystem::NotifyGameplayWorldReady(UWorld* GameplayWorld)
+FName UETRunSessionSubsystem::GetSpawnCheckpointId(UWorld* SpawnWorld) const
 {
-    if (bShuttingDown || !IsValid(GameplayWorld) ||
+    if (bShuttingDown || !IsValid(SpawnWorld) ||
+        SpawnWorld->GetGameInstance() != GetGameInstance())
+    {
+        return GetEntryCheckpointId();
+    }
+    const FString Package = GetWorldPackage(SpawnWorld);
+    if (bTravelPending && IsGameplayIntent(PendingIntent) &&
+        Package == PendingTargetPackage && !PendingCheckpointId.IsNone())
+    {
+        return PendingCheckpointId;
+    }
+    if (Package == GameplayPackage && !ActiveCheckpointId.IsNone())
+    {
+        return ActiveCheckpointId;
+    }
+    return GetEntryCheckpointId();
+}
+
+void UETRunSessionSubsystem::NotifyGameplayWorldReady(
+    UWorld* GameplayWorld, FName SpawnId)
+{
+    if (bShuttingDown || !IsValid(GameplayWorld) || SpawnId.IsNone() ||
         GameplayWorld->GetGameInstance() != GetGameInstance() ||
         GameplayWorld->GetNetMode() != NM_Standalone)
     {
         return;
     }
     const FString Package = GetWorldPackage(GameplayWorld);
-    if (!bTravelPending && FPackageName::IsValidLongPackageName(Package) &&
+    if (bTravelPending)
+    {
+        if (IsGameplayIntent(PendingIntent) && Package == PendingTargetPackage)
+        {
+            PendingCheckpointId = SpawnId;
+            bPendingGameplayReady = true;
+        }
+    }
+    else if (FPackageName::IsValidLongPackageName(Package) &&
         FPackageName::DoesPackageExist(Package))
     {
-        // Direct PIE in the gameplay map is also a valid starting session.
         GameplayPackage = Package;
+        ActiveCheckpointId = SpawnId;
     }
     UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Gameplay world ready Map=%s Pending=%d"),
-        *Package, bTravelPending ? 1 : 0);
+        TEXT("[M1-06C] Gameplay world ready Map=%s Spawn=%s Pending=%d"),
+        *Package, *SpawnId.ToString(), bTravelPending ? 1 : 0);
+}
+
+bool UETRunSessionSubsystem::HasContinueSnapshot() const
+{
+    return !bShuttingDown && !ActiveCheckpointId.IsNone() &&
+        FPackageName::IsValidLongPackageName(GameplayPackage) &&
+        FPackageName::DoesPackageExist(GameplayPackage);
+}
+
+bool UETRunSessionSubsystem::IsCheckpointActive(
+    UWorld* CheckWorld, FName CheckpointId) const
+{
+    return !bShuttingDown && !bTravelPending && IsValid(CheckWorld) &&
+        CheckWorld->GetGameInstance() == GetGameInstance() &&
+        GetWorldPackage(CheckWorld) == GameplayPackage &&
+        !CheckpointId.IsNone() && ActiveCheckpointId == CheckpointId;
+}
+
+bool UETRunSessionSubsystem::TryActivateCheckpoint(UWorld* RequestWorld,
+    APlayerStart* CheckpointStart, AEmberTrialCharacter* PlayerBody)
+{
+    if (bShuttingDown || bTravelPending || !IsValid(RequestWorld) ||
+        RequestWorld->bIsTearingDown || !RequestWorld->HasBegunPlay() ||
+        RequestWorld->GetGameInstance() != GetGameInstance() ||
+        RequestWorld->GetNetMode() != NM_Standalone ||
+        UGameplayStatics::IsGamePaused(RequestWorld) ||
+        GetWorldPackage(RequestWorld) != GameplayPackage ||
+        !IsValid(CheckpointStart) || CheckpointStart->GetWorld() != RequestWorld ||
+        !IsValid(PlayerBody) || PlayerBody->GetWorld() != RequestWorld ||
+        !PlayerBody->IsGameplayReady() || PlayerBody->IsCombatDead())
+    {
+        return false;
+    }
+    APlayerController* PlayerController =
+        Cast<APlayerController>(PlayerBody->GetController());
+    if (!IsValid(PlayerController) || !PlayerController->IsLocalController() ||
+        PlayerController->GetPawn() != PlayerBody)
+    {
+        return false;
+    }
+    const FName CheckpointId = CheckpointStart->PlayerStartTag;
+    if (CheckpointId.IsNone() || CheckpointId == GetEntryCheckpointId())
+    {
+        return false;
+    }
+    int32 Matches = 0;
+    for (TActorIterator<APlayerStart> It(RequestWorld); It; ++It)
+    {
+        if (!It->bIsPIEPlayerStart && It->PlayerStartTag == CheckpointId)
+        {
+            ++Matches;
+        }
+    }
+    if (Matches != 1 || ActiveCheckpointId == CheckpointId)
+    {
+        return false;
+    }
+    ActiveCheckpointId = CheckpointId;
+    UE_LOG(LogETRunSession, Display,
+        TEXT("[M1-06C] Checkpoint activated Map=%s Id=%s Body=%s"),
+        *GameplayPackage, *CheckpointId.ToString(), *GetNameSafe(PlayerBody));
+    OnCheckpointChanged.Broadcast(RequestWorld, CheckpointId);
+    return true;
 }
 
 bool UETRunSessionSubsystem::RequestNewRun(UWorld* RequestWorld,
     const FSoftObjectPath& Map, FText& OutError)
 {
     return BeginTravel(RequestWorld, Map.GetLongPackageName(),
-        EETRunTravelIntent::NewRun, OutError);
+        GetEntryCheckpointId(), EETRunTravelIntent::NewRun, OutError);
+}
+
+bool UETRunSessionSubsystem::SetCheckpointIdForDevelopmentTest(
+    UWorld* TestWorld, FName TestId)
+{
+#if WITH_EDITOR
+    if (bShuttingDown || bTravelPending || !IsValid(TestWorld) ||
+        TestWorld->WorldType != EWorldType::PIE || TestWorld->bIsTearingDown ||
+        TestWorld->GetGameInstance() != GetGameInstance() ||
+        GetWorldPackage(TestWorld) != GameplayPackage ||
+        !HasContinueSnapshot() || TestId.IsNone())
+    {
+        return false;
+    }
+    ActiveCheckpointId = TestId;
+    UE_LOG(LogETRunSession, Display,
+        TEXT("[M1-06C] Debug checkpoint override Map=%s Id=%s PIE=1"),
+        *GameplayPackage, *TestId.ToString());
+    OnCheckpointChanged.Broadcast(TestWorld, TestId);
+    return true;
+#else
+    (void)TestWorld;
+    (void)TestId;
+    return false;
+#endif
 }
 
 bool UETRunSessionSubsystem::RequestRetry(UWorld* RequestWorld, FText& OutError)
 {
-    if (GameplayPackage.IsEmpty() ||
-        GetWorldPackage(RequestWorld) != GameplayPackage)
+    if (!HasContinueSnapshot() || GetWorldPackage(RequestWorld) != GameplayPackage)
     {
-        return RejectRequest(TEXT("当前试炼地图尚未登记，不能重试。"), OutError);
+        return RejectRequest(TEXT("当前试炼会话不可用，不能重试。"), OutError);
     }
     return BeginTravel(RequestWorld, GameplayPackage,
-        EETRunTravelIntent::Retry, OutError);
+        ActiveCheckpointId, EETRunTravelIntent::Retry, OutError);
+}
+
+bool UETRunSessionSubsystem::RequestContinue(UWorld* RequestWorld, FText& OutError)
+{
+    if (!HasContinueSnapshot())
+    {
+        return RejectRequest(TEXT("尚无可继续的本次试炼。"), OutError);
+    }
+    return BeginTravel(RequestWorld, GameplayPackage,
+        ActiveCheckpointId, EETRunTravelIntent::Continue, OutError);
 }
 
 bool UETRunSessionSubsystem::RequestMainMenu(UWorld* RequestWorld,
     const FSoftObjectPath& Map, FText& OutError)
 {
     return BeginTravel(RequestWorld, Map.GetLongPackageName(),
-        EETRunTravelIntent::MainMenu, OutError);
+        NAME_None, EETRunTravelIntent::MainMenu, OutError);
 }
 
 bool UETRunSessionSubsystem::RejectRequest(const TCHAR* Reason, FText& OutError)
 {
     OutError = FText::FromString(Reason);
     UE_LOG(LogETRunSession, Warning,
-        TEXT("[M1-06B] Travel rejected Reason=%s"), Reason);
+        TEXT("[M1-06C] Travel rejected Reason=%s"), Reason);
     return false;
 }
 
 bool UETRunSessionSubsystem::BeginTravel(UWorld* RequestWorld,
-    const FString& TargetPackage, EETRunTravelIntent Intent, FText& OutError)
+    const FString& TargetPackage, FName SpawnId,
+    EETRunTravelIntent Intent, FText& OutError)
 {
     OutError = FText::GetEmpty();
     if (bShuttingDown || bTravelPending || !IsValid(RequestWorld) ||
@@ -129,13 +271,16 @@ bool UETRunSessionSubsystem::BeginTravel(UWorld* RequestWorld,
     if (!FPackageName::IsValidLongPackageName(TargetPackage) ||
         !FPackageName::DoesPackageExist(TargetPackage) ||
         (Intent != EETRunTravelIntent::Retry &&
-            TargetPackage == GetWorldPackage(RequestWorld)))
+            TargetPackage == GetWorldPackage(RequestWorld)) ||
+        (IsGameplayIntent(Intent) && SpawnId.IsNone()))
     {
-        return RejectRequest(TEXT("目标地图不可用，请检查地图配置。"), OutError);
+        return RejectRequest(TEXT("目标地图或出生标识不可用，请检查配置。"), OutError);
     }
     bTravelPending = true;
     PendingIntent = Intent;
     PendingTargetPackage = TargetPackage;
+    PendingCheckpointId = SpawnId;
+    bPendingGameplayReady = false;
     OriginWorld = RequestWorld;
     if (UGameplayStatics::IsGamePaused(RequestWorld) &&
         !UGameplayStatics::SetGamePaused(RequestWorld, false))
@@ -144,9 +289,9 @@ bool UETRunSessionSubsystem::BeginTravel(UWorld* RequestWorld,
         return RejectRequest(TEXT("无法解除世界暂停，未执行切图。"), OutError);
     }
     UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Travel requested Intent=%s From=%s To=%s Paused=%d"),
+        TEXT("[M1-06C] Travel requested Intent=%s From=%s To=%s Checkpoint=%s Paused=%d"),
         GetIntentName(Intent), *GetWorldPackage(RequestWorld), *TargetPackage,
-        UGameplayStatics::IsGamePaused(RequestWorld) ? 1 : 0);
+        *SpawnId.ToString(), UGameplayStatics::IsGamePaused(RequestWorld) ? 1 : 0);
     UGameplayStatics::OpenLevel(RequestWorld, FName(*TargetPackage), true);
     return true;
 }
@@ -160,20 +305,29 @@ void UETRunSessionSubsystem::HandlePostLoadMap(UWorld* LoadedWorld)
     }
     const FString LoadedPackage = GetWorldPackage(LoadedWorld);
     const EETRunTravelIntent CompletedIntent = PendingIntent;
+    const FName CompletedCheckpoint = PendingCheckpointId;
     const bool bExpectedMap = LoadedPackage == PendingTargetPackage;
-    if (bExpectedMap && CompletedIntent == EETRunTravelIntent::NewRun)
+    const bool bConfirmed = bExpectedMap &&
+        (!IsGameplayIntent(CompletedIntent) ||
+            (bPendingGameplayReady && !CompletedCheckpoint.IsNone()));
+    if (bConfirmed && IsGameplayIntent(CompletedIntent))
     {
-        // Commit new-run data only after this GameInstance arrived.
         GameplayPackage = PendingTargetPackage;
+        ActiveCheckpointId = CompletedCheckpoint;
+        UE_LOG(LogETRunSession, Display,
+            TEXT("[M1-06C] Snapshot committed Map=%s Checkpoint=%s Intent=%s"),
+            *GameplayPackage, *ActiveCheckpointId.ToString(),
+            GetIntentName(CompletedIntent));
     }
     ResetPendingTravel();
     UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Travel arrived Intent=%s Map=%s Expected=%d Pending=0"),
-        GetIntentName(CompletedIntent), *LoadedPackage, bExpectedMap ? 1 : 0);
-    if (!bExpectedMap)
+        TEXT("[M1-06C] Travel arrived Intent=%s Map=%s Expected=%d Confirmed=%d Pending=0"),
+        GetIntentName(CompletedIntent), *LoadedPackage,
+        bExpectedMap ? 1 : 0, bConfirmed ? 1 : 0);
+    if (!bConfirmed)
     {
         OnTravelFailed.Broadcast(LoadedWorld, FText::FromString(
-            TEXT("未到达请求的地图，请检查配置后重试。")));
+            TEXT("未确认试炼地图与出生配置，请检查后重试。")));
     }
 }
 
@@ -188,7 +342,7 @@ void UETRunSessionSubsystem::HandleTravelFailure(UWorld* FailedWorld,
     }
     ResetPendingTravel();
     UE_LOG(LogETRunSession, Warning,
-        TEXT("[M1-06B] Travel failed Type=%d Error=%s Pending=0"),
+        TEXT("[M1-06C] Travel failed Type=%d Error=%s Pending=0"),
         static_cast<int32>(FailureType), *ErrorString);
     OnTravelFailed.Broadcast(FailedWorld, FText::FromString(
         TEXT("加载地图失败，请重试或返回主菜单。")));
@@ -197,7 +351,9 @@ void UETRunSessionSubsystem::HandleTravelFailure(UWorld* FailedWorld,
 void UETRunSessionSubsystem::ResetPendingTravel()
 {
     bTravelPending = false;
+    bPendingGameplayReady = false;
     PendingIntent = EETRunTravelIntent::None;
     PendingTargetPackage.Reset();
+    PendingCheckpointId = NAME_None;
     OriginWorld.Reset();
 }
