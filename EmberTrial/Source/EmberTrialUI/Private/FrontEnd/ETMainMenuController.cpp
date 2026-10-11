@@ -1,12 +1,11 @@
 #include "FrontEnd/ETMainMenuController.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Engine/Engine.h"
+#include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Flow/ETRunSessionSubsystem.h"
 #include "GameFramework/Pawn.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Logging/LogMacros.h"
-#include "Misc/PackageName.h"
 #include "Widgets/ETMainMenuWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETMainMenu, Log, All);
@@ -27,32 +26,33 @@ void AETMainMenuController::BeginPlay()
     {
         return;
     }
-    if (!MainMenuWidgetClass)
+    UGameInstance* Instance = GetGameInstance();
+    Session = Instance ? Instance->GetSubsystem<UETRunSessionSubsystem>() : nullptr;
+    if (!Session.IsValid() || !MainMenuWidgetClass)
     {
         UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06A] Missing MainMenuWidgetClass Controller=%s"),
+            TEXT("[M1-06B] Missing session or MainMenuWidgetClass Controller=%s"),
             *GetNameSafe(this));
         return;
     }
+    SessionFailureHandle = Session->OnTravelFailed.AddUObject(
+        this, &ThisClass::HandleSessionFailure);
     MenuWidget = CreateWidget<UETMainMenuWidget>(this, MainMenuWidgetClass);
     if (!IsValid(MenuWidget.Get()) || !MenuWidget->HasRequiredLayout())
     {
         UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06A] Menu creation or layout failed Controller=%s"),
+            TEXT("[M1-06B] Menu creation or layout failed Controller=%s"),
             *GetNameSafe(this));
         RemoveMenuWidget();
         return;
     }
     MenuWidget->OnStartRequested.AddUniqueDynamic(
-        this, &AETMainMenuController::HandleStartRequested);
+        this, &ThisClass::HandleStartRequested);
     MenuWidget->OnQuitRequested.AddUniqueDynamic(
-        this, &AETMainMenuController::HandleQuitRequested);
+        this, &ThisClass::HandleQuitRequested);
     MenuWidget->ShowReady();
     if (!MenuWidget->AddToPlayerScreen(100))
     {
-        UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06A] Menu AddToPlayerScreen failed Controller=%s"),
-            *GetNameSafe(this));
         RemoveMenuWidget();
         return;
     }
@@ -60,14 +60,10 @@ void AETMainMenuController::BeginPlay()
     UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
         this, MenuWidget.Get(), EMouseLockMode::DoNotLock, true);
     MenuWidget->FocusStartButton();
-    if (GEngine)
-    {
-        TravelFailureHandle = GEngine->OnTravelFailure().AddUObject(
-            this, &AETMainMenuController::HandleTravelFailure);
-    }
     UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Menu ready Controller=%s Widget=%s Pawn=%s"),
-        *GetNameSafe(this), *GetNameSafe(MenuWidget.Get()), *GetNameSafe(GetPawn()));
+        TEXT("[M1-06B] Menu ready Controller=%s Widget=%s Pawn=%s Session=%s"),
+        *GetNameSafe(this), *GetNameSafe(MenuWidget.Get()), *GetNameSafe(GetPawn()),
+        *GetNameSafe(Session.Get()));
 }
 
 void AETMainMenuController::HandleStartRequested()
@@ -77,26 +73,15 @@ void AETMainMenuController::HandleStartRequested()
     {
         return;
     }
-    const FString PackageName = GameplayMap.ToSoftObjectPath().GetLongPackageName();
-    const bool bValidMap = !GameplayMap.IsNull() &&
-        FPackageName::IsValidLongPackageName(PackageName) &&
-        FPackageName::DoesPackageExist(PackageName) &&
-        FPackageName::GetShortName(PackageName) !=
-            UGameplayStatics::GetCurrentLevelName(this, true);
-    if (!bValidMap)
-    {
-        UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06A] Game map unavailable Path=%s"), *PackageName);
-        RecoverAfterFailure(FText::FromString(
-            TEXT("游戏地图不可用，请检查主菜单配置。")));
-        return;
-    }
     bTransitionPending = true;
     MenuWidget->ShowPending(FText::FromString(TEXT("正在进入试炼…")));
-    UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Start requested Controller=%s Map=%s"),
-        *GetNameSafe(this), *PackageName);
-    UGameplayStatics::OpenLevel(this, FName(*PackageName), true);
+    FText Error;
+    if (!Session.IsValid() ||
+        !Session->RequestNewRun(GetWorld(), GameplayMap.ToSoftObjectPath(), Error))
+    {
+        RecoverAfterFailure(Error.IsEmpty()
+            ? FText::FromString(TEXT("试炼会话不可用，请重试。")) : Error);
+    }
 }
 
 void AETMainMenuController::HandleQuitRequested()
@@ -109,21 +94,17 @@ void AETMainMenuController::HandleQuitRequested()
     bTransitionPending = true;
     MenuWidget->ShowPending(FText::FromString(TEXT("正在退出…")));
     UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Quit requested Controller=%s"), *GetNameSafe(this));
+        TEXT("[M1-06B] Quit requested Controller=%s"), *GetNameSafe(this));
     UKismetSystemLibrary::QuitGame(this, this, EQuitPreference::Quit, false);
 }
 
-void AETMainMenuController::HandleTravelFailure(UWorld* FailedWorld,
-    ETravelFailure::Type FailureType, const FString& ErrorString)
+void AETMainMenuController::HandleSessionFailure(
+    UWorld* FailedWorld, const FText& Message)
 {
-    if (bEndingPlay || !bTransitionPending || FailedWorld != GetWorld())
+    if (!bEndingPlay && FailedWorld == GetWorld() && IsValid(MenuWidget.Get()))
     {
-        return;
+        RecoverAfterFailure(Message);
     }
-    UE_LOG(LogETMainMenu, Warning,
-        TEXT("[M1-06A] Travel failed Type=%d Error=%s"),
-        static_cast<int32>(FailureType), *ErrorString);
-    RecoverAfterFailure(FText::FromString(TEXT("进入试炼失败，请重试。")));
 }
 
 void AETMainMenuController::RecoverAfterFailure(const FText& Message)
@@ -142,34 +123,33 @@ void AETMainMenuController::RecoverAfterFailure(const FText& Message)
 
 void AETMainMenuController::RemoveMenuWidget()
 {
-    if (!IsValid(MenuWidget.Get()))
+    if (IsValid(MenuWidget.Get()))
     {
-        MenuWidget = nullptr;
-        return;
+        const FString PreviousName = GetNameSafe(MenuWidget.Get());
+        MenuWidget->OnStartRequested.RemoveDynamic(
+            this, &ThisClass::HandleStartRequested);
+        MenuWidget->OnQuitRequested.RemoveDynamic(
+            this, &ThisClass::HandleQuitRequested);
+        MenuWidget->RemoveFromParent();
+        UE_LOG(LogETMainMenu, Display,
+            TEXT("[M1-06B] Menu removed Controller=%s Widget=%s"),
+            *GetNameSafe(this), *PreviousName);
     }
-    const FString PreviousName = GetNameSafe(MenuWidget.Get());
-    MenuWidget->OnStartRequested.RemoveDynamic(
-        this, &AETMainMenuController::HandleStartRequested);
-    MenuWidget->OnQuitRequested.RemoveDynamic(
-        this, &AETMainMenuController::HandleQuitRequested);
-    MenuWidget->RemoveFromParent();
     MenuWidget = nullptr;
-    UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Menu removed Controller=%s Widget=%s"),
-        *GetNameSafe(this), *PreviousName);
 }
 
 void AETMainMenuController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     bEndingPlay = true;
-    if (GEngine && TravelFailureHandle.IsValid())
+    if (Session.IsValid())
     {
-        GEngine->OnTravelFailure().Remove(TravelFailureHandle);
+        Session->OnTravelFailed.Remove(SessionFailureHandle);
     }
-    TravelFailureHandle.Reset();
+    SessionFailureHandle.Reset();
+    Session.Reset();
     RemoveMenuWidget();
     UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Menu controller end Controller=%s Reason=%d"),
+        TEXT("[M1-06B] Menu controller end Controller=%s Reason=%d"),
         *GetNameSafe(this), static_cast<int32>(EndPlayReason));
     Super::EndPlay(EndPlayReason);
 }

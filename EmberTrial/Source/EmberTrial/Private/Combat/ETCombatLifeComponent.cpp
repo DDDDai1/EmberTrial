@@ -298,6 +298,8 @@ void UETCombatLifeComponent::CommitDeath(const TCHAR* Reason)
         !IsValid(Practice) || Practice->IsPracticeActionIdle() ? 1 : 0,
         IsValid(Movement) ? static_cast<int32>(Movement->MovementMode) : -1,
         IsValid(Mesh) && Mesh->bPauseAnims ? 1 : 0);
+
+    OnDeathSealed.Broadcast(this);
 }
 
 void UETCombatLifeComponent::ClearOwnedDeadTag()
@@ -321,6 +323,7 @@ void UETCombatLifeComponent::ClearOwnedDeadTag()
 void UETCombatLifeComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     bEndingPlay = true;
+    OnDeathSealed.Clear();
     if (AEmberTrialCharacter* Character = CharacterOwner.Get())
     {
         Character->OnGameplayReadyChanged.RemoveDynamic(

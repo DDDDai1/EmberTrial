@@ -12,6 +12,13 @@ AETMenuGameMode::AETMenuGameMode()
     HUDClass = nullptr;
 }
 
+void AETMenuGameMode::InitializeHUDForPlayer_Implementation(
+    APlayerController* NewPlayer)
+{
+    // The menu world intentionally has no AHUD actor.
+    (void)NewPlayer;
+}
+
 void AETMenuGameMode::HandleStartingNewPlayer_Implementation(
     APlayerController* NewPlayer)
 {

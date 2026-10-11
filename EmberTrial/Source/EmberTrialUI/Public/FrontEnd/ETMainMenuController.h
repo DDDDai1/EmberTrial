@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/EngineBaseTypes.h"
 #include "GameFramework/PlayerController.h"
 #include "ETMainMenuController.generated.h"
 
 class UETMainMenuWidget;
+class UETRunSessionSubsystem;
 class UWorld;
 
 UCLASS()
@@ -27,8 +27,7 @@ private:
     UFUNCTION()
     void HandleQuitRequested();
 
-    void HandleTravelFailure(UWorld* FailedWorld,
-        ETravelFailure::Type FailureType, const FString& ErrorString);
+    void HandleSessionFailure(UWorld* FailedWorld, const FText& Message);
     void RecoverAfterFailure(const FText& Message);
     void RemoveMenuWidget();
 
@@ -41,7 +40,8 @@ private:
     UPROPERTY(Transient)
     TObjectPtr<UETMainMenuWidget> MenuWidget;
 
-    FDelegateHandle TravelFailureHandle;
+    TWeakObjectPtr<UETRunSessionSubsystem> Session;
+    FDelegateHandle SessionFailureHandle;
     bool bTransitionPending = false;
     bool bEndingPlay = false;
 };

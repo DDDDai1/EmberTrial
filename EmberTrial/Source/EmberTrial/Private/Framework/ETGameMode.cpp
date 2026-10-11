@@ -2,6 +2,8 @@
 #include "Framework/ETPlayerController.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "Logging/LogMacros.h"
+#include "Engine/GameInstance.h"
+#include "Flow/ETRunSessionSubsystem.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETGameMode, Log, All);
 
@@ -14,6 +16,15 @@ AETGameMode::AETGameMode()
 void AETGameMode::StartPlay()
 {
     Super::StartPlay();
+
+    if (UGameInstance* Instance = GetGameInstance())
+    {
+        if (UETRunSessionSubsystem* RunSession =
+            Instance->GetSubsystem<UETRunSessionSubsystem>())
+        {
+            RunSession->NotifyGameplayWorldReady(GetWorld());
+        }
+    }
 
     UE_LOG(LogETGameMode, Display,
         TEXT("[M1-02B] Rules ready GameMode=%s ControllerClass=%s PawnClass=%s"),

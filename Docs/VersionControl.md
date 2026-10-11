@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-10最新现状：**本机main HEAD与缓存origin/main均为`8843ffae10ffe10235a9630fdbc2cbb9f23f540f`，本轮未联网核验远端 / LFS。M1-06A功能已验收，八Source / 四UE资产 / 两Config与收尾文档待提交；[A报告](Reports/M1_06A_Verification.md)已落盘。**六个新Source为AM，暂存的是初始骨架，工作区才有完整实现；先重新Stage这六份文件最新改动，再Commit。**按[A最后清单](M1_06A_MainMenu.md#13-本批需要commit--push的内容固定放在文档最后)上传，可带上个人Editor配置取消跟踪删除记录，磁盘文件保留，不重复git rm。Raw / 缓存 / 构建产物留本地；助手未代Stage / Commit / Push。推荐标题`feat: add standalone main menu and game entry`。
+**2026-10-11最新现状：**A完整实现 / 资产 / 收尾已提交`d5eb9aa2d10c867a95d4dca59ea7d59e6d89afe5`，本机main HEAD与缓存origin/main一致，本轮未联网核验远端 / LFS。**[B验收](Reports/M1_06B_Verification.md)已通过，B尚未Commit：六个新增Source当前均为AM，暂存区仍是类骨架，完整实现位于工作区，必须重新Stage这六份最新修改。**按[B最后清单](M1_06B_FailureAndRetry.md#14-本批需要commit--push的内容固定放在文档最后)加入七份既有Source修改、三份必需资产、验收摘要 / 指南 / 清单与状态文档，再检查Staged Diff → Commit → Push。个人Editor设置取消跟踪删除仍暂存，可一并提交，磁盘文件保留，不重复git rm。Raw / 缓存 / 构建产物留本地，助手不代Stage / Commit / Push。推荐标题`feat: add death screen and session-based level retry`。
 
 ## 1. 已配置内容
 
@@ -10,7 +10,7 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
 - 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
-- 当前origin已配置为GitHub的DDDDai1/EmberTrial；首次Push失败后用户已完成Push，当前本机缓存origin/main为8843ffa。本轮未联网确认最新远端状态；后续每批Commit / Push完成才算远端备份，首次故障记录保留在第9节。
+- 当前origin已配置为GitHub的DDDDai1/EmberTrial；首次Push失败后用户已完成Push，当前本机缓存origin/main为d5eb9aa。本轮未联网确认最新远端状态；后续每批Commit / Push完成才算远端备份，首次故障记录保留在第9节。
 
 ## 2. 第一个可恢复检查点
 

@@ -1,6 +1,6 @@
 # M1-06：主菜单、失败重试与检查点原型
 
-下发与更新：2026-10-10；UE **5.5.4**。前置[M1-05总验收](Reports/M1_05_Verification.md)通过。**A独立主菜单入口功能已验收，B / C / D尚未下发。**[A报告](Reports/M1_06A_Verification.md)核对用户21:13全项反馈、双目标Build / 29cpp、切图与清理；当前59Source / 来源清单44，Unity补修关闭。菜单空HUD Spawn Warning已定位并写入A后续局部补修，当前未改Source，功能不阻塞。
+下发：2026-10-10；更新：2026-10-11；UE **5.5.4**。前置[M1-05总验收](Reports/M1_05_Verification.md)通过。**A / B功能已验收，A已提交d5eb9aa、B待用户Push，C / D尚未下发。**[B报告](Reports/M1_06B_Verification.md)核对RunSession、死亡封锁后通知、Controller失败流程 / View、菜单接入 / 旧P门控和空HUD补修。当前65Source / 32cpp / 来源清单45；B手动80 / 等待5，A+B125 / 10，项目累计1646 / 130分钟。本轮助手只做收尾，未代改工程或构建 / PIE。
 
 继续约定：C++全部先写在文档，由你手动实现；Blueprint配置步骤保持具体，难操作或报错需要你明确授权后接管。按[方案B](AcceptanceWorkflow_Options.md)只检查新增流程与受影响边界；各开发批次最后列出Commit / Push内容。
 
@@ -26,23 +26,23 @@
 
 | 批次 | 交付 | 关键实施范围 | 预计手动时间 |
 | --- | --- | --- | --- |
-| **[A 主菜单入口](M1_06A_MainMenu.md)，功能已验收** | 独立菜单地图、开始 / 禁用继续 / PIE退出、进入战斗后的输入恢复 | 六新 / 两旧Source、四新资产、启动 / Cook配置；C2374关闭。空HUD初始化Warning随下一批原生构建收口 | 实际45分钟：代码10、资产30、检查5；构建等待5。原估60–100 / 检查8–12保留作计划参考 |
-| B 真实失败与整图重试 | 死亡事件自动显示失败页，重试 / 返回菜单命令只接受一次 | 核心GameInstance会话服务保存有效地图 / 请求；UI观察当前玩家死亡，处理暂停 / 焦点；重载整个房间，重建Controller / Pawn / HUD / 敌人 | 90–150分钟，检查10–15；必要的首次切图专项另计 |
+| **[A 主菜单入口](M1_06A_MainMenu.md)，功能已验收** | 独立菜单地图、开始 / 禁用继续 / PIE退出、进入战斗后的输入恢复 | 六新 / 两旧Source、四新资产、启动 / Cook配置；C2374关闭。当时空HUD初始化Warning已在B收口 | 实际45分钟：代码10、资产30、检查5；构建等待5。原估60–100 / 检查8–12保留作计划参考 |
+| **[B 真实失败与整图重试](M1_06B_FailureAndRetry.md)，功能已验收** | Death sealed后显示失败页，重试 / 返回菜单只接受一次 | 六新 / 七旧Source；Core会话地图 / 请求、UI当前Life订阅与一次NextTick呈现、菜单路由 / 空HUD补修；一新Widget / 两旧BP，旧P加死亡拒绝。三Retry / 四返回菜单与清理通过 | 实际80分钟：代码40、资产30、检查10；构建等待5。原估90–150 / 检查10–15保留作参考 |
 | C 会话检查点与菜单继续 | 两个稳定出生标识、激活检查点、死亡 / 菜单继续使用最近ID | 会话只存地图与ID；GameMode按ID选择PlayerStart，非法ID回退入口；菜单开始清空会话、继续资格来自真实快照 | 80–130分钟，检查10–15；复用B实际重载链路 |
 | D 暂停迁移与章末闭环 | 暂停 / 失败页统一由Controller所属UI协调，P继续 / 返回菜单，证据收尾 | 迁出玩家BP里旧菜单实例 / 清理业务；输入 / 暂停交接只有一个所有者；复盘现有证据，确有新边界才窄补 | 60–100分钟，相关检查10–15；复盘本身不再搭验收图 |
 
-全章原暂估**5–8小时用户有效投入**，构建 / Cook等待另列；A实际45 / 等待5，B / C / D仍按表内预算规划，不提前计入工时。当前项目累计手动1566 / 等待125分钟。旧菜单已有成熟输入边界，先保留A / B，再在D定向迁移，避免一次修改所有入口。每批通过并提交后再推进下一批。
+全章原暂估**5–8小时用户有效投入**，构建 / Cook等待另列；A+B实际125 / 等待10，C / D仍按表内预算规划，不提前计入工时。当前项目累计手动1646 / 等待130分钟。旧菜单已有成熟输入边界，A / B先保留，再在D定向迁移。每批通过并提交后再推进下一批。
 
 ## 3. 对象归属与低耦合边界
 
 | 对象 | 归属 / 职责 |
 | --- | --- |
 | Menu GameMode（核心） | 当前菜单世界的规则：不生成玩家Pawn / Spectator / HUD；Controller Class由菜单GameMode BP装配，不反向引用UI模块 |
-| MainMenu Controller（UI模块） | 本地菜单世界的View创建、按钮命令、UI Only / 焦点、当前切图请求保护和结束清理；A调用OpenLevel，B / C接入会话服务后替换命令路由 |
+| MainMenu Controller（UI模块） | 本地菜单世界的View创建、按钮命令、UI Only / 焦点和结束清理；B已统一调用会话服务，C再加入Continue意图 |
 | MainMenu Widget | 只展示按钮 / 状态，发送开始 / 退出意图；Blueprint负责布局，C++负责按钮事件；不Cast角色、无ASC、不负责存档规则 |
-| Run Session（B计划，GameInstanceSubsystem） | 跨地图保留地图 / 会话检查点数据、请求状态；不长期持有旧World、Controller、Pawn、Widget或ASC；不依赖UMG |
-| 游戏GameMode（B / C扩展） | 当前世界选择出生位置 / 生成新身体；按会话ID恢复初始位置，校验或回退；不处理UMG输入 |
-| Controller所属UI协调（B / D扩展） | 根据当前身体死亡 / 流程事件显示失败 / 暂停，解绑旧源，控制输入 / 暂停；UI模块依赖核心公开接口 |
+| Run Session（B已实现，GameInstanceSubsystem） | 跨地图保留地图包名与请求状态，C再加会话检查点ID；不长期持有旧World、Controller、Pawn、Widget或ASC；不依赖UMG |
+| 游戏GameMode（B已登记地图，C待扩展） | 当前世界生成新身体；C按会话ID选择出生位置、校验或回退；不处理UMG输入 |
+| Controller所属UI协调（B失败已实现，D暂停待迁移） | 根据当前身体死亡显示失败页、解绑旧源、控制输入 / 暂停；旧P暂保留Pawn，UI模块依赖核心公开接口 |
 | LocalPlayer Subsystem / Presenter / HUD（现有） | LocalPlayer切图后绑定新Controller / Pawn；旧事件主动解绑，新健康快照推动既有HUD；沿用既有真实实现 |
 | Actor / GAS / AI（现有） | 新地图实例重新初始化独立属性 / 能力；旧AI任务 / 委托 / Trace结束；不由菜单直接修复它们的状态 |
 
@@ -73,6 +73,6 @@ M1-06先采用**非无缝OpenLevel整图重建**，适合目前的小房间与�
 
 ## 6. 本章需要Commit / Push的内容（固定放在文档最后）
 
-实际改动以各批指南最后的清单为准，A参见[M1_06A_MainMenu.md](M1_06A_MainMenu.md)。每批提交必需源码、可编辑BP / Widget / 地图、共享配置、指南与验收摘要 / 清单；不提交Raw日志、视频、包、生成CMake / compile_commands、UE / IDE缓存。
+实际改动以各批指南最后的清单为准：A见[M1_06A_MainMenu.md](M1_06A_MainMenu.md)，本批B见[M1_06B_FailureAndRetry.md](M1_06B_FailureAndRetry.md#14-本批需要commit--push的内容固定放在文档最后)。每批提交必需源码、可编辑BP / Widget / 地图、共享配置、指南与验收摘要 / 清单；不提交Raw日志、视频、包、生成CMake / compile_commands、UE / IDE缓存。
 
-A功能已完成：八份Source、四项UE资产、两份共享Config，以及本路线 / A指南 / [验收报告](Reports/M1_06A_Verification.md) / 来源清单与状态文档按A最后清单提交。六个新Source目前为AM，暂存内容还是类骨架，需要重新Stage最新完整实现后Commit / Push。HEAD仍上一阶段`8843ffa`；个人编辑器配置取消跟踪删除可随A提交，磁盘文件保留。空HUD局部补修当前仅写入文档，未修改工程源码，不提前当成已修复代码提交。
+A实现 / 资产 / 收尾已提交`d5eb9aa`，不重复提交。B已验收：13源码、三必需资产、B指南 / 本报告 / 来源清单与状态文档由用户Commit / Push；**当前六个新B文件均为AM，暂存区是类骨架，须重新Stage完整实现。**个人编辑器配置取消跟踪删除仍暂存，可随B提交，磁盘文件保留。空HUD补修已在实际Source并验证；完整清单以B第14节为准。

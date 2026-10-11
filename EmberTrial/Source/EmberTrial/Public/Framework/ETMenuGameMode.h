@@ -17,4 +17,7 @@ public:
 protected:
     virtual void HandleStartingNewPlayer_Implementation(
         APlayerController* NewPlayer) override;
+
+    virtual void InitializeHUDForPlayer_Implementation(
+        APlayerController* NewPlayer) override;
 };

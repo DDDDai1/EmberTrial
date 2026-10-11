@@ -8,7 +8,11 @@
 class AEmberTrialCharacter;
 class UAbilitySystemComponent;
 class UETGA_HitReact;
+class UETCombatLifeComponent;
 struct FOnAttributeChangeData;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(
+    FETCombatDeathSealed, UETCombatLifeComponent*);
 
 UCLASS(ClassGroup = (EmberTrial), meta = (BlueprintSpawnableComponent))
 class EMBERTRIAL_API UETCombatLifeComponent : public UActorComponent
@@ -21,6 +25,7 @@ public:
     bool RequestHitReact();
     bool IsDead() const { return bDead; }
 
+    FETCombatDeathSealed OnDeathSealed;
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
