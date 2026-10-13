@@ -1,8 +1,8 @@
 # M1-06C：会话检查点与“继续本次试炼”
 
-下发：2026-10-11；UE **5.5.4**。前置[B功能验收](Reports/M1_06B_Verification.md)通过。当前实际为65份Source / 32个cpp / 来源清单45，B实现与指南已进入`4b83b66`，本机缓存origin/main同哈希，未联网重新核验。B报告目前仍Untracked，本批Push时一并加入。Session.cpp换行已调整，去空白后仍与B全文代码一致；不视为功能改动。
+下发：2026-10-11；验收更新：2026-10-12；UE **5.5.4**。前置[B功能验收](Reports/M1_06B_Verification.md)通过。**本批已由用户手动实施并验收通过，无待补检查。**[C报告](Reports/M1_06C_Verification.md)核对67Source / 33cpp / 来源清单46、十份代码、双构建与检查点重试 / 继续 / 重置 / ID回退修正。实际手动85分钟（代码45 / 资产30 / 检查10）、等待5。主体和B报告已提交`3351b53`，HEAD / 缓存origin/main一致，本轮未联网核验远端；本次追加验收文档与清单更新，见最后Push清单。
 
-**本文是待你手动实施的代码与操作指南。助手未修改工程Source / UE资产，没有运行本批Build / PIE，也未代Stage / Commit / Push。**所有C++继续先写文档；报错文字优先，Designer截图辅助，需要接管时由你明确授权。
+下文保留手动实施指南与复用入口。**所有C++由用户手动完成；助手本轮只核查证据 / 更新文档和来源清单，未代改Source / UE资产、运行Build / PIE或Stage / Commit / Push。**此前经当次授权仅设置9.2第8步播放选项，并澄清9.3默认文本入口。报错文字优先，Designer截图辅助，需要接管时由你明确授权。
 
 ## 1. 本批效果、范围与预算
 
@@ -22,7 +22,7 @@
 
 NewRun的“清空旧检查点”在成功到达后提交；请求前校验或加载失败保留已确认的旧快照，避免一次无效点击丢失会话。新的待定出生ID在生成Pawn之前可读，GameMode选择实际出生点，再由到达确认提交。检查点激活必须来自当前世界、当前玩家控制的存活Ready身体，切图中 / 暂停时拒绝。
 
-预算**80–130分钟手动**：阅读5–10、代码40–65、资产25–40、相关检查10–15；构建等待另记。当前累计仍手动1646 / 等待130分钟，不提前计预计工时。零新增付费资产，3D英文小标签是占位提示，正式UMG继续使用现有中文字体链。D暂停迁移和M1-07包 / 性能仍后续安排。
+原预算**80–130分钟手动**：阅读5–10、代码40–65、资产25–40、相关检查10–15；实际手动**85分钟**，检查10 / 等待5。项目累计手动**1731分钟（28小时51分钟）/ 等待135分钟**。零新增付费资产，3D英文小标签是占位提示，正式UMG继续使用现有中文字体链。D暂停迁移和M1-07包 / 性能仍后续安排。
 
 ## 2. 准备与文件清单
 
@@ -46,7 +46,7 @@ NewRun的“清空旧检查点”在成功到达后提交；请求前校验或�
 | 替换 | `EmberTrial/Source/EmberTrialUI/Public/FrontEnd/ETMainMenuController.h` |
 | 替换 | `EmberTrial/Source/EmberTrialUI/Private/FrontEnd/ETMainMenuController.cpp` |
 
-Core不依赖UI；现有Build.cs / Target / .uproject与引擎版本不变。预计实施后**67份Source / 33个cpp**，实际以编译数据库核对。资产验收后预计清单45→46，目前不提前登记未创建的BP。
+Core不依赖UI；现有Build.cs / Target / .uproject与引擎版本不变。实施后实际**67份Source / 33个cpp**，已核对编译数据库；资产验收后清单**45→46**，新BP与两旧资产哈希已登记。
 
 ## 3. RunSession：已确认快照与待定出生ID
 
@@ -1507,13 +1507,13 @@ Checkpoint_A保持、唯一Entry、100/100、4=Damage25、slomo1、Debug False /
 实际用时：代码__ / 资产__ / 检查__；构建等待__分钟
 ```
 
-完成后才复核十份Source、实际33cpp / 双receipt、新BP与两旧资产保存、ID / 请求 / 到达 / 清理并更新来源清单哈希。目前没有C运行证据或资产登记，不提前标通过；存在矛盾只补相关边界。
+**2026-10-12 00:30反馈已验收**：十份Source与指南一致、33cpp / 双receipt正确，新BP与两旧资产正常保存；ID激活、Retry / Continue / NewRun、缺失回退 / 会话修正与旧源清理有日志，具体Designer / 输入边界按用户反馈登记。详见[C报告](Reports/M1_06C_Verification.md)，来源清单46项。本批无待补，不必重复第10节。
 
 ## 12. 静态依据、边界与排错
 
 本机UE5.5.4源码已核对：PlayerStart.h的PlayerStartTag为EditAnywhere FName；APlayerStart使用FObjectInitializer构造；GameModeBase的Choose / Find为BlueprintNativeEvent，出生由Find → RestartPlayerAtPlayerStart → SpawnDefaultPawnFor进行。默认Find无Start时回到WorldSettings，因此本批自定义Find避免此回退。LoadMap先执行World.BeginPlay，再发PostLoadMapWithWorld；待定出生ID必须先可读，正式快照后确认。
 
-引擎入口亦见[Epic FindPlayerStart 5.5 API](https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/GameFramework/AGameModeBase/FindPlayerStart?application_version=5.5)。核心设计以本机5.5.4实际源码为准，相关组件 / Timer / Delegate / Button接口沿用当前版本；这些静态核对**不代表本批已编译 / 实机通过**。
+引擎入口亦见[Epic FindPlayerStart 5.5 API](https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/GameFramework/AGameModeBase/FindPlayerStart?application_version=5.5)。核心设计以本机5.5.4实际源码为准，相关组件 / Timer / Delegate / Button接口沿用当前版本。下发时静态核对与后续实测分开；**现已验收双目标构建及指定运行用例**，范围 / 未实测分支见[C报告](Reports/M1_06C_Verification.md)。
 
 | 现象 | 优先定位 / 给我的材料 |
 | --- | --- |
@@ -1535,7 +1535,7 @@ Checkpoint_A保持、唯一Entry、100/100、4=Damage25、slomo1、Debug False /
 
 提交第2节十份实际文件变化。新文件是CheckpointStart头 / cpp，八旧为Session、GameMode、MainMenu Widget、MainMenu Controller各头 / cpp；本批不改Build.cs / Target / .uproject、角色、战斗 / AI / FailureFlow或旧HUD。
 
-推荐标题：`feat: add session checkpoints and continue trial`。新建文件后再编辑可能再次产生AM；在CLion从Unstaged把最新修改Stage进去，按[B第14.1.1节简单步骤](M1_06B_FailureAndRetry.md#1411-clion重新stage最新修改简单步骤)操作，确认Staged Diff包含完整类实现。B暂存骨架 / AM提醒已属历史，当前B实现已完整提交，不重复暂存旧B骨架。
+主体标题为`feat: add session checkpoints and continue trial`，**上述十份Source已进入3351b53，无须重复暂存**。日后Stage后又编辑的文件，仍按[B第14.1.1节简单步骤](M1_06B_FailureAndRetry.md#1411-clion重新stage最新修改简单步骤)加入最新修改并检查Staged Diff。B暂存骨架 / AM提醒已属历史。
 
 ### 13.2 可编辑资产
 
@@ -1550,9 +1550,9 @@ BP_ETGameMode / BP_ETMainMenuController在正常Compile / Save后若有真实必
 ### 13.3 文档与B遗漏报告
 
 - `Docs/M1_06C_SessionCheckpoints.md`、`Docs/M1_06_FlowRoadmap.md`及本批更新的Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow_Options / Introduction。
-- **`Docs/Reports/M1_06B_Verification.md`目前仍未跟踪，本次一起加入**；如本批同步更新B指南的提交状态，也加入其实际文档差异。
-- 完成反馈后我追加的C验收Markdown摘要与`Docs/AssetManifest.csv`实际新BP / 相关旧资产哈希更新；当前尚未发生，不把预计清单46当已登记。
+- **B报告已随3351b53跟踪，不重复加入。**如本轮更新其交接状态，提交实际文档差异即可。
+- 新增`Docs/Reports/M1_06C_Verification.md`与实际更新的`Docs/AssetManifest.csv`（一新BP / 两旧资产，46项），以及本轮Guide / Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow_Options / FlowRoadmap / Introduction和B交接文档差异。
 
 个人Editor设置取消跟踪删除已进入4b83b66，不重复git rm或删磁盘文件。Raw核查 / 日志、Artifacts、Binaries / Intermediate / Saved / DDC、IDE与生成CMake / compile_commands均留本地，不Force Add。
 
-本批恢复默认值、取得验收后，你在CLion选择这些实际变化，重新Stage最新完整内容 → Commit → Push已有origin/main。助手不代提交；D待本批完成后再进入。
+**当前主体三资产与十源码、C指南和B报告已进入3351b53；C验收已关闭。**本轮只补C验收 / 来源清单 / 状态文档，[D暂停迁移指南](M1_06D_PauseFlow.md)已按用户请求下发待手动实施。可先Stage本轮文档并Commit（`docs: record M1-06C acceptance and plan pause migration`）→ Push，或按[D最后清单](M1_06D_PauseFlow.md#12-本批需要commit--push的内容固定放在文档最后)随D实际实现一并提交；不重复Stage主体、不改写历史，助手不代提交。

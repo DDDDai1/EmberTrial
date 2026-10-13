@@ -1,6 +1,6 @@
 # M1-06B：真实死亡、失败界面与整图重试
 
-下发 / 验收更新：2026-10-11；UE **5.5.4**。前置[A功能验收](Reports/M1_06A_Verification.md)通过；**本批已由用户手动实施并验收通过，无待补功能检查。**[B报告](Reports/M1_06B_Verification.md)记录65Source / 32cpp / 来源清单45，六新 / 七旧Source、失败整图重试 / 返回菜单及空HUD补修通过。实际手动80分钟（代码40 / 资产30 / 检查10）、构建等待5。**后续已核对B完整实现提交4b83b66，旧六AM骨架及个人设置删除已处理；B报告仍未跟踪，随[C清单](M1_06C_SessionCheckpoints.md#13-本批需要commit--push的内容固定放在文档最后)加入。**HEAD / 缓存origin一致，本轮未联网验证远端。下文保留实施指南，14.1.1重新Stage步骤可复用；助手未代改工程或Build / PIE。
+下发 / 验收：2026-10-11；交接更新：2026-10-12；UE **5.5.4**。**本批已由用户手动实施并验收通过，无待补功能检查。**[B报告](Reports/M1_06B_Verification.md)记录验收时65Source / 32cpp / 清单45，手动80（代码40 / 资产30 / 检查10）/ 等待5。后续B完整实现进入4b83b66，B报告亦随3351b53提交，旧AM骨架 / 个人设置删除不重复处理；C现已验收，当前67 / 33 / 46。HEAD / 缓存origin一致，本轮未联网验证远端。下文保留历史实施指南，14.1.1重新Stage步骤可复用；当前文档收尾见[C末尾清单](M1_06C_SessionCheckpoints.md#13-本批需要commit--push的内容固定放在文档最后)。
 
 继续所有C++先写文档、由你手动实现；普通报错不自动授权源码接管。使用[方案B](AcceptanceWorkflow_Options.md)，验收走正式重试 / 返回菜单按钮，只有一个很小的旧P菜单门控改动，没有临时Controller测试图。目录与文件名大小写按表填写，generated include始终是头文件最后一个include。
 
@@ -1459,4 +1459,4 @@ BP_ETMainMenuController只有确有父类刷新 / 必要配置保存变化才加
 
 Raw核查 / 日志、Artifacts包 / 视频、Binaries / Intermediate / Saved / DDC、`.idea` / `.run`、生成CMake / compile_commands与索引留本地，不Force Add绕过忽略规则。
 
-本批功能 / 实现已进入4b83b66，当前仅补交尚未跟踪的B验收报告与实际文档更新，不按旧AM提示重复提交已进入历史的Source / 资产。后续C按[C第13节](M1_06C_SessionCheckpoints.md#13-本批需要commit--push的内容固定放在文档最后)选择实际变化，重新Stage → Commit → Push已有origin/main。助手不代Stage / Commit / Push；上传失败给原始错误文本，我再定位。
+B功能 / 实现已进入4b83b66，B报告随3351b53已跟踪，不按旧AM提示重复提交Source / 资产。本轮C已验收，只追加C验收 / 来源清单 / 状态文档，按[C第13节](M1_06C_SessionCheckpoints.md#13-本批需要commit--push的内容固定放在文档最后)选择实际变化，Stage → Commit → Push已有origin/main。助手不代Stage / Commit / Push；上传失败给原始错误文本，我再定位。

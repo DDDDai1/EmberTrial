@@ -17,7 +17,9 @@ public class EmberTrialUI : ModuleRules
         PrivateDependencyModuleNames.AddRange(new string[]
         {
             "EmberTrial",
-            "GameplayAbilities"
+            "GameplayAbilities",
+            "InputCore",
+            "SlateCore"
         });
     }
 }

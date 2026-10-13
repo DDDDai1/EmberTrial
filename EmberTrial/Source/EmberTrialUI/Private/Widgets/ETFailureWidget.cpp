@@ -24,7 +24,7 @@ void UETFailureWidget::NativeOnInitialized()
 
 void UETFailureWidget::ShowReady()
 {
-    ApplyState(false, FText::FromString(TEXT("重新试炼将从入口开始。")));
+    ApplyState(false, FText::FromString(TEXT("重新试炼将从最近检查点开始；尚未激活检查点时从入口开始。")));
 }
 
 void UETFailureWidget::ShowPending(const FText& Message)

@@ -1,8 +1,30 @@
 #include "Framework/ETPlayerController.h"
+#include "Components/InputComponent.h"
 #include "GameFramework/Pawn.h"
+#include "InputCoreTypes.h"
 #include "Logging/LogMacros.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETPlayerController, Log, All);
+
+void AETPlayerController::SetupInputComponent()
+{
+    Super::SetupInputComponent();
+    if (InputComponent)
+    {
+        FInputKeyBinding& PauseBinding = InputComponent->BindKey(
+            EKeys::P, IE_Released, this, &ThisClass::HandlePauseReleased);
+        PauseBinding.bConsumeInput = true;
+        PauseBinding.bExecuteWhenPaused = false;
+    }
+}
+
+void AETPlayerController::HandlePauseReleased()
+{
+    if (IsLocalController() && GetLocalPlayer())
+    {
+        OnPauseRequested.Broadcast();
+    }
+}
 
 void AETPlayerController::BeginPlay()
 {

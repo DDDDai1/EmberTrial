@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-11最新现状：**A / B完整实现与资产已提交`4b83b665301af48328d9bdfd65e8db59baa16c66`，本机main HEAD与缓存origin/main一致，本轮未联网核验远端 / LFS。原B六个AM骨架与个人Editor设置取消跟踪删除已提交，磁盘个人设置保留，不重复处理。**[B报告](Reports/M1_06B_Verification.md)仍未跟踪，需随本批加入。**[C指南](M1_06C_SessionCheckpoints.md)已下发，当前只增加指南 / 状态文档；手动实现并验收后按[C第13节](M1_06C_SessionCheckpoints.md#13-本批需要commit--push的内容固定放在文档最后)提交十份Source、三份必需资产与文档 / 来源清单，再Push。CLion重新Stage步骤仍见[B第14.1.1节](M1_06B_FailureAndRetry.md#1411-clion重新stage最新修改简单步骤)。Raw / 缓存 / 构建产物留本地，助手不代Stage / Commit / Push。推荐标题`feat: add session checkpoints and continue trial`。
+**2026-10-12最新现状：**C主体十份Source / 三资产、指南与B报告已提交3351b53，本地HEAD与缓存origin/main一致，本轮未联网核验远端 / LFS。[C验收](Reports/M1_06C_Verification.md)已关闭；[D指南](M1_06D_PauseFlow.md)已下发，代码只在文档、未改Source / 资产。待手动实现后按[D最后清单](M1_06D_PauseFlow.md#12-本批需要commit--push的内容固定放在文档最后)提交两新 / 六旧Source、四旧资产与实际验收文档，保留未提交的C报告 / 清单 / 状态文字。可先提交`docs: record M1-06C acceptance and plan pause migration`，D完成后提交`feat: unify pause and failure UI flow`。CLion最新修改重新Stage步骤见[B第14.1.1节](M1_06B_FailureAndRetry.md#1411-clion重新stage最新修改简单步骤)；助手不代Stage / Commit / Push，Raw / 生成文件只留本地。
 
 ## 1. 已配置内容
 
@@ -10,7 +10,7 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
 - 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
-- 当前origin已配置为GitHub的DDDDai1/EmberTrial；首次Push失败后用户已完成Push，当前本机缓存origin/main为4b83b66。本轮未联网确认最新远端状态；后续每批Commit / Push完成才算远端备份，首次故障记录保留在第9节。
+- 当前origin已配置为GitHub的DDDDai1/EmberTrial；当前本机缓存origin/main为3351b53。本轮未联网确认最新远端 / LFS状态；每批Commit / Push完成才算远端备份，首次故障记录保留在第9节。
 
 ## 2. 第一个可恢复检查点
 
@@ -289,3 +289,5 @@ git config --local --unset http.sslBackend
 如果上传失败，保留完整Git / LFS输出，按实际失败阶段排查；不Force Push、不重写历史。当前源资产的授权登记仍需在对外展示时持续核对，GitHub上传结果本身不替代资产来源记录。
 
 2026-10-10追加：M1-05文档收尾已进入8843ffa。当前新增M1-06路线 / A指南和状态更新只代表下发，不代表六新类 / 菜单资产已实现。A按最后清单将实际新增Source / BP / Widget / Map、DefaultEngine / DefaultGame共享地图配置与验收摘要提交；Raw / 生成索引 / 包仍忽略，个人偏好暂存删除随用户下次提交。
+
+2026-10-13 M1-06D / 全章收尾：实际两新 / 六旧Source与四旧资产已验收，69 / 34 / 清单46；D报告 / 总报告 / 来源与状态更新加入实际未提交差异。本地HEAD / 缓存origin.main仍3351b53，本轮未联网核验远端，D由用户Stage / Commit / Push。M1-07A新增手写Tools/Run-StageBuild.ps1与两份指南纳入下一批；Run日志 / JSON / Trace和完整Windows包放Artifacts，保持忽略。Stage后又改过的文本 / Source / Content要把最新Unstaged变化再Stage，不能只提交旧版本；此流程不要求GitHub插件。
