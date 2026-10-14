@@ -578,14 +578,15 @@ Set-Location 'E:\UE_Project\Demo'
     const FName PursuitMoveStopDistanceKey(TEXT("PursuitStopDistance"));
 ```
 
-2. 构造函数里两项使用分别改为：
+2. 构造函数里引用改名后的完整相邻顺序必须是（2026-10-13补充防止默认黑板绑定丢失）：
 
 ```cpp
     BlackboardKey.SelectedKeyName = PursuitMoveTargetActorKey;
+    AcceptableRadius = 150.0f;
     AcceptableRadius.SetKey(PursuitMoveStopDistanceKey);
 ```
 
-仅上述**四处C++标识符**变化；`TEXT("TargetActor")`和`TEXT("PursuitStopDistance")`字符串保持原样，Blackboard资产 / BT配置不改。`AcceptableRadius = 150.0f`等其余构造代码保留，实际半径继续读取Controller写入的黑板键。
+仅上述**四处C++标识符**变化；`TEXT("TargetActor")`和`TEXT("PursuitStopDistance")`字符串保持原样，Blackboard资产 / BT配置不改。`AcceptableRadius = 150.0f`保留，且必须在SetKey之前：后赋float会复制None键、清掉绑定。不要因为示例只展示两项引用而把常量移到SetKey后；其余构造代码保持。实际半径读取Controller写入的黑板键，当前C2决策应为90。B补采已发现旧顺序回归，当前补修见[M1-07B第8.2节](M1_07B_InsightsBaseline.md#moveradius-fix)。
 
 保存后、UE仍关闭，重新执行本节的`.\Tools\Refresh-CLion.ps1`；Editor / 索引成功再继续Game Build。不要修改生成的Module.EmberTrial.cpp、改成static、关闭Unity或清缓存：这次修复常量名字即可。补修尚未由用户执行 / Build通过，不提前登记为验收；不为纯标识符改名重做M1-05矩阵，A已有短基线覆盖正常追击。
 

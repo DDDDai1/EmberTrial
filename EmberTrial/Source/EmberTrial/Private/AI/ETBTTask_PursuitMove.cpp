@@ -3,6 +3,7 @@
 #include "Characters/EmberTrialCharacter.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/Pawn.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETPursuitMove, Log, All);
 
@@ -30,8 +31,8 @@ UETBTTask_PursuitMove::UETBTTask_PursuitMove(
     NodeName = TEXT("ET Pursuit Move To");
     bNotifyTaskFinished = true;
     BlackboardKey.SelectedKeyName = PursuitMoveTargetActorKey;
-    AcceptableRadius.SetKey(PursuitMoveStopDistanceKey);
     AcceptableRadius = 150.0f;
+    AcceptableRadius.SetKey(PursuitMoveStopDistanceKey);
     bAllowPartialPath = false;
     bTrackMovingGoal = true;
     bRequireNavigableEndLocation = true;
@@ -76,10 +77,22 @@ EBTNodeResult::Type UETBTTask_PursuitMove::ExecuteTask(
 void UETBTTask_PursuitMove::OnTaskFinished(UBehaviorTreeComponent& OwnerComp,
     uint8* NodeMemory, EBTNodeResult::Type TaskResult)
 {
-    const FString ControllerName = GetNameSafe(OwnerComp.GetAIOwner());
-    // Always retain native UAITask / observer cleanup, including rejection.
+    const AAIController* Controller = OwnerComp.GetAIOwner();
+    const APawn* Body = IsValid(Controller) ? Controller->GetPawn() : nullptr;
+    const UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
+    const AActor* Goal = IsValid(Blackboard)
+        ? Cast<AActor>(Blackboard->GetValueAsObject(BlackboardKey.SelectedKeyName))
+        : nullptr;
+
+    const FString ControllerName = GetNameSafe(Controller);
+    const FString GoalName = GetNameSafe(Goal);
+    const double Distance2D = IsValid(Body) && IsValid(Goal)
+        ? FVector::Dist2D(Body->GetActorLocation(), Goal->GetActorLocation()) : -1.0;
+    const float Radius = IsValid(Blackboard) ? AcceptableRadius.GetValue(OwnerComp) : -1.0f;
+
+    // Snapshot before cleanup; always retain native move task cleanup.
     Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
     UE_LOG(LogETPursuitMove, Display,
-        TEXT("[M1-05B2] Move finished Controller=%s Result=%s"),
-        *ControllerName, DescribeMoveResult(TaskResult));
+        TEXT("[M1-05B2] Move finished Controller=%s Result=%s Goal=%s Distance2D=%.1f Radius=%.1f"),
+        *ControllerName, DescribeMoveResult(TaskResult), *GoalName, Distance2D, Radius);
 }

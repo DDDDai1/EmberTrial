@@ -1,6 +1,6 @@
 # M1-07A：当前阶段Windows Development包
 
-下发：2026-10-13，UE **5.5.4**。前置[M1-06功能总验收](Reports/M1_06_Verification.md)通过。**当前仅下发操作指南与启动工具，尚未生成或验收M1包。**本批无C++ / Blueprint新功能；你手动核对共享配置、打包、独立运行和Push。出现报错给完整日志路径或首条错误，我来定位。
+完成 / 复核：2026-10-13，UE **5.5.4**。**本批Win64 Development独立包功能验收通过**，见[A报告](Reports/M1_07A_Verification.md)。13:47反馈，实际手动30分钟（准备10 / 检查10 / 记录10）/ 等待25；Attempt01包、UAT成功、三份Runtime含完整Checkpoint_A Retry / Continue与新进程Entry已核对。下一批[M1-07B Insights](M1_07B_InsightsBaseline.md)已下发，真实Trace / 性能分析尚待完成。下面保留可复用打包步骤。
 
 ## 1. 本批成果与时间
 
@@ -164,7 +164,7 @@ Runtime两轮日志所在目录：
 实际手动用时：准备__ / 检查__ / 记录__；Build / Cook等待__
 ```
 
-我核对包receipt / UAT / 两轮Runtime与当前Source / 资产版本，通过后再下发B的实际采样步骤。A通过前不提前标M1收口，也不以旧包FPS决定优化方向。
+已核对包receipt / UAT / 三次Runtime与当前Source / 资产版本，详见[A验收](Reports/M1_07A_Verification.md)。B按实际包采样，A完成不提前标M1收口，也不以旧包FPS决定优化方向。
 
 ## 8. 本批需要Commit / Push（固定放在文档最后）
 
@@ -174,7 +174,7 @@ Runtime两轮日志所在目录：
 | 新开发文档 | `Docs/M1_07_ReleaseRoadmap.md`、`Docs/M1_07A_StagePackaging.md` |
 | 当前D收尾 | `Docs/Reports/M1_06D_Verification.md`、`Docs/Reports/M1_06_Verification.md`；D指南与AssetManifest / Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow_Options / Introduction等实际差异 |
 | 实际共享Config变化 | 若Build改为Always，提交`EmberTrial/Config/DefaultGame.ini`；Maps已一致则不重改DefaultEngine.ini；其余只有实际必要变动才纳入 |
-| A完成后摘要 | 助手后续实际生成的M1-07A验收报告与状态 / 清单更新，本轮尚未预写“包内通过” |
+| A完成摘要 | `Docs/Reports/M1_07A_Verification.md`与实际状态更新已生成；来源资产不变，不重改AssetManifest |
 
 D八Source / 四旧资产若还未提交，先按[D末尾清单](M1_06D_PauseFlow.md#12-本批需要commit--push的内容固定放在文档最后)提交真实实现；若已经提交，不重复加入无差异文件。A没有新增C++或UE资产，不为提交清单重存地图 / BP。
 

@@ -1,21 +1,21 @@
 # 当前开发状态
 
-更新日期：2026-10-13。**M1-06A / B / C / [D](Reports/M1_06D_Verification.md)功能全部验收完成**，见[总验收](Reports/M1_06_Verification.md)。当前69Source / 34cpp / 来源清单46；D手动105（35 / 60 / 10）/ 等待5，全章315 / 20，项目累计手动1836分钟（30小时36分钟）/ 等待140。**当前操作：[M1-07A阶段包](M1_07A_StagePackaging.md)**，路线与独立日志启动工具已下发，待用户打包 / 独立运行；尚无新包、性能Trace或项目校验完成结果。C主体 / 缓存origin.main仍3351b53，D和收尾实际差异由用户Stage / Commit / Push，本轮未联网核验远端。手动C++与方案B继续。
+更新：2026-10-14。**M1-07B性能分析和最终函数Editor收尾完成；下一步[M1-07C1编辑器配置校验](M1_07C1_EditorValidation.md)，待用户手动实施。**精简函数与指南一致、00:38 Editor构建成功，功能正常按最新用户反馈登记；最新留存PIE日志早于替换，不冒充新函数运行证据。Game最终函数构建合并C1，include清理同时完成；新包留C3 Attempt02。当前69Source / 34cpp / 清单46，仅Task.cpp相对A改变；累计已报告手动1941分钟（32小时21分钟）/ 已明确等待165，最后替换耗时未报告。C1代码仅在指南，未提前创建模块或标工具通过。
 
 ## 当前阶段
 
-**M1-06功能闭环全部通过。**ASC / 属性 / GameplayReady → Presenter → HUD，攻击 → Trace → GE → 受击 / 死亡，AI自动交战，以及菜单 / 失败重试 / 会话检查点 / 暂停单所有者已成立。会话只在当前进程有效，整图重建重置敌人和练习交互。阶段包、Insights测量、有限校验与后续深化仍需完成；当前灰盒不代表最终招聘作品。
+**M1-06功能闭环全部通过。**ASC / 属性 / GameplayReady → Presenter → HUD，攻击 → Trace → GE → 受击 / 死亡，AI自动交战，以及菜单 / 失败重试 / 会话检查点 / 暂停单所有者已成立。会话只在当前进程有效，整图重建重置敌人和练习交互。当前Development阶段包已通过独立运行；Insights测量、有限校验与后续深化仍需完成，当前灰盒不代表最终招聘作品。
 
-**M1-04C2历史时序缺口已关闭。**19:53:24.529 WindowOpen，19:53:39.113死亡提交 → WindowClose(AttackEnd) → Disarm.Tick0 → 当前能力Cancelled1 / AttackingTag0 → Death sealed；结束Dead Tag Remaining0。助手当时经授权使用slomo0.01等待日志确认后按4并恢复1，随后保存100/100与Debug False。此为上一章证据，不是本次C1接管；冻结姿势、重试与新包后续完善。
+**M1-04C2历史时序缺口已关闭。**19:53:24.529 WindowOpen，19:53:39.113死亡提交 → WindowClose(AttackEnd) → Disarm.Tick0 → 当前能力Cancelled1 / AttackingTag0 → Death sealed；结束Dead Tag Remaining0。助手当时经授权使用slomo0.01等待日志确认后按4并恢复1，随后保存100/100与Debug False。此为历史证据，不是本次接管；正式重试与当前阶段包随后已完成，冻结姿势表现后续完善。
 
-**当前操作：[按M1-07A](M1_07A_StagePackaging.md)核对启动 / Cook配置，打包Win64 Development，关闭Editor后独立走一条流程，保留Run01 / Run02日志。**A不新增C++ / 资产，不重复搭临时验收图；B再采集Insights，C收口有限校验。D报告与实际Source / 四旧资产按其末尾清单由用户Push。
+**当前操作：[C1 Editor模块 / BT与UMG校验指南](M1_07C1_EditorValidation.md)。**四新文件、uproject / Editor Target、B include清理，正常Editor / 索引 / Game构建后，只查两个正式资产与一份BT副本的失败→恢复；不重复PIE旧矩阵。Editor模块隔离于Game；资源引用 / 输入 / 地图规则留C2，Attempt02和M1总收口留C3。
 
 - 工作区：`E:\UE_Project\Demo`。
 - 实际 UE 工程：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，已存在。
 - 引擎：UE 5.5.4，`D:\UE5\UE_5.5`。
 - 代码编辑器：CLion 2025.3.3；保留 VS2022 MSVC / Windows SDK，实际构建仍由 UBT / UHT 完成。[日常使用与恢复 VS2022](CodeEditor_CLion_VS2022.md)。
 - 已通过 5.5.4 Editor 构建和 Development Game 打包；包内核心功能用户通过，运行日志与 receipt 已核对。
-- 当前可执行基线：`E:\UE_Project\Demo\Artifacts\Builds\M0_06\Attempt01\Windows\EmberTrial.exe`。
+- 当前可执行基线：`E:\UE_Project\Demo\Artifacts\Builds\M1_07A\Attempt01\Windows\EmberTrial.exe`。
 - 范围 / 排期：每周 30 h，键鼠全流程，总资源预算约 100 元；保守剩余 490–530 h / 约 17–18 个有效投入周，M1 后重估。
 
 ## 截至当前已完成
@@ -171,7 +171,7 @@ C2实施反馈：用户全项报告完成，手动25分钟（代码10 / 资产10
 
 - 每周约 30 小时；暂无硬期限；资源总预算约 100 元；用户有手柄但明确不开发支持。
 - 本机约 16 GB 系统内存、RTX 4060 Laptop 约 8 GB 显存；性能目标仍待正式场景测量。
-- M0手动673 min + M1-01 20 min + M1-02 180 min + M1-03 325 min + M1-04 176 min + M1-05 147 min + M1-06 A+B+C+D315 min，共 **1836分钟（30小时36分钟）**；用户明确等待 **140分钟**另列。D代码35 / 资产60 / 检查10、等待5；助手GUI与复核不计用户手动时间。分层验收 / 自动化按重复成本建设。
+- M0手动673 min + M1-01 20 min + M1-02 180 min + M1-03 325 min + M1-04 176 min + M1-05 147 min + M1-06 315 min + M1-07 A+B105 min，共 **1941分钟（32小时21分钟）**；用户明确等待 **165分钟**另列。D代码35 / 资产60 / 检查10、等待5；助手GUI与复核不计用户手动时间。分层验收 / 自动化按重复成本建设。
 - 第一轮包内日志未单独留存；以后多轮启动使用不同日志文件名，本次证据范围已写入验收报告。
 
 ## 持续协作原则
@@ -187,3 +187,15 @@ C2实施反馈：用户全项报告完成，手动25分钟（代码10 / 资产10
 2026-10-12 M1-06D下发：按用户请求生成[D完整指南](M1_06D_PauseFlow.md)，两新 / 六旧Source全文只在Markdown，新增暂停Widget / 模块显式依赖、Core P释放意图 / 提示事件、既有FailureFlow统一Pause / Failure / Session命令，并修正失败页检查点文案。四旧资产逐项清理 / Designer与功能桥接，无新测试蓝图；三组相关检查10–15分钟，预算80–140未计实耗。保留C验收67Source / 33cpp / 46资产哈希与B1冻结文档，未写工程、运行Build / PIE或操作Git索引；C收尾 / D实际实现均由用户Push。本章总验收待D运行反馈后复用既有证据整理，M1-07仍待开始。
 
 2026-10-13 M1-06D收尾：用户13:01全项完成，手动105 / 等待5；69Source / 34cpp，八全文块一致、61旧Source与42旧资产不变，仅四预计资产调整，双receipt / 索引较源码晚。15组Pause创建移除、12组Flow / Life闭合、None拒绝可继续、三MainMenu / 两Continue / 一Retry确认、真实死亡 / 重开与攻击有日志，具体输入与配置按反馈。左键Condition断线已由用户补线，助手本轮只读图直接确认并见13:01攻击；WBP8.4修正已保存。D / 全章功能通过，315 / 20、累计1836 / 140；直接进入M1-07A，无额外复盘验收图。新路线 / A指南与Tools/Run-StageBuild.ps1生成，脚本语法检查通过，未启动包 / Build / PIE，A实机结果待用户操作。
+
+2026-10-13 M1-07A完成 / 复核：13:47反馈、手动30 / 等待25，累计1866 / 165。UAT副本BuildCookRun214.75秒及ExitCode0，与用户整段等待分别记录；三次独立启动均正常退出，完整Run01直接记录Checkpoint_A激活 / Retry / Continue，新Run02回Entry。69Source / 46资产哈希不变；GameplayCue路径扫描Warning为非阻断事项，C再评估。A报告 / 包基线落盘，B指南与运行期Profile / Region工具已生成并做Parser / WhatIf检查，无助手Build / 游戏启动 / 性能结论。
+
+2026-10-13 M1-07B采集核查：用户18:43完成，55分钟（准备10 / 采集15 / Insights学习25 / 记录5），累计1921 / 等待165。原2.42GiB Trace完整解析、四Region和116,445条主线程事件 / 三GPU内部窗口导出；两待机内部主循环约7.350 / 7.122ms、P95约10.149 / 9.900ms，GPU场景范围约6.709 / 6.488ms，不冒充整GPU Frame或呈现FPS。Pause Region含前后操作，仅520–528s内部用于暂停分析；Retry请求→到达74ms与附近77.025ms Tick单独记录。69Source / 46资产 / 两Config / 七包指纹保持A，冻结B1不变，无游戏Runtime Error。电源 / 风扇与窗口缩放未知、启动可用内存558.51MB，明确限制。用户确认Combat01只有玩家动作，AI获得 / Move / MeleeTask均0；[报告](Reports/M1_07B_Verification.md)待Combat02，已下发3–5分钟窄补采，不重做其他区间，C暂不进入。助手只分析 / 写文档，无Source / 资产 / Build / Git操作。
+
+2026-10-13 Combat02核查：用户真实追击 / 挥击 / 扣血、提前死亡，补采手动5分钟，未提供完成时分；日志实际19:58:48–20:00:40。338MB Trace完整解析，第一Region61.842–86.772含死亡，第二96.912零长度；只取死亡前63–82s，2864主循环间隔均值6.630 / P95 8.929ms，2865 GPU场景范围均值6.003 / P95 8.429ms。3次获得、4次活动Move、12次攻击请求 / 十次10伤害与HUD100→0证实AI采样有效，无需再采。新发现Controller90而Move150：当前Task先SetKey后float赋值清默认键，24次立即Succeeded；原A改名片段 / 验收漏顺序已补注。已下发8.2两行换序 / 核对BT / 双Build / 窄PIE，尚未实施，B未总通过 / C待开始。69Source / 46资产 / 两Config / 七包指纹不变；累计1926 / 等待165。修复包统一C收口后Attempt02，助手未代改Source / UE资产或Build / Git。
+
+23:50反馈复核：绑定 / 双Build / Radius90通过，自动接近攻击未通过；23:49:42首次Move成功，47.807只有贴近83.8cm才攻击，18条请求90。只读BT确认键 / 半径开关 / 分支正确，未保存资产或PIE；新增8.3到达位置 / 距离日志待用户手动实施，不猜根因改参数。实际10分钟加入累计1936，新增等待未单列，已明确165不变；仅Task.cpp变化，BT内容哈希不变。
+
+2026-10-14到达快照反馈：手动5分钟、未提供完成时分 / 单列等待；新Editor receipt00:24:53，00:26:22.951快照中心 / Nav90.3、半径90、正确开关 / Standalone，随后两次真实10伤害，用户确认站定自主接近成立。本轮ResultFailed发生在NearTarget主动停止 / 攻击切换，保留真实结果；只读日志未改变玩法，不声称23:49根因已唯一定位。用户要求精简，B指南原8.3函数已直接覆盖，保留清理 / Controller / Result / Goal / Distance / Radius，尚未改Source或Build。累计1941 / 已明确165，最终版落地后收尾；Raw保留诊断长日志，旧包仍后续统一Attempt02。
+
+2026-10-14 B最终收尾：用户报告修改完成 / 功能正常并要求下一步。直接核对短函数与指南一致，源00:38:21、Editor DLL00:38:40与UBT四步成功；Game exe仍10月13日23:47:28，最新PIE Log00:37:33早于替换，因此功能按用户反馈、不冒充最新直接日志。include旧两行尚在、显式Pawn.h待清理，均合并C1正常构建，不重做B采样 / 矩阵。69Source / 34cpp / 46资产 / 两Config / 七包指纹核查，除Task.cpp外均与A一致；冻结B1不变。B分析 / Editor收尾接受，旧症状根因限制保留；C1已下发四新文件的手动指南，实际未创建模块 / 修改工程配置 / Build / PIE / Git。C1预计60–100手动、检查5–10分钟；最终函数新实耗未提供，累计1941 / 已明确165不推算。

@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新：2026-10-13。**M1-06整章功能完成**，见[总验收](Reports/M1_06_Verification.md)。当前69Source / 34cpp / 来源清单46；累计手动1836 / 等待140，本章315 / 20。**[M1-07A阶段包](M1_07A_StagePackaging.md)已下发，待用户操作**；B真实Insights与C有限校验随后分批。每周30h、键鼠、预算约100元、手动C++与方案B继续；D实际差异 / 报告由用户Commit / Push，本轮未代操作Git或新Build / PIE。
+更新：2026-10-14。**B性能分析 / 最终函数Editor收尾完成，C1已下发待用户实施。**当前69Source / 34cpp / 清单46，仅Task.cpp改变；Editor成功 / 功能正常反馈已登记，Game构建与include清理合并C1，新Attempt02留C3。累计已报告手动1941 / 已明确等待165，最后替换耗时未提供；工具只在指南，未提前验收。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -72,10 +72,13 @@
 | M1-06B | [真实失败与整图重试](M1_06B_FailureAndRetry.md) | 你手动实现，我设计 / 复核 | 完成（功能） | [报告](Reports/M1_06B_Verification.md)：验收时65Source / 32cpp / 清单45，手动80 / 等待5、无待补；主体与报告现均已提交 |
 | M1-06C | [会话检查点与菜单继续](M1_06C_SessionCheckpoints.md) | 你手动实现，我设计 / 复核 | 完成（功能） | [报告](Reports/M1_06C_Verification.md)：67Source / 33cpp / 清单46，三Retry / 两Continue / 三NewRun / 缺失ID回退修正与清理通过；手动85 / 等待5，无待补，主体3351b53，当前补收尾文档 |
 | M1-06D | [暂停迁移与菜单流程闭环](M1_06D_PauseFlow.md) | 你手动实现；GUI经当次授权协助，我复核 | 完成（功能） | [报告](Reports/M1_06D_Verification.md)：105 / 等待5；八Source / 四旧资产，Pause / Failure互斥、焦点 / 门控 / 返回菜单 / 清理通过，左键补线关闭 |
-| M1-07 | [阶段包、真实性能与最小校验](M1_07_ReleaseRoadmap.md) | 共同 | 分批进行中 | A已下发；当前包 / 两轮Runtime → B实际Insights → C有限校验与M1校准，不提前记录运行通过 |
-| M1-07A | [当前阶段Windows Development包](M1_07A_StagePackaging.md) | 你手动打包 / 运行，我设计 / 核对 | 待用户操作 | 两正式Cook地图、编辑器关闭后Run01流程与Run02新会话、两独立日志；启动工具已准备，无新Source / UE资产 |
-| M1-07B | Insights真实采样 | 共同 | 待开始 | 固定条件、预热、CPU / GPU帧与尖峰证据；基于A包，尚未下发操作 / 运行 |
-| M1-07C | 有限配置校验与M1收口 | 共同 | 待开始 | 准确资产路径 / 规则错误、复用现有自动测试、M2工期校准；不建大型测试平台 |
+| M1-07 | [阶段包 / 性能与校验](M1_07_ReleaseRoadmap.md) | 共同 | 分批进行中 | A独立包 / B分析及Editor收尾完成；C1待实施，Game最终构建与新包后续明确跟踪 |
+| M1-07A | [当前阶段Windows Development包](M1_07A_StagePackaging.md) | 你手动打包 / 运行，我核对 | 完成 | UAT ExitCode0、完整Run01 Checkpoint_A闭环 / 新Run02 Entry、三日志正常退出；30 / 25分钟，Source / 资产不变 |
+| M1-07B | [Insights材料 / 函数收尾](M1_07B_InsightsBaseline.md) | 你手动落地，我核查 | 完成（分析 / Editor收尾） | 短函数一致、Editor成功、用户功能正常；Game补编译转C1，旧包不是修复后的包 |
+| M1-07C | 有限配置校验与M1收口 | 共同 | 分批待实施 | C1 Editor / BT / UMG；C2关键引用 / 输入 / 地图与旧自动化；C3 Attempt02 / 包内短流程 / 总复盘 |
+| M1-07C1 | [Editor模块与BT / UMG校验](M1_07C1_EditorValidation.md) | 你手动实施，我设计 / 核查 | 待用户操作 | 双构建 / 三模块索引；正式BT与HUD项目Valid；Probe断键ET-AI-003→恢复Valid；只在文档，实际模块未创建 |
+| M1-07C2 | 关键引用与配置规则、复用自动化 | 共同 | 待C1通过后下发 | 不提前声称引用 / 输入 / 地图已检查；按重复成本补规则 |
+| M1-07C3 | Attempt02与M1阶段收口 | 共同 | 待C2通过后下发 | 新包与Source一致，真实自主接近 / 伤害短流程；旧Attempt01保留历史数据 |
 
 历史说明：M1-04 C2 / D已完成，见[M1-04 C2](Reports/M1_04C2_Verification.md)与[战斗汇总](M1_04D_CombatReview.md)。M1-05 B2当时为51Source / 25cpp / 清单39，主动攻击尚未接入；M1-05 D随后以53Source / 26cpp / 清单40验收BT主动攻击，这两个历史检查点保留。**当前以M1-06D基线69Source / 34cpp / 清单46为准，正式失败重试 / 暂停 / 会话检查点已验收。**无需重做旧专项；数字4继续保留，A UHT补修已关闭。当前阶段包和性能采样进入M1-07，倒地表现后续完善。
 
@@ -149,3 +152,15 @@
 2026-10-12 C验收：用户00:30全项完成，手动85（45 / 30 / 10）/ 等待5。67Source / 33cpp、十全文块 / 双receipt / 实索引核对，57旧Source不变；三Retry / 两Continue / 三NewRun / 三MainMenu到达、一次激活去重、失效ID回退后Entry修正与清理有日志，具体输入 / Designer / 退出按反馈。新BP / 地图 / Widget正常保存、来源清单46且43旧资产不变，[报告](Reports/M1_06C_Verification.md)无待补。主体与B报告已提交3351b53，当前追加C收尾文档，累计1731 / 等待135，本章210 / 15；未代改工程、Build / PIE或进入D。
 
 2026-10-12 D下发：[指南](M1_06D_PauseFlow.md)已生成，现有FailureFlow在计划中扩为Controller暂停 / 失败协调器，保留原生类 / BP配置；两个新Pause Widget文件、六旧源码全文与四旧资产步骤、末尾Push清单完整。预算80–140 / 检查10–15；代码只在文档，实际67 / 33 / 46与累计1731 / 等待135不变。三组检查复用P、正式按钮、既有4与Checkpoint_A，无新Controller测试图；死亡时已暂停的接管仅静态设计，不冒充实测。D执行 / 章末报告待反馈，当前未进入M1-07。
+
+2026-10-13 M1-07A验收：实际30（10 / 10 / 10）/ 等待25，累计1866 / 165；当前包真实Game / 容器指纹、UAT / receipt、三Runtime核对，无功能待补。主Run01激活A后真实Retry / Continue都确认A，新Run02首屏Continue0 / NewRunEntry。本批无新资产来源，清单46不变；本地HEAD193eb4e。B采样指南 / Profile与Region通道下发，Parser / WhatIf通过，未启动游戏或预写性能分析；GameplayCue非阻断扫描Warning登记给C。
+
+2026-10-13 B核查：原采集55分钟、累计1921 / 165；69Source / 46资产 / 包指纹保持A。CPU / GPU稳定窗口与Retry分析见[B报告](Reports/M1_07B_Verification.md)。用户确认Combat01无敌人追击 / 挥击，缺真实交战负载；仅B指南8.1 Combat02待补，其他区间不重跑，C不提前下发。环境不清楚按未知记录。
+
+2026-10-13 Combat02有效、无需重采，额外5分钟、累计1926 / 165。唯一当前补修是Source构造顺序清键造成Move150 / Controller90；B指南8.2手动执行，C未下发。旧Attempt01保留已测历史版本，新包后续统一生成；[报告](Reports/M1_07B_Verification.md)区分交战性能、发现的功能回归与尚未实施修复。
+
+23:50绑定补修实际10分钟，累计1936 / 已明确165，新增等待未单列。站定自动攻击仍失败，保留B待诊断，不进入C；只需8.3一条现有日志增强，不重做旧验收图。
+
+2026-10-14新到达快照当次通过，手动5分钟、累计1941 / 已明确165；只读快照不修改玩法，不伪造残余唯一根因。8.3短函数直接覆盖原指南，当前Source仍长版，待手动落地；原素材 / Trace不重采，旧矩阵不重复。
+
+2026-10-14最终反馈关闭B分析 / Editor收尾：短函数已落地，Editor四步成功；用户确认功能正常。Game / include补项明确转入C1，最终新包转C3，不再要求B复测全套。C1指南已保存，四新文件仅文档，Source仍69 / cpp34 / 清单46，实耗累计不变。

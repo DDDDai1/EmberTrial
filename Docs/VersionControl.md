@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-12最新现状：**C主体十份Source / 三资产、指南与B报告已提交3351b53，本地HEAD与缓存origin/main一致，本轮未联网核验远端 / LFS。[C验收](Reports/M1_06C_Verification.md)已关闭；[D指南](M1_06D_PauseFlow.md)已下发，代码只在文档、未改Source / 资产。待手动实现后按[D最后清单](M1_06D_PauseFlow.md#12-本批需要commit--push的内容固定放在文档最后)提交两新 / 六旧Source、四旧资产与实际验收文档，保留未提交的C报告 / 清单 / 状态文字。可先提交`docs: record M1-06C acceptance and plan pause migration`，D完成后提交`feat: unify pause and failure UI flow`。CLion最新修改重新Stage步骤见[B第14.1.1节](M1_06B_FailureAndRetry.md#1411-clion重新stage最新修改简单步骤)；助手不代Stage / Commit / Push，Raw / 生成文件只留本地。
+**2026-10-14最新现状：**本地HEAD193eb4e，本轮未联网核验远端。B短函数已手动落地、Editor通过 / 功能正常反馈；Game构建转C1，Attempt02转C3。[C1指南](M1_07C1_EditorValidation.md)已下发，代码只在文档、尚未创建新模块。由用户重新Stage最新Task.cpp与B收尾 / C1计划文档，C1实施后按最后清单提交四新Source、uproject / Editor Target和合法Probe。没有Source / 资产差异的文件不人为加入；Raw / 包 / Trace留本地。CLion重新Stage见[B第14.1.1节](M1_06B_FailureAndRetry.md#1411-clion重新stage最新修改简单步骤)，助手不代操作Git。
 
 ## 1. 已配置内容
 
@@ -291,3 +291,15 @@ git config --local --unset http.sslBackend
 2026-10-10追加：M1-05文档收尾已进入8843ffa。当前新增M1-06路线 / A指南和状态更新只代表下发，不代表六新类 / 菜单资产已实现。A按最后清单将实际新增Source / BP / Widget / Map、DefaultEngine / DefaultGame共享地图配置与验收摘要提交；Raw / 生成索引 / 包仍忽略，个人偏好暂存删除随用户下次提交。
 
 2026-10-13 M1-06D / 全章收尾：实际两新 / 六旧Source与四旧资产已验收，69 / 34 / 清单46；D报告 / 总报告 / 来源与状态更新加入实际未提交差异。本地HEAD / 缓存origin.main仍3351b53，本轮未联网核验远端，D由用户Stage / Commit / Push。M1-07A新增手写Tools/Run-StageBuild.ps1与两份指南纳入下一批；Run日志 / JSON / Trace和完整Windows包放Artifacts，保持忽略。Stage后又改过的文本 / Source / Content要把最新Unstaged变化再Stage，不能只提交旧版本；此流程不要求GitHub插件。
+
+2026-10-13 M1-07A完成：本地HEAD193eb4e包含D实现；本轮未联网核验远端，未操作Stage / Commit / Push。Source / Content / AssetManifest不变，A验收与状态摘要提交实际文档差异；DefaultGame.ini已为Always，已进入提交的配置不重复处理。B新指南与Tools/Run-StageBuild.ps1的Profile / B目录 / Region + Log通道为新增实际变化，按B末尾清单由用户提交。原包、三Runtime、UAT副本与后续Trace / CSV / 截图保持忽略；工具WhatIf没有启动游戏或生成Trace。
+
+2026-10-13 B分析：本地HEAD193eb4e，69Source / 46清单资产 / 两Config / 七包指纹不变；提交新增Docs/Reports/M1_07B_Verification.md、B指南8.1与状态摘要实际变化，报告必须保留Combat02待补。A报告 / B工具若尚未提交，沿用B最后清单；不人为Stage无差异Source / Content，不上传Raw / CSV / utrace / 运行期Saved。用户补采后助手更新报告，再重新Stage最新文本、Commit / Push；助手未操作Git索引或远端。
+
+2026-10-13 Combat02收尾：真实AI补采 / 性能分析完成，Source / Content / Config与原基线不变；当前B报告保留MoveRadius待补。新增 / 修改B报告、B指南8.2、M1-06A指南7.1 / 验收补注与状态摘要可提交；用户实施后再Stage实际Task.cpp和BT资产差异、最新报告。修复后的Editor / Game源码不自动修改旧Attempt01；C收口统一Attempt02，包 / Raw / Trace不上传。未代Stage / Commit / Push。
+
+23:50后续：Task.cpp两行换序已有真实差异；BT核对 / 保存但哈希没变，不人为Stage无差异资产。新8.3诊断尚未实施，实施后将当前完整Task.cpp与报告重新Stage。旧包 / Raw仍本地，B主动攻击衔接尚未通过，不写全项通过。
+
+2026-10-14函数收尾：00:26自主接近 / 两次真实伤害样本通过；最终短函数已直接覆盖B指南，尚未写入Source。用户落地后将最新Task.cpp（正确绑定顺序 / Pawn.h / 精简日志）重新Stage，B报告与状态一起提交；BT无差异不重复加入，Raw / 包保持忽略。Game receipt仍旧版，最终函数正常双Build后再记实施完成；未代操作Git。
+
+2026-10-14本轮交接：B最终Task.cpp已落地，最新报告记录Editor成功与用户功能反馈，Game转C1；旧长诊断暂存版本需要重新Stage。C1指南及路线 / 状态实际变化纳入本次文档提交；实施后的四新文件 / 三修改文件 / 合法Probe再按[C1最后清单](M1_07C1_EditorValidation.md#10-本批需要-commit--push固定放在文档最后)提交。未运行Git索引或远端操作，Source新模块仍未生成，不提前列为实际新增文件。

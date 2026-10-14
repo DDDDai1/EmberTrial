@@ -8,13 +8,16 @@
             "Name": "EmberTrial",
             "Type": "Runtime",
             "LoadingPhase": "Default",
-            "AdditionalDependencies": [
-                "Engine"
-            ]
+            "AdditionalDependencies": ["Engine"]
         },
         {
             "Name": "EmberTrialUI",
             "Type": "Runtime",
+            "LoadingPhase": "Default"
+        },
+        {
+            "Name": "EmberTrialEditor",
+            "Type": "Editor",
             "LoadingPhase": "Default"
         }
     ],
@@ -22,13 +25,16 @@
         {
             "Name": "ModelingToolsEditorMode",
             "Enabled": true,
-            "TargetAllowList": [
-                "Editor"
-            ]
+            "TargetAllowList": ["Editor"]
         },
         {
             "Name": "GameplayAbilities",
             "Enabled": true
+        },
+        {
+            "Name": "DataValidation",
+            "Enabled": true,
+            "TargetAllowList": ["Editor"]
         }
     ]
 }

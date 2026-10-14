@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本：1.0；更新：2026-10-13。**M1-06A / B / C / [D](Reports/M1_06D_Verification.md)功能全部验收通过。**当前69Source / 34cpp / 清单46。D将旧Pawn菜单业务迁到单Controller FailureFlow，Core意图 / Widget布局与输入 / Session快照各自归属；性能尚未测量、项目校验器仍待建设。下一步[M1-07A](M1_07A_StagePackaging.md)当前阶段包，Tools启动器仅负责进程 / 独立日志，不参与Runtime模块。采用[方案B](AcceptanceWorkflow_Options.md)，实时状态见[Progress](Progress.md)。
+版本1.0；更新2026-10-14。**B最终短函数已落地、Editor成功，功能正常按用户反馈；C1编辑器校验已下发待实施。**69Source / 34cpp / 清单46，仅Task.cpp相对A变化；Game最终构建 / include清理合并C1。计划Editor→Core / DataValidation / AIModule / UMGEditor，Runtime不引用Editor；代码仅指南，实际仍Core / UI两个模块。
 
 ## 1. 模块边界
 
@@ -128,4 +128,20 @@ C已按[指南](M1_06C_SessionCheckpoints.md)实施两新 / 八旧Source，稳�
 
 失效ID检查复用仅编辑器PIE有效的GameMode开发命令，不搭Controller验收图或在PIE编译测试蓝图；真实死亡 / Retry验证Entry回退与下一次请求修正。三Retry / 两Continue / 三NewRun均确认到达，八组检查点 / HUD / Life清理闭合，详见[C报告](Reports/M1_06C_Verification.md)。重复ID / 缺失Entry保护未单独实测。检查点只在当前进程有效，版本化磁盘存档留M5；[D指南](M1_06D_PauseFlow.md)已实施 / 验收，将旧Pawn暂停业务迁到既有Controller FailureFlow，统一输入 / 暂停所有者，见[D报告](Reports/M1_06D_Verification.md)。
 
-D已验收（[手动指南](M1_06D_PauseFlow.md) / [报告](Reports/M1_06D_Verification.md)）：保留原生FailureFlow类名与Controller单组件装配，统一持有互斥Pause / Failure，UIBootstrap仍专管HUD；Core ETPlayerController仅发布原生P释放意图和无UMG类型的Blueprint通知，UI模块显式依赖InputCore / SlateCore，Widget只发继续 / 菜单意图。角色删除旧菜单实例 / 布尔缓存 /输入切换 / 清理，两交互条件改读World暂停；Controller Blueprint通知仅桥接当前Pawn.RefreshCandidate。Pause KeyUp处理UI Only输入、按钮Down And Up、背景回焦，正常Resume恢复同一世界与输入；返回菜单 / Retry仍调用RunSession，切图EndPlay只清理。失败sealed优先、当前身体身份检查、一次NextTick与已暂停时直接接管保护分工明确；已暂停时直接接管仍只核对静态设计，未冒充运行测试。两新 / 六旧Source、四旧资产已实施，当前69Source / 34cpp / 清单46。D日志中12组Flow绑定 / 清理、15组Pause显示 / 移除、一次真实Failure及三次返回菜单闭合；具体键鼠操作按用户反馈。性能和当前阶段独立包留[M1-07](M1_07_ReleaseRoadmap.md)完成。
+D已验收（[手动指南](M1_06D_PauseFlow.md) / [报告](Reports/M1_06D_Verification.md)）：保留原生FailureFlow类名与Controller单组件装配，统一持有互斥Pause / Failure，UIBootstrap仍专管HUD；Core ETPlayerController仅发布原生P释放意图和无UMG类型的Blueprint通知，UI模块显式依赖InputCore / SlateCore，Widget只发继续 / 菜单意图。角色删除旧菜单实例 / 布尔缓存 /输入切换 / 清理，两交互条件改读World暂停；Controller Blueprint通知仅桥接当前Pawn.RefreshCandidate。Pause KeyUp处理UI Only输入、按钮Down And Up、背景回焦，正常Resume恢复同一世界与输入；返回菜单 / Retry仍调用RunSession，切图EndPlay只清理。失败sealed优先、当前身体身份检查、一次NextTick与已暂停时直接接管保护分工明确；已暂停时直接接管仍只核对静态设计，未冒充运行测试。两新 / 六旧Source、四旧资产已实施，当前69Source / 34cpp / 清单46。D日志中12组Flow绑定 / 清理、15组Pause显示 / 移除、一次真实Failure及三次返回菜单闭合；具体键鼠操作按用户反馈。当前阶段独立包已在[M1-07A](Reports/M1_07A_Verification.md)通过，性能采样留[M1-07B](M1_07B_InsightsBaseline.md)完成。
+
+## 9. M1-07A包基线与B采样
+
+A已生成Win64 Development Attempt01，UAT Build / Cook / Stage / Package / Archive成功，三次独立启动保留日志；正式Menu、真实伤害、Checkpoint_A Retry / Continue、新进程Entry及UI清理闭合。游戏Source / 46项资产与D逐份哈希一致，B原Trace已完成CPU / GPU待机、实际暂停与Retry分析，Combat02真实交战已采集 / 分析，Move150 / Controller90绑定回归已手动补修，最终精简版Editor通过；旧包仍保留原回归，后续C3统一Attempt02。B工具只增加本次进程CVar / Trace、Region标记与本地证据目录，不污染Core / UI模块、不增加Blueprint测试图。UE5.5.4的RegionChannel独立于BookmarkChannel，工具显式开启两者；命令与帧 / Timer语义按本机代码和5.5官方说明核对。GameplayCueNotifyPaths未配置导致/Game回退扫描，功能正常，C再评估配置范围，不从Warning直接推断性能根因。
+
+B测量口径：主循环相邻Tick开始时间与GPU场景Scope分别报告，不叠加Inclusive / 线程总时间；Scene GPU Scope不冒充完整GPU Frame。现有Slate约0.169ms / 调用，没有证据要求改HUD为轮询或重写Presenter。原Combat01只有玩家动作，Combat02死亡前19秒已补齐真实AI活动；详见[B报告](Reports/M1_07B_Verification.md)。
+
+B新增发现：AcceptableRadius为FValueOrBBKey_Float，先SetKey后float赋值会复制None键；默认常量必须在绑定之前。BT节点应绑定PursuitStopDistance，实际Move应和Controller Stop90一致。这是配置 / 默认顺序回归，不是已证明的帧率瓶颈；8.2绑定修复已执行，实际Radius90与新自主攻击样本成立；C1将此键契约纳入有限校验。
+
+2026-10-14函数收尾：00:26自主接近攻击样本成立。最终OnTaskFinished只用通用Controller / Pawn / Actor取目标和中心距离，清理前缓存数值 / 名称、无条件Super清理、清理后输出原始Result / 距离 / 半径，删除一次Nav / 地面 / GAS资格 / 网络模式快照。此版本已手动落地 / Editor构建，用户报告功能正常；Game构建转C1。旧残余原因未唯一定位，日志本身不声称修复玩法。
+
+## 10. M1-07C1编辑器校验设计（尚未实施）
+
+[指南](M1_07C1_EditorValidation.md)新增独立EmberTrialEditor模块与原生UEditorValidatorBase。Editor Target加载它，Game Target保持Core / UI；DataValidation插件限定Editor。Subsystem启动自动发现原生Validator，无重复手动注册。规则分别遍历BT任务、检查Float键 / 绑定 / 三个常量开关，及读取Widget设计树 / 父类树匹配必需BindWidget名称与类型。仅限正式BT / 项目Widget与专用Validation副本；不检查既有非法健康样例、不创建运行世界或修改资产。规则ID / 路径 / 修复提示经UE的Message Log输出，项目Valid标记证明入口运行。
+
+C1未创建实际模块 / Probe或执行构建。校验不证明运行输入 / UI订阅 / 导航成功，不检查完整BT语义；资源引用、Controller距离关系 / 输入 / 地图规则留C2。专项负例只覆盖ET-AI-003断键→恢复，未宣称每条规则都有错误样例。C3出新包并复用短流程；工具成本按实际用户反馈登记。
