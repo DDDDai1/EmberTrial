@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本1.0；更新2026-10-14。**B最终短函数已落地、Editor成功，功能正常按用户反馈；C1编辑器校验已下发待实施。**69Source / 34cpp / 清单46，仅Task.cpp相对A变化；Game最终构建 / include清理合并C1。计划Editor→Core / DataValidation / AIModule / UMGEditor，Runtime不引用Editor；代码仅指南，实际仍Core / UI两个模块。
+版本1.0；更新2026-10-14。**[M1总验收](Reports/M1_Verification.md)完成。**当前75Source / 37cpp / 清单48，Core / UI两个Runtime与一个Editor模块；C3 Attempt02已验证真实AI交战、会话闭环和Editor工具隔离。系统分工与限制见[M1复盘](M1_Review.md)，M2设计见[分批路线](M2_Roadmap.md)；路线内新资源 / 能力尚未实施。累计已报告手动2011 / 已明确等待185分钟。
 
 ## 1. 模块边界
 
@@ -94,7 +94,7 @@ PracticeAction、练习目标、原型提示与暂停菜单现在仍在使用。
 
 [C2已验收](M1_04C2_DeathState.md)：CombatLife先提交bDead / 自己的一份Loose State.Dead Tag，再立即关闭Trace / 取消当前身体能力和练习位移；死亡封锁独立于攻击 / 受击完成。Health归零不受GEModData过滤限制，Ready快照0也需提交；AttributeSet按Dead Tag夹Health Base / Current为0，UI保持Ready0。结束仅移除本组件拥有的一份Tag，不重置死亡锁。主体九轮PIE / 七组一次死亡与Tag释放、真实闪避中取消等规则已核对；10月7日助手补实测WindowOpen后死亡，在同毫秒主动WindowClose(AttackEnd)、Tick0、取消能力并封锁，结束释放Tag。见[C2核查](Reports/M1_04C2_Verification.md)与[D链路汇总](M1_04D_CombatReview.md)。冻结姿势是占位，倒地动画 / 新身体重试后续接入。
 
-M1-02B使用地图级GameMode Override；M1-06A已把Game Default Map切到菜单、Editor Startup Map切到正式地图，两张新地图进入Cook列表。真正Cook / 独立包运行在M1-07验证，当前旧M0包仍对应其原版本，不代表新菜单与源码已打包。
+M1-02B使用地图级GameMode Override；M1-06A已把Game Default Map切到菜单、Editor Startup Map切到正式地图，两张新地图进入Cook列表。M1-07A和C3已验证Cook / 独立启动，当前包为C3 Attempt02；历史M0包只对应其原版本。
 
 ## 5. 文档与证据
 
@@ -132,7 +132,7 @@ D已验收（[手动指南](M1_06D_PauseFlow.md) / [报告](Reports/M1_06D_Verif
 
 ## 9. M1-07A包基线与B采样
 
-A已生成Win64 Development Attempt01，UAT Build / Cook / Stage / Package / Archive成功，三次独立启动保留日志；正式Menu、真实伤害、Checkpoint_A Retry / Continue、新进程Entry及UI清理闭合。游戏Source / 46项资产与D逐份哈希一致，B原Trace已完成CPU / GPU待机、实际暂停与Retry分析，Combat02真实交战已采集 / 分析，Move150 / Controller90绑定回归已手动补修，最终精简版Editor通过；旧包仍保留原回归，后续C3统一Attempt02。B工具只增加本次进程CVar / Trace、Region标记与本地证据目录，不污染Core / UI模块、不增加Blueprint测试图。UE5.5.4的RegionChannel独立于BookmarkChannel，工具显式开启两者；命令与帧 / Timer语义按本机代码和5.5官方说明核对。GameplayCueNotifyPaths未配置导致/Game回退扫描，功能正常，C再评估配置范围，不从Warning直接推断性能根因。
+A已生成Win64 Development Attempt01，UAT Build / Cook / Stage / Package / Archive成功，三次独立启动保留日志；正式Menu、真实伤害、Checkpoint_A Retry / Continue、新进程Entry及UI清理闭合。游戏Source / 46项资产当时与D逐份哈希一致；B随后完成CPU / GPU待机、实际暂停 / Retry与真实AI Combat02分析，并定位Move150 / Controller90绑定回归。最终补修及精简日志已在C1完成双目标构建、在C3 Attempt02验证实际Radius90 / 真实伤害；旧包与Trace保留原版本。B工具只增加本次进程CVar / Trace、Region标记与本地证据目录；UE5.5.4的RegionChannel独立于BookmarkChannel，工具显式开启两者。C2配置GameplayCueNotifyPaths后，C3两轮Runtime的/Game回退扫描Warning已消失；没有新性能对比，不能据此认定性能收益。
 
 B测量口径：主循环相邻Tick开始时间与GPU场景Scope分别报告，不叠加Inclusive / 线程总时间；Scene GPU Scope不冒充完整GPU Frame。现有Slate约0.169ms / 调用，没有证据要求改HUD为轮询或重写Presenter。原Combat01只有玩家动作，Combat02死亡前19秒已补齐真实AI活动；详见[B报告](Reports/M1_07B_Verification.md)。
 
@@ -140,8 +140,24 @@ B新增发现：AcceptableRadius为FValueOrBBKey_Float，先SetKey后float赋值
 
 2026-10-14函数收尾：00:26自主接近攻击样本成立。最终OnTaskFinished只用通用Controller / Pawn / Actor取目标和中心距离，清理前缓存数值 / 名称、无条件Super清理、清理后输出原始Result / 距离 / 半径，删除一次Nav / 地面 / GAS资格 / 网络模式快照。此版本已手动落地 / Editor构建，用户报告功能正常；Game构建转C1。旧残余原因未唯一定位，日志本身不声称修复玩法。
 
-## 10. M1-07C1编辑器校验设计（尚未实施）
+## 10. M1-07C1编辑器校验（已实施 / 验收）
 
 [指南](M1_07C1_EditorValidation.md)新增独立EmberTrialEditor模块与原生UEditorValidatorBase。Editor Target加载它，Game Target保持Core / UI；DataValidation插件限定Editor。Subsystem启动自动发现原生Validator，无重复手动注册。规则分别遍历BT任务、检查Float键 / 绑定 / 三个常量开关，及读取Widget设计树 / 父类树匹配必需BindWidget名称与类型。仅限正式BT / 项目Widget与专用Validation副本；不检查既有非法健康样例、不创建运行世界或修改资产。规则ID / 路径 / 修复提示经UE的Message Log输出，项目Valid标记证明入口运行。
 
-C1未创建实际模块 / Probe或执行构建。校验不证明运行输入 / UI订阅 / 导航成功，不检查完整BT语义；资源引用、Controller距离关系 / 输入 / 地图规则留C2。专项负例只覆盖ET-AI-003断键→恢复，未宣称每条规则都有错误样例。C3出新包并复用短流程；工具成本按实际用户反馈登记。
+C1已由用户实现 / 双构建；正式BT与HUD项目Valid，隔离Probe断键→恢复Valid通过。校验不证明运行输入 / UI订阅 / 导航成功，不检查完整BT语义；资源引用、Controller距离关系 / 输入 / 地图规则留C2。专项负例只覆盖ET-AI-003断键→恢复，未宣称每条规则都有错误样例。C3出新包并复用短流程；工具成本按实际用户反馈登记。
+
+## 11. M1-07C2引用规则（已实施 / 验收）
+
+[C2](M1_07C2_GameplayValidation.md)新增独立Gameplay Validator，不修改C1的BT / UMG规则。按正式资产路径与预期原生父类的显式Profile选择CDO，只读取私有配置；反射集中于必需Object / Float读取，缺属性报ET-SETUP-002。身体就绪依赖 / 初始范围、GA Montage / 策略 / 参数、GE Modifier契约、AI距离 / BB关系与IMC左键行由Editor SDK检查；不Spawn / Initialize / 授予 / 播放。Editor只增加GAS / Tags / EnhancedInput / InputCore私有依赖，Runtime模块保持原边界。
+
+只读Validate-ProjectConfig.ps1已创建，检查共享Default.ini与文件存在；共享DefaultGame已由用户加入Cue路径，脚本直接PASS / Errors0 / Warnings0。隔离正例与默认图 / Cook / 文件缺失三负例有正确退出码；未反序列化umap或合并平台 / Saved配置。新C++已手动落地，75Source /37cpp /48资产、九Valid /GA缺失引用恢复与旧两个自动化通过；工具静态通过不证明白线门控 / 组件Class装配 / Mesh兼容 / 导航 / 加载，C3仍出更新包做相关短流程。
+
+C2源码仅新增Editor校验类 / 私有依赖，Runtime Source未变。C3随后完成Attempt02 Build / Cook；实际Game exe与五个容器均更新，两个Runtime正常工作，Editor工具未作为Runtime模块加载。共享Cue路径的回退Warning在两轮Runtime均已消失。启动工具显式指定包目录与证据stage，完整流程见[C3报告](Reports/M1_07C3_Verification.md)；B性能数值仍属于历史Attempt01。
+
+## 12. M1收口与M2设计入口
+
+C3当前包保持身体ASC / 原生默认属性集、Controller流程、LocalPlayer观察与事件驱动View的既有边界。会话仅存地图 / 检查点ID，Retry和Continue生成新世界与满血身体；两独立进程证明退出后会话清空。Editor Validator用于有限静态规则，实际输入 / 生命与对象清理仍由运行证据验证。
+
+[M2路线](M2_Roadmap.md)将按批引入独立战斗资源、正式GAS方向闪避、三段连击、治疗与范围破势、锁定。保留既有HealthAttributes默认子对象身份；正式Ready覆盖已接入资源的可用状态，动作与位移分别拥有自己的Tag / Source / 回调。以上是设计约束，尚未创建新类或替换现有Practice入口。
+
+2026-10-14已下发[M2-01A指南](M2_01A_StaminaFoundation.md)：计划新增独立UETStaminaAttributeSet，保持原Health属性集；启动四初值全部合法后才写入 / 发布Ready，重复初始化与换控保留资源。现有Editor校验器扩必需引用 / ET-BODY-004，运行测试使用原生身体与真实Instant GE检查Base / Current边界，未来体力Presenter仍事件驱动。代码仅在文档，实际工程仍75Source / 37cpp / 清单48；测试尚未Build或执行，正式体力成本 / 恢复 / UI后续接入。

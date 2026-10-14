@@ -7,6 +7,8 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
+    [ValidateSet('M1_07A', 'M1_07C3')]
+    [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline
 )
@@ -21,10 +23,10 @@ $stageExe = Join-Path $stageBuild 'Windows\EmberTrial.exe'
 if (!(Test-Path -LiteralPath $stageExe -PathType Leaf)) {
     throw "Expected packaged executable was not found: $stageExe. Pass the folder containing Windows as -BuildDirectory."
 }
-if (Get-Process -Name UnrealEditor -ErrorAction SilentlyContinue) {
+if (!$WhatIfPreference -and (Get-Process -Name UnrealEditor -ErrorAction SilentlyContinue)) {
     throw 'Save and close Unreal Editor before checking the standalone package.'
 }
-$stageEvidenceStage = if ($PerformanceBaseline) { 'M1_07B' } else { 'M1_07A' }
+$stageEvidenceStage = if ($PerformanceBaseline) { 'M1_07B' } else { $EvidenceStage }
 $stageOutput = Join-Path $stageRepo ("Artifacts\$stageEvidenceStage\Runtime")
 $stageStamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
 $stageBase = "${RunName}_${stageStamp}"

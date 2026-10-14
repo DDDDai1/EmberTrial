@@ -15,6 +15,7 @@
 #include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/PlayerController.h"
 #include "Attributes/ETHealthAttributeSet.h"
+#include "Attributes/ETStaminaAttributeSet.h"
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGameplayTags.h"
 #include "GameplayAbilitySpec.h"
@@ -33,6 +34,7 @@ AEmberTrialCharacter::AEmberTrialCharacter()
 	AbilitySystemComponent->SetIsReplicated(false);
 
 	HealthAttributes = CreateDefaultSubobject<UETHealthAttributeSet>(TEXT("HealthAttributes"));
+    StaminaAttributes = CreateDefaultSubobject<UETStaminaAttributeSet>(TEXT("StaminaAttributes"));
 
     CombatTraceComponent = CreateDefaultSubobject<UETCombatTraceComponent>(TEXT("CombatTrace"));
 
@@ -200,6 +202,13 @@ bool AEmberTrialCharacter::IsCombatDead() const
     return IsValid(CombatLifeComponent) && CombatLifeComponent->IsDead();
 }
 
+bool AEmberTrialCharacter::IsGameplayReady() const
+{
+    return bGameplayReady && bStartupAttributesInitialized &&
+        !bAbilitySystemShuttingDown && IsValid(AbilitySystemComponent) &&
+        IsValid(HealthAttributes) && IsValid(StaminaAttributes);
+}
+
 bool AEmberTrialCharacter::IsFormalActionIdle() const
 {
     return !bAbilitySystemShuttingDown && IsGameplayReady() && !IsCombatDead() &&
@@ -207,12 +216,6 @@ bool AEmberTrialCharacter::IsFormalActionIdle() const
         !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dead) &&
         !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) &&
         !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_HitReact);
-}
-
-bool AEmberTrialCharacter::IsGameplayReady() const
-{
-    return bGameplayReady && !bAbilitySystemShuttingDown &&
-        IsValid(AbilitySystemComponent) && IsValid(HealthAttributes);
 }
 
 bool AEmberTrialCharacter::GetGameplayHealthSnapshot(float& OutHealth, float& OutMaxHealth) const
@@ -226,6 +229,21 @@ bool AEmberTrialCharacter::GetGameplayHealthSnapshot(float& OutHealth, float& Ou
 
     OutHealth = HealthAttributes->GetHealth();
     OutMaxHealth = HealthAttributes->GetMaxHealth();
+    return true;
+}
+
+bool AEmberTrialCharacter::GetGameplayStaminaSnapshot(
+    float& OutStamina, float& OutMaxStamina) const
+{
+    OutStamina = 0.0f;
+    OutMaxStamina = 0.0f;
+    if (!IsGameplayReady())
+    {
+        return false;
+    }
+
+    OutStamina = StaminaAttributes->GetStamina();
+    OutMaxStamina = StaminaAttributes->GetMaxStamina();
     return true;
 }
 
@@ -253,20 +271,22 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
     if (!IsValid(AbilitySystemComponent) || !AbilitySystemComponent->AbilityActorInfo.IsValid() ||
         AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get() != this ||
         AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get() != this ||
-        !IsValid(HealthAttributes) ||
-        AbilitySystemComponent->GetSet<UETHealthAttributeSet>() != HealthAttributes.Get())
+        !IsValid(HealthAttributes) || !IsValid(StaminaAttributes) ||
+        AbilitySystemComponent->GetSet<UETHealthAttributeSet>() != HealthAttributes.Get() ||
+        AbilitySystemComponent->GetSet<UETStaminaAttributeSet>() != StaminaAttributes.Get())
     {
         SetGameplayReady(false);
         UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M1-03A2-01] Missing gameplay dependencies Character=%s"), *GetNameSafe(this));
+            TEXT("[M2-01A] Missing gameplay dependencies Character=%s"), *GetNameSafe(this));
         return false;
     }
 
     if (bStartupAttributesInitialized)
     {
         UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M1-03A2-01] Already initialized Character=%s Health=%.1f MaxHealth=%.1f"),
-            *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth());
+            TEXT("[M2-01A] Already initialized Character=%s Health=%.1f/%.1f Stamina=%.1f/%.1f"),
+            *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth(),
+            StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
         return IsGameplayReady();
     }
 
@@ -279,13 +299,31 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
         return false;
     }
 
-    AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetMaxHealthAttribute(), InitialMaxHealth);
-    AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(), InitialHealth);
+    if (!FMath::IsFinite(InitialMaxStamina) || !FMath::IsFinite(InitialStamina) ||
+        InitialMaxStamina < 1.0f || InitialStamina < 0.0f || InitialStamina > InitialMaxStamina)
+    {
+        UE_LOG(LogETAbilityFoundation, Warning,
+            TEXT("[M2-01A] Invalid startup stamina Character=%s Stamina=%.1f MaxStamina=%.1f"),
+            *GetNameSafe(this), InitialStamina, InitialMaxStamina);
+        return false;
+    }
+
+    AbilitySystemComponent->SetNumericAttributeBase(
+        UETHealthAttributeSet::GetMaxHealthAttribute(), InitialMaxHealth);
+    AbilitySystemComponent->SetNumericAttributeBase(
+        UETHealthAttributeSet::GetHealthAttribute(), InitialHealth);
+    AbilitySystemComponent->SetNumericAttributeBase(
+        UETStaminaAttributeSet::GetMaxStaminaAttribute(), InitialMaxStamina);
+    AbilitySystemComponent->SetNumericAttributeBase(
+        UETStaminaAttributeSet::GetStaminaAttribute(), InitialStamina);
     bStartupAttributesInitialized = true;
 
     UE_LOG(LogETAbilityFoundation, Display,
         TEXT("[M1-03A2-01] Health initialized Character=%s Health=%.1f MaxHealth=%.1f"),
         *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth());
+    UE_LOG(LogETAbilityFoundation, Display,
+        TEXT("[M2-01A] Stamina initialized Character=%s Stamina=%.1f MaxStamina=%.1f"),
+        *GetNameSafe(this), StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
     SetGameplayReady(true);
     return IsGameplayReady();
 }

@@ -1,6 +1,6 @@
 # M1-07C1：Editor 模块与 BT / UMG 配置校验
 
-更新：2026-10-14；固定 UE **5.5.4**。前置：[B性能报告及最终函数收尾](Reports/M1_07B_Verification.md)。本批代码只写在指南中，由你手动创建、填写和构建；当前工程尚无 `EmberTrialEditor` 模块，以下均为待实施内容。
+更新：2026-10-14；固定 UE **5.5.4**。**[C1已验收](Reports/M1_07C1_Verification.md)**：用户13:24、手动40 / 等待5，双Build / 三索引、正式BT与HUD、Probe断键恢复全部通过；B Game / include补项同步关闭。本文保留已完成操作记录，下一步[C2](M1_07C2_GameplayValidation.md)，无需重复本章。
 
 ## 1. 本批交付与时间
 
@@ -18,7 +18,7 @@
 | ET-UI-002 | 找到的控件类型匹配原生属性，如 Button / TextBlock / ProgressBar |
 | ET-SETUP-001 | 校验器需要的原生类 / 反射字段可用；工具自身缺依赖也明确报错 |
 
-静态检查不证明 AI 真正移动、按钮输入、事件解绑或蓝图白线正确。Controller 的90 / 100距离关系、能力 / GE / Montage引用、左键映射、启动与 Cook 地图留 C2；Attempt02和包内短流程留 C3。当前 B 最终函数的 **Game Build 尚未更新**，合并到本批正常 Game 构建；Editor 已成功，功能正常采用你的反馈。
+静态检查不证明 AI 真正移动、按钮输入、事件解绑或蓝图白线正确。Controller 的90 / 100距离关系、能力 / GE / Montage引用、左键映射、启动与 Cook 地图留 C2；Attempt02和包内短流程留 C3。B最终函数的Game Build已在本批补齐；include清理完成，Editor / Game产物与用户反馈已核对。
 
 ## 2. 文件和模块分工
 
@@ -35,7 +35,7 @@ E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\
 
 本批还修改 `EmberTrial.uproject`、`Source\EmberTrialEditor.Target.cs`，以及旧追击 cpp 的 include。**`EmberTrial.Target.cs` 与 Core / UI 的 Build.cs 保持现有内容。**
 
-当前实际69份Source / 34份cpp / 清单46项资产。按本指南实施四新文件后预计73 / 36；保存合法Probe并验收后再登记第47项来源清单，不提前把计划记成实际结果。
+实施前69Source / 34cpp / 清单46；现已实施为73 / 36 / 47，合法Probe已登记来源。
 
 依赖方向为 Editor → Core、AIModule、UMG / UMGEditor、DataValidation；Core / UI 不引用 Editor。Validator 只读取资产，不创建角色、Widget 实例或运行世界，不自动修改配置。BT 遍历和控件检查各自独立；规则 ID 便于定位问题。将来扩大规则时先新增小函数，不把运行时玩法写进这个工具。
 
@@ -509,7 +509,7 @@ Game 构建应成功，Game 不编译 `ETProjectAssetValidator.cpp` / Editor 模
 
 以后改正式 BT / 项目 Widget 后，Compile（如适用）→ Save → Validate Assets。多选资源可一次验证；是否运行全项目 / 命令行检查留 C2 设计，不默认每次扫描整个模板 / 第三方资源。静态通过之后，真正改变运行逻辑时仍执行对应窄实机检查。
 
-本批已核对本机 `EditorValidatorBase.h`、`ValueOrBBKey.h`、`BTTask_MoveTo.h`、`BaseWidgetBlueprint.h` 与菜单注册源码；代码尚未由本轮助手写入 Source 或实际编译。UE 官方入口和原生注册说明见 [Data Validation，UE5.5](https://dev.epicgames.com/documentation/en-us/unreal-engine/data-validation-in-unreal-engine?application_version=5.5)；方法签名以本机头文件为准。
+本批已核对本机 `EditorValidatorBase.h`、`ValueOrBBKey.h`、`BTTask_MoveTo.h`、`BaseWidgetBlueprint.h` 与菜单注册源码；代码已由用户手动写入 / 双目标构建并验收；助手未代写Source或运行Build。UE 官方入口和原生注册说明见 [Data Validation，UE5.5](https://dev.epicgames.com/documentation/en-us/unreal-engine/data-validation-in-unreal-engine?application_version=5.5)；方法签名以本机头文件为准。
 
 ## 9. 最简反馈
 
@@ -531,7 +531,7 @@ Probe已恢复 / 未用于正式Controller；源码与资产Save All：
 - 新增四份 Source：`Source/EmberTrialEditor/EmberTrialEditor.Build.cs`、`Private/EmberTrialEditorModule.cpp`、`Public/Validation/ETProjectAssetValidator.h`、`Private/Validation/ETProjectAssetValidator.cpp`，均位于 `EmberTrial` 工程下。
 - 修改 `EmberTrial/EmberTrial.uproject`、`EmberTrial/Source/EmberTrialEditor.Target.cs`；重新 Stage 当前 `EmberTrial/Source/EmberTrial/Private/AI/ETBTTask_PursuitMove.cpp`，包含 B 最终短函数 / 正确 SetKey 顺序和本批 include 清理。B代码如已经提交，则本次只提交真实新增差异。
 - 新增**恢复为合法配置**的 `EmberTrial/Content/EmberTrial/Tests/Validation/BT_ETValidation_Probe.uasset`（LFS）。正式 BT / HealthHUD 若只读取没有内容差异，不人为 Stage；既有测试资产不改。
-- 新增本指南；M1-07路线、B报告、Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow_Options / Introduction 的实际更新，以及验收后更新的 `Docs/AssetManifest.csv` 和本批验收报告。后续报告尚未生成，不提前声明已存在或通过。
+- 新增本指南；M1-07路线、B报告、Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow_Options / Introduction 的实际更新，以及验收后更新的 `Docs/AssetManifest.csv` 和本批验收报告。本批报告已生成并通过，随本轮收尾文字追加提交。
 - `Tools/Refresh-CLion.ps1` 本批无需修改；CMake、Intermediate / Binaries / Saved、`.idea`、Raw、Artifacts里的Trace / 日志 / JSON / 包继续留本地，不 Force Add。Game Build不等于新版包，Attempt02留 C3。
 
 CLion：Save All → 刷新 Changes → 对**最新** Unstaged 差异重新 Stage → 检查 Staged Diff → Commit → Push。建议实现提交 `feat: add editor validation for pursuit and required widgets`；B收尾未提交时也纳入最新清单。由你操作 Git，助手不代 Stage / Commit / Push。

@@ -1,6 +1,6 @@
 # M1-07B：独立包Insights性能基线
 
-下发2026-10-13；更新2026-10-14。**B分析 / 最终函数Editor收尾完成，下一步[C1编辑器配置校验](M1_07C1_EditorValidation.md)。**短函数已由用户替换、Editor成功，功能正常按最新反馈登记；Game正常构建与include清理合并C1。原Trace / Combat02有效，不再采样；旧Attempt01不自动更新，C3统一Attempt02。历史排障步骤保留，当前结论见[报告7.6](Reports/M1_07B_Verification.md)。
+下发2026-10-13；更新2026-10-14。**B分析 / 最终函数Editor收尾完成，下一步[C1编辑器配置校验](M1_07C1_EditorValidation.md)。**短函数已由用户替换、Editor成功，功能正常按最新反馈登记；Game正常构建与include清理已在[C1验收](Reports/M1_07C1_Verification.md)完成。原Trace / Combat02有效，不再采样；旧Attempt01不自动更新，C3统一Attempt02。历史排障步骤保留，当前结论见[报告7.6](Reports/M1_07B_Verification.md)。
 
 你负责启动、按明确步骤采集一次、确认Insights能打开；我负责读取Trace / 导出数据、定位线程与尖峰并生成分析报告。**不要求你精确掐按键时间**：区间标记记录真实开始 / 结束，重试结合原生日志定位。预算45–75分钟，主要是首次熟悉工具；实际采样流程约5–10分钟。
 

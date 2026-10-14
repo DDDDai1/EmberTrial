@@ -12,7 +12,8 @@ public class EmberTrialEditor : ModuleRules
         });
         PrivateDependencyModuleNames.AddRange(new string[]
         {
-            "AIModule", "UMG", "UMGEditor", "UnrealEd", "EmberTrial"
+            "AIModule", "UMG", "UMGEditor", "UnrealEd", "EmberTrial",
+            "GameplayAbilities", "GameplayTags", "EnhancedInput", "InputCore"
         });
     }
 }

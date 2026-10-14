@@ -20,6 +20,7 @@ class AEmberTrialCharacter;
 class UETGA_LightAttack;
 class UETCombatTraceComponent;
 class UETCombatLifeComponent;
+class UETStaminaAttributeSet;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -78,11 +79,24 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 	UPROPERTY(VisibleAnywhere, Category = "EmberTrial|Health")
 	TObjectPtr<UETHealthAttributeSet> HealthAttributes;
 
+	UPROPERTY(VisibleAnywhere, Category = "EmberTrial|Stamina")
+	TObjectPtr<UETStaminaAttributeSet> StaminaAttributes;
+
 	UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "1.0"))
 	float InitialMaxHealth = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "0.0"))
 	float InitialHealth = 100.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup",
+		meta = (ClampMin = "1.0"))
+	float InitialMaxStamina = 100.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup",
+		meta = (ClampMin = "0.0"))
+	float InitialStamina = 100.0f;
+
+	friend class FETStaminaFoundationTest;
 
 	bool bStartupAttributesInitialized = false;
 	bool bGameplayReady = false;
@@ -118,6 +132,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "EmberTrial|Gameplay")
 	bool GetGameplayHealthSnapshot(float& OutHealth, float& OutMaxHealth) const;
+
+	UFUNCTION(BlueprintPure, Category = "EmberTrial|Gameplay")
+	bool GetGameplayStaminaSnapshot(float& OutStamina, float& OutMaxStamina) const;
 
 	UFUNCTION(BlueprintCallable, Category = "EmberTrial|Gameplay")
 	bool EnsureGameplayInitialized();

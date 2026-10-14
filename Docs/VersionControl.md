@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-14最新现状：**本地HEAD193eb4e，本轮未联网核验远端。B短函数已手动落地、Editor通过 / 功能正常反馈；Game构建转C1，Attempt02转C3。[C1指南](M1_07C1_EditorValidation.md)已下发，代码只在文档、尚未创建新模块。由用户重新Stage最新Task.cpp与B收尾 / C1计划文档，C1实施后按最后清单提交四新Source、uproject / Editor Target和合法Probe。没有Source / 资产差异的文件不人为加入；Raw / 包 / Trace留本地。CLion重新Stage见[B第14.1.1节](M1_06B_FailureAndRetry.md#1411-clion重新stage最新修改简单步骤)，助手不代操作Git。
+**2026-10-14最新现状：**本地HEAD与缓存origin/main均为e3ee554，本轮未联网核验远端。[C3验收](Reports/M1_07C3_Verification.md)与M1阶段收口完成，Attempt02已生成。C2两新Source / Editor Build.cs / DefaultGame Cue路径 / 合法GA Probe、工具 / 指南与报告、AssetManifest48若未提交，按[C2清单](M1_07C2_GameplayValidation.md#10-本批需要-commit--push固定放在文档最后)纳入；本轮追加M1 / M1-07 / C3报告、M1复盘、M2路线及状态 / 排期更新，详见[C3末尾](M1_07C3_UpdatedPackage.md#9-本批需要-commit--push固定放在文档最后)。DefaultGame本次额外变化只有保存空白格式，语义检查通过。重新Stage最新版本后由用户Commit / Push；包 / Raw / Runtime留本地。
 
 ## 1. 已配置内容
 
@@ -10,7 +10,7 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
 - 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
-- 当前origin已配置为GitHub的DDDDai1/EmberTrial；当前本机缓存origin/main为3351b53。本轮未联网确认最新远端 / LFS状态；每批Commit / Push完成才算远端备份，首次故障记录保留在第9节。
+- 当前origin已配置为GitHub的DDDDai1/EmberTrial；本机缓存origin/main为e3ee554。本轮未联网确认最新远端 / LFS状态；每批Commit / Push完成才算远端备份，首次故障记录保留在第9节。
 
 ## 2. 第一个可恢复检查点
 
@@ -303,3 +303,11 @@ git config --local --unset http.sslBackend
 2026-10-14函数收尾：00:26自主接近 / 两次真实伤害样本通过；最终短函数已直接覆盖B指南，尚未写入Source。用户落地后将最新Task.cpp（正确绑定顺序 / Pawn.h / 精简日志）重新Stage，B报告与状态一起提交；BT无差异不重复加入，Raw / 包保持忽略。Game receipt仍旧版，最终函数正常双Build后再记实施完成；未代操作Git。
 
 2026-10-14本轮交接：B最终Task.cpp已落地，最新报告记录Editor成功与用户功能反馈，Game转C1；旧长诊断暂存版本需要重新Stage。C1指南及路线 / 状态实际变化纳入本次文档提交；实施后的四新文件 / 三修改文件 / 合法Probe再按[C1最后清单](M1_07C1_EditorValidation.md#10-本批需要-commit--push固定放在文档最后)提交。未运行Git索引或远端操作，Source新模块仍未生成，不提前列为实际新增文件。
+
+2026-10-14 C1收尾：e3ee554只说明本地已提交主体，不等于本轮联网核验远端。新增C1报告 / 清单与C2下发、工具实际更新可提交；Code尚未代写，C2配置未改，不提前Stage不存在的新Source / Probe。C1 HealthHUD正常保存后哈希已登记，BT无差异不重复Stage。
+
+C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替用户Push或宣称GitHub已同步。C3只新增手写工具 /文档，不新增C++ /资产；包完成后提交实际报告。已恢复合法的GA Probe与最终Source需要重新Stage，避免上传None负例暂存版本。
+
+2026-10-14 C3收尾：本地HEAD与缓存origin/main为e3ee554，尚未联网确认远端。Attempt02与两Runtime验收通过；本轮生成C3 / M1-07 / M1报告、M1复盘、M2路线并同步状态和排期。按C3最后清单与C2未提交实现选择真实差异，重新Stage最新文本 / 合法Probe，包与Raw留本地。M2尚无源码或资产可提交。
+
+2026-10-14 M2-01A下发：当前新增体力指南与路线 / 状态更新可作文档提交；Source未代写，不能Stage尚不存在的三新文件。用户实施并检查通过后，按[A末尾清单](M2_01A_StaminaFoundation.md#10-本批需要-commit--push固定放在最后)重新Stage两属性文件 / 一测试、Character两文件 / Validator与三正式身体的真实资产差异。Build.cs / Target / uproject不需要计划改动；旧Attempt02保留M1基线，Raw / 生成文件本地。HEAD仍e3ee554，本轮没有索引或远端操作。
