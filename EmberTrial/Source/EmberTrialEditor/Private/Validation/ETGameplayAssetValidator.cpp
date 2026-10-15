@@ -177,7 +177,8 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint,
     UObject* Defaults, int32& Issues)
 {
     for (const TCHAR* Name : {TEXT("AbilitySystemComponent"), TEXT("HealthAttributes"),
-        TEXT("StaminaAttributes"), TEXT("CombatTraceComponent"), TEXT("CombatLifeComponent")})
+        TEXT("StaminaAttributes"), TEXT("StaminaRecoveryComponent"),
+        TEXT("CombatTraceComponent"), TEXT("CombatLifeComponent")})
     {
         RequireObject(Blueprint, Defaults, Name, TEXT("ET-BODY-001"), Issues);
     }
@@ -229,6 +230,27 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint,
     if (IsValid(Life))
     {
         RequireObject(Blueprint, Life, TEXT("HitReactAbilityClass"), TEXT("ET-BODY-003"), Issues);
+    }
+
+    const FObjectPropertyBase* RecoveryProperty = FindFProperty<FObjectPropertyBase>(
+        Defaults->GetClass(), TEXT("StaminaRecoveryComponent"));
+    UObject* Recovery = RecoveryProperty ? RecoveryProperty->GetObjectPropertyValue_InContainer(Defaults) : nullptr;
+    if (IsValid(Recovery))
+    {
+        const TOptional<double> Rate = ReadNumber(Blueprint, Recovery, TEXT("RecoveryRate"), Issues);
+        const TOptional<double> Delay = ReadNumber(Blueprint, Recovery, TEXT("RecoveryDelay"), Issues);
+        const TOptional<double> Interval = ReadNumber(Blueprint, Recovery, TEXT("RecoveryInterval"), Issues);
+        const FBoolProperty* AutoActivate = FindFProperty<FBoolProperty>(
+            Recovery->GetClass(), TEXT("bAutoActivate"));
+        if (Rate.IsSet() && Delay.IsSet() && Interval.IsSet() &&
+            (!FMath::IsFinite(Rate.GetValue()) || Rate.GetValue() <= 0.0 || Rate.GetValue() > 1000.0 ||
+             !FMath::IsFinite(Delay.GetValue()) || Delay.GetValue() < 0.0 || Delay.GetValue() > 10.0 ||
+             !FMath::IsFinite(Interval.GetValue()) || Interval.GetValue() < 0.05 || Interval.GetValue() > 0.5 ||
+             !AutoActivate || !AutoActivate->GetPropertyValue_InContainer(Recovery)))
+        {
+            AddIssue(Blueprint, TEXT("ET-STAM-001"),
+                TEXT("Recovery requires AutoActivate, finite 0<Rate<=1000, 0<=Delay<=10 and 0.05<=Interval<=0.5."), Issues);
+        }
     }
 }
 

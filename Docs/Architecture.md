@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本1.0；更新2026-10-14。**[M1总验收](Reports/M1_Verification.md)完成。**当前75Source / 37cpp / 清单48，Core / UI两个Runtime与一个Editor模块；C3 Attempt02已验证真实AI交战、会话闭环和Editor工具隔离。系统分工与限制见[M1复盘](M1_Review.md)，M2设计见[分批路线](M2_Roadmap.md)；路线内新资源 / 能力尚未实施。累计已报告手动2011 / 已明确等待185分钟。
+版本1.0；更新2026-10-14。**[M1](Reports/M1_Verification.md)与[M2-01A](Reports/M2_01A_Verification.md)均已验收。**当前78Source / 39cpp / 清单48，Core / UI两个Runtime与一个Editor模块；独立包仍C3 Attempt02。独立Stamina属性集与统一Ready已接入，恢复 / 正式资源能力 / 资源UI尚未实施。累计已报告手动2071 / 已明确等待190分钟；分批路线见[M2](M2_Roadmap.md)。
 
 ## 1. 模块边界
 
@@ -161,3 +161,15 @@ C3当前包保持身体ASC / 原生默认属性集、Controller流程、LocalPla
 [M2路线](M2_Roadmap.md)将按批引入独立战斗资源、正式GAS方向闪避、三段连击、治疗与范围破势、锁定。保留既有HealthAttributes默认子对象身份；正式Ready覆盖已接入资源的可用状态，动作与位移分别拥有自己的Tag / Source / 回调。以上是设计约束，尚未创建新类或替换现有Practice入口。
 
 2026-10-14已下发[M2-01A指南](M2_01A_StaminaFoundation.md)：计划新增独立UETStaminaAttributeSet，保持原Health属性集；启动四初值全部合法后才写入 / 发布Ready，重复初始化与换控保留资源。现有Editor校验器扩必需引用 / ET-BODY-004，运行测试使用原生身体与真实Instant GE检查Base / Current边界，未来体力Presenter仍事件驱动。代码仅在文档，实际工程仍75Source / 37cpp / 清单48；测试尚未Build或执行，正式体力成本 / 恢复 / UI后续接入。
+
+后续[A实测](Reports/M2_01A_Verification.md)已通过：原生命默认子对象身份保持，新体力属性集及成功标记 / Ready已经接入；运行非法初值不会部分初始化生命，Base / Current夹限与换控保持由真实GE测试验证，零体力仍Ready / 非死亡。当前78Source / 39cpp / 清单48；Editor ET-BODY-004正常资产通过，未另测其负例。没有新常驻Tick、资源恢复 / 成本 / Widget轮询；后续恢复与观察分批引入。旧C3包不包含本批实现。
+
+## 13. M2-01B：B1已实施，B2待实施
+
+[B1指南](M2_01B1_StaminaRecovery.md)计划由身体原生StaminaRecovery组件拥有恢复计时器与ASC订阅：实际降低后0.75世界秒延迟、20点每秒、0.10秒采样，只在缺额且正式空闲时计时；按World经过时间积分，极小不可表示的float增量继续累积。正式Attacking / HitReact / Dead Tag事件与Ready清理为边界，观察序号 / 消耗修订号防同步重入的旧收尾。原生Instant StaminaDelta GE只承载增量，能力成本事务仍由未来Ability实现。
+
+PIE开发命令在游戏Controller内，但修改限编辑器PIE / 当前Ready存活身体 / 非暂停，Delta0可读；Game编译函数体不写资源。新测试使用临时世界与真实GE / 真实死亡，不搭临时蓝图。B2再复用LocalPlayer观察、事件Presenter与UMG，只读资源，不在恢复组件操作UI。
+
+当前M0原型2没有正式Tag / 成本，本批不依赖Practice组件，也不承诺其播放阻断恢复；M2-02正式迁移时将Dodging加入身体门控及恢复Tag订阅。后续[B1验收](Reports/M2_01B1_Verification.md)已通过：实际83 / 42 / 48，五新文件与指定接入匹配、两项资源Success、三正式身体Valid和双构建 / 三索引；本节前述恢复设计已落地，原包仍M1。
+
+[B2指南](M2_01B2_StaminaHUD.md)计划新增独立只读StaminaPresenter / HUD，Bootstrap强持有Presenter与当前View、View弱引用Presenter；复用LocalPlayer当前Pawn观察、Ready及两属性订阅。观察序号拒绝旧轮回调，快照去重并广播副本；View晚加入先订阅再快照，结束先停View再停Presenter。四新 / Bootstrap两旧与单Widget仅在文档，不修改已通过Core / 恢复、旧Health UI或Editor通用控件规则，无新增Tick / UI轮询。

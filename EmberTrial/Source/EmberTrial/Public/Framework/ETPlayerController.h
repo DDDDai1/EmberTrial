@@ -20,6 +20,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "EmberTrial|Flow")
 	void OnGameMenuStateChanged();
 
+	UFUNCTION(Exec, meta = (DevelopmentOnly))
+	void ET_Stamina(float Delta);
+
 protected:
 	virtual void SetupInputComponent() override;
 	virtual void BeginPlay() override;

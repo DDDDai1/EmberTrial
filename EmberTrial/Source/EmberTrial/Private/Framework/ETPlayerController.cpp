@@ -3,6 +3,12 @@
 #include "GameFramework/Pawn.h"
 #include "InputCoreTypes.h"
 #include "Logging/LogMacros.h"
+#include "Abilities/Effects/ETStaminaDeltaEffect.h"
+#include "Abilities/ETGameplayTags.h"
+#include "Characters/EmberTrialCharacter.h"
+#include "Resources/ETStaminaRecoveryComponent.h"
+#include "AbilitySystemComponent.h"
+#include "Engine/World.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETPlayerController, Log, All);
 
@@ -67,4 +73,46 @@ void AETPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
         TEXT("[M1-02B] Controller EndPlay Controller=%s Reason=%d"),
         *GetNameSafe(this), static_cast<int32>(EndPlayReason));
     Super::EndPlay(EndPlayReason);
+}
+
+void AETPlayerController::ET_Stamina(float Delta)
+{
+#if WITH_EDITOR
+    UWorld* World = GetWorld();
+    AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(GetPawn());
+    float Before = 0.0f;
+    float MaxStamina = 0.0f;
+    if (!World || World->WorldType != EWorldType::PIE || !IsLocalController() ||
+        !IsValid(Body) || !Body->HasAuthority() || !FMath::IsFinite(Delta) ||
+        FMath::Abs(Delta) > 100.0f || !Body->GetGameplayStaminaSnapshot(Before, MaxStamina))
+    {
+        UE_LOG(LogETPlayerController, Display,
+            TEXT("[M2-01B1] Debug rejected Controller=%s Reason=ContextOrValue"), *GetNameSafe(this));
+        return;
+    }
+    if (Delta != 0.0f && (World->IsPaused() || Body->IsCombatDead()))
+    {
+        UE_LOG(LogETPlayerController, Display,
+            TEXT("[M2-01B1] Debug rejected Controller=%s Reason=PausedOrDead"), *GetNameSafe(this));
+        return;
+    }
+    UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
+    if (Delta != 0.0f)
+    {
+        FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(
+            UETStaminaDeltaEffect::StaticClass(), 1.0f, ASC->MakeEffectContext());
+        if (!Spec.IsValid()) { return; }
+        Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_StaminaDelta, Delta);
+        ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+    }
+    float After = 0.0f;
+    if (!Body->GetGameplayStaminaSnapshot(After, MaxStamina)) { return; }
+    const UETStaminaRecoveryComponent* Recovery = Body->FindComponentByClass<UETStaminaRecoveryComponent>();
+    UE_LOG(LogETPlayerController, Display,
+        TEXT("[M2-01B1] Debug Owner=%s Delta=%.1f Before=%.1f After=%.1f Max=%.1f Time=%.3f Timer=%d Paused=%d"),
+        *GetNameSafe(Body), Delta, Before, After, MaxStamina, World->GetTimeSeconds(),
+        IsValid(Recovery) && Recovery->IsRecoveryScheduled() ? 1 : 0, World->IsPaused() ? 1 : 0);
+#else
+    (void)Delta;
+#endif
 }

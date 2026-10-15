@@ -6,6 +6,8 @@
 #include "Engine/LocalPlayer.h"
 #include "Lifecycle/ETUILocalPlayerSubsystem.h"
 #include "Presenters/ETHealthPresenter.h"
+#include "Presenters/ETStaminaPresenter.h"
+#include "Widgets/ETStaminaHUDWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETUIBootstrap, Log, All);
 
@@ -19,15 +21,23 @@ void UETUIBootstrapComponent::BeginPlay()
     bUIShuttingDown = false;
     Super::BeginPlay();
     RestartHealthObservation();
+    RestartStaminaObservation();
     RebuildStatusWidget();
     RebuildHealthWidget();
+    RebuildStaminaWidget();
 }
 
 void UETUIBootstrapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     bUIShuttingDown = true;
+    RemoveStaminaWidget();
     RemoveHealthWidget();
     RemoveStatusWidget();
+    if (StaminaPresenter)
+    {
+        StaminaPresenter->Shutdown();
+        StaminaPresenter = nullptr;
+    }
     if (HealthPresenter)
     {
         HealthPresenter->Shutdown();
@@ -178,4 +188,93 @@ void UETUIBootstrapComponent::RemoveHealthWidget()
         *GetNameSafe(GetOwner()), *GetNameSafe(HealthWidget.Get()));
     HealthWidget->RemoveFromParent();
     HealthWidget = nullptr;
+}
+
+UETStaminaPresenter* UETUIBootstrapComponent::GetStaminaPresenter() const
+{
+    return StaminaPresenter.Get();
+}
+
+void UETUIBootstrapComponent::RestartStaminaObservation()
+{
+    if (!HasBegunPlay() || bUIShuttingDown)
+    {
+        return;
+    }
+    APlayerController* Controller = Cast<APlayerController>(GetOwner());
+    if (!IsValid(Controller) || !Controller->IsLocalController() || !Controller->GetLocalPlayer())
+    {
+        if (StaminaPresenter)
+        {
+            StaminaPresenter->Shutdown();
+        }
+        return;
+    }
+    if (!StaminaPresenter)
+    {
+        StaminaPresenter = NewObject<UETStaminaPresenter>(this);
+    }
+    StaminaPresenter->StartObserving(
+        Controller->GetLocalPlayer()->GetSubsystem<UETUILocalPlayerSubsystem>());
+}
+
+UETStaminaHUDWidget* UETUIBootstrapComponent::GetStaminaWidget() const
+{
+    return StaminaWidget.Get();
+}
+
+void UETUIBootstrapComponent::RebuildStaminaWidget()
+{
+    if (!HasBegunPlay() || bUIShuttingDown)
+    {
+        return;
+    }
+    RemoveStaminaWidget();
+    APlayerController* Controller = Cast<APlayerController>(GetOwner());
+    if (!IsValid(Controller) || !Controller->IsLocalController()
+        || !Controller->GetLocalPlayer())
+    {
+        return;
+    }
+    if (!StaminaWidgetClass || !IsValid(StaminaPresenter.Get()))
+    {
+        UE_LOG(LogETUIBootstrap, Warning,
+            TEXT("[M2-01B2] Missing StaminaWidgetClass or Presenter Owner=%s"),
+            *GetNameSafe(Controller));
+        return;
+    }
+    StaminaWidget = CreateWidget<UETStaminaHUDWidget>(Controller, StaminaWidgetClass);
+    if (!StaminaWidget)
+    {
+        UE_LOG(LogETUIBootstrap, Warning,
+            TEXT("[M2-01B2] Stamina widget creation failed Owner=%s"),
+            *GetNameSafe(Controller));
+        return;
+    }
+    if (!StaminaWidget->AddToPlayerScreen(3))
+    {
+        UE_LOG(LogETUIBootstrap, Warning,
+            TEXT("[M2-01B2] Stamina AddToPlayerScreen failed Owner=%s"),
+            *GetNameSafe(Controller));
+        RemoveStaminaWidget();
+        return;
+    }
+    StaminaWidget->StartObserving(StaminaPresenter.Get());
+    UE_LOG(LogETUIBootstrap, Display,
+        TEXT("[M2-01B2] Stamina widget created Owner=%s Widget=%s"),
+        *GetNameSafe(Controller), *GetNameSafe(StaminaWidget.Get()));
+}
+
+void UETUIBootstrapComponent::RemoveStaminaWidget()
+{
+    if (!StaminaWidget)
+    {
+        return;
+    }
+    StaminaWidget->StopObserving();
+    UE_LOG(LogETUIBootstrap, Display,
+        TEXT("[M2-01B2] Stamina widget removed Owner=%s Widget=%s"),
+        *GetNameSafe(GetOwner()), *GetNameSafe(StaminaWidget.Get()));
+    StaminaWidget->RemoveFromParent();
+    StaminaWidget = nullptr;
 }

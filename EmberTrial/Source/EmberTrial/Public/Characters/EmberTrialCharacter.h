@@ -21,6 +21,7 @@ class UETGA_LightAttack;
 class UETCombatTraceComponent;
 class UETCombatLifeComponent;
 class UETStaminaAttributeSet;
+class UETStaminaRecoveryComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -81,6 +82,10 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 
 	UPROPERTY(VisibleAnywhere, Category = "EmberTrial|Stamina")
 	TObjectPtr<UETStaminaAttributeSet> StaminaAttributes;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Stamina",
+		meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UETStaminaRecoveryComponent> StaminaRecoveryComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "1.0"))
 	float InitialMaxHealth = 100.0f;

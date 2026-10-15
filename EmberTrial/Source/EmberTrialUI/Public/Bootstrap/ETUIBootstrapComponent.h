@@ -7,6 +7,8 @@
 class UETLifecycleStatusWidget;
 class UETHealthPresenter;
 class UETHealthHUDWidget;
+class UETStaminaPresenter;
+class UETStaminaHUDWidget;
 
 UCLASS(ClassGroup = (EmberTrial), meta = (BlueprintSpawnableComponent))
 class EMBERTRIALUI_API UETUIBootstrapComponent : public UActorComponent
@@ -31,6 +33,18 @@ public:
     UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
     UETHealthHUDWidget* GetHealthWidget() const;
 
+    UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
+    UETStaminaPresenter* GetStaminaPresenter() const;
+
+    UFUNCTION(BlueprintCallable, Category = "EmberTrial|UI")
+    void RestartStaminaObservation();
+
+    UFUNCTION(BlueprintCallable, Category = "EmberTrial|UI")
+    void RebuildStaminaWidget();
+
+    UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
+    UETStaminaHUDWidget* GetStaminaWidget() const;
+
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -38,6 +52,7 @@ protected:
 private:
     void RemoveStatusWidget();
     void RemoveHealthWidget();
+    void RemoveStaminaWidget();
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI")
     TSubclassOf<UETLifecycleStatusWidget> StatusWidgetClass;
@@ -53,6 +68,15 @@ private:
 
     UPROPERTY(Transient)
     TObjectPtr<UETHealthHUDWidget> HealthWidget;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UETStaminaPresenter> StaminaPresenter;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI")
+    TSubclassOf<UETStaminaHUDWidget> StaminaWidgetClass;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UETStaminaHUDWidget> StaminaWidget;
 
     bool bUIShuttingDown = false;
 };

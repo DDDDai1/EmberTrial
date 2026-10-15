@@ -1,5 +1,7 @@
 # M2-01A：体力属性、一次初始化与 Ready
 
+**2026-10-14已验收通过，实际手动60 / 等待5分钟。**当前78Source / 39cpp，StaminaFoundation一次Success、三个正式身体Valid、两轮PIE与短基线通过，IsCombatDead链接补项已关闭；见[本批验收](Reports/M2_01A_Verification.md)。下文保留当时手动实施步骤和预算，“尚未编译”等表述属于下发时状态；本轮无需重复执行。
+
 生成2026-10-14，固定 **UE 5.5.4**。前置：[M1总验收](Reports/M1_Verification.md)完成，当前75份Source / 37cpp / 来源清单48项，独立基线为C3 Attempt02。**本页是待你手动实施的代码与操作指南，尚未写入Source、编译或运行新测试。**所有C++继续由你手动输入，出错先发文字日志，我读取工程定位；直接修改源码需你当次明确提出。
 
 M2-01资源基础分批推进，本页先落地Stamina / MaxStamina和统一Ready。后续小批接恢复规则 / 必要的资源观察显示；治疗次数在本页确定语义，实际能力留M2-04，Poise留M2-05。预计手动 **60–100分钟**：代码35–65、编辑器确认10–15、检查5–15、保存记录5；构建 / 索引等待另记。实际比预算短可直接交付，不要求做满预算。
@@ -700,6 +702,7 @@ StaminaFoundation一次：Success / Failure
 - 修改两份Character Source：`Public/Characters/EmberTrialCharacter.h`、`Private/Characters/EmberTrialCharacter.cpp`；修改既有 `EmberTrial/Source/EmberTrialEditor/Private/Validation/ETGameplayAssetValidator.cpp`。
 - 三正式身体蓝图Compile / Save后有真实差异才纳入：`Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset`、`Content/EmberTrial/Characters/Enemies/BP_ETMeleeEnemy.uasset`、`Content/EmberTrial/Tests/Blueprints/BP_ETCombatTrainingTarget.uasset`，走既有Git LFS。它们已经登记来源，不新增不存在的体力UE资产。
 - 本指南、M2路线与Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow_Options / Introduction实际更新；完成后我生成的验收报告 / 清单真实变化再追加。M1 / C3收尾若尚未提交，先按原清单纳入独立收尾提交。
+- 已验收收尾：实现主体在本地4fedf14，本轮新增 `Docs/Reports/M2_01A_Verification.md` 与状态更新重新Stage；三正式身体资产哈希不变，无差异无需再次提交。最新远端状态以用户实际Push结果为准。
 - 本批没有计划改Build.cs / Target / uproject / 共享地图配置；看到意外Diff先保留并发给我核对。Binaries / Intermediate / Saved、生成CMake / IDE配置、测试报告Raw / Runtime、旧包 / Trace仍留本地，不Force Add。
 
 CLion **Save All → 刷新Changes → 将最新完整Source / 合法资产与文档重新Stage → 检查Staged Diff → Commit → Push**。功能检查通过后可用 `feat: add stamina attributes and unified gameplay readiness`；当前只下发指南时可单独提交 `docs: prepare M2 stamina foundation`，不要把未实施代码写成已完成。Git操作由你执行。

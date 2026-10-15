@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-14最新现状：**本地HEAD与缓存origin/main均为e3ee554，本轮未联网核验远端。[C3验收](Reports/M1_07C3_Verification.md)与M1阶段收口完成，Attempt02已生成。C2两新Source / Editor Build.cs / DefaultGame Cue路径 / 合法GA Probe、工具 / 指南与报告、AssetManifest48若未提交，按[C2清单](M1_07C2_GameplayValidation.md#10-本批需要-commit--push固定放在文档最后)纳入；本轮追加M1 / M1-07 / C3报告、M1复盘、M2路线及状态 / 排期更新，详见[C3末尾](M1_07C3_UpdatedPackage.md#9-本批需要-commit--push固定放在文档最后)。DefaultGame本次额外变化只有保存空白格式，语义检查通过。重新Stage最新版本后由用户Commit / Push；包 / Raw / Runtime留本地。
+**2026-10-14最新现状：**本地HEAD为4fedf14，包含M2-01A实现与前批文档 / C2实现收尾；当前缓存origin/main为e3ee554，本轮未联网核验远端。[M2-01A验收](Reports/M2_01A_Verification.md)通过，本轮追加A报告 / 指南已验收状态 / 路线与工时更新，按[A末尾清单](M2_01A_StaminaFoundation.md#10-本批需要-commit--push固定放在最后)重新Stage最新差异。三正式身体二进制哈希不变，无新增体力UE资产；已有实现不重复提交。Git由用户Commit / Push，包 / Raw / Runtime留本地。
 
 ## 1. 已配置内容
 
@@ -10,7 +10,7 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
 - 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
-- 当前origin已配置为GitHub的DDDDai1/EmberTrial；本机缓存origin/main为e3ee554。本轮未联网确认最新远端 / LFS状态；每批Commit / Push完成才算远端备份，首次故障记录保留在第9节。
+- 当前origin已配置为GitHub的DDDDai1/EmberTrial；本轮读取本机缓存origin/main为e3ee554、HEAD为4fedf14，未联网确认最新远端 / LFS状态；上传以实际Push结果为准，首次故障记录保留在第9节。
 
 ## 2. 第一个可恢复检查点
 
@@ -311,3 +311,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 2026-10-14 C3收尾：本地HEAD与缓存origin/main为e3ee554，尚未联网确认远端。Attempt02与两Runtime验收通过；本轮生成C3 / M1-07 / M1报告、M1复盘、M2路线并同步状态和排期。按C3最后清单与C2未提交实现选择真实差异，重新Stage最新文本 / 合法Probe，包与Raw留本地。M2尚无源码或资产可提交。
 
 2026-10-14 M2-01A下发：当前新增体力指南与路线 / 状态更新可作文档提交；Source未代写，不能Stage尚不存在的三新文件。用户实施并检查通过后，按[A末尾清单](M2_01A_StaminaFoundation.md#10-本批需要-commit--push固定放在最后)重新Stage两属性文件 / 一测试、Character两文件 / Validator与三正式身体的真实资产差异。Build.cs / Target / uproject不需要计划改动；旧Attempt02保留M1基线，Raw / 生成文件本地。HEAD仍e3ee554，本轮没有索引或远端操作。
+
+2026-10-14 M2-01A验收：实现主体已本地4fedf14，最新补充[A报告](Reports/M2_01A_Verification.md)与指南 / 当前状态 / 工时文字可提交。三正式身体与全部48清单资产哈希保持，没有新增体力UE资产，不为验收记录重复Stage无差异Content。当前读取缓存origin/main仍e3ee554，实际上传以用户Push结果确认；本轮无Git索引 / 网络操作。
+
+2026-10-14 M2-01B1下发：新增B1指南与路线 / 状态文字可提交；五新Source / 七旧Source修改仅在指南，尚无实际实现可Stage。用户完成后按[B1最后清单](M2_01B1_StaminaRecovery.md#10-本批-commit--push固定放在最后)纳入完整实现、三身体默认组件的真实资产差异与报告。本批不新增GE蓝图 / UI资产 / Build依赖，Raw / 生成文件与旧包本地；B2视图待后续下发，Git仍由用户操作。
+
+2026-10-15 B1验收通过，Source83 / 42cpp，五新 / 七旧实现实际存在，48资产 / 共享Config与uproject哈希保持A；按[B1报告末尾](Reports/M2_01B1_Verification.md#5-本次-commit--push固定放在最后)纳入正确目录实现与文档。旧Public / Private Effects / Resource文件仍有先前暂存记录（工作树AD），新Abilities/Effects与Resources文件未跟踪；重新Stage旧路径删除 / 新路径完整文件与测试最新内容后查看Staged Diff，避免上传旧结构。本轮HEAD4fedf14，未联网核验远端，助手不操作Git索引。
+
+[B2指南](M2_01B2_StaminaHUD.md)目前仅文档与状态更新可提交；不能提交尚不存在的四个UI新文件或Widget。用户实施后再按该页最后清单纳入Bootstrap修改、新体力Widget与Controller Class真实资产差异，实物验收时补来源清单。Raw / 生成文件 / 日志与旧包继续本地。

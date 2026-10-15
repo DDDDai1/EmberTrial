@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-10-14。前置[M1总验收](Reports/M1_Verification.md)完成，当前实际基线C3 Attempt02、75Source / 37cpp / 48来源。**[M2-01A体力基础指南](M2_01A_StaminaFoundation.md)已下发待用户实施，尚无M2源码 / 资产 / 构建或验收结果。**C++继续逐批写入操作指南，由用户手动实现。
+更新2026-10-14。前置M1与[M2-01A](Reports/M2_01A_Verification.md)已验收。**当前[B1恢复指南](M2_01B1_StaminaRecovery.md)已下发待手动实施**，B2再接体力观察 / HUD。当前实际78Source / 39cpp / 48来源、累计2071 / 190分钟不变，独立包仍M1 C3 Attempt02；B1代码仅文档，未编译或实测。
 
 ## 1. 本阶段交付
 
@@ -51,10 +51,10 @@ M1登记手动22h18不同于全项目设计 /理解总成本；不能将所有�
 
 ## 6. 下一开发入口
 
-进入 **[M2-01A资源基础](M2_01A_StaminaFoundation.md)**，先做Stamina / MaxStamina的配置 / 初始化 / 夹限和重复Possess保留，扩既有静态校验，增加一项临时世界自动测试；沿用当前Health链路 / UI生命周期。后续小批接恢复规则与必要显示。治疗次数先定义事务契约，实际治疗能力留M2-04，Poise和破势留对应批次。
+**A与[B1恢复验收](Reports/M2_01B1_Verification.md)已完成，当前进入[B2体力显示](M2_01B2_StaminaHUD.md)。**实际83Source / 42cpp / 清单48，两项资源测试与三身体Valid、双构建 / 三索引通过；B2四新UI Source / Bootstrap两旧与单Widget尚未实施。显示沿用LocalPlayer → Presenter → Widget，不改变B1恢复。M0原型2仍无正式成本 / Tag，Dodging门控留M2-02；治疗 / Poise保持原分批安排。
 
-本路线本身用于范围与排期；开始实施请按M2-01A第3节，具体路径 / 完整代码 / 装配 / 短检查和Push清单均在该指南。当前没有编译或实测M2代码。M1复盘可作解释参考，不设新的旧功能验收门槛。
+本路线用于范围与排期；A实施步骤保留供复查，无需重做已通过的检查。后续操作指南仍逐批给出精确路径 / 完整代码 / 装配 / 短检查和Push清单。M1复盘可作解释参考，不设新的旧功能验收门槛。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-提交本路线、M2-01A指南和状态的真实更新；M1 / M1-07 / C3报告和复盘若未提交按原清单纳入。当前没有新M2 Source或资产可Stage；实施后按A末尾清单选择真实源码 / 合法资产差异。包 / Raw / 日志本地，由用户在CLion重新Stage最新版本后Commit / Push。
+本地4fedf14包含A主体，B1实际五新 / 七旧Source与验收文本待按差异提交；旧Effects / Resource路径曾暂存，务必重新Stage删除和正确目录文件。B2目前只有指南 / 状态设计，无B2实现或Widget可提交。B1的48资产无差异，包 / Raw / 日志本地；用户按各指南末尾清单Commit / Push，远端未联网核验。
