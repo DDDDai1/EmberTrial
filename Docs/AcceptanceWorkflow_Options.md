@@ -232,3 +232,7 @@ B2沿用同一方案：预计60–100手动 / 相关检查5–15，界面复制�
 2026-10-15 B2实际30 / 等待5，单独检查时间未登记；M2-01三批共130 / 15，累计2141 / 明确200。四新 / 两旧UI Source限定范围，复用现有BindWidget校验、ke资源读数与正式Retry / 返回菜单，未新增Controller验收图或重跑未变Core的自动化。改名过程31条编译Error与最终两次Valid / 后续无运行错误分层，不将历史Error当作当前失败，也不抹掉历史记录。Continue按用户画面反馈，换Pawn / 独立View重建未新增实测；不为未打印某一请求强制重复全UI矩阵。四世界View创建 / 清理有直接证据，[B2](Reports/M2_01B2_Verification.md)及[01总验收](Reports/M2_01_Verification.md)无待补。下一章成本 / 位移 / 无敌按实际变更触发专项，不提前写覆盖率或长期节省比例。
 
 2026-10-15 M2-02A计划：90–150手动 / 相关检查10–15分钟，不计实耗。新增一项真实Cost GE契约测试检查不足 / 精确支付 / 重复与同步重入，两个资源测试复用并扩Dodging；共享Practice入口改动触发既有Lifecycle一次，位移代码未变不重做帧率 / 墙坡矩阵。六正常资产用原Editor校验路径，运行None Cost不冒充Editor负例；新Montage None拒绝作为一次窄配置检查。正式动画 / 受击 / Pause / 死亡 / Stop用slomo0.1放宽窗口，最后恢复1，不让用户赶精确时点，也不搭临时Controller图。CostContract未跑完整Ability激活，代码审查的极端Task失败 / 同步结束不写成已实测；实际Source / 工时不变。
+
+2026-10-15 M2-02A按方案B收尾：实际手动50 / 等待5，未拆检查时间；复用两资源测试、旧Lifecycle，新增成本契约共四Success，六正常资产Valid，无临时Controller图。原地动画用slomo0.1拓宽观察窗口，None Montage一项配置拒绝 / 恢复；输入 / Pause和最终恢复按用户反馈接受，不为缺少独立Display打印追加矩阵。成本方法测试不代替完整Ability激活，三正常结束 / 受击取消 / Stop清理由实机日志分层补证；未改位移不重做墙坡 / 帧率。本轮只读审查、没有重跑Build / 测试。累计2191 / 明确205，M2实际180 / 20；[A报告](Reports/M2_02A_Verification.md)无待补，B变化再触发位移专项。
+
+2026-10-15 B计划按方案B：100–170手动 / 检查10–15分钟，未计实耗。新增一个正式GAS移动测试，与既有CostContract共两项；三步长、精确暂停 / 取消 / 死亡 / EndPlay交给测试驱动，用户只做2键 / 方向 / 墙坡 / 一次放慢取消 / 暂停与短基线。没有临时Controller图，不重跑未改Resources / Lifecycle或M0帧率矩阵；固定步长不当作硬件FPS实测。源码 / 资产 / 工时仍A基线，静态指南检查不写成Success；若新测试出现真实失败再按原因收窄排查。[B完整指南](M2_02B_DirectionalDodge.md)。

@@ -1,6 +1,6 @@
 # 当前开发状态
 
-更新2026-10-15。**[M2-01已收口](Reports/M2_01_Verification.md)，当前[M2-02A完整指南](M2_02A_DodgeAction.md)待用户手动实施。**A计划三新 / 十旧Source、标准Cost GE / 原地GAS动作、恢复与旧入口互斥及窄测试，代码仅文档。实际87Source / 44cpp / 清单49，累计手动2141 / 已明确等待200分钟不变；独立包仍M1 C3 Attempt02，无正式方向位移 / 无敌。
+更新2026-10-15。**[A已验收](Reports/M2_02A_Verification.md)，当前[B方向闪避完整指南](M2_02B_DirectionalDodge.md)待用户手动实施。**B三新 / 五旧Source、方向RMS Task / 正式2键迁移仅在文档；实际仍90Source / 46cpp / 清单51，累计手动2191 / 已明确等待205分钟不变。实施后预计93 / 48，无新增UE资产；无敌留C，独立包仍M1 C3 Attempt02。
 
 ## 当前阶段
 
@@ -8,7 +8,7 @@
 
 **M1-04C2历史时序缺口已关闭。**19:53:24.529 WindowOpen，19:53:39.113死亡提交 → WindowClose(AttackEnd) → Disarm.Tick0 → 当前能力Cancelled1 / AttackingTag0 → Death sealed；结束Dead Tag Remaining0。助手当时经授权使用slomo0.01等待日志确认后按4并恢复1，随后保存100/100与Debug False。此为历史证据，不是本次接管；正式重试与当前阶段包随后已完成，冻结姿势表现后续完善。
 
-**当前操作：[M2-02A](M2_02A_DodgeAction.md)，从第2节准备开始。**三新 / 十旧Source与两个资产按指南手动完成；新动作先经ke角色请求，原2保持原型到B位移可用后迁移。A检查10–15分钟，复用三项长期测试并新增一项成本契约测试；没有临时Controller图。当前代码 / 资产尚未创建，没有新Build / 测试Success或M2新Cook。
+**当前操作：[M2-02B第2节](M2_02B_DirectionalDodge.md#2-文件与操作顺序)开始。**先完成三新 / 五旧Source与双Build，再配置GA、ke确认新位移后迁移2键Started；旧Practice源码 / 历史测试保留。计划100–170手动分钟，相关检查10–15；当前没有B新Build / 测试Success或Cook。
 
 - 工作区：`E:\UE_Project\Demo`。
 - 实际 UE 工程：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，已存在。
@@ -221,3 +221,7 @@ C2实施反馈：用户全项报告完成，手动25分钟（代码10 / 资产10
 下一章[M2-02路线](M2_02_DodgeRoadmap.md)分A动作 / 成本、B方向位移 / 输入、C无敌 / 集成；A完整代码尚未下发，不按路线先建空类。M2仍基础65h，02分配12h不变，不用130分钟手动登记推算后续工程成本。
 
 2026-10-15 M2-02A指南下发：三新 / 十旧Source、两新GA / Cost GE，完整代码和25处精确替换已在文档；预计90–150手动 / 相关检查10–15分钟，未计实耗。核对标准GAS成本接口后采用独立固定负值Cost GE，默认-25、允许1–100点；原生SetByCaller增量GE继续恢复 / 开发注入。实际Montage启动实例验证后才CommitAbility，ApplyCost在父类应用前设置本次幂等标记；动画取消 / 提交保护与旧Practice / 正式动作 / 恢复Tag同步列出。新增CostContract只验证真实Cost GE与受保护成本方法，不冒充Montage端到端；复用两资源测试并扩Dodging、旧Practice入口改变触发Lifecycle一次。A先经角色RequestDodge的ke入口，原2保留到B；没有方向位移 / 无敌。当前实际87 / 44 / 49、累计2141 / 200不变，未写Source、Build / 运行测试或Git操作。[A指南](M2_02A_DodgeAction.md)从第2节开始。
+
+2026-10-15 M2-02A验收：用户15:45全项完成，手动50 / 等待5。三新 / 十旧Source已核对，十二文件与指南一致、一处HitReact布尔或括号等价，其余77旧Source保持；实际90 / 46 / 清单51。Editor15:28:44 / Game15:30:42，Game16动作70.65秒；三索引30+13+3。六Valid、四测试Success，五组一次100→75 / End Dodging0；三正常、真实受击与Stop两取消。None Montage预期Error后Accepted0 / 恢复Valid，死亡Retry有日志，输入 / Pause与最终配置按用户反馈接受，不追加旧矩阵。两新GA / GE和玩家Class清单更新，其余48旧资产、Config / uproject / 冻结指南 / 历史包保持。HEAD / 缓存origin/main均c6b8a0f，未联网核验；本轮只改文档 / 清单。累计2191 / 明确205，M2实际180 / 20。[验收报告](Reports/M2_02A_Verification.md)无待补，下一批B尚未实施。
+
+2026-10-15 B指南下发：三新Task / 移动测试、Dodge两旧完整替换、Character两旧与Validator一处扩展，18个替换锚点静态核对；预计93 / 48，无新资产。角色读取当前EnhancedPlayerInput的MoveAction值并转换世界方向，无输入按身体前方；AbilityTask缓存方向 / 唯一持有RMS，末帧比例 / 离地 / 取消 / EndPlay清理，先准备Montage与Source再一次成本提交。Move结束不解除Dodging。蓝图只迁移既有IA_PracticeDodge Started到RequestDodge(Self)，ke确认位移后才断旧链；名字暂保留，无双入口。新完整GAS移动测试计划覆盖三固定步长 / 墙 / 暂停 / 死亡 / EndPlay，连同CostContract共两项；方向实机与坡面短查，无临时Controller图。静态检查不冒充编译或Success，实际90 / 46 / 51及2191 / 205不变；Source / 资产 / Config均保持A哈希，所有代码由用户手动实施。

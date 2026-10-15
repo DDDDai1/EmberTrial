@@ -7,6 +7,7 @@
 class UAnimMontage;
 class UAbilityTask_PlayMontageAndWait;
 class UGameplayEffect;
+class UETAbilityTask_DodgeMove;
 
 UCLASS(Blueprintable)
 class EMBERTRIAL_API UETGA_Dodge : public UGameplayAbility
@@ -16,6 +17,7 @@ class EMBERTRIAL_API UETGA_Dodge : public UGameplayAbility
 public:
     UETGA_Dodge();
     static bool ReadCostAmount(const UGameplayEffect* Effect, float Level, float& OutCost);
+    bool HasValidMovementConfiguration() const;
 
 protected:
     virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -40,12 +42,24 @@ protected:
 
 private:
     friend class FETDodgeCostContractTest;
+    friend class FETDodgeMovementTest;
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Dodge")
     TObjectPtr<UAnimMontage> DodgeMontage;
 
     UPROPERTY(Transient)
     TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Dodge",
+        meta = (ClampMin = "1.0", ClampMax = "300.0", Units = "cm"))
+    float DodgeDistance = 150.0f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Dodge",
+        meta = (ClampMin = "0.05", ClampMax = "0.50", Units = "s"))
+    float DodgeDuration = 0.30f;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UETAbilityTask_DodgeMove> MoveTask;
 
     uint32 ActivationSerial = 0;
     // UE declares ApplyCost const. This flag belongs only to the current attempt.
@@ -55,4 +69,9 @@ private:
     void HandleMontageCompleted();
     UFUNCTION()
     void HandleMontageAborted();
+
+    UFUNCTION()
+    void HandleMoveCompleted();
+    UFUNCTION()
+    void HandleMoveAborted();
 };

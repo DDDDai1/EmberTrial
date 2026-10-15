@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本1.0；更新2026-10-14。**[M1](Reports/M1_Verification.md)与[M2-01A](Reports/M2_01A_Verification.md)均已验收。**当前78Source / 39cpp / 清单48，Core / UI两个Runtime与一个Editor模块；独立包仍C3 Attempt02。独立Stamina属性集与统一Ready已接入，恢复 / 正式资源能力 / 资源UI尚未实施。累计已报告手动2071 / 已明确等待190分钟；分批路线见[M2](M2_Roadmap.md)。
+版本1.1；更新2026-10-15。**[M2-02A已验收](Reports/M2_02A_Verification.md)，无待补项。**实际90Source / 46cpp / 清单51，原地GAS闪避与一次25成本已落地；四项测试Success、双构建 / 三索引 / 六资产Valid。累计手动2191 / 已明确等待205分钟。下一批B接方向位移与2键迁移，C接无敌；独立包仍M1 C3 Attempt02。 Core / UI两个Runtime及一个Editor模块保持；恢复与体力UI已落地。
 
 ## 1. 模块边界
 
@@ -176,8 +176,14 @@ PIE开发命令在游戏Controller内，但修改限编辑器PIE / 当前Ready�
 
 [M2-01总验收](Reports/M2_01_Verification.md)已收口。下一章[正式闪避路线](M2_02_DodgeRoadmap.md)计划让Ability拥有动作与一次成本、位移单独拥有Source / Task、无敌窗口拥有自己的Tag / Timer；尚未创建这些实现，不能把资源GE夹限等同成本拒绝。A操作指南待下发，原2保持M0原型，旧包仍M1。
 
-## 14. M2-02A设计下发（尚未实施）
+## 14. M2-02A动作与成本（已验收）
 
 [A完整指南](M2_02A_DodgeAction.md)由GAS Ability拥有Montage Task、Owned Dodging与本次成本提交；实际实例启动后才调用CommitAbility，取消先解绑Task回调再由GAS结束Task / Tag。成本采用独立Instant Stamina Add(Base)固定负值GE，标准CheckCost复核支付能力，ApplyCost幂等标记在同步属性事件前置位；支付失败取消，不通过退款掩盖顺序问题。标准接口声明const，mutable字段仅为本次尝试状态，真实体力仍在ASC属性集。
 
-Character授予 / 请求与EndPlay清Handle，正式Idle / Attack / Practice互斥及HitReact取消链同步扩展；恢复订阅 / 解绑数组都增加Dodging，原有积分 / 生命周期保持。Runtime与Editor共用成本Schema读取，Editor新增两个精确资产Profile，旧Health伤害规则不套成本GE。CostContract在临时世界用已授予实例与真实GE检查付款 / 不足 / 重入，未启动Montage；动画失败 / 真实取消仍需短PIE及后续集成。三新 / 十旧Source与两资产仅在文档，实际87 / 44 / 49不变；UI无需改动，B方向位移和C无敌后续接入。
+Character授予 / 请求与EndPlay清Handle，正式Idle / Attack / Practice互斥及HitReact取消链同步扩展；恢复订阅 / 解绑数组都增加Dodging，原有积分 / 生命周期保持。Runtime与Editor共用成本Schema读取，Editor新增两个精确资产Profile，旧Health伤害规则不套成本GE。CostContract在临时世界用已授予实例与真实GE检查付款 / 不足 / 重入，未启动Montage；动画失败 / 真实取消仍需短PIE及后续集成。三新 / 十旧Source与两资产已按[A验收](Reports/M2_02A_Verification.md)落地，实际90 / 46 / 51；四项测试Success。CostContract不运行完整Montage，实机三次正常结束、受击与Stop清理另有日志；极端底层播放失败 / 同步结束不冒充动态覆盖。UI Source保持，B方向位移和C无敌后续接入。
+
+## 15. M2-02B设计下发（尚未实施）
+
+[B指南](M2_02B_DirectionalDodge.md)新增专用AbilityTask：缓存世界方向，唯一持有ConstantForce RMS，仅活动期间Tick；末帧按SourceTime、原生碰撞 / 可走坡面、离地失败与所有权清理沿用既有经验。Character直接读取当前MoveAction值，不依赖Move回调顺序或残留LastInput；无输入身体前方，方向固定。Dodge先核对Montage、准备Source再提交成本，提交前失败 / 同步取消清理但不退款；Move完成只结束Task，Montage结束才清Dodging。结束先保存回调副本并EndTask，再广播副本；OnDestroy先清自己的Source，最后调用Super。
+
+三新 / 五旧、预计93 / 48，无新UI / 常驻组件 / Timer / Build依赖；公开配置谓词供Runtime与Editor共用，原成本Schema不变。蓝图只改既有Started到RequestDodge(Self)；新测试计划真实GAS / 成本 / 碰撞 / 暂停 / 死亡 / EndPlay，不用M0测试替代正式能力。当前仅静态审查，未Build / 运行，实际90 / 46 / 51保持；无敌C后续。

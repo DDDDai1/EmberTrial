@@ -306,6 +306,11 @@ void UETGameplayAssetValidator::ValidateAbility(UBlueprint* Blueprint,
         {
             AddIssue(Blueprint, TEXT("ET-DODGE-001"), TEXT("Invalid Dodge Cost GE; use one negative fixed Stamina modifier."), Issues);
         }
+        if (!CastChecked<UETGA_Dodge>(Defaults)->HasValidMovementConfiguration())
+        {
+            AddIssue(Blueprint, TEXT("ET-DODGE-002"),
+                TEXT("Dodge requires finite Distance 1..300, Duration .05...50, and an in-place montage longer than Duration."), Issues);
+        }
         return;
     }
 

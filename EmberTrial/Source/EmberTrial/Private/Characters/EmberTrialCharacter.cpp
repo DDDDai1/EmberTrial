@@ -10,6 +10,8 @@
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "EnhancedPlayerInput.h"
+#include "InputAction.h"
 #include "InputActionValue.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/GameplayAbilityTypes.h"
@@ -130,6 +132,35 @@ bool AEmberTrialCharacter::RequestDodge()
     const bool bAccepted = AbilitySystemComponent->TryActivateAbility(DodgeAbilityHandle, false);
     UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge request Body=%s Accepted=%d"), *GetNameSafe(this), bAccepted ? 1 : 0);
     return bAccepted;
+}
+
+FVector AEmberTrialCharacter::MakeDodgeWorldDirection(
+    const FVector2D& Axis, float ControlYaw, const FVector& Forward)
+{
+    if (!FMath::IsFinite(Axis.X) || !FMath::IsFinite(Axis.Y) ||
+        !FMath::IsFinite(ControlYaw) || Forward.ContainsNaN())
+    {
+        return FVector::ZeroVector;
+    }
+    if (Axis.SizeSquared() <= FMath::Square(0.1f))
+    {
+        return Forward.GetSafeNormal2D();
+    }
+    const FRotationMatrix Yaw(FRotator(0.0f, ControlYaw, 0.0f));
+    return (Yaw.GetUnitAxis(EAxis::X) * Axis.Y + Yaw.GetUnitAxis(EAxis::Y) * Axis.X).GetSafeNormal2D();
+}
+
+FVector AEmberTrialCharacter::GetDodgeWorldDirection() const
+{
+    const APlayerController* PC = Cast<APlayerController>(GetController());
+    const UEnhancedPlayerInput* Input = PC ? Cast<UEnhancedPlayerInput>(PC->PlayerInput) : nullptr;
+    FVector2D Axis = FVector2D::ZeroVector;
+    if (IsValid(Input) && IsValid(MoveAction) && MoveAction->ValueType == EInputActionValueType::Axis2D)
+    {
+        Axis = Input->GetActionValue(MoveAction).Get<FVector2D>();
+    }
+    const float Yaw = PC ? PC->GetControlRotation().Yaw : GetActorRotation().Yaw;
+    return MakeDodgeWorldDirection(Axis, Yaw, GetActorForwardVector());
 }
 
 void AEmberTrialCharacter::GrantLightAttackAbility()

@@ -2,6 +2,7 @@
 #include "Abilities/ETGameplayTags.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/ETAbilityTask_DodgeMove.h"
 #include "AbilitySystemComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
@@ -56,6 +57,13 @@ bool UETGA_Dodge::ReadCostAmount(const UGameplayEffect* Effect, float Level, flo
     return true;
 }
 
+bool UETGA_Dodge::HasValidMovementConfiguration() const
+{
+    return UETAbilityTask_DodgeMove::IsConfigurationValid(DodgeDistance, DodgeDuration) &&
+        IsValid(DodgeMontage) && !DodgeMontage->HasRootMotion() &&
+        FMath::IsFinite(DodgeMontage->GetPlayLength()) && DodgeMontage->GetPlayLength() > DodgeDuration;
+}
+
 bool UETGA_Dodge::CheckCost(const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
 {
@@ -107,9 +115,10 @@ bool UETGA_Dodge::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
     return IsValid(Body) && Body->GetCombatTeam() == EETCombatTeam::Player &&
         IsValid(PC) && PC->IsLocalController() && PC->GetPawn() == Body && !PC->IsMoveInputIgnored() &&
         Body->IsFormalActionIdle() && (!Practice || Practice->IsPracticeActionIdle()) &&
-        IsValid(Movement) && Movement->IsMovingOnGround() && !Body->GetVelocity().ContainsNaN() &&
-        IsValid(DodgeMontage) && FMath::IsFinite(DodgeMontage->GetPlayLength()) &&
-        DodgeMontage->GetPlayLength() > 0.0f && IsValid(Anim) && !Anim->GetCurrentActiveMontage();
+        IsValid(Movement) && Movement->IsMovingOnGround() && !Movement->HasRootMotionSources() &&
+        !Body->GetVelocity().ContainsNaN() && HasValidMovementConfiguration() &&
+        !Body->GetDodgeWorldDirection().IsNearlyZero() &&
+        IsValid(Anim) && !Anim->GetCurrentActiveMontage();
 }
 
 void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -124,7 +133,11 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     float Before = 0.0f;
     float MaxStamina = 0.0f;
     float Cost = 0.0f;
-    if (!IsValid(Body) || !IsValid(ASC) || !IsValid(DodgeMontage) || Body->IsCombatDead() ||
+    const FVector Direction = IsValid(Body) ? Body->GetDodgeWorldDirection() : FVector::ZeroVector;
+    UCharacterMovementComponent* Movement = IsValid(Body) ? Body->GetCharacterMovement() : nullptr;
+    if (!IsValid(Body) || !IsValid(ASC) || !HasValidMovementConfiguration() || Body->IsCombatDead() ||
+        Direction.IsNearlyZero() || !IsValid(Movement) || !Movement->IsMovingOnGround() ||
+        Movement->HasRootMotionSources() ||
         !Body->GetGameplayStaminaSnapshot(Before, MaxStamina) ||
         !ReadCostAmount(GetCostGameplayEffect(), GetAbilityLevel(Handle, ActorInfo), Cost))
     {
@@ -133,10 +146,7 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     }
     Body->StopJumping();
     Body->ConsumeMovementInputVector();
-    if (UCharacterMovementComponent* Movement = Body->GetCharacterMovement())
-    {
-        Movement->StopMovementImmediately();
-    }
+    Movement->StopMovementImmediately();
     MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
         this, NAME_None, DodgeMontage, 1.0f, NAME_None, true, 0.0f, 0.0f, true);
     if (!MontageTask)
@@ -156,7 +166,23 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
     }
-    // A real montage instance exists. Commit now; any earlier failure spent nothing.
+    // Prepare our source before charging. No movement tick runs inside this synchronous call.
+    MoveTask = UETAbilityTask_DodgeMove::CreateDodgeMove(this, Direction, DodgeDistance, DodgeDuration);
+    if (!MoveTask)
+    {
+        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+        return;
+    }
+    MoveTask->OnCompleted.AddDynamic(this, &ThisClass::HandleMoveCompleted);
+    MoveTask->OnAborted.AddDynamic(this, &ThisClass::HandleMoveAborted);
+    MoveTask->ReadyForActivation();
+    if (Serial != ActivationSerial || !IsActive()) { return; }
+    if (!IsValid(MoveTask) || !MoveTask->IsMovementReady())
+    {
+        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+        return;
+    }
+    // Montage and source exist. Commit once; cancellation cleans the prepared source.
     const bool bCommitted = CommitAbility(Handle, ActorInfo, ActivationInfo);
     if (Serial != ActivationSerial || !IsActive()) { return; }
     float After = 0.0f;
@@ -184,6 +210,17 @@ void UETGA_Dodge::HandleMontageAborted()
     EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
 }
 
+void UETGA_Dodge::HandleMoveCompleted()
+{
+    MoveTask = nullptr; // Montage still owns action lifetime and State.Dodging.
+}
+
+void UETGA_Dodge::HandleMoveAborted()
+{
+    MoveTask = nullptr;
+    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
+}
+
 void UETGA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
     bool bReplicateEndAbility, bool bWasCancelled)
@@ -202,6 +239,12 @@ void UETGA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
         MontageTask->OnCancelled.RemoveAll(this);
     }
     MontageTask = nullptr;
+    if (IsValid(MoveTask))
+    {
+        MoveTask->OnCompleted.RemoveAll(this);
+        MoveTask->OnAborted.RemoveAll(this);
+    }
+    MoveTask = nullptr; // Super ends active tasks; their OnDestroy releases their own source.
     const FString BodyName = GetNameSafe(ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr);
     const TWeakObjectPtr<UAbilitySystemComponent> ASC = ActorInfo
         ? ActorInfo->AbilitySystemComponent : TWeakObjectPtr<UAbilitySystemComponent>();

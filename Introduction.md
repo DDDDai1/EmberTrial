@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：[M2-01资源基础](Docs/Reports/M2_01_Verification.md)已收口，当前[M2-02A完整指南](Docs/M2_02A_DodgeAction.md)待手动实施，先接GAS动作与标准成本。实际87Source / 44cpp / 来源49项，累计手动35小时41分钟不变；A代码仅文档，方向位移 / 正式输入与无敌留B / C。独立包仍M1 C3 Attempt02，操作入口以Progress为准。
+当前进度：[M2-01](Docs/Reports/M2_01_Verification.md)与[M2-02A](Docs/Reports/M2_02A_Verification.md)已验收，当前[B方向位移 / 2键迁移完整指南](Docs/M2_02B_DirectionalDodge.md)待用户手动实施。实际仍90Source / 46cpp / 来源51项、累计手动36小时31分钟 / 已明确等待3小时25分钟；B代码仅文档，实施后预计93 / 48，无敌留C。独立包仍M1 C3 Attempt02，入口以Progress为准。
 >
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -653,6 +653,8 @@ Shipping 关闭作弊与开发菜单。截图 / 视频清楚标注是否启用�
 
 **M2-01A实际追加：**已报告手动60 / 等待5分钟，累计手动2071分钟（34小时31分钟）/ 已明确等待190分钟。A完成属性 / Ready基础；M2余下实现预算暂不因这一小批线性缩减，范围与后续成本继续分批校准。
 
+**2026-10-15实际追加：**M2-01三批130 / 等待15分钟，M2-02A为50 / 等待5；M2累计手动180 / 等待20分钟。项目累计2191分钟（36小时31分钟）/ 已明确等待205分钟；预算不按单批录入速度线性缩减。
+
 ### 11.2 阶段计划
 
 工时是基准预算，阶段内包含实现、验证和必要记录；缓冲单列，不在每行重复累加。
@@ -852,7 +854,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-14，M0与[M1最小纵向闭环](Docs/Reports/M1_Verification.md)完成，[M2-01A体力基础](Docs/Reports/M2_01A_Verification.md)也已验收。**当前78Source / 39cpp / 48项来源；生命和体力统一初始化 / Ready，三正式身体Valid、StaminaFoundation一次Success、两轮PIE短基线成立。累计已报告手动2071分钟（34小时31分钟）/ 已明确等待190分钟；未知耗时不推算。M2恢复 / 变化观察及四类正式能力继续按[M2路线](Docs/M2_Roadmap.md)分批完成。独立包仍为[C3 Attempt02](Docs/Reports/M1_07C3_Verification.md)，当前没有M2新Cook；历史Attempt01 / Insights保留原测量范围，没有新版性能改善结论。战斗深化、美术 / Blender、持久存档、最终投递作品和面试按后续里程碑完成。会话仅存地图 / 检查点ID，切图重建世界、退出清除；手动C++和方案B继续。实现已本地提交4fedf14，本轮未联网核验远端，Git由用户Commit / Push。实时状态见[Progress](Docs/Progress.md)，以下保留原M0起点：
+**截至2026-10-15，M0、[M1](Docs/Reports/M1_Verification.md)、[M2-01](Docs/Reports/M2_01_Verification.md)及[M2-02A](Docs/Reports/M2_02A_Verification.md)已验收。**90Source / 46cpp / 51项来源，原地GAS闪避一次25成本、资源与事件HUD均成立。后续方向位移 / 正式输入、无敌和其他战斗深化、美术 / Blender、持久存档与投递 / 面试继续按里程碑完成；累计手动2191 / 已明确等待205分钟。独立包仍为[C3 Attempt02](Docs/Reports/M1_07C3_Verification.md)，无M2新Cook或新版性能改善结论。会话仅存地图 / 检查点ID，切图重建世界；手动C++与方案B保持。实现已本地c6b8a0f，本轮未联网核验远端，Git由用户Commit / Push。实时状态见[Progress](Docs/Progress.md)，以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。

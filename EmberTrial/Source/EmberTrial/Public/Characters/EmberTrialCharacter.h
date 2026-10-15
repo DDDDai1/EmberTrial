@@ -103,6 +103,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 	float InitialStamina = 100.0f;
 
 	friend class FETStaminaFoundationTest;
+	friend class FETDodgeMovementTest;
 
 	bool bStartupAttributesInitialized = false;
 	bool bGameplayReady = false;
@@ -156,6 +157,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
 	bool RequestDodge();
+
+	FVector GetDodgeWorldDirection() const;
+	static FVector MakeDodgeWorldDirection(const FVector2D& Axis, float ControlYaw, const FVector& Forward);
 
 	FGameplayAbilitySpecHandle GetLightAttackSpecHandle() const;
 

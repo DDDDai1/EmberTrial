@@ -1,8 +1,8 @@
 # M2-02A：GAS闪避动作与一次体力成本
 
-2026-10-15，固定 **UE 5.5.4**。前置：[M2-01已收口](Reports/M2_01_Verification.md)。**本页完整代码仅在文档，待你手动实施；未写Source、未Build或运行新测试。**当前实际87Source / 44cpp / 来源49项。
+2026-10-15，固定 **UE 5.5.4**。前置：[M2-01已收口](Reports/M2_01_Verification.md)。**本批已按用户15:45反馈与本地证据验收通过，无待补项。**实际90Source / 46cpp / 来源51项；手动50 / 构建等待5分钟，详见[A验收](Reports/M2_02A_Verification.md)。下方保留原操作代码供复查，无需重复执行；后续按[B方向位移 / 输入指南](M2_02B_DirectionalDodge.md)实施。
 
-预计手动 **90–150分钟**：代码55–95、资产15–25、相关检查10–15、保存记录5–10；构建等待另计。可以分两次完成，代码部分完整保存后再正常Build；不要求做满预算。涉及成本与共用动作门控，本批比单纯体力UI范围更大。
+原下发预算（非当前待办）：手动 **90–150分钟**：代码55–95、资产15–25、相关检查10–15、保存记录5–10；构建等待另计。可以分两次完成，代码部分完整保存后再正常Build；不要求做满预算。涉及成本与共用动作门控，本批比单纯体力UI范围更大。
 
 ## 1. 本批结果与关键顺序
 
@@ -18,7 +18,7 @@
 
 ## 2. 准备与文件
 
-Stop PIE → Save All → 关闭UE，CLion保存。**三新Source / 十旧Source、两个新GE / GA资产**；不改Build.cs / Target / uproject / UI Source / 输入资产。完成后预计90Source / 46cpp，当前尚未达到。
+Stop PIE → Save All → 关闭UE，CLion保存。**三新Source / 十旧Source、两个新GE / GA资产**；不改Build.cs / Target / uproject / UI Source / 输入资产。原计划完成后90Source / 46cpp；15:45验收已达到。
 
 路径根目录 `E:\UE_Project\Demo\EmberTrial\Source`：
 

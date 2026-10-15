@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-14最新现状：**本地HEAD为4fedf14，包含M2-01A实现与前批文档 / C2实现收尾；当前缓存origin/main为e3ee554，本轮未联网核验远端。[M2-01A验收](Reports/M2_01A_Verification.md)通过，本轮追加A报告 / 指南已验收状态 / 路线与工时更新，按[A末尾清单](M2_01A_StaminaFoundation.md#10-本批需要-commit--push固定放在最后)重新Stage最新差异。三正式身体二进制哈希不变，无新增体力UE资产；已有实现不重复提交。Git由用户Commit / Push，包 / Raw / Runtime留本地。
+**2026-10-15最新现状：**HEAD与缓存origin/main均c6b8a0f，M2-02A实现及两新资产已纳入，本轮未联网核验远端 / LFS。[A验收](Reports/M2_02A_Verification.md)通过；当前只需重新Stage最新验收 / 来源清单 / 状态文档差异，无差异Source或资产无需重复提交。Git由用户Commit / Push，Raw / 构建产物 / 旧包本地。
 
 ## 1. 已配置内容
 
@@ -325,3 +325,7 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 [M2-02路线](M2_02_DodgeRoadmap.md)是下一章设计，无操作代码或新资产，不标作已实现。Raw / 日志 / receipt / CodeModel与历史包本地；用户检查Staged Diff后Commit / Push。
 
 2026-10-15 M2-02A下发：当前新增[A指南](M2_02A_DodgeAction.md)与路线 / 状态文字可提交，无新Source或资产。实现完成后按A最后清单重新Stage三新 / 十旧Source、两GA / GE及玩家Class / 既有GA实际资产差异；不先Stage尚不存在的文件，不遗漏共享Practice / 两处恢复数组 / 测试 / Editor规则。CostNone / MontageNone临时配置必须恢复，不改UI / IMC / Build依赖；来源清单在实物验收更新，当前49项。Raw / 生成文件与旧包留本地，用户Commit / Push。
+
+2026-10-15 A验收收尾：四项Success、六Valid、双构建 / 三索引与真实扣25 / 取消 / Stop清理已核对；预期None Montage Error在恢复Valid后关闭。来源清单新增GA_ET_Dodge / GE_ET_DodgeCost、更新玩家Dodge Class，总51项；三旧GA与其他48旧资产哈希保持。当前新增[A报告](Reports/M2_02A_Verification.md)和状态更新，末尾清单以报告为准；B / C尚无实现，本轮无Git索引或网络操作。
+
+2026-10-15 B指南下发：当前新增[M2-02B完整文档](M2_02B_DirectionalDodge.md)与状态 / 路线，Source / 资产保持A；A验收 / 清单如尚未提交可一并Stage。B实物完成后按文档最后三新 / 五旧与GA / 玩家输入实际差异清单重新Stage，旧Action名字暂保留不重命名。未修改Practice / 资源 / UI / Build依赖或Git索引，Raw / 生成文件本地；不把文档候选当已编译代码。
