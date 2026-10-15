@@ -2,12 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "ActiveGameplayEffectHandle.h"
 #include "ETGA_Dodge.generated.h"
 
 class UAnimMontage;
 class UAbilityTask_PlayMontageAndWait;
 class UGameplayEffect;
 class UETAbilityTask_DodgeMove;
+class UAbilitySystemComponent;
 
 UCLASS(Blueprintable)
 class EMBERTRIAL_API UETGA_Dodge : public UGameplayAbility
@@ -18,6 +20,7 @@ public:
     UETGA_Dodge();
     static bool ReadCostAmount(const UGameplayEffect* Effect, float Level, float& OutCost);
     bool HasValidMovementConfiguration() const;
+    bool HasValidInvulnerabilityConfiguration() const;
 
 protected:
     virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -43,6 +46,7 @@ protected:
 private:
     friend class FETDodgeCostContractTest;
     friend class FETDodgeMovementTest;
+    friend class FETDodgeInvulnerabilityTest;
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Dodge")
     TObjectPtr<UAnimMontage> DodgeMontage;
@@ -60,6 +64,16 @@ private:
 
     UPROPERTY(Transient)
     TObjectPtr<UETAbilityTask_DodgeMove> MoveTask;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Dodge",
+        meta = (ClampMin = "0.01", ClampMax = "0.50", Units = "s"))
+    float InvulnerabilityDuration = 0.15f;
+
+    UPROPERTY(Transient)
+    TWeakObjectPtr<UAbilitySystemComponent> InvulnerabilityASC;
+
+    FActiveGameplayEffectHandle InvulnerabilityHandle;
+    bool StartInvulnerabilityWindow(UAbilitySystemComponent* ASC, uint32 Serial);
 
     uint32 ActivationSerial = 0;
     // UE declares ApplyCost const. This flag belongs only to the current attempt.

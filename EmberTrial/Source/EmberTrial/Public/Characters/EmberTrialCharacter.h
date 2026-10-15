@@ -104,6 +104,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 
 	friend class FETStaminaFoundationTest;
 	friend class FETDodgeMovementTest;
+	friend class FETDodgeInvulnerabilityTest;
 
 	bool bStartupAttributesInitialized = false;
 	bool bGameplayReady = false;

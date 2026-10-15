@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本1.1；更新2026-10-15。**[M2-02A已验收](Reports/M2_02A_Verification.md)，无待补项。**实际90Source / 46cpp / 清单51，原地GAS闪避与一次25成本已落地；四项测试Success、双构建 / 三索引 / 六资产Valid。累计手动2191 / 已明确等待205分钟。下一批B接方向位移与2键迁移，C接无敌；独立包仍M1 C3 Attempt02。 Core / UI两个Runtime及一个Editor模块保持；恢复与体力UI已落地。
+版本1.1；更新2026-10-15。**[M2-03A素材已验收](Reports/M2_03A_Verification.md)，无待补项。**六新LS / AS / Montage均已保存，当前96Source / 50cpp / 来源清单57项；Source / 51旧资产 / Config保持M2-02C，正式左键仍单段。A手动50 / 等待10，累计2301 / 明确225分钟；下一B连段与有限输入缓冲待下发代码指南，未实施新连段，独立包仍M1 C3 Attempt02。 Core / UI两个Runtime及一个Editor模块保持。
 
 ## 1. 模块边界
 
@@ -182,8 +182,24 @@ PIE开发命令在游戏Controller内，但修改限编辑器PIE / 当前Ready�
 
 Character授予 / 请求与EndPlay清Handle，正式Idle / Attack / Practice互斥及HitReact取消链同步扩展；恢复订阅 / 解绑数组都增加Dodging，原有积分 / 生命周期保持。Runtime与Editor共用成本Schema读取，Editor新增两个精确资产Profile，旧Health伤害规则不套成本GE。CostContract在临时世界用已授予实例与真实GE检查付款 / 不足 / 重入，未启动Montage；动画失败 / 真实取消仍需短PIE及后续集成。三新 / 十旧Source与两资产已按[A验收](Reports/M2_02A_Verification.md)落地，实际90 / 46 / 51；四项测试Success。CostContract不运行完整Montage，实机三次正常结束、受击与Stop清理另有日志；极端底层播放失败 / 同步结束不冒充动态覆盖。UI Source保持，B方向位移和C无敌后续接入。
 
-## 15. M2-02B设计下发（尚未实施）
+## 15. M2-02B方向位移与输入（已验收）
 
 [B指南](M2_02B_DirectionalDodge.md)新增专用AbilityTask：缓存世界方向，唯一持有ConstantForce RMS，仅活动期间Tick；末帧按SourceTime、原生碰撞 / 可走坡面、离地失败与所有权清理沿用既有经验。Character直接读取当前MoveAction值，不依赖Move回调顺序或残留LastInput；无输入身体前方，方向固定。Dodge先核对Montage、准备Source再提交成本，提交前失败 / 同步取消清理但不退款；Move完成只结束Task，Montage结束才清Dodging。结束先保存回调副本并EndTask，再广播副本；OnDestroy先清自己的Source，最后调用Super。
 
-三新 / 五旧、预计93 / 48，无新UI / 常驻组件 / Timer / Build依赖；公开配置谓词供Runtime与Editor共用，原成本Schema不变。蓝图只改既有Started到RequestDodge(Self)；新测试计划真实GAS / 成本 / 碰撞 / 暂停 / 死亡 / EndPlay，不用M0测试替代正式能力。当前仅静态审查，未Build / 运行，实际90 / 46 / 51保持；无敌C后续。
+三新 / 五旧、预计93 / 48，无新UI / 常驻组件 / Timer / Build依赖；公开配置谓词供Runtime与Editor共用，原成本Schema不变。蓝图只改既有Started到RequestDodge(Self)；新测试计划真实GAS / 成本 / 碰撞 / 暂停 / 死亡 / EndPlay，不用M0测试替代正式能力。[B验收](Reports/M2_02B_Verification.md)已通过：八文件匹配、双构建 / 三索引、两测试Success、实际93 / 48 / 51；新测试包含完整GAS启动、RMS物理、暂停 / 取消 / 死亡 / EndPlay。实机方向 / 碰撞与受击中止有日志，输入 / 坡面 / 最终恢复结合用户反馈；没有新增常驻Tick或改变UI，C无敌后续。
+
+## 16. M2-02C短无敌与真实伤害门控（已验收）
+
+[C完整指南](M2_02C_Invulnerability.md)以原生HasDuration GE的TargetTags组件授予State.Invulnerable，使用命名DefaultSubobject并登记GEComponents；不在CDO构造中调用运行时FindOrAdd / NewObject辅助方法，也不修改共享CDO的时长。每次成功扣费后用独立Spec锁定默认.15世界秒，窗口短于位移 / Montage，过期只结束保护。
+
+Ability记录弱ASC与本次ActiveEffect Handle；应用GE可能同步触发取消，因此应用返回后复核激活Serial，发生重入仅移除刚返回的本次Handle。结束先摘下旧Handle，再由Super结束动作 / Task，最后移除捕获的旧Effect；不清所有同Tag效果，不强制TagCount归零，外来或重入的新保护保持。正式伤害在共享LightAttack提交GE前查询目标当前Tag，拒绝生命变化与相应受击；已处理Trace候选沿用单次攻击去重。Health属性集 / 治疗 / 最大值规则不变，3 / 4开发旁路不能作为正式无敌验证。
+
+新测试使用真实保存Montage / Notify / Sweep / 伤害GE与正式受击，覆盖窗口内拒绝、窗口结束后受击、同次去重、同步取消、外来保护、Pause / 死亡 / EndPlay；未伪造HitResult或直接广播Trace回调。三新 / 八旧已落地，96 / 50 / 51，双构建 / 索引50成立；两旧Dodge测试Success复用，新测试修正观察时点后单项Success，原GE仍.15。实机两次真实保护、普通伤害、活动暂停及Retry / Continue有直接证据，[C验收](Reports/M2_02C_Verification.md)无待补。没有新增常驻组件 / Tick / Timer / Build依赖；51资产字节保持B，不宣称任意GE全局免疫、子帧精度或M2新包已完成。
+
+## 17. M2-03连段规划与素材边界（未实施）
+
+[分批路线](M2_03_LightComboRoadmap.md)选择由现有LightAttack能力拥有玩家整条链，保留敌人默认单段；共享真实伤害 / 无敌策略。计划小型段配置数组、单个有限时输入、当前Montage / Notify身份与段代次推进，每段重开Trace Serial，统一取消清理；不另建重复伤害系统或全局队列。具体B / C代码尚未下发，不是当前Source行为。
+
+[A当前只做素材](M2_03A_ComboAnimationAssets.md)：独立第2 / 3段LS / AS / Montage共6资产，复用已知FK姿势值改变顺序 / 时序；原第1段与敌人 / Dodge测试引用保持。没有Source / GA / 输入 / AnimBP改动，不为素材预览搭验收图或重跑旧测试。实际仍96 / 50 / 清单51，预计实物后约57；新骨骼插值 / 蒙皮与烘焙需要用户预览，未声称新Rig求值或正式连段完成。
+
+M2-03A素材验收补充：六份独立LS / AS / AM已落地，来源57，Source仍96 / 50，旧共享Montage / GA / 输入 / Rig哈希保持。新蒙太奇对应AS / Slot / Notify名称线索与保存记录已核对，姿势 / 通知具体值由用户预览确认；未在UE读取完整属性。正式连段与缓冲仍属于B，当前没有新的Gameplay状态或模块变更。[A验收](Reports/M2_03A_Verification.md)。

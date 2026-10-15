@@ -1,6 +1,6 @@
 # 当前开发状态
 
-更新2026-10-15。**[A已验收](Reports/M2_02A_Verification.md)，当前[B方向闪避完整指南](M2_02B_DirectionalDodge.md)待用户手动实施。**B三新 / 五旧Source、方向RMS Task / 正式2键迁移仅在文档；实际仍90Source / 46cpp / 清单51，累计手动2191 / 已明确等待205分钟不变。实施后预计93 / 48，无新增UE资产；无敌留C，独立包仍M1 C3 Attempt02。
+更新2026-10-15。**[M2-03A素材已验收](Reports/M2_03A_Verification.md)，无待补项。**六新LS / AS / Montage均已保存，当前96Source / 50cpp / 来源清单57项；Source / 51旧资产 / Config保持M2-02C，正式左键仍单段。A手动50 / 等待10，累计2301 / 明确225分钟；下一B连段与有限输入缓冲待下发代码指南，未实施新连段，独立包仍M1 C3 Attempt02。
 
 ## 当前阶段
 
@@ -8,7 +8,7 @@
 
 **M1-04C2历史时序缺口已关闭。**19:53:24.529 WindowOpen，19:53:39.113死亡提交 → WindowClose(AttackEnd) → Disarm.Tick0 → 当前能力Cancelled1 / AttackingTag0 → Death sealed；结束Dead Tag Remaining0。助手当时经授权使用slomo0.01等待日志确认后按4并恢复1，随后保存100/100与Debug False。此为历史证据，不是本次接管；正式重试与当前阶段包随后已完成，冻结姿势表现后续完善。
 
-**当前操作：[M2-02B第2节](M2_02B_DirectionalDodge.md#2-文件与操作顺序)开始。**先完成三新 / 五旧Source与双Build，再配置GA、ke确认新位移后迁移2键Started；旧Practice源码 / 历史测试保留。计划100–170手动分钟，相关检查10–15；当前没有B新Build / 测试Success或Cook。
+**当前交接：[M2-03A已验收](Reports/M2_03A_Verification.md)，无需补测。**用户按报告最后清单提交六新素材与最新文档；C已有三新AM / 八旧Source如尚未提交，重新Stage最新内容。下一M2-03B连段 / 有限输入缓冲代码待下发，不预建空类；正式左键仍单段，无新Cook。
 
 - 工作区：`E:\UE_Project\Demo`。
 - 实际 UE 工程：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，已存在。
@@ -171,7 +171,7 @@ C2实施反馈：用户全项报告完成，手动25分钟（代码10 / 资产10
 
 - 每周约 30 小时；暂无硬期限；资源总预算约 100 元；用户有手柄但明确不开发支持。
 - 本机约 16 GB 系统内存、RTX 4060 Laptop 约 8 GB 显存；性能目标仍待正式场景测量。
-- M0手动673 min + M1各章20 / 180 / 325 / 176 / 147 / 315 / 175 min + M2-01A 60 min，共 **2071分钟（34小时31分钟）**；M1手动1338分钟（22小时18分钟）保持，M2当前60分钟。用户明确等待累计 **190分钟**另列，A新增5分钟。B最后函数替换未单独报告的时间不推算，助手设计 / GUI与复核不计用户手动时间。分层验收 / 自动化按重复成本建设。
+- M0手动673 + M1手动1338 + M2当前290，共 **2301分钟（38小时21分钟）**；已明确等待 **225分钟（3小时45分钟）**另列。M2-01为130 / 15，M2-02为110 / 15，M2-03A为50 / 10；独立检查未拆报，不推算未记录时间，助手设计 / 排障 / 核对不计用户手动。
 - 第一轮包内日志未单独留存；以后多轮启动使用不同日志文件名，本次证据范围已写入验收报告。
 
 ## 持续协作原则
@@ -225,3 +225,15 @@ C2实施反馈：用户全项报告完成，手动25分钟（代码10 / 资产10
 2026-10-15 M2-02A验收：用户15:45全项完成，手动50 / 等待5。三新 / 十旧Source已核对，十二文件与指南一致、一处HitReact布尔或括号等价，其余77旧Source保持；实际90 / 46 / 清单51。Editor15:28:44 / Game15:30:42，Game16动作70.65秒；三索引30+13+3。六Valid、四测试Success，五组一次100→75 / End Dodging0；三正常、真实受击与Stop两取消。None Montage预期Error后Accepted0 / 恢复Valid，死亡Retry有日志，输入 / Pause与最终配置按用户反馈接受，不追加旧矩阵。两新GA / GE和玩家Class清单更新，其余48旧资产、Config / uproject / 冻结指南 / 历史包保持。HEAD / 缓存origin/main均c6b8a0f，未联网核验；本轮只改文档 / 清单。累计2191 / 明确205，M2实际180 / 20。[验收报告](Reports/M2_02A_Verification.md)无待补，下一批B尚未实施。
 
 2026-10-15 B指南下发：三新Task / 移动测试、Dodge两旧完整替换、Character两旧与Validator一处扩展，18个替换锚点静态核对；预计93 / 48，无新资产。角色读取当前EnhancedPlayerInput的MoveAction值并转换世界方向，无输入按身体前方；AbilityTask缓存方向 / 唯一持有RMS，末帧比例 / 离地 / 取消 / EndPlay清理，先准备Montage与Source再一次成本提交。Move结束不解除Dodging。蓝图只迁移既有IA_PracticeDodge Started到RequestDodge(Self)，ke确认位移后才断旧链；名字暂保留，无双入口。新完整GAS移动测试计划覆盖三固定步长 / 墙 / 暂停 / 死亡 / EndPlay，连同CostContract共两项；方向实机与坡面短查，无临时Controller图。静态检查不冒充编译或Success，实际90 / 46 / 51及2191 / 205不变；Source / 资产 / Config均保持A哈希，所有代码由用户手动实施。
+
+2026-10-15 B验收：用户16:48全项完成，手动30 / 等待5；三新 / 五旧Source与指南一致，其余85旧Source保持。实际93 / 48 / 清单51，GA与玩家两资产哈希更新，其余49旧资产、Config / uproject / 冻结指南 / 历史Attempt02保持。Editor16:36:41 / Game16:39:23，Game12动作78.27秒；三索引32+13+3，两资产Valid。16:44:35–36 CostContract / Movement各Success，固定30 / 60 / 120步长150.05cm / .3001秒，不当硬件FPS。13组Blueprint运动含1迁移前ke和12后续请求，12正常 / 1受击取消，全部扣25 / End Dodging0，墙边6.28 / 129.73cm；无旧M0 DodgeMove或玩法Error。活动位移Pause / 键盘与坡面按自动化加用户反馈接受，菜单Pause日志不冒充活动位移样本，不补旧矩阵。[B报告](Reports/M2_02B_Verification.md)无待补。累计2221 / 明确210，M2实际210 / 25，02当前80 / 10。用户已提交c010520 / 缓存origin同哈希，未联网核验；本轮只更新文档 / 清单。下一C未实施，无敌尚无。
+
+2026-10-15 C指南准备完成：三新原生窗口GE / 真实命中测试、八旧Source共18个精确替换锚点，预计96 / 50，无新UE资产。成功扣费后应用默认.15世界秒Duration GE授予State.Invulnerable，正式共享伤害提交前查询当前Tag；到期 / 取消 / 死亡 / EndPlay只按本次Handle移除，外来保护不清，3 / 4保留诊断旁路。计划新自动化通过真实保存Montage / Notify / Sweep / GE检查窗口内拒绝、同次去重、窗口后正常受击、同步取消、叠加所有权、暂停与死亡 / EndPlay；不要求用户手赶.15秒。既有CostContract / Movement计划复用，未改Resources / Practice不重跑；相关手动检查10–15，总手动预算90–150另计等待。候选代码 / 本地5.5.4 API / 锚点 / 括号 / 链接已静态检查；Source / 资产 / Config保持B基线，未编译或执行C测试。实际93 / 48 / 51、累计2221 / 210不变，没有C验收报告或新Success。[完整指南](M2_02C_Invulnerability.md)，由用户实现与Commit / Push。
+
+2026-10-15 C首次自动化13:17：CostContract / Movement Success，Invulnerability唯一Error为测试cpp162行到期断言。读到真实A候选被Invulnerable拒绝，随后B造成10伤害并触发正式受击，Cleanup Removed0 / RemainingTag0；不属于Tag永久残留。11份当前C Source与原候选忽略空白一致，确认非用户录入错误。查本机5.5.4 TimerManager / FTestWorldWrapper，Tick间应用Timer走Pending，激活后一帧及严格大于到期 / 浮点量化使.16观察过紧；指南改为.18观察、后续等待由.06减至.04以保持第二击时序。修正只在指南，Source待用户手改；Build / 单项复测尚未执行，无新增验收或工时。
+
+2026-10-15 C / M2-02收口：用户约21:29全部完成，手动30 / 等待5；三新 / 八旧匹配原指南与两处计时补修，其余85旧Source保持。实际96 / 50 / 来源51，51资产 / Config / uproject / 冻结指南 / 历史Attempt02字节不变，GA来源说明更新。Editor21:26:22 / Game21:25:52均覆盖最终测试，三索引34+13+3。21:17两旧测试Success与21:27新Invulnerability单项Success合并接受，原.16秒边界Fail保留历史，正式.15未改。实机11组成对窗口 / 成本 / End、两次Invulnerable拒绝、普通敌人10、活动P、Retry / MainMenu / Continue与新HUD / Stop清理有直接证据，无新Error。输入手感 / 最终恢复结合用户反馈，不追加旧矩阵。[C报告](Reports/M2_02C_Verification.md)与[整章报告](Reports/M2_02_Verification.md)无待补。累计2251 / 明确215，M2为240 / 30，02为110 / 15；后续预算不按录入速度缩减。HEAD / 缓存origin仍c010520，三新AM与八旧由用户重新Stage后Commit / Push，助手未操作索引或网络。
+
+2026-10-15 M2-03路线 / A指南下发：分A独立动画素材、B既有LightAttack的玩家段配置 / 单槽有限缓冲 / 每段Serial、C恢复闪避取消与集成。A完整两套七控制器 / 五帧Transform表、FK开关、播放排他End31 / 21、烘焙与Montage字段及Notify右键时间入口已写清；2段回抽 / 3段短促前击复用已知FK姿势值，仅重排 / 重定时，新实物未Rig求值或视觉验证。预计6资产、来源51→约57，Source仍96 / 50；不覆盖旧敌人 / 无敌测试共用Montage，不修改GA / 输入 / AnimBP。实机短基线、无Build / Cook或旧测试复跑，手动预算80–140 / 检查5–10未计实耗。代码 / 资产 / Config与C验收哈希保持，累计2251 / 215不变。[A指南](M2_03A_ComboAnimationAssets.md)从第2节开始，末尾Push清单齐全。
+
+2026-10-15 M2-03A验收：用户约22:37全部完成，手动50 / 等待10；六新素材最终路径与日志保存 / 移动记录一致，来源新增六项至57。Source96 / cpp50、51旧资产 / Config / uproject / 冻结指南保持C哈希，地图无Git差异。新资产名称中有对应AS / SK_Mannequin / Slot / Notify类线索，不当作完整属性读取；五帧数值 / 采样 / root脚 / 通知与大部分短基线按用户确认。日志直接支持旧单段Montage与PIE初始化 / 清理，未为未独立打印的2 / E / P追加矩阵。编辑器PIE前单条GPU profiler样本缓冲不足记录单独保留，不当玩法错误或渲染性能结论。未跑UE / Build / 测试，未代改实现或索引。[A报告](Reports/M2_03A_Verification.md)无待补；累计2301 / 明确225，M2为290 / 40。下一B指南待下发，头与缓存origin仍c010520，用户按真实清单Stage / Commit / Push。

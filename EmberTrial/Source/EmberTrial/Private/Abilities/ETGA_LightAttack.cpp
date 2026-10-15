@@ -373,6 +373,14 @@ void UETGA_LightAttack::HandleTraceHit(uint32 Serial, const FHitResult& Hit)
     Spec.Data->SetSetByCallerMagnitude(
         ETGameplayTags::SetByCaller_HealthDelta, -RequestedDamage);
 
+    // This shared player/enemy combat entry checks current tags at actual submission time.
+    // Diagnostic direct GE / SetNumericAttributeBase calls intentionally bypass this policy.
+    if (TargetASC->HasMatchingGameplayTag(ETGameplayTags::State_Invulnerable))
+    {
+        Reject(TEXT("Invulnerable"));
+        return;
+    }
+
     const FActiveGameplayEffectHandle Result = SourceASC->ApplyGameplayEffectSpecToTarget(
         *Spec.Data.Get(), TargetASC);
     const bool bApplied = Result.WasSuccessfullyApplied();

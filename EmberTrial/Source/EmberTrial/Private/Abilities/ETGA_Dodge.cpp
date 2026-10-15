@@ -1,5 +1,7 @@
 #include "Abilities/ETGA_Dodge.h"
 #include "Abilities/ETGameplayTags.h"
+#include "Abilities/Effects/ETDodgeInvulnerabilityEffect.h"
+#include "UObject/UObjectGlobals.h"
 #include "Abilities/GameplayAbilityTypes.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/ETAbilityTask_DodgeMove.h"
@@ -64,6 +66,52 @@ bool UETGA_Dodge::HasValidMovementConfiguration() const
         FMath::IsFinite(DodgeMontage->GetPlayLength()) && DodgeMontage->GetPlayLength() > DodgeDuration;
 }
 
+bool UETGA_Dodge::HasValidInvulnerabilityConfiguration() const
+{
+    const UGameplayEffect* Effect = GetDefault<UETDodgeInvulnerabilityEffect>();
+    return FMath::IsFinite(InvulnerabilityDuration) && InvulnerabilityDuration >= 0.01f &&
+        InvulnerabilityDuration <= DodgeDuration && IsValid(Effect) &&
+        Effect->DurationPolicy == EGameplayEffectDurationType::HasDuration &&
+        Effect->StackingType == EGameplayEffectStackingType::None &&
+        Effect->Modifiers.Num() == 0 && Effect->Executions.Num() == 0 &&
+        Effect->GetGrantedTags().Num() == 1 &&
+        Effect->GetGrantedTags().HasTagExact(ETGameplayTags::State_Invulnerable);
+}
+
+bool UETGA_Dodge::StartInvulnerabilityWindow(UAbilitySystemComponent* ASC, uint32 Serial)
+{
+    if (!IsValid(ASC) || !HasValidInvulnerabilityConfiguration()) { return false; }
+    FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
+    if (!Context.IsValid()) { return false; }
+    Context.AddSourceObject(this);
+    FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(
+        UETDodgeInvulnerabilityEffect::StaticClass(), GetAbilityLevel(), Context);
+    if (!Spec.IsValid()) { return false; }
+    Spec.Data->SetDuration(InvulnerabilityDuration, true);
+    const TWeakObjectPtr<UAbilitySystemComponent> WeakASC(ASC);
+    const FActiveGameplayEffectHandle Applied = ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+    ASC = WeakASC.Get();
+    // Granting a tag can synchronously cancel/end this activation before Apply returns.
+    if (Serial != ActivationSerial || !IsActive() || !IsValid(ASC))
+    {
+        if (IsValid(ASC) && Applied.IsValid()) { ASC->RemoveActiveGameplayEffect(Applied); }
+        return false;
+    }
+    if (!Applied.IsValid() || !ASC->GetActiveGameplayEffect(Applied) ||
+        !ASC->HasMatchingGameplayTag(ETGameplayTags::State_Invulnerable))
+    {
+        if (Applied.IsValid()) { ASC->RemoveActiveGameplayEffect(Applied); }
+        return false;
+    }
+    InvulnerabilityASC = ASC;
+    InvulnerabilityHandle = Applied;
+    UE_LOG(LogETDodge, Display,
+        TEXT("[M2-02C] Window begin Body=%s Serial=%u Duration=%.3f TagCount=%d"),
+        *GetNameSafe(ASC->GetAvatarActor()), Serial, InvulnerabilityDuration,
+        ASC->GetTagCount(ETGameplayTags::State_Invulnerable));
+    return true;
+}
+
 bool UETGA_Dodge::CheckCost(const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
 {
@@ -117,6 +165,7 @@ bool UETGA_Dodge::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
         Body->IsFormalActionIdle() && (!Practice || Practice->IsPracticeActionIdle()) &&
         IsValid(Movement) && Movement->IsMovingOnGround() && !Movement->HasRootMotionSources() &&
         !Body->GetVelocity().ContainsNaN() && HasValidMovementConfiguration() &&
+        HasValidInvulnerabilityConfiguration() &&
         !Body->GetDodgeWorldDirection().IsNearlyZero() &&
         IsValid(Anim) && !Anim->GetCurrentActiveMontage();
 }
@@ -135,7 +184,8 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     float Cost = 0.0f;
     const FVector Direction = IsValid(Body) ? Body->GetDodgeWorldDirection() : FVector::ZeroVector;
     UCharacterMovementComponent* Movement = IsValid(Body) ? Body->GetCharacterMovement() : nullptr;
-    if (!IsValid(Body) || !IsValid(ASC) || !HasValidMovementConfiguration() || Body->IsCombatDead() ||
+    if (!IsValid(Body) || !IsValid(ASC) || !HasValidMovementConfiguration() ||
+        !HasValidInvulnerabilityConfiguration() || Body->IsCombatDead() ||
         Direction.IsNearlyZero() || !IsValid(Movement) || !Movement->IsMovingOnGround() ||
         Movement->HasRootMotionSources() ||
         !Body->GetGameplayStaminaSnapshot(Before, MaxStamina) ||
@@ -195,6 +245,15 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
     }
+    const bool bWindowStarted = StartInvulnerabilityWindow(ASC, Serial);
+    if (Serial != ActivationSerial || !IsActive()) { return; }
+    if (!bWindowStarted)
+    {
+        UE_LOG(LogETDodge, Warning, TEXT("[M2-02C] Window application failed after payment Body=%s"),
+            *GetNameSafe(Body));
+        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+        return;
+    }
     UE_LOG(LogETDodge, Display,
         TEXT("[M2-02A] Begin Body=%s Serial=%u Before=%.1f After=%.1f Cost=%.1f Dodging=%d"),
         *GetNameSafe(Body), Serial, Before, After, Cost, ASC->GetTagCount(ETGameplayTags::State_Dodging));
@@ -249,7 +308,20 @@ void UETGA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
     const TWeakObjectPtr<UAbilitySystemComponent> ASC = ActorInfo
         ? ActorInfo->AbilitySystemComponent : TWeakObjectPtr<UAbilitySystemComponent>();
     const bool bSubmitted = bCostSubmitted;
+    const TWeakObjectPtr<UAbilitySystemComponent> WindowOwner = InvulnerabilityASC;
+    const FActiveGameplayEffectHandle WindowToRemove = InvulnerabilityHandle;
+    InvulnerabilityASC.Reset();
+    InvulnerabilityHandle = FActiveGameplayEffectHandle();
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+    if (WindowOwner.IsValid() && WindowToRemove.IsValid())
+    {
+        const bool bRemoved = WindowOwner->RemoveActiveGameplayEffect(WindowToRemove);
+        UAbilitySystemComponent* RemainingASC = WindowOwner.Get();
+        UE_LOG(LogETDodge, Display,
+            TEXT("[M2-02C] Window cleanup Body=%s Removed=%d RemainingTag=%d"),
+            *BodyName, bRemoved ? 1 : 0,
+            IsValid(RemainingASC) ? RemainingASC->GetTagCount(ETGameplayTags::State_Invulnerable) : 0);
+    }
     UE_LOG(LogETDodge, Display,
         TEXT("[M2-02A] End Body=%s Cancelled=%d CostSubmitted=%d Dodging=%d"),
         *BodyName, bWasCancelled ? 1 : 0, bSubmitted ? 1 : 0,

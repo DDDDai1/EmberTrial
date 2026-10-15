@@ -236,3 +236,13 @@ B2沿用同一方案：预计60–100手动 / 相关检查5–15，界面复制�
 2026-10-15 M2-02A按方案B收尾：实际手动50 / 等待5，未拆检查时间；复用两资源测试、旧Lifecycle，新增成本契约共四Success，六正常资产Valid，无临时Controller图。原地动画用slomo0.1拓宽观察窗口，None Montage一项配置拒绝 / 恢复；输入 / Pause和最终恢复按用户反馈接受，不为缺少独立Display打印追加矩阵。成本方法测试不代替完整Ability激活，三正常结束 / 受击取消 / Stop清理由实机日志分层补证；未改位移不重做墙坡 / 帧率。本轮只读审查、没有重跑Build / 测试。累计2191 / 明确205，M2实际180 / 20；[A报告](Reports/M2_02A_Verification.md)无待补，B变化再触发位移专项。
 
 2026-10-15 B计划按方案B：100–170手动 / 检查10–15分钟，未计实耗。新增一个正式GAS移动测试，与既有CostContract共两项；三步长、精确暂停 / 取消 / 死亡 / EndPlay交给测试驱动，用户只做2键 / 方向 / 墙坡 / 一次放慢取消 / 暂停与短基线。没有临时Controller图，不重跑未改Resources / Lifecycle或M0帧率矩阵；固定步长不当作硬件FPS实测。源码 / 资产 / 工时仍A基线，静态指南检查不写成Success；若新测试出现真实失败再按原因收窄排查。[B完整指南](M2_02B_DirectionalDodge.md)。
+
+2026-10-15 B实际手动30 / 等待5，独立检查耗时未拆报；完整移动自动化与CostContract各Success，三固定步长 / 暂停 / 取消 / 死亡 / EndPlay由临时世界驱动。两资产正常Valid与短实机方向 / 墙坡 / 受击 / P沿既有入口完成，无Controller临时图。13组Blueprint日志包含迁移前ke，不当作13次键盘；菜单P在取消后出现，不冒充活动位移Pause直接样本。精确暂停由自动化及用户反馈支持，不为日志未逐项打印补旧矩阵。未变Resources / Practice不重跑，累计2221 / 明确210、M2实际210 / 25；[B报告](Reports/M2_02B_Verification.md)无待补，C按新伤害窗口风险触发专项。
+
+2026-10-15 C按方案B下发：总手动预算90–150分钟，相关实机检查10–15，构建等待另列，均未计为实耗。[完整指南](M2_02C_Invulnerability.md)复用Dodge CostContract / Movement并计划新增Invulnerability一项；三Success必须由实际运行获得，静态检查不预填通过。新测试驱动真实Montage / Notify / Sweep，覆盖短窗口拒绝、窗口后命中、单次去重、同步取消、外来Handle所有权、暂停 / 死亡 / EndPlay；用户无需赶.15秒，正常交战没有碰到保护日志也不单独强制补验。手动只查正式2、真实敌人伤害、3取消、动作中P和一次Retry / Continue / Stop短流程；复用既有入口，不搭临时Controller图、不重跑未变Resources / Practice、不做新Cook / Insights。若测试失败，保留第一项真实失败与日志再定位，不删除断言或伪造Trace代替验证；当前实际工时2221 / 210保持。
+
+2026-10-15 C实际30 / 等待5，独立检查未拆时；M2-02总110 / 15。采用方案B复用21:17 CostContract / Movement Success，仅对首次失败的Invulnerability修正测试时点、双构建后21:27单项复测Success。保留原失败与Timer Pending / 到期帧边界解释，.16观察改.18并等量缩短之后等待，正式.15参数不变；不删断言、不手动造命中、不要求重跑未变项。实机已有两次Invulnerable拒绝、普通伤害、活动P、Retry / Continue / Stop，与用户短基线合并验收，无Controller临时图或新Cook。源码和资产由用户实现，本轮仅只读核对；[C报告](Reports/M2_02C_Verification.md)及[整章](Reports/M2_02_Verification.md)无待补。累计2251 / 明确215、M2当前240 / 30，不将助手投入或单批录入速度冒充完整开发工时。
+
+2026-10-15 M2-03A采用素材层短查：预计80–140手动 / 检查5–10分钟，未计实耗。两段完整数值表先查主姿势再烘焙，LS / AS / Montage各一轮分组预览，最后正式地图约1–2分钟短基线；不把录关键帧当作验收、不临时搭角色播放图。没有C++ / 正式资产引用改动，不要求Build / 刷索引 / 跑旧Dodge或Resources / Cook。B修改共享攻击 / Trace后再触发敌人单段与Dodge真实命中相关回归，不提前把素材预览写成真实连段通过。六新资产尚未创建，来源仍51、工时2251 / 215保持。[A完整指南](M2_03A_ComboAnimationAssets.md)。
+
+2026-10-15 M2-03A实际手动50 / 等待10，独立检查未拆时；按六新素材 / 保存日志 / 不变Source与51旧资产限定范围验收。没有UE属性重读或Rig求值，名称扫描只作为引用线索；具体姿势 / 采样 / 通知数值和部分短基线按用户预览确认，不为缺少独立2 / E / P日志重跑矩阵。正式地图有旧单段攻击 / PIE清理证据，无Build / 旧测试 / Cook；[A报告](Reports/M2_03A_Verification.md)无待补。累计2301 / 明确225、M2当前290 / 40；B改共享攻击与Trace后再触发相关专项。

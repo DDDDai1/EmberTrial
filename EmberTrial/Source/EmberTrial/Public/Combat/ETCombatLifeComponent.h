@@ -31,6 +31,8 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
+    friend class FETDodgeInvulnerabilityTest;
+
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Combat Life")
     TSubclassOf<UETGA_HitReact> HitReactAbilityClass;
 
