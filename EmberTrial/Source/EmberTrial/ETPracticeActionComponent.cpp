@@ -1,5 +1,5 @@
 #include "ETPracticeActionComponent.h"
-
+#include "Characters/EmberTrialCharacter.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -86,6 +86,11 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
     if (UGameplayStatics::IsGamePaused(this))
     {
         return RejectRequest(RequestedState, TEXT("Paused"));
+    }
+
+    if (const AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(CharacterOwner.Get()))
+    {
+        if (!Body->IsFormalActionIdle()) { return RejectRequest(RequestedState, TEXT("FormalBusy")); }
     }
 
     if (RequestedState != EETPracticeActionState::Attacking

@@ -17,6 +17,7 @@
 #include "Attributes/ETHealthAttributeSet.h"
 #include "Attributes/ETStaminaAttributeSet.h"
 #include "Abilities/ETGA_LightAttack.h"
+#include "Abilities/ETGA_Dodge.h"
 #include "Abilities/ETGameplayTags.h"
 #include "GameplayAbilitySpec.h"
 #include "Combat/ETCombatTraceComponent.h"
@@ -88,11 +89,47 @@ void AEmberTrialCharacter::BeginPlay()
 	RefreshEmberAbilityActorInfo(TEXT("BeginPlay"));
 	EnsureGameplayInitialized();
 	GrantLightAttackAbility();
+    GrantDodgeAbility();
 }
 
 UAbilitySystemComponent* AEmberTrialCharacter::GetAbilitySystemComponent() const
 {
     return AbilitySystemComponent.Get();
+}
+
+void AEmberTrialCharacter::GrantDodgeAbility()
+{
+    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown || !HasAuthority() ||
+        CombatTeam != EETCombatTeam::Player || !DodgeAbilityClass || DodgeAbilityHandle.IsValid())
+    {
+        return;
+    }
+    if (DodgeAbilityClass->HasAnyClassFlags(CLASS_Abstract))
+    {
+        UE_LOG(LogETAbilityFoundation, Warning, TEXT("[M2-02A] Abstract Dodge class Body=%s"), *GetNameSafe(this));
+        return;
+    }
+    DodgeAbilityHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DodgeAbilityClass.Get(), 1, INDEX_NONE, this));
+    UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge granted Body=%s Valid=%d"),
+        *GetNameSafe(this), DodgeAbilityHandle.IsValid() ? 1 : 0);
+}
+
+bool AEmberTrialCharacter::RequestDodge()
+{
+    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown || !DodgeAbilityHandle.IsValid())
+    {
+        UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge request Body=%s Accepted=0 Reason=NotReadyOrNotGranted"), *GetNameSafe(this));
+        return false;
+    }
+    const FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(DodgeAbilityHandle);
+    if (!Spec || Spec->IsActive())
+    {
+        UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge request Body=%s Accepted=0 Reason=MissingOrBusy"), *GetNameSafe(this));
+        return false;
+    }
+    const bool bAccepted = AbilitySystemComponent->TryActivateAbility(DodgeAbilityHandle, false);
+    UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge request Body=%s Accepted=%d"), *GetNameSafe(this), bAccepted ? 1 : 0);
+    return bAccepted;
 }
 
 void AEmberTrialCharacter::GrantLightAttackAbility()
@@ -218,7 +255,8 @@ bool AEmberTrialCharacter::IsFormalActionIdle() const
         IsValid(AbilitySystemComponent) &&
         !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dead) &&
         !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) &&
-        !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_HitReact);
+            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) &&
+            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dodging);
 }
 
 bool AEmberTrialCharacter::GetGameplayHealthSnapshot(float& OutHealth, float& OutMaxHealth) const
@@ -398,6 +436,10 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
         {
             AbilitySystemComponent->ClearAbility(LightAttackAbilityHandle);
         }
+        if (DodgeAbilityHandle.IsValid())
+        {
+            AbilitySystemComponent->ClearAbility(DodgeAbilityHandle);
+        }
         AbilitySystemComponent->RemoveAllGameplayCues();
         AbilitySystemComponent->ClearActorInfo();
 
@@ -406,6 +448,7 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
             *GetNameSafe(this), static_cast<int32>(EndPlayReason));
     }
     LightAttackAbilityHandle = FGameplayAbilitySpecHandle();
+    DodgeAbilityHandle = FGameplayAbilitySpecHandle();
     Super::EndPlay(EndPlayReason);
 }
 //////////////////////////////////////////////////////////////////////////

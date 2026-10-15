@@ -319,3 +319,9 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 2026-10-15 B1验收通过，Source83 / 42cpp，五新 / 七旧实现实际存在，48资产 / 共享Config与uproject哈希保持A；按[B1报告末尾](Reports/M2_01B1_Verification.md#5-本次-commit--push固定放在最后)纳入正确目录实现与文档。旧Public / Private Effects / Resource文件仍有先前暂存记录（工作树AD），新Abilities/Effects与Resources文件未跟踪；重新Stage旧路径删除 / 新路径完整文件与测试最新内容后查看Staged Diff，避免上传旧结构。本轮HEAD4fedf14，未联网核验远端，助手不操作Git索引。
 
 [B2指南](M2_01B2_StaminaHUD.md)目前仅文档与状态更新可提交；不能提交尚不存在的四个UI新文件或Widget。用户实施后再按该页最后清单纳入Bootstrap修改、新体力Widget与Controller Class真实资产差异，实物验收时补来源清单。Raw / 生成文件 / 日志与旧包继续本地。
+
+2026-10-15 B2验收：HEAD与缓存origin/main已是8b725e5，B1 / B2实现和正确文件位置均纳入；当前索引无旧Effects / Resource路径，历史AD问题已解决。本轮未联网核验远端或LFS，不替用户Push。当前新增[B2报告](Reports/M2_01B2_Verification.md)、[01总验收](Reports/M2_01_Verification.md)、AssetManifest一行新增 / 一行Controller更新，以及状态 / 路线真实收尾，用户重新Stage这些文档即可；没有新差异的Source / uasset不重复处理。
+
+[M2-02路线](M2_02_DodgeRoadmap.md)是下一章设计，无操作代码或新资产，不标作已实现。Raw / 日志 / receipt / CodeModel与历史包本地；用户检查Staged Diff后Commit / Push。
+
+2026-10-15 M2-02A下发：当前新增[A指南](M2_02A_DodgeAction.md)与路线 / 状态文字可提交，无新Source或资产。实现完成后按A最后清单重新Stage三新 / 十旧Source、两GA / GE及玩家Class / 既有GA实际资产差异；不先Stage尚不存在的文件，不遗漏共享Practice / 两处恢复数组 / 测试 / Editor规则。CostNone / MontageNone临时配置必须恢复，不改UI / IMC / Build依赖；来源清单在实物验收更新，当前49项。Raw / 生成文件与旧包留本地，用户Commit / Push。

@@ -98,14 +98,18 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
     Same(TEXT("Second spend resets delay"), AfterSecondSpend);
     if (!Advance(4)) { return false; }
     TestTrue(TEXT("Recovery resumes after reset delay"), Value() > AfterSecondSpend);
-    ASC->AddLooseGameplayTag(ETGameplayTags::State_Attacking);
-    TestFalse(TEXT("Busy tag stops timer immediately"), Recovery->IsRecoveryScheduled());
-    const float BusyValue = Value();
-    if (!Advance(20)) { return false; }
-    Same(TEXT("Busy freezes recovery"), BusyValue);
-    ASC->RemoveLooseGameplayTag(ETGameplayTags::State_Attacking);
-    if (!Advance(4)) { return false; }
-    TestTrue(TEXT("Busy end does not pay busy duration"), Value() > BusyValue && Value() <= BusyValue + 6.2f);
+    for (const FGameplayTag Tag : {FGameplayTag(ETGameplayTags::State_Attacking),
+                                  FGameplayTag(ETGameplayTags::State_Dodging)})
+    {
+        ASC->AddLooseGameplayTag(Tag);
+        TestFalse(TEXT("Busy tag stops timer immediately"), Recovery->IsRecoveryScheduled());
+        const float BusyValue = Value();
+        if (!Advance(20)) { return false; }
+        Same(TEXT("Busy freezes recovery"), BusyValue);
+        ASC->RemoveLooseGameplayTag(Tag);
+        if (!Advance(4)) { return false; }
+        TestTrue(TEXT("Busy end does not pay busy duration"), Value() > BusyValue && Value() <= BusyValue + 6.2f);
+    }
     ApplyDelta(1000.0f);
     Same(TEXT("Recovery / restore caps at maximum"), 100.0f);
     TestFalse(TEXT("Full stops timer"), Recovery->IsRecoveryScheduled());

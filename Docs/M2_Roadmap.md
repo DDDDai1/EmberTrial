@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-10-14。前置M1与[M2-01A](Reports/M2_01A_Verification.md)已验收。**当前[B1恢复指南](M2_01B1_StaminaRecovery.md)已下发待手动实施**，B2再接体力观察 / HUD。当前实际78Source / 39cpp / 48来源、累计2071 / 190分钟不变，独立包仍M1 C3 Attempt02；B1代码仅文档，未编译或实测。
+更新2026-10-15。前置M1与[M2-01资源基础](Reports/M2_01_Verification.md)已验收。**当前[M2-02A完整操作指南](M2_02A_DodgeAction.md)待用户实施**。三新 / 十旧Source与两个GE / GA资产尚未落地，实际87Source / 44cpp / 49来源、累计2141 / 已明确200分钟不变；独立包仍M1 C3 Attempt02，尚无正式闪避成本 / 方向位移 / 无敌。
 
 ## 1. 本阶段交付
 
@@ -51,10 +51,10 @@ M1登记手动22h18不同于全项目设计 /理解总成本；不能将所有�
 
 ## 6. 下一开发入口
 
-**A与[B1恢复验收](Reports/M2_01B1_Verification.md)已完成，当前进入[B2体力显示](M2_01B2_StaminaHUD.md)。**实际83Source / 42cpp / 清单48，两项资源测试与三身体Valid、双构建 / 三索引通过；B2四新UI Source / Bootstrap两旧与单Widget尚未实施。显示沿用LocalPlayer → Presenter → Widget，不改变B1恢复。M0原型2仍无正式成本 / Tag，Dodging门控留M2-02；治疗 / Poise保持原分批安排。
+**[M2-01三批已收口](Reports/M2_01_Verification.md)，从[M2-02A第2节](M2_02A_DodgeAction.md#2-准备与文件)开始。**A采用标准固定负值Cost GE与原地GAS动作，实际Montage启动后才提交，资源不足 / 重复 / 同步回调由窄契约测试检查；角色、恢复、旧Practice与受击链同步门控。B接缓存方向 / 位移后才迁移2键，C短无敌与集成。当前仅文档，无新Source；治疗 / Poise仍留04 / 05。
 
 本路线用于范围与排期；A实施步骤保留供复查，无需重做已通过的检查。后续操作指南仍逐批给出精确路径 / 完整代码 / 装配 / 短检查和Push清单。M1复盘可作解释参考，不设新的旧功能验收门槛。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-本地4fedf14包含A主体，B1实际五新 / 七旧Source与验收文本待按差异提交；旧Effects / Resource路径曾暂存，务必重新Stage删除和正确目录文件。B2目前只有指南 / 状态设计，无B2实现或Widget可提交。B1的48资产无差异，包 / Raw / 日志本地；用户按各指南末尾清单Commit / Push，远端未联网核验。
+本地HEAD与缓存origin/main均8b725e5，B1 / B2实现已提交、旧误建路径清理；本轮不联网核验远端。新增B2 / M2-01验收、AssetManifest两行与状态 / 下一章路线按实际差异提交，无M2-02 Source或资产。包 / Raw / 日志本地，由用户Commit / Push。

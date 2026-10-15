@@ -15,4 +15,6 @@ namespace ETGameplayTags
     UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_HitReact,
         "State.HitReact", "Owned by GAS while a formal hit reaction is active.");
     UE_DEFINE_GAMEPLAY_TAG(State_Dead, "State.Dead");
+    UE_DEFINE_GAMEPLAY_TAG(Ability_Dodge, "Ability.Dodge");
+    UE_DEFINE_GAMEPLAY_TAG(State_Dodging, "State.Dodging");
 }

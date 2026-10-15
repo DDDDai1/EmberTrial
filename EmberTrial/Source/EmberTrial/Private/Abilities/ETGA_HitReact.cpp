@@ -25,6 +25,7 @@ UETGA_HitReact::UETGA_HitReact()
     ActivationBlockedTags.AddTag(ETGameplayTags::State_HitReact);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_Dead);
     CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Attack_Light);
+    CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Dodge);
 }
 
 bool UETGA_HitReact::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -66,7 +67,8 @@ void UETGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
     if (!IsValid(Character) || Character->IsCombatDead() || !IsValid(ASC) || !IsValid(HitReactMontage) ||
         !CommitAbility(Handle, ActorInfo, ActivationInfo) ||
-        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Attacking))
+        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) ||
+        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dodging))
     {
         // Do not overlap a formal attack if its cancellation is still deferred.
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);

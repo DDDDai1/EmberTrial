@@ -31,6 +31,7 @@ UETGA_LightAttack::UETGA_LightAttack()
     ActivationOwnedTags.AddTag(ETGameplayTags::State_Attacking);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_Attacking);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_HitReact);
+    ActivationBlockedTags.AddTag(ETGameplayTags::State_Dodging);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_Dead);
 }
 

@@ -91,7 +91,7 @@ void UETStaminaRecoveryComponent::StopObserving()
         ASC->GetGameplayAttributeValueChangeDelegate(
             UETStaminaAttributeSet::GetMaxStaminaAttribute()).Remove(MaxStaminaHandle);
         const FGameplayTag Tags[] = {ETGameplayTags::State_Attacking,
-            ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead};
+            ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead, ETGameplayTags::State_Dodging};
         for (int32 Index = 0; Index < ActionTagHandles.Num(); ++Index)
         {
             ASC->RegisterGameplayTagEvent(Tags[Index], EGameplayTagEventType::NewOrRemoved)
@@ -159,7 +159,7 @@ void UETStaminaRecoveryComponent::RefreshObservation()
         UETStaminaAttributeSet::GetMaxStaminaAttribute()).AddUObject(
             this, &ThisClass::HandleAttributeChanged, BoundASC, ObservationSerial);
     const FGameplayTag Tags[] = {ETGameplayTags::State_Attacking,
-        ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead};
+        ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead, ETGameplayTags::State_Dodging};
     for (const FGameplayTag Tag : Tags)
     {
         ActionTagHandles.Add(ASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved)

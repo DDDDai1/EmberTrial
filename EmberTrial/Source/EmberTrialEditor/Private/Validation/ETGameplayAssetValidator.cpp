@@ -2,6 +2,7 @@
 
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_HitReact.h"
+#include "Abilities/ETGA_Dodge.h"
 #include "Abilities/ETGameplayTags.h"
 #include "AI/ETAIController.h"
 #include "Animation/AnimMontage.h"
@@ -33,6 +34,8 @@ namespace
             {TEXT("/Game/EmberTrial/Abilities/GA_ET_LightAttack"), UETGA_LightAttack::StaticClass()},
             {TEXT("/Game/EmberTrial/Abilities/GA_ET_EnemyLightAttack"), UETGA_LightAttack::StaticClass()},
             {TEXT("/Game/EmberTrial/Abilities/GA_ET_HitReact"), UETGA_HitReact::StaticClass()},
+            {TEXT("/Game/EmberTrial/Abilities/GA_ET_Dodge"), UETGA_Dodge::StaticClass()},
+            {TEXT("/Game/EmberTrial/Abilities/Effects/GE_ET_DodgeCost"), UGameplayEffect::StaticClass()},
             {TEXT("/Game/EmberTrial/Abilities/Effects/GE_ET_LightAttackDamage"), UGameplayEffect::StaticClass()},
             {TEXT("/Game/EmberTrial/AI/Controllers/BP_ETMeleeAIController"), AETAIController::StaticClass()}
         };
@@ -153,7 +156,7 @@ void UETGameplayAssetValidator::ValidateBlueprint(UBlueprint* Blueprint, int32& 
     {
         ValidateBody(Blueprint, Defaults, Issues);
     }
-    else if (Defaults->IsA<UETGA_LightAttack>() || Defaults->IsA<UETGA_HitReact>())
+    else if (Defaults->IsA<UETGA_LightAttack>() || Defaults->IsA<UETGA_HitReact>() || Defaults->IsA<UETGA_Dodge>())
     {
         ValidateAbility(Blueprint, Defaults, Issues);
     }
@@ -163,7 +166,19 @@ void UETGameplayAssetValidator::ValidateBlueprint(UBlueprint* Blueprint, int32& 
     }
     else if (const UGameplayEffect* Effect = Cast<UGameplayEffect>(Defaults))
     {
-        ValidateDamageEffect(Blueprint, Effect, Issues);
+        if (Blueprint->GetOutermost()->GetName() == TEXT("/Game/EmberTrial/Abilities/Effects/GE_ET_DodgeCost"))
+        {
+            float Cost = 0.0f;
+            if (!UETGA_Dodge::ReadCostAmount(Effect, 1.0f, Cost))
+            {
+                AddIssue(Blueprint, TEXT("ET-DODGE-001"),
+                    TEXT("Cost GE requires Instant, one Stamina AddBase ScalableFloat in [-100,-1], no executions."), Issues);
+            }
+        }
+        else
+        {
+            ValidateDamageEffect(Blueprint, Effect, Issues);
+        }
     }
     else
     {
@@ -210,6 +225,7 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint,
         == TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter");
     if (bPlayer)
     {
+        RequireObject(Blueprint, Defaults, TEXT("DodgeAbilityClass"), TEXT("ET-DODGE-001"), Issues);
         UObject* Mapping = RequireObject(Blueprint, Defaults,
             TEXT("DefaultMappingContext"), TEXT("ET-BODY-003"), Issues);
         if (IsValid(Mapping) && Mapping->GetPathName()
@@ -279,7 +295,22 @@ void UETGameplayAssetValidator::ValidateAbility(UBlueprint* Blueprint,
         AddIssue(Blueprint, TEXT("ET-GA-002"),
             TEXT("Formal abilities require InstancedPerActor / ServerOnly for current standalone design."), Issues);
     }
+    if (Defaults->IsA<UETGA_Dodge>())
+    {
+        ValidateMontage(Blueprint, Cast<UAnimMontage>(RequireObject(Blueprint, Defaults,
+            TEXT("DodgeMontage"), TEXT("ET-GA-001"), Issues)), Issues);
+        UClass* CostClass = Cast<UClass>(RequireObject(Blueprint, Defaults,
+            TEXT("CostGameplayEffectClass"), TEXT("ET-DODGE-001"), Issues));
+        float Cost = 0.0f;
+        if (CostClass && !UETGA_Dodge::ReadCostAmount(CostClass->GetDefaultObject<UGameplayEffect>(), 1.0f, Cost))
+        {
+            AddIssue(Blueprint, TEXT("ET-DODGE-001"), TEXT("Invalid Dodge Cost GE; use one negative fixed Stamina modifier."), Issues);
+        }
+        return;
+    }
+
     const bool bAttack = Defaults->IsA<UETGA_LightAttack>();
+
     ValidateMontage(Blueprint, Cast<UAnimMontage>(RequireObject(Blueprint, Defaults,
         bAttack ? TEXT("AttackMontage") : TEXT("HitReactMontage"), TEXT("ET-GA-001"), Issues)), Issues);
     if (!bAttack) { return; }

@@ -18,6 +18,7 @@ class UAbilitySystemComponent;
 class UETHealthAttributeSet;
 class AEmberTrialCharacter;
 class UETGA_LightAttack;
+class UETGA_Dodge;
 class UETCombatTraceComponent;
 class UETCombatLifeComponent;
 class UETStaminaAttributeSet;
@@ -113,6 +114,12 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 
 	void GrantLightAttackAbility();
 
+	UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Abilities")
+	TSubclassOf<UETGA_Dodge> DodgeAbilityClass;
+
+	FGameplayAbilitySpecHandle DodgeAbilityHandle;
+	void GrantDodgeAbility();
+
 	void SetGameplayReady(bool bNewReady);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Combat",
@@ -146,6 +153,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
 	bool RequestLightAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
+	bool RequestDodge();
 
 	FGameplayAbilitySpecHandle GetLightAttackSpecHandle() const;
 

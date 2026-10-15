@@ -1,6 +1,6 @@
 # 当前开发状态
 
-更新2026-10-15。**[M2-01B1已验收](Reports/M2_01B1_Verification.md)，当前[B2体力显示指南](M2_01B2_StaminaHUD.md)待用户手动实施。**B1五新 / 七旧Source、双构建 / 三索引、两资源测试Success / 三身体Valid与短PIE通过。当前实际83Source / 42cpp / 清单48，累计手动2111 / 已明确等待195分钟；独立包仍M1 C3 Attempt02。B2计划四新UI Source / Bootstrap两旧、一个Widget，代码仅文档，未编译 / 创建资产。
+更新2026-10-15。**[M2-01已收口](Reports/M2_01_Verification.md)，当前[M2-02A完整指南](M2_02A_DodgeAction.md)待用户手动实施。**A计划三新 / 十旧Source、标准Cost GE / 原地GAS动作、恢复与旧入口互斥及窄测试，代码仅文档。实际87Source / 44cpp / 清单49，累计手动2141 / 已明确等待200分钟不变；独立包仍M1 C3 Attempt02，无正式方向位移 / 无敌。
 
 ## 当前阶段
 
@@ -8,7 +8,7 @@
 
 **M1-04C2历史时序缺口已关闭。**19:53:24.529 WindowOpen，19:53:39.113死亡提交 → WindowClose(AttackEnd) → Disarm.Tick0 → 当前能力Cancelled1 / AttackingTag0 → Death sealed；结束Dead Tag Remaining0。助手当时经授权使用slomo0.01等待日志确认后按4并恢复1，随后保存100/100与Debug False。此为历史证据，不是本次接管；正式重试与当前阶段包随后已完成，冻结姿势表现后续完善。
 
-**当前操作：[B2完整指南](M2_01B2_StaminaHUD.md)，从第2节准备开始。**四新 / Bootstrap两旧Source继续手动实现，复制现有生命Widget后按精确名称 / 新父类配置一份体力面板；检查5–15分钟，复用B1命令和正式Retry / 返回菜单，不搭临时Controller图。当前原2仍无正式成本 / Tag，其播放期间可恢复，M2-02迁移时增加闪避门控；B2尚无实物，现有面板仍只显示生命，没有M2新Cook。
+**当前操作：[M2-02A](M2_02A_DodgeAction.md)，从第2节准备开始。**三新 / 十旧Source与两个资产按指南手动完成；新动作先经ke角色请求，原2保持原型到B位移可用后迁移。A检查10–15分钟，复用三项长期测试并新增一项成本契约测试；没有临时Controller图。当前代码 / 资产尚未创建，没有新Build / 测试Success或M2新Cook。
 
 - 工作区：`E:\UE_Project\Demo`。
 - 实际 UE 工程：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，已存在。
@@ -215,3 +215,9 @@ C2实施反馈：用户全项报告完成，手动25分钟（代码10 / 资产10
 2026-10-15 M2-01B1验收：用户13:27全项通过，手动40 / 等待5。五新文件与指南匹配、七旧文件仅指定接入，另外71旧Source不变；实际83 / 42 / 清单48，资产与Config / uproject / 历史Attempt02保持。Editor / Game receipt13:16:50 / 13:18:49、Game12动作55.12秒，最新Editor up-to-date，三CodeModel42cpp且正确Effects / Resources路径。13:23:19两项资源Success，三身体Valid；两轮PIE各三次观察 / 清理，实际-25至75、延迟后恢复满值停表、未满Stop与新100有直接日志。暂停命令 / E等无独立打印样本部分按用户反馈，自动测试另有暂停时钟 / 资源断言支持，不追加旧功能矩阵。[报告](Reports/M2_01B1_Verification.md)无待补；累计2111 / 明确195分钟，M2当前100 / 10。此前文件移动与三include修正属于当次明确授权，本轮只读验收，无新Source / Build / 游戏操作。
 
 2026-10-15 B2指南已准备：四新UI Source / Bootstrap两旧、一个体力Widget，计划60–100手动、检查5–15分钟；复用B1命令与正式Retry / 返回菜单，不新增临时Controller图或重跑未受影响资源测试。通用BindWidget校验无需Editor改动；常规数值事件用Verbose，无新增Tick / 轮询。代码与资产尚未实施，预计87 / 44 / 清单新增项不写成当前实物；工时不变。当前操作见[B2](M2_01B2_StaminaHUD.md)，正式成本 / Dodging仍留M2-02。
+
+2026-10-15 B2 / M2-01收口：用户14:12全项完成，手动30 / 等待5；四新UI文件与Bootstrap两旧接入均匹配指南，其余81份Source保持B1。实际87 / 44 / 来源49，新增体力Widget / 更新Controller Class两项清单，旧HealthHUD及其他47旧资产不变；Core / 恢复 / 测试 / 依赖 / Config / 历史包保持。Editor13:59:34 / Game14:01:36，Game9动作40.17秒，三CodeModel44cpp。控件改名阶段31条Error至14:04:43，14:08:14与14:09:14最终Valid后无运行错误；四世界体力View订阅 / 清理与Presenter停止闭合。真实-25 / 恢复满值、Pause / Resume、死亡Retry与返回菜单有日志，Continue无独立请求样本按用户反馈，不用新Session替代证据。资源测试未重跑，复用B1；不补旧UI矩阵。[B2报告](Reports/M2_01B2_Verification.md)与[M2-01总验收](Reports/M2_01_Verification.md)无待补；M2-01实际130 / 15，累计2141 / 明确200分钟。HEAD / 缓存origin/main均8b725e5，旧误建路径已清理，远端未联网核验。本轮只维护文档 / 清单，无Source / uasset / Build或游戏操作。
+
+下一章[M2-02路线](M2_02_DodgeRoadmap.md)分A动作 / 成本、B方向位移 / 输入、C无敌 / 集成；A完整代码尚未下发，不按路线先建空类。M2仍基础65h，02分配12h不变，不用130分钟手动登记推算后续工程成本。
+
+2026-10-15 M2-02A指南下发：三新 / 十旧Source、两新GA / Cost GE，完整代码和25处精确替换已在文档；预计90–150手动 / 相关检查10–15分钟，未计实耗。核对标准GAS成本接口后采用独立固定负值Cost GE，默认-25、允许1–100点；原生SetByCaller增量GE继续恢复 / 开发注入。实际Montage启动实例验证后才CommitAbility，ApplyCost在父类应用前设置本次幂等标记；动画取消 / 提交保护与旧Practice / 正式动作 / 恢复Tag同步列出。新增CostContract只验证真实Cost GE与受保护成本方法，不冒充Montage端到端；复用两资源测试并扩Dodging、旧Practice入口改变触发Lifecycle一次。A先经角色RequestDodge的ke入口，原2保留到B；没有方向位移 / 无敌。当前实际87 / 44 / 49、累计2141 / 200不变，未写Source、Build / 运行测试或Git操作。[A指南](M2_02A_DodgeAction.md)从第2节开始。

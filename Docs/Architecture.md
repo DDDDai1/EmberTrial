@@ -164,7 +164,7 @@ C3当前包保持身体ASC / 原生默认属性集、Controller流程、LocalPla
 
 后续[A实测](Reports/M2_01A_Verification.md)已通过：原生命默认子对象身份保持，新体力属性集及成功标记 / Ready已经接入；运行非法初值不会部分初始化生命，Base / Current夹限与换控保持由真实GE测试验证，零体力仍Ready / 非死亡。当前78Source / 39cpp / 清单48；Editor ET-BODY-004正常资产通过，未另测其负例。没有新常驻Tick、资源恢复 / 成本 / Widget轮询；后续恢复与观察分批引入。旧C3包不包含本批实现。
 
-## 13. M2-01B：B1已实施，B2待实施
+## 13. M2-01B：恢复与体力UI均已实施
 
 [B1指南](M2_01B1_StaminaRecovery.md)计划由身体原生StaminaRecovery组件拥有恢复计时器与ASC订阅：实际降低后0.75世界秒延迟、20点每秒、0.10秒采样，只在缺额且正式空闲时计时；按World经过时间积分，极小不可表示的float增量继续累积。正式Attacking / HitReact / Dead Tag事件与Ready清理为边界，观察序号 / 消耗修订号防同步重入的旧收尾。原生Instant StaminaDelta GE只承载增量，能力成本事务仍由未来Ability实现。
 
@@ -172,4 +172,12 @@ PIE开发命令在游戏Controller内，但修改限编辑器PIE / 当前Ready�
 
 当前M0原型2没有正式Tag / 成本，本批不依赖Practice组件，也不承诺其播放阻断恢复；M2-02正式迁移时将Dodging加入身体门控及恢复Tag订阅。后续[B1验收](Reports/M2_01B1_Verification.md)已通过：实际83 / 42 / 48，五新文件与指定接入匹配、两项资源Success、三正式身体Valid和双构建 / 三索引；本节前述恢复设计已落地，原包仍M1。
 
-[B2指南](M2_01B2_StaminaHUD.md)计划新增独立只读StaminaPresenter / HUD，Bootstrap强持有Presenter与当前View、View弱引用Presenter；复用LocalPlayer当前Pawn观察、Ready及两属性订阅。观察序号拒绝旧轮回调，快照去重并广播副本；View晚加入先订阅再快照，结束先停View再停Presenter。四新 / Bootstrap两旧与单Widget仅在文档，不修改已通过Core / 恢复、旧Health UI或Editor通用控件规则，无新增Tick / UI轮询。
+[B2实现及验收](Reports/M2_01B2_Verification.md)已完成：独立只读StaminaPresenter / HUD，Bootstrap强持有Presenter与当前View、View弱引用Presenter；复用LocalPlayer当前Pawn观察、Ready及两属性订阅。观察序号拒绝旧轮回调，快照去重并广播副本；View晚加入先订阅再快照，结束先停View再停Presenter。四新 / Bootstrap两旧与单Widget落地，实际87 / 44 / 清单49；Core / 恢复、旧Health UI与Editor通用控件规则不变，无新增Tick / UI轮询。四世界生命周期闭合；本次未逐项实测的换Pawn / 独立View重建保留为静态审查边界。
+
+[M2-01总验收](Reports/M2_01_Verification.md)已收口。下一章[正式闪避路线](M2_02_DodgeRoadmap.md)计划让Ability拥有动作与一次成本、位移单独拥有Source / Task、无敌窗口拥有自己的Tag / Timer；尚未创建这些实现，不能把资源GE夹限等同成本拒绝。A操作指南待下发，原2保持M0原型，旧包仍M1。
+
+## 14. M2-02A设计下发（尚未实施）
+
+[A完整指南](M2_02A_DodgeAction.md)由GAS Ability拥有Montage Task、Owned Dodging与本次成本提交；实际实例启动后才调用CommitAbility，取消先解绑Task回调再由GAS结束Task / Tag。成本采用独立Instant Stamina Add(Base)固定负值GE，标准CheckCost复核支付能力，ApplyCost幂等标记在同步属性事件前置位；支付失败取消，不通过退款掩盖顺序问题。标准接口声明const，mutable字段仅为本次尝试状态，真实体力仍在ASC属性集。
+
+Character授予 / 请求与EndPlay清Handle，正式Idle / Attack / Practice互斥及HitReact取消链同步扩展；恢复订阅 / 解绑数组都增加Dodging，原有积分 / 生命周期保持。Runtime与Editor共用成本Schema读取，Editor新增两个精确资产Profile，旧Health伤害规则不套成本GE。CostContract在临时世界用已授予实例与真实GE检查付款 / 不足 / 重入，未启动Montage；动画失败 / 真实取消仍需短PIE及后续集成。三新 / 十旧Source与两资产仅在文档，实际87 / 44 / 49不变；UI无需改动，B方向位移和C无敌后续接入。
