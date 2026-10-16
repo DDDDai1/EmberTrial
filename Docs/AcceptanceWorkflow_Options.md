@@ -249,6 +249,10 @@ B2沿用同一方案：预计60–100手动 / 相关检查5–15，界面复制�
 
 2026-10-16 M2-03B按方案B下发：[完整指南](M2_03B_LightCombo.md)预算120–210手动，相关检查10–15分钟，均未计实耗。新增一项Combo.Flow，复用旧Dodge.Invulnerability；未变资源 / Practice / 位移不重跑旧矩阵，也不搭临时Controller图。Flow用真实保存Montage / Notify / Sweep / GE覆盖单次、过早过期、一槽多点只多一段、1→2→3 / 无第四段、Pause与取消 / 死亡 / EndPlay；旧窗口 / Serial与保留已结束Task的迟到回调用负向注入验证隔离，不伪造成功命中。夹具让目标跟随手部隔离动作几何，真实站位命中、输入与画面由10–15分钟实机短查补充，不能当作AI或性能证明。两项Success必须实际运行获得，当前只有静态检查，96 / 50 / 57与累计2301 / 等待225保持；无新Cook。
 
+2026-10-16 B按方案B验收：实际50 / 等待5，独立检查未拆；九份实现与候选一致、双构建 / 索引 / 两项Success、正式三段各25和敌人单段10 / 清理有直接证据。额外旧共用AM重存通过导出数据逐字节对照确定无业务数据变化，不为头 / 缩略图区重采旧矩阵；报告如实记录不同SHA。累计2351 / 明确230、M2为340 / 45；[B报告](Reports/M2_03B_Verification.md)无待补。
+
+2026-10-16 C继续方案B：[指南](M2_03C_RecoveryDodgeCancel.md)预算90–150手动 / 相关检查10–15，未计实耗。一项新RecoveryDodge驱动三段恢复交接、预检失败保留原攻击、待切段被2取消、Pause / 受击 / 死亡 / EndPlay；复用Flow与Invulnerability，不重跑未变资源 / Practice / 位移矩阵或新Cook。手动不改非法GA / 临时体力函数、不赶精确窗口，沿旧输入 / 正式交战 / Retry / Stop短流程；EndPlay按UE延迟RMS移除协议检查，不用不可能的立即容器为空断言。当前只有静态候选，无新Success或助手Build / 测试。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-本流程说明随[B指南](M2_03B_LightCombo.md)提交；实施文件与真实资产差异按该指南最后清单，由用户在CLion重新Stage / Commit / Push。Raw证据 / 脚本 / 日志、生成产物与历史包留本地，未运行的测试不登记通过。
+当前随B报告 / 来源58项与C新指南提交本流程更新；实施文件按[C末尾](M2_03C_RecoveryDodgeCancel.md#11-本批-commit--push固定放在最后)由用户重新Stage / Commit / Push。Raw证据 / 脚本 / 日志、生成产物与历史包本地，未运行的C测试不登记通过。

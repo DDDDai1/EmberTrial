@@ -228,9 +228,40 @@ bool UETGA_LightAttack::CanAcceptComboInput() const
         ASC->GetCurrentMontage()==ActiveMontage && Instance && Instance->GetInstanceID()==ActiveMontageInstanceID;
 }
 
+bool UETGA_LightAttack::CanCancelIntoDodge() const
+{
+    if (!IsActive() || !CanBeCanceled() || !bEnableCombo || !CurrentActorInfo ||
+        bStartingStage || bEndingAttack || !RuntimeStages.IsValidIndex(ActiveStageIndex)) { return false; }
+    const AEmberTrialCharacter* Body=Cast<AEmberTrialCharacter>(CurrentActorInfo->AvatarActor.Get());
+    const APlayerController* PC=IsValid(Body) ? Cast<APlayerController>(Body->GetController()) : nullptr;
+    UAbilitySystemComponent* ASC=CurrentActorInfo->AbilitySystemComponent.Get();
+    const UAnimInstance* Anim=CurrentActorInfo->GetAnimInstance();
+    const FAnimMontageInstance* Instance=IsValid(Anim) && IsValid(ActiveMontage)
+        ? Anim->GetActiveInstanceForMontage(ActiveMontage) : nullptr;
+    if (!IsValid(Body) || Body->IsActorBeingDestroyed() || !Body->IsGameplayReady() ||
+        Body->IsCombatDead() || !Body->HasAuthority() || Body->GetCombatTeam()!=EETCombatTeam::Player ||
+        !IsValid(PC) || !PC->IsLocalController() || PC->GetPawn()!=Body || PC->IsMoveInputIgnored() ||
+        CurrentActorInfo->OwnerActor.Get()!=Body || Body->GetAbilitySystemComponent()!=ASC ||
+        !IsValid(ASC) || UGameplayStatics::IsGamePaused(Body) || ASC->GetAnimatingAbility()!=this ||
+        ASC->GetCurrentMontage()!=ActiveMontage || !Instance ||
+        Instance->GetInstanceID()!=ActiveMontageInstanceID ||
+        Anim->GetCurrentActiveMontage()!=ActiveMontage || !Anim->Montage_IsPlaying(ActiveMontage)) { return false; }
+    float HitEnd=0.0f;int32 Hits=0;
+    for (const FAnimNotifyEvent& Event : ActiveMontage->Notifies)
+    {
+        if (IsValid(Event.NotifyStateClass) && Event.NotifyStateClass->IsA<UETANS_AttackWindow>())
+        { ++Hits;HitEnd=Event.GetTime()+Event.GetDuration(); }
+    }
+    const float Position=Instance->GetPosition();
+    const float RecoveryEnd=ActiveMontage->GetPlayLength()-ActiveMontage->BlendOut.GetBlendTime();
+    return Hits==1 && FMath::IsFinite(HitEnd) && FMath::IsFinite(Position) &&
+        FMath::IsFinite(RecoveryEnd) && HitEnd>0.0f && Position>=HitEnd && Position<RecoveryEnd;
+}
+
 void UETGA_LightAttack::ClearBufferedInput()
 {
-    bHasBufferedInput=false;BufferedInputExpiresAt=0.0;
+    bHasBufferedInput=false;
+    BufferedInputExpiresAt=0.0;
 }
 
 bool UETGA_LightAttack::TryBufferComboInput()

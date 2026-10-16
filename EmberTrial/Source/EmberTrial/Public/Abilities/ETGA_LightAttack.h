@@ -36,6 +36,7 @@ public:
     bool IsComboEnabled() const { return bEnableCombo; }
     bool HasValidComboConfiguration() const;
     bool TryBufferComboInput();
+    bool CanCancelIntoDodge() const;
     void HandleComboWindow(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
         int32 MontageInstanceID, UAnimNotifyState* WindowToken, bool bOpen);
 
@@ -56,6 +57,7 @@ protected:
 
 private:
     friend class FETLightComboFlowTest;
+    friend class FETLightComboCancelTest;
 
     UPROPERTY(EditDefaultsOnly, Category="EmberTrial|Attack")
     TObjectPtr<UAnimMontage> AttackMontage;

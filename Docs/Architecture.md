@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本1.1；更新2026-10-16。**[M2-03B完整指南已下发](M2_03B_LightCombo.md)，待用户手动实施。**[A素材已验收](Reports/M2_03A_Verification.md)，无需补查。当前96Source / 50cpp / 来源57项、正式左键仍单段；B计划三新 / 六旧Source和独立第1段Montage，实施后预计99 / 52 / 58。本轮只写文档并静态核对，无UE Build / 测试或实现改动，累计2301 / 明确等待225分钟保持；独立包仍M1 C3 Attempt02。 Core / UI两个Runtime及一个Editor模块保持。
+版本1.1；更新2026-10-16。**[M2-03B已验收](Reports/M2_03B_Verification.md)，无待补项；[M2-03C完整指南已下发](M2_03C_RecoveryDodgeCancel.md)，待用户手动实施。**实际99Source / 52cpp / 来源58项，正式三段攻击 / 单槽缓冲成立，攻击中2仍拒绝。C计划一新 / 七旧Source，预计100 / 53 / 58；本轮没有代改工程或执行UE Build / 测试。B手动50 / 等待5，累计2351 / 明确等待230分钟；独立包仍M1 C3 Attempt02。 Core / UI两个Runtime及一个Editor模块保持。
 
 ## 1. 模块边界
 
@@ -196,22 +196,30 @@ Ability记录弱ASC与本次ActiveEffect Handle；应用GE可能同步触发取�
 
 新测试使用真实保存Montage / Notify / Sweep / 伤害GE与正式受击，覆盖窗口内拒绝、窗口结束后受击、同次去重、同步取消、外来保护、Pause / 死亡 / EndPlay；未伪造HitResult或直接广播Trace回调。三新 / 八旧已落地，96 / 50 / 51，双构建 / 索引50成立；两旧Dodge测试Success复用，新测试修正观察时点后单项Success，原GE仍.15。实机两次真实保护、普通伤害、活动暂停及Retry / Continue有直接证据，[C验收](Reports/M2_02C_Verification.md)无待补。没有新增常驻组件 / Tick / Timer / Build依赖；51资产字节保持B，不宣称任意GE全局免疫、子帧精度或M2新包已完成。
 
-## 17. M2-03连段规划与素材边界（未实施）
+## 17. M2-03分批设计与素材基线
 
-[分批路线](M2_03_LightComboRoadmap.md)选择由现有LightAttack能力拥有玩家整条链，保留敌人默认单段；共享真实伤害 / 无敌策略。计划小型段配置数组、单个有限时输入、当前Montage / Notify身份与段代次推进，每段重开Trace Serial，统一取消清理；不另建重复伤害系统或全局队列。B完整指南现已下发，C代码后续；此段仍是设计，尚不是当前Source行为。
+[分批路线](M2_03_LightComboRoadmap.md)选择由现有LightAttack能力拥有玩家整条链，保留敌人默认单段；共享真实伤害 / 无敌策略。计划小型段配置数组、单个有限时输入、当前Montage / Notify身份与段代次推进，每段重开Trace Serial，统一取消清理；不另建重复伤害系统或全局队列。B已实现并通过验收，C恢复取消指南下发但未实施；按后面各节区分当前实现和下一步候选。
 
 [A当前只做素材](M2_03A_ComboAnimationAssets.md)：独立第2 / 3段LS / AS / Montage共6资产，复用已知FK姿势值改变顺序 / 时序；原第1段与敌人 / Dodge测试引用保持。没有Source / GA / 输入 / AnimBP改动，不为素材预览搭验收图或重跑旧测试。A下发时为96 / 50 / 清单51，实物验收后已57；新骨骼插值 / 蒙皮与烘焙需要用户预览，未声称新Rig求值或正式连段完成。
 
 M2-03A素材验收补充：六份独立LS / AS / AM已落地，来源57，Source仍96 / 50，旧共享Montage / GA / 输入 / Rig哈希保持。新蒙太奇对应AS / Slot / Notify名称线索与保存记录已核对，姿势 / 通知具体值由用户预览确认；未在UE读取完整属性。正式连段与缓冲仍属于B，当前没有新的Gameplay状态或模块变更。[A验收](Reports/M2_03A_Verification.md)。
 
-## 18. M2-03B候选代码边界（待用户实施）
+## 18. M2-03B三段与缓冲（已验收）
 
 [完整指南](M2_03B_LightCombo.md)扩展现有LightAttack，保留旧配置字段与真实伤害 / 阵营 / 无敌路径。玩家显式启用两份FollowUp，敌人默认关闭；新独立AM01复用旧AS，旧共用Montage不加玩家连段通知。Character将活动输入交给同一能力，不重复TryActivate；没有额外组件 / 全局队列 / 常驻Tick或新Build依赖。
 
 Ability持有当前Montage Task、激活 / 段代次、一条带到期世界时间的输入与待切段Timer。NotifyState无角色状态，只转发Mesh / Montage实例 / 窗口Token；有效窗口内消费后延后调度并复核身份，每段复用原Trace分配新Serial与去重集合。End / Cancel先使旧身份无效，再解绑、EndTask、撤销已结束Task的Ability指针并停止属于旧身份的Montage；防御动画队列中的旧委托副本和停止时同步重入。不能对活动Task直接清归属或修改引擎代码。
 
-新Flow临时世界使用保存的Montage / Notify / Sweep / 伤害GE，并将目标放在当前手部附近隔离几何，检查三段真实扣血、缓冲、取消 / Pause / 死亡 / EndPlay。旧Notify / Serial / 已结束Task回调是负向注入，不伪造正向命中；该夹具不证明AI寻路、自然站位命中范围、表现质量或硬件性能。两项自动化尚未运行，无B Success；当前Source96 / cpp50 / 清单57保持，计划99 / 52 / 58。
+新Flow临时世界使用保存的Montage / Notify / Sweep / 伤害GE，并将目标放在当前手部附近隔离几何，检查三段真实扣血、缓冲、取消 / Pause / 死亡 / EndPlay。旧Notify / Serial / 已结束Task回调是负向注入，不伪造正向命中；该夹具不证明AI寻路、自然站位命中范围、表现质量或硬件性能。两项实际Success与正式PIE三段各25已核对，[B验收](Reports/M2_03B_Verification.md)通过；实际99 / 52 / 58。旧共享AM虽重存，导出数据与A旧LFS对象相同，已记录包头 / 缩略图区差异。
 
-## 19. 本批 Commit / Push（固定放在最后）
+## 19. M2-03C恢复交接候选（待用户实施）
 
-当前仅[B指南](M2_03B_LightCombo.md)与状态 / 设计文档变动。手动实施后按其最后清单Stage三新 / 六旧、独立AM01及真实配置差异；Raw / 生成文件 / 包本地。Git由用户操作，未编译或实施的候选不写成已交付。
+[C指南](M2_03C_RecoveryDodgeCancel.md)让原LightAttack提供纯查询：玩家当前实例 / 控制权与Montage身份一致、可取消、当前播放位置处于唯一命中通知结束至自动淡出前。Dodge保留完整成本 / 冷却 / 地面 / RMS / 输入 / 配置门控，仅该恢复状态允许与Attacking共存；移除硬阻断后由原生CanActivate约束，不全局放开动作。
+
+通过ASC正常TryActivate预检后，GAS PreActivate使用CancelAbilitiesWithTag取消Ability.Attack.Light；旧能力清自己的Trace / Task / 输入 / Timer，新Dodge再核对交接完成后准备原Montage / RMS、提交一次25和原.15保护。预检失败不取消原攻击；底层准备或提交期异常发生在交接之后时不恢复旧攻击，已付取消不退款。无需Character先Cancel、TagCount手调、新Notify / Timer / UI状态或第二套位移逻辑。
+
+一新测试 / 七旧Source预计100 / 53 / 58；保存的GA标签由公共策略谓词与ET-DODGE-004校验，避免蓝图旧默认值覆盖原生新策略。新RecoveryDodge真实驱动三段交接、失败保留、待切段清除、Pause / 受击 / 死亡 / EndPlay；结束世界只断言自己的RMS已标记移除 / Task释放，不要求EndPlay后容器立即为空。此为静态候选，无C Build / Success；正式实现仍B。
+
+## 20. 本批 Commit / Push（固定放在最后）
+
+本设计随B验收 / 来源58项与C指南提交；C手动实施后按其末尾清单重新Stage一新 / 七旧、Dodge / 角色真实差异和更新来源。Raw / 生成文件 / 包本地，Git由用户操作，不提前记录实现或测试通过。

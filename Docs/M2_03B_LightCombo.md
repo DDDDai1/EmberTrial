@@ -1,8 +1,8 @@
 # M2-03B：三段轻攻击、单槽输入缓冲与独立命中
 
-2026-10-16，固定 **UE5.5.4**。前置[A素材已验收](Reports/M2_03A_Verification.md)，[分批路线](M2_03_LightComboRoadmap.md)。**本批只有文档候选，尚未写入工程Source / 资产，也未Build / 运行新测试。**当前96Source / 50cpp / 来源57项；本批三新 / 六旧Source，实施后预计99 / 52。新建一份独立第1段Montage，来源预计58；既有GA玩家与第2段Montage会有配置差异。
+2026-10-16，固定 **UE5.5.4**。**本批已按用户13:26反馈与源码 / 构建 / 日志核对验收通过，无待补项。**实际99Source / 52cpp / 来源58项，手动50 / 等待5；[B报告](Reports/M2_03B_Verification.md)记录两Success、正式三段各25与旧共用AM重存差异。下方原操作步骤保留供复查，无需重复执行；下一[C指南第2节](M2_03C_RecoveryDodgeCancel.md#2-准备与文件清单)。
 
-全部C++仍由你手动录入。预计手动 **120–210分钟**：代码 / 理解80–145、资产装配20–35、相关检查10–15、保存记录5–10；构建等待另列，可分两次完成。预算不计实耗，不要求做满。
+原下发预算（非当前待办）：手动 **120–210分钟**：代码 / 理解80–145、资产装配20–35、相关检查10–15、保存记录5–10；构建等待另列，可分两次完成。预算不计实耗，不要求做满。
 
 ## 1. 本批结果与责任
 
@@ -1344,3 +1344,5 @@ slomo1 / 原数值 / Debug False、Source资产Save All：
 - .25 / 25 / 10 / 100、Dodge.15 / 150 / .30 / Cost25、slomo1 / Debug False恢复后Save All。Raw / 日志 / Binaries / Intermediate / Saved、生成CMake / IDE缓存与历史包仍本地，不Force Add，不修改全局Git设置。
 
 CLion刷新Changes → 重新Stage本批完整Source / 新Montage / 真实资产差异 / 最新文档 → 检查Staged Diff → Commit → Push。可用`feat: add three-stage light combo with bounded input buffer`；仅指南用`docs: prepare light combo runtime guide`。仍由用户操作Git；B通过不代表C恢复闪避取消或整个M2-03已完成，当前仅指南下发。
+
+验收后Git更新：B主体已纳入9a0cf14，HEAD / 缓存origin一致，远端未联网核验。当前提交B报告 / 来源58项 / 已验收状态与C指南；一新AM01及三新 / 六旧Source无需重复制造差异。具体收尾以[B报告末尾](Reports/M2_03B_Verification.md#5-本次-commit--push固定放在最后)为准。

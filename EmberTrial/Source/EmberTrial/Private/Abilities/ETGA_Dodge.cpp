@@ -1,4 +1,5 @@
 #include "Abilities/ETGA_Dodge.h"
+#include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGameplayTags.h"
 #include "Abilities/Effects/ETDodgeInvulnerabilityEffect.h"
 #include "UObject/UObjectGlobals.h"
@@ -30,7 +31,9 @@ UETGA_Dodge::UETGA_Dodge()
     SetAssetTags(AssetTags);
     ActivationOwnedTags.AddTag(ETGameplayTags::State_Dodging);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_Dodging);
-    ActivationBlockedTags.AddTag(ETGameplayTags::State_Attacking);
+    // The native CanActivateAbility gate permits only our player's recovery window.
+    // GAS executes this cancellation only after all activation prechecks pass.
+    CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Attack_Light);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_HitReact);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_Dead);
 }
@@ -145,29 +148,43 @@ void UETGA_Dodge::ApplyCost(const FGameplayAbilitySpecHandle Handle,
     Super::ApplyCost(Handle, ActorInfo, ActivationInfo);
 }
 
+bool UETGA_Dodge::HasValidRecoveryCancelPolicy() const
+{
+    return CancelAbilitiesWithTag.Num()==1 &&
+        CancelAbilitiesWithTag.HasTagExact(ETGameplayTags::Ability_Attack_Light) &&
+        !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Attacking) &&
+        ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dodging) &&
+        ActivationBlockedTags.HasTagExact(ETGameplayTags::State_HitReact) &&
+        ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dead);
+}
+
 bool UETGA_Dodge::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
     const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
-    if (!ActorInfo || !CheckCost(Handle, ActorInfo, OptionalRelevantTags) ||
+    if (!ActorInfo || !HasValidRecoveryCancelPolicy() ||
+        !CheckCost(Handle, ActorInfo, OptionalRelevantTags) ||
         !Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-    {
-        return false;
-    }
-    AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get());
-    APlayerController* PC = IsValid(Body) ? Cast<APlayerController>(Body->GetController()) : nullptr;
-    UCharacterMovementComponent* Movement = IsValid(Body) ? Body->GetCharacterMovement() : nullptr;
-    const UETPracticeActionComponent* Practice = IsValid(Body)
+    { return false; }
+    AEmberTrialCharacter* Body=Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get());
+    APlayerController* PC=IsValid(Body) ? Cast<APlayerController>(Body->GetController()) : nullptr;
+    UCharacterMovementComponent* Movement=IsValid(Body) ? Body->GetCharacterMovement() : nullptr;
+    const UETPracticeActionComponent* Practice=IsValid(Body)
         ? Body->FindComponentByClass<UETPracticeActionComponent>() : nullptr;
-    UAnimInstance* Anim = ActorInfo->GetAnimInstance();
-    return IsValid(Body) && Body->GetCombatTeam() == EETCombatTeam::Player &&
-        IsValid(PC) && PC->IsLocalController() && PC->GetPawn() == Body && !PC->IsMoveInputIgnored() &&
-        Body->IsFormalActionIdle() && (!Practice || Practice->IsPracticeActionIdle()) &&
+    UAbilitySystemComponent* ASC=ActorInfo->AbilitySystemComponent.Get();
+    const FGameplayAbilitySpec* AttackSpec=IsValid(Body) && IsValid(ASC)
+        ? ASC->FindAbilitySpecFromHandle(Body->GetLightAttackSpecHandle()) : nullptr;
+    const UETGA_LightAttack* Attack=AttackSpec && AttackSpec->IsActive()
+        ? Cast<UETGA_LightAttack>(AttackSpec->GetPrimaryInstance()) : nullptr;
+    const bool bRecovery=IsValid(Attack) && Attack->CanCancelIntoDodge();
+    UAnimInstance* Anim=ActorInfo->GetAnimInstance();
+    return IsValid(Body) && Body->GetCombatTeam()==EETCombatTeam::Player &&
+        IsValid(PC) && PC->IsLocalController() && PC->GetPawn()==Body && !PC->IsMoveInputIgnored() &&
+        (Body->IsFormalActionIdle() || bRecovery) && (!Practice || Practice->IsPracticeActionIdle()) &&
         IsValid(Movement) && Movement->IsMovingOnGround() && !Movement->HasRootMotionSources() &&
         !Body->GetVelocity().ContainsNaN() && HasValidMovementConfiguration() &&
-        HasValidInvulnerabilityConfiguration() &&
-        !Body->GetDodgeWorldDirection().IsNearlyZero() &&
-        IsValid(Anim) && !Anim->GetCurrentActiveMontage();
+        HasValidInvulnerabilityConfiguration() && !Body->GetDodgeWorldDirection().IsNearlyZero() &&
+        IsValid(Anim) && (!Anim->GetCurrentActiveMontage() || bRecovery);
 }
 
 void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -175,6 +192,7 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     const FGameplayEventData* TriggerEventData)
 {
     (void)TriggerEventData;
+    if (!IsActive()) { return; } // PreActivate cancellation may synchronously end us.
     const uint32 Serial = ++ActivationSerial;
     bCostSubmitted = false;
     AEmberTrialCharacter* Body = ActorInfo ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
@@ -184,8 +202,13 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     float Cost = 0.0f;
     const FVector Direction = IsValid(Body) ? Body->GetDodgeWorldDirection() : FVector::ZeroVector;
     UCharacterMovementComponent* Movement = IsValid(Body) ? Body->GetCharacterMovement() : nullptr;
+    // GAS PreActivate already attempted cancellation. Do not overwrite an uncancelled action.
     if (!IsValid(Body) || !IsValid(ASC) || !HasValidMovementConfiguration() ||
-        !HasValidInvulnerabilityConfiguration() || Body->IsCombatDead() ||
+        !HasValidInvulnerabilityConfiguration() || !HasValidRecoveryCancelPolicy() ||
+        Body->IsCombatDead() || UGameplayStatics::IsGamePaused(Body) ||
+        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) ||
+        ASC->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) ||
+        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dead) || ASC->GetAnimatingAbility()!=nullptr ||
         Direction.IsNearlyZero() || !IsValid(Movement) || !Movement->IsMovingOnGround() ||
         Movement->HasRootMotionSources() ||
         !Body->GetGameplayStaminaSnapshot(Before, MaxStamina) ||

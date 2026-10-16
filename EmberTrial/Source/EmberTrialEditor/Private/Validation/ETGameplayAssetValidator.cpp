@@ -311,6 +311,11 @@ void UETGameplayAssetValidator::ValidateAbility(UBlueprint* Blueprint,
             AddIssue(Blueprint, TEXT("ET-DODGE-002"),
                 TEXT("Dodge requires finite Distance 1..300, Duration .05...50, and an in-place montage longer than Duration."), Issues);
         }
+        if (!CastChecked<UETGA_Dodge>(Defaults)->HasValidRecoveryCancelPolicy())
+        {
+            AddIssue(Blueprint, TEXT("ET-DODGE-004"),
+                TEXT("Dodge must cancel only Ability.Attack.Light; do not block State.Attacking; keep Dodging/HitReact/Dead blocked."), Issues);
+        }
         if (!CastChecked<UETGA_Dodge>(Defaults)->HasValidInvulnerabilityConfiguration())
         {
             AddIssue(Blueprint, TEXT("ET-DODGE-003"),

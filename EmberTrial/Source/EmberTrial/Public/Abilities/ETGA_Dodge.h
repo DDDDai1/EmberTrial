@@ -21,6 +21,7 @@ public:
     static bool ReadCostAmount(const UGameplayEffect* Effect, float Level, float& OutCost);
     bool HasValidMovementConfiguration() const;
     bool HasValidInvulnerabilityConfiguration() const;
+    bool HasValidRecoveryCancelPolicy() const;
 
 protected:
     virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -47,6 +48,7 @@ private:
     friend class FETDodgeCostContractTest;
     friend class FETDodgeMovementTest;
     friend class FETDodgeInvulnerabilityTest;
+    friend class FETLightComboCancelTest;
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Dodge")
     TObjectPtr<UAnimMontage> DodgeMontage;

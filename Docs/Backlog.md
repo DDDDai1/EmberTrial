@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-16。**[M2-03B完整指南已下发](M2_03B_LightCombo.md)，待用户手动实施。**[A素材已验收](Reports/M2_03A_Verification.md)，无需补查。当前96Source / 50cpp / 来源57项、正式左键仍单段；B计划三新 / 六旧Source和独立第1段Montage，实施后预计99 / 52 / 58。本轮只写文档并静态核对，无UE Build / 测试或实现改动，累计2301 / 明确等待225分钟保持；独立包仍M1 C3 Attempt02。
+更新2026-10-16。**[M2-03B已验收](Reports/M2_03B_Verification.md)，无待补项；[M2-03C完整指南已下发](M2_03C_RecoveryDodgeCancel.md)，待用户手动实施。**实际99Source / 52cpp / 来源58项，正式三段攻击 / 单槽缓冲成立，攻击中2仍拒绝。C计划一新 / 七旧Source，预计100 / 53 / 58；本轮没有代改工程或执行UE Build / 测试。B手动50 / 等待5，累计2351 / 明确等待230分钟；独立包仍M1 C3 Attempt02。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -90,11 +90,12 @@
 | M2-02A | [GAS闪避动作与成本提交](M2_02A_DodgeAction.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_02A_Verification.md)：90 / 46 / 51；四Success / 六Valid / 原地成本与清理；50 / 5，无待补 |
 | M2-02B | [方向位移与正式输入](M2_02B_DirectionalDodge.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_02B_Verification.md)：93 / 48 / 51，双构建 / 两Success / 两Valid / 正式位移与清理；30 / 5，无待补 |
 | M2-02C | [短无敌与集成](M2_02C_Invulnerability.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_02C_Verification.md)：三新 / 八旧，双构建 / 索引50 / 三项Success，时点补修关闭；实机两次保护与Retry / Continue，30 / 5 |
-| M2-03 | [三段轻攻击路线](M2_03_LightComboRoadmap.md) | 你手动实现，我分批设计 / 审查 | 进行中 | A已验收；[B完整指南](M2_03B_LightCombo.md)待用户实施，C恢复取消后续，10h基础预算保持 |
+| M2-03 | [三段轻攻击路线](M2_03_LightComboRoadmap.md) | 你手动实现，我分批设计 / 审查 | 进行中 | A / B通过，C恢复闪避取消指南已下发；整章10h预算保持，尚未总验收 |
 | M2-03A | [第2 / 3段动画与Montage](M2_03A_ComboAnimationAssets.md) | 你手动制作，我审查 | 完成 | [验收](Reports/M2_03A_Verification.md)：六新素材，96 / 50 / 清单57；旧实现保持，预览与短基线完成，50 / 10分钟，无待补 |
-| M2-03B | [三段轻攻击 / 单槽输入缓冲](M2_03B_LightCombo.md) | 你手动代码 / 装配，我设计 / 审查 | 待用户操作 | 三新 / 六旧、独立AM01，预计99 / 52 / 58；Flow与旧Invulnerability实际Success、10–15分钟短查；总预算120–210，尚未实施 |
+| M2-03B | [三段轻攻击 / 单槽缓冲](M2_03B_LightCombo.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_03B_Verification.md)：99 / 52 / 58，双构建 / 两Success / 三段各25 / 清理通过，50 / 5，无待补 |
+| M2-03C | [恢复阶段闪避取消](M2_03C_RecoveryDodgeCancel.md) | 你手动代码 / 配置，我设计 / 审查 | 进行中 | 一新 / 七旧预计100 / 53 / 58；三段恢复交接、拒绝保留原攻击、相关三项Success及短查；预算90–150 / 检查10–15，当前C2065暂停声明补回待手改 / 正常重建，尚未验收 |
 
-历史说明：下方保留各批当时的实施记录，以顶部任务表为当前状态。**当前96Source / 50cpp / 清单57，独立包仍M1 C3 Attempt02。**M2-02已验收、A六素材已完成；B指南已下发，但三段攻击代码尚未写入工程，数字4沿用既有诊断入口。
+历史说明：下方保留各批当时的实施记录，以顶部任务表为当前状态。**实际99Source / 52cpp / 来源58，独立包仍M1 C3 Attempt02。**M2-02与03A / B已验收；C指南已下发，尚无恢复闪避取消实现，原数字4诊断入口保留。
 
 ## 暂缓到中后期
 
@@ -188,3 +189,5 @@ C2已验收无待补，新增合法GA Probe48项，累计2001 /175。C3不加C++
 2026-10-14 M2-01A完成：60 / 等待5，累计2071 / 190；78Source / 39cpp / 48资产，三新 / 三旧Source实现匹配、IsCombatDead补修 / 双构建 / 实际三索引通过。三身体Valid、StaminaFoundation一次Success、两轮初始化 / 清理与短基线核对，无待补项；[报告](Reports/M2_01A_Verification.md)完成。现有资产字节不变、旧包不更新，后续恢复 / 资源观察待分批下发；实现本地4fedf14，本轮补提交验收文字。
 
 2026-10-16 M2-03B指南下发：现有LightAttack扩展为玩家单能力三段、单槽.25世界秒缓冲；1 / 2段.60–.80连段窗，延后Timer调度切段、激活 / 段代次及Montage实例身份隔离，每段独立Trace Serial，敌人保持旧单段10。新建独立AM_ET_Light_01复用旧AS，避免污染敌人 / Practice / Dodge测试共用Montage。三新 / 六旧候选、精确替换锚点、代码块 / 本机5.5.4 API与旧生命 / 阵营 / 无敌路径已静态核对；已结束Task正常EndTask后撤销其旧Ability指针，迟到原生回调与停止时重入各有防护。新增Flow计划真实Montage / Notify / Sweep / GE、过期 / 一槽 / 取消 / Pause / 死亡 / EndPlay与旧Task负向回调，仅复用旧Dodge.Invulnerability，不重跑未变资源 / Practice / 墙坡矩阵。预算120–210手动 / 相关检查10–15，未计实耗。工程仍96 / 50 / 57，Source / 资产 / Config / uproject与A验收哈希保持，没有B编译 / Success / 验收或新Cook。[从第2节开始](M2_03B_LightCombo.md#2-准备与文件清单)。只读Git确认HEAD / 缓存origin/main均2202e74，旧C实现与A素材已纳入提交，远端本轮未联网核验；当前仅提交新指南与状态文档，用户操作Stage / Commit / Push。
+
+2026-10-16 M2-03B验收 / C下发：用户13:26全项通过，手动50 / 等待5；九份候选与实物一致（两文件仅缩进），其余90旧Source保持A。实际99 / 52 / 清单58；Editor12:52:20 / Game12:59:58、索引36+13+3；13:14:11 Flow与13:14:37 Invulnerability均Success。正式PIE目标三段独立Serial、100→75→50→25、受击取消 / P / 敌人单段10与HUD / Stop清理有直接记录，具体输入和最终配置按用户反馈。旧共用AM重存SHA改变，但与本地旧LFS对象的导出数据逐字节相同，差异在头 / 缩略图区，无连段Notify名称，不是待补验问题；四旧资产真实SHA更新。[B报告](Reports/M2_03B_Verification.md)通过，无玩法Error；用户已提交9a0cf14、缓存origin一致，本轮未联网核验或操作Git索引。累计2351 / 明确230，M2为340 / 45，03为100 / 15。[C指南](M2_03C_RecoveryDodgeCancel.md)一新 / 七旧、13个精确锚点：读取当前命中结束到淡出前的恢复区间，Dodge先完整预检再由GAS取消Ability.Attack.Light；非法 / 不足拒绝保留原攻击，旧Trace / 输入 / 待切段清除，复用原成本 / RMS / 保护。新RecoveryDodge驱动三段交接 / 失败保留 / Pause / 受击 / 死亡 / EndPlay，仅复用Flow和Invulnerability。C预算90–150 / 检查10–15，未计实耗，候选锚点 / 本机5.5.4 API / 清理语义已静态检查，未写Source或运行新测试，无C Success / 新Cook。

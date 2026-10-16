@@ -106,6 +106,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 	friend class FETDodgeMovementTest;
 	friend class FETDodgeInvulnerabilityTest;
 	friend class FETLightComboFlowTest;
+	friend class FETLightComboCancelTest;
 
 	bool bStartupAttributesInitialized = false;
 	bool bGameplayReady = false;
