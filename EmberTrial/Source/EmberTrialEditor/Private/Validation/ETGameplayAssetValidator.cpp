@@ -324,6 +324,20 @@ void UETGameplayAssetValidator::ValidateAbility(UBlueprint* Blueprint,
     ValidateMontage(Blueprint, Cast<UAnimMontage>(RequireObject(Blueprint, Defaults,
         bAttack ? TEXT("AttackMontage") : TEXT("HitReactMontage"), TEXT("ET-GA-001"), Issues)), Issues);
     if (!bAttack) { return; }
+
+    const UETGA_LightAttack* Attack=CastChecked<UETGA_LightAttack>(Defaults);
+    if (!Attack->HasValidComboConfiguration())
+    {
+        AddIssue(Blueprint,TEXT("ET-COMBO-001"),
+            TEXT("Combo requires two distinct follow-ups, finite buffer .05...50, same skeleton / DefaultSlot / no root motion, one hit state each, one later combo state only on stages 1/2 before blend-out."),Issues);
+    }
+    const FString Package=Blueprint->GetOutermost()->GetName();
+    if ((Package==TEXT("/Game/EmberTrial/Abilities/GA_ET_LightAttack") && !Attack->IsComboEnabled()) ||
+        (Package==TEXT("/Game/EmberTrial/Abilities/GA_ET_EnemyLightAttack") && Attack->IsComboEnabled()))
+    {
+        AddIssue(Blueprint,TEXT("ET-COMBO-002"),TEXT("Formal player requires Combo enabled; formal enemy must keep Combo disabled."),Issues);
+    }
+
     const TOptional<double> Damage = ReadNumber(Blueprint, Defaults, TEXT("AttackDamage"), Issues);
     const TOptional<double> Speed = ReadNumber(Blueprint, Defaults, TEXT("AttackMaxHorizontalSpeed"), Issues);
     if (Damage.IsSet() && Speed.IsSet() && (!FMath::IsFinite(Damage.GetValue())

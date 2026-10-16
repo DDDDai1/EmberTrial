@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-15。**[M2-03A素材已验收](Reports/M2_03A_Verification.md)，无待补项。**六新LS / AS / Montage均已保存，当前96Source / 50cpp / 来源清单57项；Source / 51旧资产 / Config保持M2-02C，正式左键仍单段。A手动50 / 等待10，累计2301 / 明确225分钟；下一B连段与有限输入缓冲待下发代码指南，未实施新连段，独立包仍M1 C3 Attempt02。
+更新2026-10-16。**[M2-03B完整指南已下发](M2_03B_LightCombo.md)，待用户手动实施。**[A素材已验收](Reports/M2_03A_Verification.md)，无需补查。当前96Source / 50cpp / 来源57项、正式左键仍单段；B计划三新 / 六旧Source和独立第1段Montage，实施后预计99 / 52 / 58。本轮只写文档并静态核对，无UE Build / 测试或实现改动，累计2301 / 明确等待225分钟保持；独立包仍M1 C3 Attempt02。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -90,10 +90,11 @@
 | M2-02A | [GAS闪避动作与成本提交](M2_02A_DodgeAction.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_02A_Verification.md)：90 / 46 / 51；四Success / 六Valid / 原地成本与清理；50 / 5，无待补 |
 | M2-02B | [方向位移与正式输入](M2_02B_DirectionalDodge.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_02B_Verification.md)：93 / 48 / 51，双构建 / 两Success / 两Valid / 正式位移与清理；30 / 5，无待补 |
 | M2-02C | [短无敌与集成](M2_02C_Invulnerability.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_02C_Verification.md)：三新 / 八旧，双构建 / 索引50 / 三项Success，时点补修关闭；实机两次保护与Retry / Continue，30 / 5 |
-| M2-03 | [三段轻攻击路线](M2_03_LightComboRoadmap.md) | 你手动实现，我分批设计 / 审查 | 进行中 | A素材已验收；B连段 / 缓冲与C恢复取消后续，10h基础预算保持，正式左键仍单段 |
+| M2-03 | [三段轻攻击路线](M2_03_LightComboRoadmap.md) | 你手动实现，我分批设计 / 审查 | 进行中 | A已验收；[B完整指南](M2_03B_LightCombo.md)待用户实施，C恢复取消后续，10h基础预算保持 |
 | M2-03A | [第2 / 3段动画与Montage](M2_03A_ComboAnimationAssets.md) | 你手动制作，我审查 | 完成 | [验收](Reports/M2_03A_Verification.md)：六新素材，96 / 50 / 清单57；旧实现保持，预览与短基线完成，50 / 10分钟，无待补 |
+| M2-03B | [三段轻攻击 / 单槽输入缓冲](M2_03B_LightCombo.md) | 你手动代码 / 装配，我设计 / 审查 | 待用户操作 | 三新 / 六旧、独立AM01，预计99 / 52 / 58；Flow与旧Invulnerability实际Success、10–15分钟短查；总预算120–210，尚未实施 |
 
-历史说明：下方保留各批当时的实施记录，以顶部任务表为当前状态。**当前93Source / 48cpp / 清单51，独立包仍M1 C3 Attempt02。**A成本与B正式方向 / 输入均通过，数字4保留；C无敌与后续战斗深化尚未实施。
+历史说明：下方保留各批当时的实施记录，以顶部任务表为当前状态。**当前96Source / 50cpp / 清单57，独立包仍M1 C3 Attempt02。**M2-02已验收、A六素材已完成；B指南已下发，但三段攻击代码尚未写入工程，数字4沿用既有诊断入口。
 
 ## 暂缓到中后期
 
@@ -185,3 +186,5 @@ C2已验收无待补，新增合法GA Probe48项，累计2001 /175。C3不加C++
 2026-10-14 C3与M1完成：Attempt02 UAT成功，真实Move90 / 敌人伤害与A点Retry / Continue、新进程Entry均核对；手动10 / 等待10，累计2011 / 185。75Source / 37cpp / 清单48保持，DefaultGame保存格式变化已核对；[C3报告](Reports/M1_07C3_Verification.md)、[M1总报告](Reports/M1_Verification.md)及[M1复盘](M1_Review.md)落盘。M2按原四能力范围与65h基础预算分批推进，M2-01资源基础待下发实施指南。
 
 2026-10-14 M2-01A完成：60 / 等待5，累计2071 / 190；78Source / 39cpp / 48资产，三新 / 三旧Source实现匹配、IsCombatDead补修 / 双构建 / 实际三索引通过。三身体Valid、StaminaFoundation一次Success、两轮初始化 / 清理与短基线核对，无待补项；[报告](Reports/M2_01A_Verification.md)完成。现有资产字节不变、旧包不更新，后续恢复 / 资源观察待分批下发；实现本地4fedf14，本轮补提交验收文字。
+
+2026-10-16 M2-03B指南下发：现有LightAttack扩展为玩家单能力三段、单槽.25世界秒缓冲；1 / 2段.60–.80连段窗，延后Timer调度切段、激活 / 段代次及Montage实例身份隔离，每段独立Trace Serial，敌人保持旧单段10。新建独立AM_ET_Light_01复用旧AS，避免污染敌人 / Practice / Dodge测试共用Montage。三新 / 六旧候选、精确替换锚点、代码块 / 本机5.5.4 API与旧生命 / 阵营 / 无敌路径已静态核对；已结束Task正常EndTask后撤销其旧Ability指针，迟到原生回调与停止时重入各有防护。新增Flow计划真实Montage / Notify / Sweep / GE、过期 / 一槽 / 取消 / Pause / 死亡 / EndPlay与旧Task负向回调，仅复用旧Dodge.Invulnerability，不重跑未变资源 / Practice / 墙坡矩阵。预算120–210手动 / 相关检查10–15，未计实耗。工程仍96 / 50 / 57，Source / 资产 / Config / uproject与A验收哈希保持，没有B编译 / Success / 验收或新Cook。[从第2节开始](M2_03B_LightCombo.md#2-准备与文件清单)。只读Git确认HEAD / 缓存origin/main均2202e74，旧C实现与A素材已纳入提交，远端本轮未联网核验；当前仅提交新指南与状态文档，用户操作Stage / Commit / Push。

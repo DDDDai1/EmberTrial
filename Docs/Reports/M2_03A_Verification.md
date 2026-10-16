@@ -27,7 +27,7 @@
 
 A手动 **50分钟** / 等待 **10分钟**，检查独立耗时未拆报。M2当前290 / 等待40分钟；项目累计 **2301分钟（38小时21分钟）** / 已明确等待 **225分钟（3小时45分钟）**。助手设计 / 核对不计入用户手动；不从本批录入速度推算后续代码 / 动画成本，M2-03基础10h暂保持。
 
-下一B接现有LightAttack的三段装配、单槽有限输入缓冲与过期、每段独立Serial / 去重和当前Montage身份；完整代码指南尚未下发，不预建空类或临时验收图。A通过仅关闭素材批，正式左键仍单段，本批没有新C++、测试Success、Cook或连段Gameplay验收。
+下一B接现有LightAttack的三段装配、单槽有限输入缓冲与过期、每段独立Serial / 去重和当前Montage身份；[B完整指南已于10月16日下发](../M2_03B_LightCombo.md)，从第2节手动实施，不重做A或搭临时验收图。A通过仅关闭素材批，正式左键仍单段，本批没有新C++、测试Success、Cook或连段Gameplay验收。
 
 本地`Raw/M2_03A_2026-10-15/Acceptance.json`与AcceptanceExcerpt保留直接证据 / 用户反馈边界；Preparation保留指南下发时的历史状态，不覆盖为当前结果。
 
@@ -38,3 +38,5 @@ A手动 **50分钟** / 等待 **10分钟**，检查独立耗时未拆报。M2当
 HEAD / 缓存origin/main仍c010520，C三新AM / 八旧Source与B / C收尾文档仍未提交；若一并提交，重新Stage三份新源码的工作区最新版本，包含测试.12 / .04修正，检查Staged Diff。Raw / 日志 / Binaries / Intermediate / Saved / 生成CMake / IDE缓存及旧包留本地。助手未联网核验远端 / LFS或操作索引。
 
 用户Commit / Push，可用`feat: add second and third light attack animation placeholders`；源码C实现如另次提交，按其清单单独处理。本批不把整个M2-03标记完成。
+
+2026-10-16交接更新：只读确认HEAD / 缓存origin/main均2202e74，A六素材、来源记录与旧C实现均已提交；上面的c010520 / 未跟踪描述保留为验收当时状态。本轮仅B新指南与状态 / A交接文档待用户提交，远端未联网核验。

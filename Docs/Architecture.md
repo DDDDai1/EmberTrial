@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本1.1；更新2026-10-15。**[M2-03A素材已验收](Reports/M2_03A_Verification.md)，无待补项。**六新LS / AS / Montage均已保存，当前96Source / 50cpp / 来源清单57项；Source / 51旧资产 / Config保持M2-02C，正式左键仍单段。A手动50 / 等待10，累计2301 / 明确225分钟；下一B连段与有限输入缓冲待下发代码指南，未实施新连段，独立包仍M1 C3 Attempt02。 Core / UI两个Runtime及一个Editor模块保持。
+版本1.1；更新2026-10-16。**[M2-03B完整指南已下发](M2_03B_LightCombo.md)，待用户手动实施。**[A素材已验收](Reports/M2_03A_Verification.md)，无需补查。当前96Source / 50cpp / 来源57项、正式左键仍单段；B计划三新 / 六旧Source和独立第1段Montage，实施后预计99 / 52 / 58。本轮只写文档并静态核对，无UE Build / 测试或实现改动，累计2301 / 明确等待225分钟保持；独立包仍M1 C3 Attempt02。 Core / UI两个Runtime及一个Editor模块保持。
 
 ## 1. 模块边界
 
@@ -198,8 +198,20 @@ Ability记录弱ASC与本次ActiveEffect Handle；应用GE可能同步触发取�
 
 ## 17. M2-03连段规划与素材边界（未实施）
 
-[分批路线](M2_03_LightComboRoadmap.md)选择由现有LightAttack能力拥有玩家整条链，保留敌人默认单段；共享真实伤害 / 无敌策略。计划小型段配置数组、单个有限时输入、当前Montage / Notify身份与段代次推进，每段重开Trace Serial，统一取消清理；不另建重复伤害系统或全局队列。具体B / C代码尚未下发，不是当前Source行为。
+[分批路线](M2_03_LightComboRoadmap.md)选择由现有LightAttack能力拥有玩家整条链，保留敌人默认单段；共享真实伤害 / 无敌策略。计划小型段配置数组、单个有限时输入、当前Montage / Notify身份与段代次推进，每段重开Trace Serial，统一取消清理；不另建重复伤害系统或全局队列。B完整指南现已下发，C代码后续；此段仍是设计，尚不是当前Source行为。
 
-[A当前只做素材](M2_03A_ComboAnimationAssets.md)：独立第2 / 3段LS / AS / Montage共6资产，复用已知FK姿势值改变顺序 / 时序；原第1段与敌人 / Dodge测试引用保持。没有Source / GA / 输入 / AnimBP改动，不为素材预览搭验收图或重跑旧测试。实际仍96 / 50 / 清单51，预计实物后约57；新骨骼插值 / 蒙皮与烘焙需要用户预览，未声称新Rig求值或正式连段完成。
+[A当前只做素材](M2_03A_ComboAnimationAssets.md)：独立第2 / 3段LS / AS / Montage共6资产，复用已知FK姿势值改变顺序 / 时序；原第1段与敌人 / Dodge测试引用保持。没有Source / GA / 输入 / AnimBP改动，不为素材预览搭验收图或重跑旧测试。A下发时为96 / 50 / 清单51，实物验收后已57；新骨骼插值 / 蒙皮与烘焙需要用户预览，未声称新Rig求值或正式连段完成。
 
 M2-03A素材验收补充：六份独立LS / AS / AM已落地，来源57，Source仍96 / 50，旧共享Montage / GA / 输入 / Rig哈希保持。新蒙太奇对应AS / Slot / Notify名称线索与保存记录已核对，姿势 / 通知具体值由用户预览确认；未在UE读取完整属性。正式连段与缓冲仍属于B，当前没有新的Gameplay状态或模块变更。[A验收](Reports/M2_03A_Verification.md)。
+
+## 18. M2-03B候选代码边界（待用户实施）
+
+[完整指南](M2_03B_LightCombo.md)扩展现有LightAttack，保留旧配置字段与真实伤害 / 阵营 / 无敌路径。玩家显式启用两份FollowUp，敌人默认关闭；新独立AM01复用旧AS，旧共用Montage不加玩家连段通知。Character将活动输入交给同一能力，不重复TryActivate；没有额外组件 / 全局队列 / 常驻Tick或新Build依赖。
+
+Ability持有当前Montage Task、激活 / 段代次、一条带到期世界时间的输入与待切段Timer。NotifyState无角色状态，只转发Mesh / Montage实例 / 窗口Token；有效窗口内消费后延后调度并复核身份，每段复用原Trace分配新Serial与去重集合。End / Cancel先使旧身份无效，再解绑、EndTask、撤销已结束Task的Ability指针并停止属于旧身份的Montage；防御动画队列中的旧委托副本和停止时同步重入。不能对活动Task直接清归属或修改引擎代码。
+
+新Flow临时世界使用保存的Montage / Notify / Sweep / 伤害GE，并将目标放在当前手部附近隔离几何，检查三段真实扣血、缓冲、取消 / Pause / 死亡 / EndPlay。旧Notify / Serial / 已结束Task回调是负向注入，不伪造正向命中；该夹具不证明AI寻路、自然站位命中范围、表现质量或硬件性能。两项自动化尚未运行，无B Success；当前Source96 / cpp50 / 清单57保持，计划99 / 52 / 58。
+
+## 19. 本批 Commit / Push（固定放在最后）
+
+当前仅[B指南](M2_03B_LightCombo.md)与状态 / 设计文档变动。手动实施后按其最后清单Stage三新 / 六旧、独立AM01及真实配置差异；Raw / 生成文件 / 包本地。Git由用户操作，未编译或实施的候选不写成已交付。

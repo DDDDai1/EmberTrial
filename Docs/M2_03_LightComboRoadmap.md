@@ -1,6 +1,6 @@
 # M2-03：三段轻攻击分批路线
 
-2026-10-15，UE5.5.4。前置[M2-02整章验收](Reports/M2_02_Verification.md)，**[A素材已验收](Reports/M2_03A_Verification.md)，无待补项。**当前96Source / 50cpp / 来源57项；正式左键仍单段25、敌人单段10。A50 / 等待10，累计2301 / 明确225分钟；B连段 / 缓冲完整代码待下发，10h预算保持。
+2026-10-16，UE5.5.4。前置[M2-02](Reports/M2_02_Verification.md)与[A素材](Reports/M2_03A_Verification.md)已验收；[B完整指南已下发](M2_03B_LightCombo.md)，待用户手动实施。当前96Source / 50cpp / 来源57项，正式左键单段25、敌人单段10；B预计99 / 52 / 58。A50 / 等待10，累计2301 / 明确225分钟保持，整章10h预算不变。
 
 ## 1. 目标行为与分批
 
@@ -9,7 +9,7 @@
 | 批次 | 可交付内容 | 预计用户手动 |
 | --- | --- | ---: |
 | A，已完成 | 独立第2 / 3段Control Rig源、烘焙AS与Montage，共6新资产；第1段复用原攻击，现有左键 / 敌人链路保持 | 实际50 / 等待10分钟，独立检查未拆 |
-| B，后续 | 扩展现有LightAttack的玩家连段配置、单槽有限输入缓冲、当前Montage通知 / 身份驱动推进、每段独立Trace Serial；相关真实命中自动化 | 暂估120–210分钟，代码指南另行细分 |
+| [B，待用户操作](M2_03B_LightCombo.md) | 扩展现有LightAttack的玩家连段配置、单槽有限输入缓冲、当前Montage通知 / 身份驱动推进、每段独立Trace Serial；相关真实命中自动化 | 120–210分钟，相关检查10–15，构建等待另列 |
 | C，后续 | 恢复阶段闪避取消、与受击 / 死亡 / Pause / 世界重建集成；只补相关专项 | 暂估60–100分钟 |
 
 这些估算是10h内的操作安排，另留理解 / 排障余量，不要求做满。具体API与完整代码逐批核对后下发，不预建空类。A完成只代表素材，不把独立预览说成已完成三段Gameplay。
@@ -24,20 +24,20 @@
 - **取消**先使旧段回调失效、关闭当前Trace / 清输入，再停止自己的Montage。受击 / 死亡从任意段取消；恢复闪避窗口只在命中结束后开放，C需先做闪避合法性 / 成本预检，避免非法闪避先把攻击取消。
 - **暂停**冻结世界时钟与动作；暂停前已接受且尚有效的缓冲随世界时间冻结，暂停菜单期间输入不入队，恢复也不把菜单按键生成新输入。原Flush / 焦点规则沿用。
 
-B / C实现时会重核具体回调重入和Timer语义，不靠按动画长度Delay解锁，也不让UI / AnimBP负责伤害或段推进。没有新全局事件总线、常驻Tick组件或逐帧扫描世界。
+B已将Timer定义为离开Notify栈后的调度，不保证跨一个渲染帧；用激活 / 段代次和Montage实例拒绝旧事件。已结束Task先正常EndTask再撤销其Ability指针，防队列内旧委托清掉新一轮同名Montage的归属；停止前后复核身份。不靠动画长度Delay解锁，也不让UI / AnimBP负责伤害或段推进。没有新全局事件总线、常驻Tick组件或逐帧扫描世界。
 
 ## 3. 本批资产边界
 
-第1段继续复用`/Game/EmberTrial/Animations/Practice/Montages/AM_M0_Attack_01_Montage`。新第2 / 3段放`/Game/EmberTrial/Animations/Combo`；原Montage还供敌人、历史Practice和Dodge真实命中测试使用，不覆盖它。
+A制作时正式第1段仍使用旧`/Game/EmberTrial/Animations/Practice/Montages/AM_M0_Attack_01_Montage`。B细化为新建`/Game/EmberTrial/Animations/Combo/Montages/AM_ET_Light_01`，复用同一旧AS_M0_Attack_01但独立配置命中 / 连段通知；玩家1 / 2段添加新连段窗，第三段只有命中窗。旧共用AM继续供敌人、历史Practice与Dodge真实命中测试，保持字节不变。
 
-A复用SK_Mannequin / CR_Mannequin_Body：第2段回抽、第3段短促前击，均为原地上肢占位。新顺序 / 时间尚未经UE预览，必须看实物；最终全身重心、武器、脚步与更有辨识度的三段打磨留美术阶段，不把当前素材当最终动作质量。
+A复用SK_Mannequin / CR_Mannequin_Body：第2段回抽、第3段短促前击，均为原地上肢占位。A新顺序 / 时间已由用户预览并验收；助手未重做Rig求值或完整资产属性读取。最终全身重心、武器、脚步与更有辨识度的三段打磨留美术阶段，不把当前素材当最终动作质量。
 
-A不改C++ / GA / 输入 / AnimBP，不Build / Cook或重跑旧Dodge测试。新素材仅独立预览，正式地图一轮约1–2分钟短基线即可。B修改共享LightAttack / Trace后才触发敌人单段及Dodge真实命中测试相关回归，不把旧矩阵机械重跑。
+A不改C++ / GA / 输入 / AnimBP，不Build / Cook或重跑旧Dodge测试。新素材仅独立预览，正式地图一轮约1–2分钟短基线即可。B修改共享LightAttack、复用原Trace接口后才触发敌人单段及Dodge真实命中测试相关回归，不把旧矩阵机械重跑。
 
 ## 4. 当前操作
 
-[A已通过](Reports/M2_03A_Verification.md)，无需重复制作或补查。下一B完整代码仍待逐批核对 / 下发，将连接现有左键请求与三段配置，不临时把新Montage替换到GA或添加自动连播图；当前没有新空类待建。
+[A已通过](Reports/M2_03A_Verification.md)，无需重复制作或补查。当前从[B指南第2节](M2_03B_LightCombo.md#2-准备与文件清单)开始；三新 / 六旧Source全文与精确锚点已备好，正常Build后装配一新AM01、GA玩家与第2段AM配置。新Flow自动化驱动精确时序，手动沿用正式输入和10–15分钟分组短查；B未实施，不预填Success，C恢复闪避取消后续。
 
 ## 5. 本次 Commit / Push（固定放在最后）
 
-A实物已完成，当前Stage六新Combo资产、本报告 / 来源清单57项 / 指南 / 数值JSON与状态文档，按[A验收最后清单](Reports/M2_03A_Verification.md#4-本次-commit--push固定放在最后)提交；旧资产 / 地图无差异不额外改动。之前C三新AM / 八旧源码与收尾如尚未提交，重新Stage工作区最新内容；HEAD / 缓存origin/main仍c010520，未联网核验远端。Raw / 日志 / 生成文件 / 旧包留本地，用户Commit / Push。
+HEAD / 缓存origin/main均2202e74，旧C与A六素材已纳入提交；本轮未联网核验远端。当前只提交B新指南及同步文档；实际实施后按[B末尾清单](M2_03B_LightCombo.md#12-本批-commit--push固定放在最后)重新Stage三新 / 六旧Source、新AM01、玩家GA / 第2段AM真实差异与来源记录。Raw / 日志 / 生成文件 / 历史包留本地，用户Commit / Push。

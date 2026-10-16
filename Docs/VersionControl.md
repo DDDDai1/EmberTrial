@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-15最新现状：**[M2-03A已验收](Reports/M2_03A_Verification.md)，六新Combo资产未跟踪，来源清单已增至57；Stage六资产与A报告 / 最新文档。C三新AM / 八旧Source及收尾仍未提交，需重新Stage最新修正后由用户Commit / Push。HEAD / 缓存origin/main仍c010520，未联网核验远端；本批无新C++、旧资产 / 地图 / Config无差异，Raw / 生成文件 / 旧包留本地。
+**2026-10-16最新现状：**只读Git确认HEAD与缓存origin/main均`2202e74`，旧C实现和A六新素材已纳入提交；工程Source / Content / Config当前无差异。B当前只有[完整指南](M2_03B_LightCombo.md)与同步文档，不提前Stage尚不存在的源码或AM01。远端本轮未联网核验，助手不操作索引 / Commit / Push；Raw与生成文件留本地。
 
 ## 1. 已配置内容
 
@@ -339,3 +339,5 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 2026-10-15 M2-03A下发：新增指南 / 路线 / Docs/Data/M2_03A_AttackPoseValues.json可提交，当前工程Source / 资产 / Config保持C验收。制作完成后按A最后清单提交新Combo目录内两LS / 两AS / 两AM及实际合法制作地图差异；来源清单待实物核对，当前51。旧M0 / 玩家GA / 输入 / AnimBP无计划修改，C已有AM状态不当作A新增Source。仍由用户Stage / Commit / Push。
 
 2026-10-15 A验收收尾：六资产最终仅在Combo/Sequence、Clips、Montages各两份，未覆盖旧资源；AssetManifest新增六行真实SHA至57。按A报告Stage实物与文档，C已有AM源码需纳入工作区最新内容，不把A素材当作新代码。用户自行Commit / Push，助手未改暂存区或连接GitHub。
+
+2026-10-16 M2-03B准备：当前可提交新指南与Progress / Backlog / M2路线 / 连段路线 / Architecture / 验收流程 / Introduction及A交接更新。完成手动实现后重新Stage三新 / 六旧完整源码、独立AM_ET_Light_01、玩家GA / AM02真实配置差异与核实后的来源记录，逐项见[B末尾](M2_03B_LightCombo.md#12-本批-commit--push固定放在最后)。没有差异的敌人GA / 角色 / 地图不人为重存；Raw / 候选脚本 / 生成文件 / 旧包不Force Add。本轮仅静态检查，未运行B构建或测试。

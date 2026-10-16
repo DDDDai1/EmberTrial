@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-10-15。**[M2-03A素材已验收](Reports/M2_03A_Verification.md)，无待补项。**六新LS / AS / Montage均已保存，当前96Source / 50cpp / 来源清单57项；Source / 51旧资产 / Config保持M2-02C，正式左键仍单段。A手动50 / 等待10，累计2301 / 明确225分钟；下一B连段与有限输入缓冲待下发代码指南，未实施新连段，独立包仍M1 C3 Attempt02。
+更新2026-10-16。**[M2-03B完整指南已下发](M2_03B_LightCombo.md)，待用户手动实施。**[A素材已验收](Reports/M2_03A_Verification.md)，无需补查。当前96Source / 50cpp / 来源57项、正式左键仍单段；B计划三新 / 六旧Source和独立第1段Montage，实施后预计99 / 52 / 58。本轮只写文档并静态核对，无UE Build / 测试或实现改动，累计2301 / 明确等待225分钟保持；独立包仍M1 C3 Attempt02。
 
 ## 1. 本阶段交付
 
@@ -51,10 +51,10 @@ M1登记手动22h18不同于全项目设计 /理解总成本；不能将所有�
 
 ## 6. 下一开发入口
 
-**[M2-01](Reports/M2_01_Verification.md)、[M2-02](Reports/M2_02_Verification.md)与[M2-03A素材](Reports/M2_03A_Verification.md)已验收。**下一B按[分批路线](M2_03_LightComboRoadmap.md)接三段数据 / 单槽有限缓冲 / 每段Serial，完整C++指南尚未下发，不预建空类。A无需重复预览；当前先由用户按报告清单提交素材 / 文档及未提交的C实现。
+**[M2-01](Reports/M2_01_Verification.md)、[M2-02](Reports/M2_02_Verification.md)与[A素材](Reports/M2_03A_Verification.md)已验收。**当前打开[B完整指南第2节](M2_03B_LightCombo.md#2-准备与文件清单)，手动完成三新 / 六旧、独立AM01与玩家配置；相关检查10–15分钟，不重做A预览或临时Controller图。正式源码尚未实施连段，攻击中闪避取消留C。
 
 本路线用于范围与排期；A实施步骤保留供复查，无需重做已通过的检查。后续操作指南仍逐批给出精确路径 / 完整代码 / 装配 / 短检查和Push清单。M1复盘可作解释参考，不设新的旧功能验收门槛。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-本地HEAD与缓存origin/main均c010520，C三新 / 八旧Source尚未提交，三新AM需重新Stage最新内容；六新Combo资产也需Stage。一起处理A验收 / 来源清单57项 / 指南 / 路线 / 状态及未提交的B / C收尾文档。旧资产 / 地图 / Config无差异不制造提交；Raw / 日志 / 产物 / 旧包留本地，用户Commit / Push。远端本轮未联网核验。
+只读确认HEAD / 缓存origin/main均2202e74，C实现与A六素材已提交，本轮未联网核验远端。当前提交B新指南与路线 / 状态文档；实现完成后按[B最后清单](M2_03B_LightCombo.md#12-本批-commit--push固定放在最后)重新Stage三新 / 六旧Source、一新Montage及GA / 第2段AM真实差异和更新来源。Raw / 生成文件 / 旧包留本地，用户Commit / Push，不提前提交不存在的实现。

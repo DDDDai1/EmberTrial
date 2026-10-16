@@ -1,6 +1,6 @@
 # 当前开发状态
 
-更新2026-10-15。**[M2-03A素材已验收](Reports/M2_03A_Verification.md)，无待补项。**六新LS / AS / Montage均已保存，当前96Source / 50cpp / 来源清单57项；Source / 51旧资产 / Config保持M2-02C，正式左键仍单段。A手动50 / 等待10，累计2301 / 明确225分钟；下一B连段与有限输入缓冲待下发代码指南，未实施新连段，独立包仍M1 C3 Attempt02。
+更新2026-10-16。**[M2-03B完整指南已下发](M2_03B_LightCombo.md)，待用户手动实施。**[A素材已验收](Reports/M2_03A_Verification.md)，无需补查。当前96Source / 50cpp / 来源57项、正式左键仍单段；B计划三新 / 六旧Source和独立第1段Montage，实施后预计99 / 52 / 58。本轮只写文档并静态核对，无UE Build / 测试或实现改动，累计2301 / 明确等待225分钟保持；独立包仍M1 C3 Attempt02。
 
 ## 当前阶段
 
@@ -8,7 +8,7 @@
 
 **M1-04C2历史时序缺口已关闭。**19:53:24.529 WindowOpen，19:53:39.113死亡提交 → WindowClose(AttackEnd) → Disarm.Tick0 → 当前能力Cancelled1 / AttackingTag0 → Death sealed；结束Dead Tag Remaining0。助手当时经授权使用slomo0.01等待日志确认后按4并恢复1，随后保存100/100与Debug False。此为历史证据，不是本次接管；正式重试与当前阶段包随后已完成，冻结姿势表现后续完善。
 
-**当前交接：[M2-03A已验收](Reports/M2_03A_Verification.md)，无需补测。**用户按报告最后清单提交六新素材与最新文档；C已有三新AM / 八旧Source如尚未提交，重新Stage最新内容。下一M2-03B连段 / 有限输入缓冲代码待下发，不预建空类；正式左键仍单段，无新Cook。
+**当前交接：打开[M2-03B指南第2节](M2_03B_LightCombo.md#2-准备与文件清单)。**先手动录入第3–6节三新 / 六旧Source，再正常Editor Build / 索引 / Game Build，随后装配独立AM01与两段连段通知、完成两项自动化和10–15分钟相关实机检查。原A不重做；攻击中2仍拒绝，恢复闪避取消留C。末尾有本批Push清单。
 
 - 工作区：`E:\UE_Project\Demo`。
 - 实际 UE 工程：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`，已存在。
@@ -237,3 +237,5 @@ C2实施反馈：用户全项报告完成，手动25分钟（代码10 / 资产10
 2026-10-15 M2-03路线 / A指南下发：分A独立动画素材、B既有LightAttack的玩家段配置 / 单槽有限缓冲 / 每段Serial、C恢复闪避取消与集成。A完整两套七控制器 / 五帧Transform表、FK开关、播放排他End31 / 21、烘焙与Montage字段及Notify右键时间入口已写清；2段回抽 / 3段短促前击复用已知FK姿势值，仅重排 / 重定时，新实物未Rig求值或视觉验证。预计6资产、来源51→约57，Source仍96 / 50；不覆盖旧敌人 / 无敌测试共用Montage，不修改GA / 输入 / AnimBP。实机短基线、无Build / Cook或旧测试复跑，手动预算80–140 / 检查5–10未计实耗。代码 / 资产 / Config与C验收哈希保持，累计2251 / 215不变。[A指南](M2_03A_ComboAnimationAssets.md)从第2节开始，末尾Push清单齐全。
 
 2026-10-15 M2-03A验收：用户约22:37全部完成，手动50 / 等待10；六新素材最终路径与日志保存 / 移动记录一致，来源新增六项至57。Source96 / cpp50、51旧资产 / Config / uproject / 冻结指南保持C哈希，地图无Git差异。新资产名称中有对应AS / SK_Mannequin / Slot / Notify类线索，不当作完整属性读取；五帧数值 / 采样 / root脚 / 通知与大部分短基线按用户确认。日志直接支持旧单段Montage与PIE初始化 / 清理，未为未独立打印的2 / E / P追加矩阵。编辑器PIE前单条GPU profiler样本缓冲不足记录单独保留，不当玩法错误或渲染性能结论。未跑UE / Build / 测试，未代改实现或索引。[A报告](Reports/M2_03A_Verification.md)无待补；累计2301 / 明确225，M2为290 / 40。下一B指南待下发，头与缓存origin仍c010520，用户按真实清单Stage / Commit / Push。
+
+2026-10-16 M2-03B指南下发：现有LightAttack扩展为玩家单能力三段、单槽.25世界秒缓冲；1 / 2段.60–.80连段窗，延后Timer调度切段、激活 / 段代次及Montage实例身份隔离，每段独立Trace Serial，敌人保持旧单段10。新建独立AM_ET_Light_01复用旧AS，避免污染敌人 / Practice / Dodge测试共用Montage。三新 / 六旧候选、精确替换锚点、代码块 / 本机5.5.4 API与旧生命 / 阵营 / 无敌路径已静态核对；已结束Task正常EndTask后撤销其旧Ability指针，迟到原生回调与停止时重入各有防护。新增Flow计划真实Montage / Notify / Sweep / GE、过期 / 一槽 / 取消 / Pause / 死亡 / EndPlay与旧Task负向回调，仅复用旧Dodge.Invulnerability，不重跑未变资源 / Practice / 墙坡矩阵。预算120–210手动 / 相关检查10–15，未计实耗。工程仍96 / 50 / 57，Source / 资产 / Config / uproject与A验收哈希保持，没有B编译 / Success / 验收或新Cook。[从第2节开始](M2_03B_LightCombo.md#2-准备与文件清单)。只读Git确认HEAD / 缓存origin/main均2202e74，旧C实现与A素材已纳入提交，远端本轮未联网核验；当前仅提交新指南与状态文档，用户操作Stage / Commit / Push。

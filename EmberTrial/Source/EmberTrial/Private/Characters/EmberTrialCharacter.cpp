@@ -205,12 +205,21 @@ bool AEmberTrialCharacter::RequestLightAttack()
     }
     const FGameplayAbilitySpec* Spec =
         AbilitySystemComponent->FindAbilitySpecFromHandle(LightAttackAbilityHandle);
-    if (!Spec || Spec->IsActive())
+    if (!Spec)
     {
         UE_LOG(LogETAbilityFoundation, Display,
             TEXT("[M1-04A] Request rejected Character=%s Reason=MissingSpecOrBusy"),
             *GetNameSafe(this));
         return false;
+    }
+
+    if (Spec->IsActive())
+    {
+        UETGA_LightAttack* Attack=Cast<UETGA_LightAttack>(Spec->GetPrimaryInstance());
+        const bool bBuffered=IsValid(Attack) && Attack->TryBufferComboInput();
+        UE_LOG(LogETAbilityFoundation,Display,TEXT("[M2-03B] Active attack input Character=%s Accepted=%d"),
+            *GetNameSafe(this),bBuffered ? 1 : 0);
+        return bBuffered;
     }
 
     const bool bAccepted = AbilitySystemComponent->TryActivateAbility(
