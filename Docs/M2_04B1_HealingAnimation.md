@@ -1,6 +1,6 @@
 # M2-04B1：治疗动画素材与Montage
 
-2026-10-17，固定 **UE5.5.4**。前置[A资源事务已验收](Reports/M2_04A_Verification.md)，[治疗路线](M2_04_HealingRoadmap.md)。本批已下发，**待用户手动制作**：三份新素材，完整五帧 / 七控制器数值如下。实际仍105Source / 56cpp / 来源58；三素材落地后预计来源61，当前不预填已完成资产。累计用户手动2451 / 已明确等待240分钟保持。
+2026-10-17，固定 **UE5.5.4**。**本批已验收通过，无待补项**；用户19:48确认全部正常，实际手动15 / 等待1分钟。三份素材与保存记录已核对，实际105Source / 56cpp / 来源61，累计2466 / 明确等待241分钟。[B1报告](Reports/M2_04B1_Verification.md)记录具体采样数字未填与未独立Rig求值的证据边界；原步骤 / 数值保留供查，不必重做。现直接进入[B2完整指南](M2_04B2_HealingAbility.md)。
 
 预计手动 **45–75分钟**：制作 / 烘焙30–45，Montage5–10，相关检查5–10，保存记录5–10；加载 / 烘焙等待按实际另记。这些是预算，不计为已投入时间。收到完成反馈后先保存验收报告，**无待补项时同一轮直接下发B2完整指南**，不再等待“进入下一章”；发现问题只处理具体缺口。C++手动 / Git用户操作的约定继续执行。
 
@@ -262,18 +262,4 @@ AM唯一AS / DefaultSlot / Loop1 / Blend .10与.10 / AutoBlendOut；Notifies空�
 
 ## 9. 本批 Commit / Push（固定放在最后）
 
-**当前指南准备阶段：**Stage本指南、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / Progress / Backlog / M2_Roadmap / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的交接与新“验收通过后直接下一章”约定。A主体已提交685a0f3；[A报告](Reports/M2_04A_Verification.md) / 来源三个身体说明和收尾未提交的可合并。此时工程没有新B1资产或Source可提交。
-
-**B1实际完成并验收后：**在CLion刷新Changes，Stage以下三份新LFS资产的最终真实路径（_v2如采用需明确，并以AM实际引用为准）：
-
-```text
-EmberTrial/Content/EmberTrial/Animations/Healing/Sequence/LS_ET_Heal_01.uasset
-EmberTrial/Content/EmberTrial/Animations/Healing/Clips/AS_ET_Heal_01.uasset
-EmberTrial/Content/EmberTrial/Animations/Healing/Montages/AM_ET_Heal_01.uasset
-```
-
-制作地图`EmberTrial/Content/EmberTrial/Maps/L_M0_AnimationLab.umap`只在合法人偶配置确有保存差异时一并提交；正式地图、原Skeleton / Rig / AnimBP / GA / 输入与旧动画无计划改动，不为提交人为重存。若出现这些额外变化，先告诉我最后操作，我核对实际范围；不要全部勾选掩盖误操作。
-
-届时同时Stage B1报告、数值JSON / 本指南 / 路线 / 进度、核实后AssetManifest新增三行真实SHA（预计58→61）。无实物前不填来源行或写已通过；后续自动进入B2只生成指南，不代写Source或自动上传。已Stage后又修改的文档 / 资产需重新Stage最新差异，检查Staged Diff / LFS指针后Commit / Push。主体可用`feat: add healing animation placeholder assets`，仅指南可用`docs: prepare healing animation workflow`。
-
-Raw证据 / 本地生成脚本、日志 / 视频、Binaries / Intermediate / Saved、生成CMake / IDE缓存和历史包留本地，不Force Add。C++ / Build / 资产录入仍由用户执行，Stage / Commit / Push仍由用户完成。
+当前Stage [B1验收报告](Reports/M2_04B1_Verification.md)、[来源61项](AssetManifest.csv)、[B2完整指南](M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。

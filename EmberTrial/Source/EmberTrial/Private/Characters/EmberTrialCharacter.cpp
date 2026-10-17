@@ -20,6 +20,7 @@
 #include "Attributes/ETStaminaAttributeSet.h"
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_Dodge.h"
+#include "Abilities/ETGA_Heal.h"
 #include "Abilities/ETGameplayTags.h"
 #include "GameplayAbilitySpec.h"
 #include "Combat/ETCombatTraceComponent.h"
@@ -95,6 +96,7 @@ void AEmberTrialCharacter::BeginPlay()
 	EnsureGameplayInitialized();
 	GrantLightAttackAbility();
     GrantDodgeAbility();
+    GrantHealAbility();
 }
 
 UAbilitySystemComponent* AEmberTrialCharacter::GetAbilitySystemComponent() const
@@ -299,7 +301,8 @@ bool AEmberTrialCharacter::IsFormalActionIdle() const
         !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dead) &&
         !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) &&
             !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) &&
-            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dodging);
+                !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dodging) &&
+            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Healing);
 }
 
 bool AEmberTrialCharacter::GetGameplayHealthSnapshot(float& OutHealth, float& OutMaxHealth) const
@@ -483,6 +486,10 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
         {
             AbilitySystemComponent->ClearAbility(DodgeAbilityHandle);
         }
+        if (HealAbilityHandle.IsValid())
+        {
+            AbilitySystemComponent->ClearAbility(HealAbilityHandle);
+        }
         AbilitySystemComponent->RemoveAllGameplayCues();
         AbilitySystemComponent->ClearActorInfo();
 
@@ -492,6 +499,7 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
     }
     LightAttackAbilityHandle = FGameplayAbilitySpecHandle();
     DodgeAbilityHandle = FGameplayAbilitySpecHandle();
+    HealAbilityHandle = FGameplayAbilitySpecHandle();
     Super::EndPlay(EndPlayReason);
 }
 //////////////////////////////////////////////////////////////////////////
@@ -520,6 +528,12 @@ void AEmberTrialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEmberTrialCharacter::Look);
+
+	    if (IsValid(HealAction))
+	    {
+	        EnhancedInputComponent->BindAction(HealAction, ETriggerEvent::Started,
+                this, &AEmberTrialCharacter::HandleHealStarted);
+	    }
 	}
 	else
 	{
@@ -584,4 +598,33 @@ void AEmberTrialCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AEmberTrialCharacter::GrantHealAbility()
+{
+    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown || !HasAuthority() ||
+        CombatTeam!=EETCombatTeam::Player || !HealAbilityClass || HealAbilityHandle.IsValid()) { return; }
+    if (HealAbilityClass->HasAnyClassFlags(CLASS_Abstract))
+    {
+        UE_LOG(LogETAbilityFoundation,Warning,TEXT("[M2-04B2] Abstract Heal class Body=%s"),*GetNameSafe(this));return;
+    }
+    HealAbilityHandle=AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(HealAbilityClass.Get(),1,INDEX_NONE,this));
+    UE_LOG(LogETAbilityFoundation,Display,TEXT("[M2-04B2] Heal granted Body=%s Valid=%d"),
+        *GetNameSafe(this),HealAbilityHandle.IsValid() ? 1 : 0);
+}
+
+bool AEmberTrialCharacter::RequestHeal()
+{
+    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
+        !IsValid(AbilitySystemComponent) || !HealAbilityHandle.IsValid()) { return false; }
+    const FGameplayAbilitySpec* Spec=AbilitySystemComponent->FindAbilitySpecFromHandle(HealAbilityHandle);
+    if (!Spec || Spec->IsActive()) { return false; }
+    const bool bAccepted=AbilitySystemComponent->TryActivateAbility(HealAbilityHandle,false);
+    UE_LOG(LogETAbilityFoundation,Display,TEXT("[M2-04B2] Heal request Body=%s Accepted=%d"),*GetNameSafe(this),bAccepted ? 1 : 0);
+    return bAccepted;
+}
+
+void AEmberTrialCharacter::HandleHealStarted()
+{
+    RequestHeal();
 }

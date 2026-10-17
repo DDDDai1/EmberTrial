@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：[M2-01](Docs/Reports/M2_01_Verification.md)、[M2-02](Docs/Reports/M2_02_Verification.md)、[M2-03](Docs/Reports/M2_03_Verification.md)与[M2-04A](Docs/Reports/M2_04A_Verification.md)已验收。当前进入[B1治疗动画素材](Docs/M2_04B1_HealingAnimation.md)，完整五帧数值 / 三素材步骤已下发待用户制作；实际仍105Source / 56cpp / 来源58，累计手动40小时51分钟 / 等待4小时。B2正式GA / Q与C次数HUD待后续接入，独立包仍M1 C3 Attempt02。
+当前进度：[M2-01](Docs/Reports/M2_01_Verification.md)、[M2-02](Docs/Reports/M2_02_Verification.md)、[M2-03](Docs/Reports/M2_03_Verification.md)与[M2-04A](Docs/Reports/M2_04A_Verification.md) / [B1素材](Docs/Reports/M2_04B1_Verification.md)已验收。当前进入[B2正式治疗能力与Q输入](Docs/M2_04B2_HealingAbility.md)，完整代码 / 配置与分组检查已下发待手动实现；实际105Source / 56cpp / 来源61，累计手动41小时6分钟 / 已明确等待4小时1分钟。次数HUD留C，独立包仍M1 C3 Attempt02。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -653,7 +653,7 @@ Shipping 关闭作弊与开发菜单。截图 / 视频清楚标注是否启用�
 
 **M2-01A实际追加：**已报告手动60 / 等待5分钟，累计手动2071分钟（34小时31分钟）/ 已明确等待190分钟。A完成属性 / Ready基础；M2余下实现预算暂不因这一小批线性缩减，范围与后续成本继续分批校准。
 
-**截至2026-10-16实际追加：**M2-01为130 / 等待15，M2-02为110 / 15，M2-03为140 / 20（A50 / 10、B50 / 5、C40 / 5）分钟；M2当前手动380 / 等待50。项目累计2391分钟（39小时51分钟）/ 已明确等待235分钟（3小时55分钟）；独立检查未拆时，助手设计排障未计入用户手动，预算不按录入速度线性缩减。
+**截至2026-10-17实际追加：**M2-01为130 / 等待15，M2-02为110 / 15，M2-03为140 / 20，M2-04当前75 / 6（A60 / 5、B1为15 / 1）分钟；M2当前手动455 / 等待56。项目累计2466分钟（41小时6分钟）/ 已明确等待241分钟（4小时1分钟）；独立检查未拆时，助手设计排障未计入用户手动，预算不按录入速度线性缩减。B2预计120–180未计实耗。
 
 ### 11.2 阶段计划
 
@@ -855,7 +855,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-17，M0、[M1](Docs/Reports/M1_Verification.md)、M2-01 / 02 / 03与[M2-04A](Docs/Reports/M2_04A_Verification.md)已验收。**当前105Source / 56cpp / 来源58，累计手动2451 / 等待240分钟；当前[B1治疗动画指南](Docs/M2_04B1_HealingAnimation.md)已下发待制作，完整治疗能力 / Q与次数HUD留B2 / C。独立包仍C3 Attempt02，最终投递作品尚未完成。手动C++、方案B与每章用户自行Push保持；实时入口见[Progress](Docs/Progress.md)，以下保留原M0起点：
+**截至2026-10-17，M0、[M1](Docs/Reports/M1_Verification.md)、M2-01 / 02 / 03与[M2-04A](Docs/Reports/M2_04A_Verification.md) / [B1](Docs/Reports/M2_04B1_Verification.md)已验收。**当前105Source / 56cpp / 来源61，累计2466 / 等待241分钟；当前[B2完整指南](Docs/M2_04B2_HealingAbility.md)待手动实施，从第2节开始，次数HUD留C。独立包仍C3 Attempt02，最终投递作品尚未完成。手动C++、方案B与每章用户自行Push保持；实时入口见[Progress](Docs/Progress.md)，以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -867,4 +867,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-当前Stage [B1指南](Docs/M2_04B1_HealingAnimation.md)、[数值JSON](Docs/Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](Docs/M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。
+当前Stage [B1验收报告](Docs/Reports/M2_04B1_Verification.md)、[来源61项](Docs/AssetManifest.csv)、[B2完整指南](Docs/M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](Docs/M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。

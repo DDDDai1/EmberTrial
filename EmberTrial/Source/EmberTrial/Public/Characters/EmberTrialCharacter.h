@@ -19,6 +19,7 @@ class UETHealthAttributeSet;
 class AEmberTrialCharacter;
 class UETGA_LightAttack;
 class UETGA_Dodge;
+class UETGA_Heal;
 class UETCombatTraceComponent;
 class UETCombatLifeComponent;
 class UETStaminaAttributeSet;
@@ -113,6 +114,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 	friend class FETLightComboFlowTest;
 	friend class FETLightComboCancelTest;
 	friend class FETHealingResourceTest;
+	friend class FETHealingAbilityTest;
 
 	bool bStartupAttributesInitialized = false;
 	bool bGameplayReady = false;
@@ -129,6 +131,18 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 
 	FGameplayAbilitySpecHandle DodgeAbilityHandle;
 	void GrantDodgeAbility();
+
+	UPROPERTY(EditDefaultsOnly, Category="EmberTrial|Healing")
+	TSubclassOf<UETGA_Heal> HealAbilityClass;
+
+	UPROPERTY(EditDefaultsOnly, Category="EmberTrial|Healing")
+	TObjectPtr<UInputAction> HealAction;
+
+	FGameplayAbilitySpecHandle HealAbilityHandle;
+
+	void GrantHealAbility();
+
+	void HandleHealStarted();
 
 	void SetGameplayReady(bool bNewReady);
 
@@ -166,6 +180,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
 	bool RequestDodge();
+
+	UFUNCTION(BlueprintCallable, Category="EmberTrial|Healing")
+	bool RequestHeal();
 
 	FVector GetDodgeWorldDirection() const;
 	static FVector MakeDodgeWorldDirection(const FVector2D& Axis, float ControlYaw, const FVector& Forward);

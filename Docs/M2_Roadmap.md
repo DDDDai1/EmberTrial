@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-10-17。**[M2-04A已验收](Reports/M2_04A_Verification.md)，现在进入[B1治疗动画素材](M2_04B1_HealingAnimation.md)，指南已下发待用户制作。**B1仅新增LS / AS / Montage三份独立素材，五帧七控制器完整数值、8–18停留 / 15帧后续生效点与短检查已写明；当前不接GA / Q / 次数HUD。工程实际仍105Source / 56cpp / 来源58，B1未创建资产 / 预览或烘焙，预计素材完成来源61。累计手动2451 / 已明确等待240分钟保持，独立包仍M1 C3 Attempt02。
+更新2026-10-17。**[M2-04B1素材已验收](Reports/M2_04B1_Verification.md)，直接进入[B2正式治疗能力与Q输入](M2_04B2_HealingAbility.md)，指南已下发待用户手动实现。**三份LS / AS / AM已保存，Source105 / cpp56与旧资产保持，来源清单61项；当前尚无正式Healing GA / Q或次数HUD。B2五新 / 十一旧Source的完整代码、精确替换与配置 / 四项自动化 / 10–15分钟短查已准备，预计实现后110 / 59 / 来源63，不当作当前实物。累计用户手动2466 / 明确等待241分钟；B1实际15 / 等待1，独立包仍M1 C3 Attempt02。
 
 ## 1. 本阶段交付
 
@@ -23,7 +23,7 @@
 | M2-07 集成收口 | 四能力连续真实交战、修改触发的专项、更新包 /必要性能窗口与复盘 | 7h |
 | 合计 | 不含重复旧功能验收图 | **65h** |
 
-M1登记手动22h18不同于全项目设计 /理解总成本；不能将所有后续预算按M1速度等比压缩。M2-01 /02 /03与M2-04A已完成，用户登记手动440分钟 / 等待55；理解 / 动画 / 检查未完整拆时，助手设计排障未量化。后续治疗生效时序、破势与锁定仍需独立投入，保留相应预算；治疗具体分批见[M2-04路线](M2_04_HealingRoadmap.md)。剩余M2–M8暂保留基础350+缓冲100–140=450–490h /约15–17有效投入周；岗位是否仍开放留真正准备投递时核实，不假定截图岗位长期有效。
+M1登记手动22h18不同于全项目设计 /理解总成本；不能将所有后续预算按M1速度等比压缩。M2-01 /02 /03与M2-04A / B1已完成，用户登记手动455分钟 / 等待56；理解 / 动画 / 检查未完整拆时，助手设计排障未量化。后续治疗生效时序、破势与锁定仍需独立投入，保留相应预算；治疗具体分批见[M2-04路线](M2_04_HealingRoadmap.md)。剩余M2–M8暂保留基础350+缓冲100–140=450–490h /约15–17有效投入周；岗位是否仍开放留真正准备投递时核实，不假定截图岗位长期有效。
 
 ## 3. 核心设计约束
 
@@ -51,10 +51,10 @@ M1登记手动22h18不同于全项目设计 /理解总成本；不能将所有�
 
 ## 6. 下一开发入口
 
-**[M2-01](Reports/M2_01_Verification.md)、[M2-02](Reports/M2_02_Verification.md)、[M2-03](Reports/M2_03_Verification.md)与[M2-04A](Reports/M2_04A_Verification.md)均已验收。**M2实际手动440 / 等待55分钟保持。当前[B1治疗动画指南](M2_04B1_HealingAnimation.md)已下发，从第2节制作独立LS / AS / AM；本批仅素材，B2正式能力 / Q与C次数HUD后续分批。完成报告无待补项时直接下发下一批，不重复旧矩阵。
+**[M2-01](Reports/M2_01_Verification.md)、[M2-02](Reports/M2_02_Verification.md)、[M2-03](Reports/M2_03_Verification.md)与[M2-04A](Reports/M2_04A_Verification.md) / [B1](Reports/M2_04B1_Verification.md)均已验收。**M2实际455 / 等待56分钟；当前从[B2第2节](M2_04B2_HealingAbility.md#2-准备与准确文件清单)开始正式治疗能力 / Q，五新 / 十一旧手动实施。动画已落地，不重做；次数HUD留C，B2报告无待补项后直接生成。
 
 本路线用于范围与排期；M2-01至03的原指南保留供复查，无需重做已通过的检查。M2-04A也已通过，后续新批次仍逐批给出精确路径 / 完整代码 / 装配 / 短检查和Push清单。M1复盘可作解释参考，不设新的旧功能验收门槛。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-当前Stage [B1指南](M2_04B1_HealingAnimation.md)、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。
+当前Stage [B1验收报告](Reports/M2_04B1_Verification.md)、[来源61项](AssetManifest.csv)、[B2完整指南](M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。

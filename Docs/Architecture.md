@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本1.1；更新2026-10-17。**[M2-04A已验收](Reports/M2_04A_Verification.md)，现在进入[B1治疗动画素材](M2_04B1_HealingAnimation.md)，指南已下发待用户制作。**B1仅新增LS / AS / Montage三份独立素材，五帧七控制器完整数值、8–18停留 / 15帧后续生效点与短检查已写明；当前不接GA / Q / 次数HUD。工程实际仍105Source / 56cpp / 来源58，B1未创建资产 / 预览或烘焙，预计素材完成来源61。累计手动2451 / 已明确等待240分钟保持，独立包仍M1 C3 Attempt02。
+版本1.1；更新2026-10-17。**[M2-04B1素材已验收](Reports/M2_04B1_Verification.md)，直接进入[B2正式治疗能力与Q输入](M2_04B2_HealingAbility.md)，指南已下发待用户手动实现。**三份LS / AS / AM已保存，Source105 / cpp56与旧资产保持，来源清单61项；当前尚无正式Healing GA / Q或次数HUD。B2五新 / 十一旧Source的完整代码、精确替换与配置 / 四项自动化 / 10–15分钟短查已准备，预计实现后110 / 59 / 来源63，不当作当前实物。累计用户手动2466 / 明确等待241分钟；B1实际15 / 等待1，独立包仍M1 C3 Attempt02。
 
 ## 1. 模块边界
 
@@ -228,12 +228,20 @@ Ability持有当前Montage Task、激活 / 段代次、一条带到期世界时�
 
 A五新 / 五旧已落地，实际105Source / 56cpp / 来源58；十份与指南Token一致，其余95份旧Source未变。用户正常双目标构建、索引40+13+3、三个正式身体Valid与19:13:57 Healing.Resource Success已核对，实际Pause / 耗尽 / Retry与短基线通过；助手没有代编译 / 运行测试。58资产字节保持，新增原生默认子对象通过继承生效。未来B2统一Healing互斥 / Recovery / 受击取消，C再接UI；不提前修改既有动作或广播全局资源Ready。
 
-## 21. M2-04B1素材约定（已下发待制作）
+## 21. M2-04B1素材（已验收）
 
 [B1指南](M2_04B1_HealingAnimation.md)只新增独立Healing目录中的LS_ET_Heal_01 / AS_ET_Heal_01 / AM_ET_Heal_01，使用模板SK_Mannequin / CR_Mannequin_Body并在Quinn_Simple预览。五帧七控制器数值与[JSON](Data/M2_04B1_HealPoseValues.json)同源，8–18停留、后续提交点15 / .5秒；单个DefaultSlot Segment / Loop1 / Blend .10与.10，B1不添加Notify或修改Skeleton。原生Notify / GA实例与单次提交权留B2，资源仍由A组件拥有。
 
-新的姿势组合与时序尚未在UE求值 / 蒙皮检查，用户先预览0 / 8再补完整；当前Source105 / cpp56 / 来源58和A基线保持，没有新增运行时状态 / 模块、Build或新Success。三新资产完成后再核实来源，预计61；不为了素材批搭临时角色播放图或重跑未变Gameplay矩阵。
+用户已确认完整姿势 / 独立Quinn_Simple预览、root / 脚与首尾正常；三素材保存与名称引用线索已核对，来源61项。[B1报告](Reports/M2_04B1_Verification.md)区分采样数字未填与未独立Rig求值的证据边界；Source105 / cpp56、旧58项与Config保持A基线，无新运行时功能或Build。
 
-## 22. 本批 Commit / Push（固定放在最后）
+## 22. M2-04B2动作契约（指南已下发，待实现）
 
-当前Stage [B1指南](M2_04B1_HealingAnimation.md)、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。
+[B2完整指南](M2_04B2_HealingAbility.md)计划五新 / 十一旧Source，实例化GA拥有Montage Task、激活代次 / 实例ID / Notify Token与一次提交标志；无状态原生点Notify只转发当前事件。Q由Character的Enhanced Input Started绑定到RequestHeal，IA / IMC与玩家BP只配资源，不在角色图增加治疗逻辑。唯一15帧 / .5秒分支点先封锁重复尝试，再CommitAbility（Cost / Cooldown GE必须None）与A真实治疗服务；成功才扣数，前取消无消费、后取消不退款。
+
+激活与生效各复核地面 / 速度 / 控制权 / Ready / 资源；State.Healing关闭共享Idle、攻击 / 闪避、恢复；HitReact取消Ability.Heal，死亡仍最高优先级。GA先撤销自身引用 / 解绑 / 结束Task、隔离旧回调，再只停止自己的旧Montage；自然结束经Super与ASC.NotifyAbilityEnded清动画所有权。无新增常驻Tick / Timer或UI状态副本，当前次数HUD仍留C。
+
+计划新Healing.Ability真实保存Montage / Notify / GE，覆盖十三场景；仅复用Resource / StaminaRecovery / RecoveryDodge。静态候选不是Build / Success；实际仍105 / 56 / 来源61，实现后预计110 / 59 / 来源63，原A组件 / AttributeSet / UI与Config不改。
+
+## 23. 本批 Commit / Push（固定放在最后）
+
+当前Stage [B1验收报告](Reports/M2_04B1_Verification.md)、[来源61项](AssetManifest.csv)、[B2完整指南](M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。

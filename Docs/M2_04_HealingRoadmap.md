@@ -1,6 +1,6 @@
 # M2-04：有限次数治疗分批路线
 
-2026-10-17，UE5.5.4。**[A已验收](Reports/M2_04A_Verification.md)，[B1治疗动画指南](M2_04B1_HealingAnimation.md)已下发待用户制作。**当前105Source / 56cpp / 来源58，B1计划三素材 / 预计来源61，未创建或烘焙。累计手动2451 / 明确等待240分钟保持，B2正式GA / Q与C次数HUD待后续接入；独立包仍M1 C3 Attempt02。
+2026-10-17，固定UE5.5.4。**A资源与[B1素材](Reports/M2_04B1_Verification.md)已验收，当前进入[B2正式治疗能力与Q输入](M2_04B2_HealingAbility.md)，待用户实现。**实际105Source / 56cpp / 来源61；累计2466 / 明确等待241分钟，04当前75 / 6。B2五新 / 十一旧完整代码与配置已下发，预计110 / 59 / 来源63；C次数HUD待后续，独立包仍M1 C3 Attempt02。
 
 ## 1. 最终行为与资源归属
 
@@ -17,12 +17,12 @@
 | 批次 | 交付 | 预计手动时间 | 检查边界 |
 | --- | --- | ---: | --- |
 | **A：资源与生效事务，已验收** | 原生HealingResource 3/3、固定原生Health GE、成功消费 / 重入保护、事件快照、PIE开发命令、校验与自动化 | 原100–150；实际60 / 等待5分钟 | 新资源测试一次；正式4→命令治疗、Pause、耗尽、Retry短流程5–10分钟；没有治疗动画 / Q或次数HUD |
-| **[B1：治疗动画素材](M2_04B1_HealingAnimation.md)，已下发待制作** | 独立Control Rig Sequence / AS / Montage，明确姿势与生效时间；不污染原攻击 / 闪避素材 | 45–75分钟 | 独立预览 / 骨架 / 首尾 / root约5分钟；素材批不重Build或跑旧Gameplay矩阵 |
-| B2：正式治疗能力与输入 | InstancedPerActor / ServerOnly GA、Montage Task、单次Notify提交、Healing互斥、受击取消 / 死亡清理、唯一Q Started | 100–160分钟 | 新时序测试覆盖前 / 后取消 / 旧通知 / Pause；实机Q与真实受击5–15分钟，不手动掐生效帧 |
+| **[B1：治疗动画素材](M2_04B1_HealingAnimation.md)，已验收** | 独立Control Rig Sequence / AS / Montage，明确姿势与生效时间；不污染原攻击 / 闪避素材 | 原45–75；实际15 / 等待1分钟 | 独立预览 / 骨架 / 首尾 / root约5分钟；素材批不重Build或跑旧Gameplay矩阵 |
+| **[B2：正式治疗能力与输入](M2_04B2_HealingAbility.md)，待用户实施** | InstancedPerActor / ServerOnly GA、Montage Task、单次Notify提交、Healing互斥、受击取消 / 死亡清理、唯一Q Started | 120–180分钟 | 新Healing.Ability十三场景，复用Resource / StaminaRecovery / RecoveryDodge；实机10–15分钟，不手动掐生效帧 |
 | C：次数HUD与整章收口 | 事件Presenter / Widget、UIBootstrap所有权、晚订阅快照 / 身体切换 / 清理、真实交战与必要集成 | 70–100分钟 | 复用实际UI生命周期 / 新资源命令，新增必要稳定规则测试；不重建临时Controller验收图 |
-| 原合计估计 | 分四个可操作批次 | 315–485分钟 | 约5小时15分–8小时5分；实际按用户反馈累计 |
+| 更新合计估计 | 分四个可操作批次 | 335–505分钟 | 约5小时35分–8小时25分；A / B1实耗75 / 等待6，未用预算不当作完成时间 |
 
-Q目前是拟定正式键位，B2下发前核对实际IMC并只保留一条映射；不在A新增输入。A的开发入口保留为复用工具，不能把它代替正式治疗能力的验收。
+B2正式键位为Q，指南核对实际IMC并只保留一条映射，使用原生Started而非新蓝图输入链。B2微调预算用于一次补齐共享门控与复用时序检查；整章8h基础预算及既有全局缓冲保持，不重复加时。A的开发入口保留为复用工具，不能把它代替正式治疗能力的验收。
 
 ## 3. 代码架构与提交时点
 
@@ -47,10 +47,10 @@ B1沿用SK_Mannequin / Quinn_Simple / Control Rig零成本素材路线，先用�
 
 [A报告](Reports/M2_04A_Verification.md)已通过：五新 / 五旧、双Build、56cpp索引、三正式身体Valid和Healing.Resource Success，实机真实治疗 / Pause / 耗尽 / Retry / 短基线成立。实际105Source / 56cpp（Core40 / UI13 / Editor3），58资产字节保持；原生子对象与默认值继承无需人为制造Content差异。原A操作指南保留供复查，无需再录入或重跑。
 
-当前从[B1第2节](M2_04B1_HealingAnimation.md#2-准备路径与建立空白sequence)制作独立三素材。五帧完整L/R/S / 三FK开关、8–18停留 / 15帧预留、烘焙与Montage配置和5–10分钟短查已写明；本批Notifies空，B2再接原生Notify、正式GA与Q，C接次数HUD。无需Build / 旧自动化或临时播放图；当前没有额外补验。
+B1三素材已落地，用户19:48全项通过，15 / 等待1分钟；详细证据与采样数字未填限制见[B1报告](Reports/M2_04B1_Verification.md)。当前从[B2第2节](M2_04B2_HealingAbility.md#2-准备与准确文件清单)保存关闭UE、手动录入五新 / 十一旧Source，再正常双Build / 索引与资产配置。四项自动化加10–15分钟分组短查，无临时Controller图；C次数Presenter / HUD在B2报告无待补项后直接下发。
 
 2026-10-17新增协作约定：每批收到完成反馈后，先核对证据并保存验收报告；**无待补项时同一轮直接生成下一批完整操作指南并更新当前入口**，不再等待用户另发“进入下一章”。有实际缺口时先处理该窄项，不把失败写成通过。该约定不授权助手自动修改Source / UE资产、执行Build或Stage / Commit / Push；手动实践与Git分工保持。
 
 ## 6. 本次 Commit / Push（固定放在最后）
 
-当前Stage [B1指南](M2_04B1_HealingAnimation.md)、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。
+当前Stage [B1验收报告](Reports/M2_04B1_Verification.md)、[来源61项](AssetManifest.csv)、[B2完整指南](M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。

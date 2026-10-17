@@ -18,5 +18,7 @@ namespace ETGameplayTags
     UE_DEFINE_GAMEPLAY_TAG(Ability_Dodge, "Ability.Dodge");
     UE_DEFINE_GAMEPLAY_TAG(State_Dodging, "State.Dodging");
     UE_DEFINE_GAMEPLAY_TAG(State_Invulnerable, "State.Invulnerable");
+    UE_DEFINE_GAMEPLAY_TAG(Ability_Heal, "Ability.Heal");
+    UE_DEFINE_GAMEPLAY_TAG(State_Healing, "State.Healing");
 
 }

@@ -34,6 +34,7 @@ private:
     friend class FETDodgeInvulnerabilityTest;
     friend class FETLightComboFlowTest;
     friend class FETLightComboCancelTest;
+    friend class FETHealingAbilityTest;
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Combat Life")
     TSubclassOf<UETGA_HitReact> HitReactAbilityClass;

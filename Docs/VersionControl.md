@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-17最新现状：**A主体已由用户提交685a0f3，HEAD / 缓存origin一致，Source无差异；本轮未联网核验。当前新增[B1指南](M2_04B1_HealingAnimation.md) / [数值JSON](Data/M2_04B1_HealPoseValues.json)与状态 / 自动进入下一章约定，A报告与清单收尾如未提交可合并。B1实物尚未创建，没有新Source或素材可Stage；实际105 / 56 / 来源58。完成后按[B1末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三素材及真实来源 / 报告；Raw本地，Git由用户操作。
+**2026-10-17最新现状：**用户已提交B1三素材 / 数值JSON与A收尾至fd94aad，HEAD / 缓存origin/main一致，Source无差异；本轮未联网核验。[B1验收](Reports/M2_04B1_Verification.md)通过，来源已61，实际105Source / 56cpp；当前[B2完整指南](M2_04B2_HealingAbility.md)待用户实施，助手只改文档 / 本地Raw候选。当前Stage最新B1报告 / 清单与B2指南 / 状态文档即可，Raw本地；B2代码 / GA / 输入 / AM完成后按其末尾实际差异清单另提交，不预建空类。
 
 ## 1. 已配置内容
 
@@ -356,4 +356,6 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-10-17 B1指南下发：[治疗动画完整步骤](M2_04B1_HealingAnimation.md)与[数值JSON](Data/M2_04B1_HealPoseValues.json)已保存。空白LS_ET_Heal_01 → AS_ET_Heal_01 → AM_ET_Heal_01；五帧0 / 8 / 18 / 22 / 30、七控制器完整L/R/S，8–18相同停留，B2生效预留15帧 / .5秒。旋转向量来自旧M0 / Combo，新的组合 / 时序尚未在UE求值 / 蒙皮预览，用户先查0 / 8再补余帧；未伪造视觉通过。30fps / 排他End31、DefaultSlot / Loop1 / Blend .10与.10 / AutoBlendOut，Notifies保持空，不改Skeleton；B2再添加原生生效Notify。预算45–75手动 / 检查5–10未计实耗，无新C++ / Build / 旧测试 / Cook或Controller测试图。工程仍105 / 56 / 清单58，与A验收基线保持；预计三新素材后来源61。当前累计2451 / 明确240不变；完成并保存报告且无待补项时，按用户新增约定同轮下发B2。
 
-当前Stage [B1指南](M2_04B1_HealingAnimation.md)、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。
+## 11. 当前批次 Commit / Push（固定放在最后）
+
+当前Stage [B1验收报告](Reports/M2_04B1_Verification.md)、[来源61项](AssetManifest.csv)、[B2完整指南](M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。

@@ -3,6 +3,7 @@
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_HitReact.h"
 #include "Abilities/ETGA_Dodge.h"
+#include "Abilities/ETGA_Heal.h"
 #include "Abilities/ETGameplayTags.h"
 #include "AI/ETAIController.h"
 #include "Animation/AnimMontage.h"
@@ -18,7 +19,6 @@
 #include "InputAction.h"
 #include "InputCoreTypes.h"
 #include "InputMappingContext.h"
-#include "Misc/DataValidation.h"
 #include "UObject/UnrealType.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETGameplayValidation, Log, All);
@@ -36,6 +36,7 @@ namespace
             {TEXT("/Game/EmberTrial/Abilities/GA_ET_EnemyLightAttack"), UETGA_LightAttack::StaticClass()},
             {TEXT("/Game/EmberTrial/Abilities/GA_ET_HitReact"), UETGA_HitReact::StaticClass()},
             {TEXT("/Game/EmberTrial/Abilities/GA_ET_Dodge"), UETGA_Dodge::StaticClass()},
+            {TEXT("/Game/EmberTrial/Abilities/GA_ET_Heal"), UETGA_Heal::StaticClass()},
             {TEXT("/Game/EmberTrial/Abilities/Effects/GE_ET_DodgeCost"), UGameplayEffect::StaticClass()},
             {TEXT("/Game/EmberTrial/Abilities/Effects/GE_ET_LightAttackDamage"), UGameplayEffect::StaticClass()},
             {TEXT("/Game/EmberTrial/AI/Controllers/BP_ETMeleeAIController"), AETAIController::StaticClass()}
@@ -157,7 +158,7 @@ void UETGameplayAssetValidator::ValidateBlueprint(UBlueprint* Blueprint, int32& 
     {
         ValidateBody(Blueprint, Defaults, Issues);
     }
-    else if (Defaults->IsA<UETGA_LightAttack>() || Defaults->IsA<UETGA_HitReact>() || Defaults->IsA<UETGA_Dodge>())
+    else if (Defaults->IsA<UETGA_LightAttack>() || Defaults->IsA<UETGA_HitReact>() || Defaults->IsA<UETGA_Dodge>() || Defaults->IsA<UETGA_Heal>())
     {
         ValidateAbility(Blueprint, Defaults, Issues);
     }
@@ -237,6 +238,15 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint,
                 TEXT("Healing requires AutoActivate, MaxCharges 1..9 and InitialCharges 0..MaxCharges."), Issues);
         }
 
+        RequireObject(Blueprint, Defaults, TEXT("HealAbilityClass"), TEXT("ET-HEAL-002"), Issues);
+        const UInputAction* HealInput=Cast<UInputAction>(RequireObject(
+            Blueprint, Defaults, TEXT("HealAction"), TEXT("ET-HEAL-004"), Issues));
+        if (IsValid(HealInput) && (HealInput->GetPathName()!=TEXT("/Game/EmberTrial/Input/Actions/IA_ET_Heal.IA_ET_Heal") ||
+            HealInput->ValueType!=EInputActionValueType::Boolean || HealInput->bTriggerWhenPaused || HealInput->Triggers.Num()!=0))
+        {
+            AddIssue(Blueprint,TEXT("ET-HEAL-004"),TEXT("HealAction must be IA_ET_Heal, Boolean, no Triggers, not triggered while paused."),Issues);
+        }
+
         RequireObject(Blueprint, Defaults, TEXT("DodgeAbilityClass"), TEXT("ET-DODGE-001"), Issues);
         UObject* Mapping = RequireObject(Blueprint, Defaults,
             TEXT("DefaultMappingContext"), TEXT("ET-BODY-003"), Issues);
@@ -307,6 +317,24 @@ void UETGameplayAssetValidator::ValidateAbility(UBlueprint* Blueprint,
         AddIssue(Blueprint, TEXT("ET-GA-002"),
             TEXT("Formal abilities require InstancedPerActor / ServerOnly for current standalone design."), Issues);
     }
+
+    if (const UETGA_Heal* Heal=Cast<UETGA_Heal>(Defaults))
+    {
+        if (!Heal->HasValidConfiguration())
+        {
+            AddIssue(Blueprint,TEXT("ET-HEAL-002"),
+                TEXT("Heal requires valid tags, Amount 1..1000, no Cost/Cooldown GE, one in-place DefaultSlot segment, one native branching Heal Commit before blend-out, no clip notifies."),Issues);
+        }
+        return;
+    }
+    if (const UETGA_HitReact* Hit=Cast<UETGA_HitReact>(Defaults))
+    {
+        if (!Hit->HasValidHealingCancelPolicy())
+        {
+            AddIssue(Blueprint,TEXT("ET-HEAL-003"),TEXT("HitReact must cancel Ability.Heal and must not block State.Healing."),Issues);
+        }
+    }
+
     if (Defaults->IsA<UETGA_Dodge>())
     {
         ValidateMontage(Blueprint, Cast<UAnimMontage>(RequireObject(Blueprint, Defaults,
@@ -326,7 +354,7 @@ void UETGameplayAssetValidator::ValidateAbility(UBlueprint* Blueprint,
         if (!CastChecked<UETGA_Dodge>(Defaults)->HasValidRecoveryCancelPolicy())
         {
             AddIssue(Blueprint, TEXT("ET-DODGE-004"),
-                TEXT("Dodge must cancel only Ability.Attack.Light; do not block State.Attacking; keep Dodging/HitReact/Dead blocked."), Issues);
+                TEXT("Dodge must cancel only Ability.Attack.Light; do not block State.Attacking; keep Dodging/HitReact/Dead/Healing blocked."), Issues);
         }
         if (!CastChecked<UETGA_Dodge>(Defaults)->HasValidInvulnerabilityConfiguration())
         {
@@ -426,8 +454,24 @@ void UETGameplayAssetValidator::ValidateInput(UInputMappingContext* Context, int
 {
     int32 LeftCount = 0;
     int32 CorrectCount = 0;
+    int32 HealKeyCount = 0;
+    int32 HealMappingCount = 0;
     for (const FEnhancedActionKeyMapping& Mapping : Context->GetMappings())
     {
+        const bool bHealAction=IsValid(Mapping.Action) && Mapping.Action->GetPathName()==
+            TEXT("/Game/EmberTrial/Input/Actions/IA_ET_Heal.IA_ET_Heal");
+        if (Mapping.Key==EKeys::Q)
+        {
+            ++HealKeyCount;
+        }
+        if (bHealAction)
+        {
+            ++HealMappingCount;
+        }
+        if ((Mapping.Key==EKeys::Q && !bHealAction) || (bHealAction && Mapping.Key!=EKeys::Q))
+        {
+            AddIssue(Context,TEXT("ET-HEAL-004"),TEXT("Only Q may map to IA_ET_Heal; Q must not map to another action."),Issues);
+        }
         if (Mapping.Key == EKeys::LeftMouseButton)
         {
             ++LeftCount;
@@ -443,5 +487,9 @@ void UETGameplayAssetValidator::ValidateInput(UInputMappingContext* Context, int
         AddIssue(Context, TEXT("ET-INPUT-001"),
             TEXT("IMC_Default needs exactly one Left Mouse Button mapping to IA_ET_LightAttack; restore that row and remove duplicates."),
             Issues);
+    }
+    if (HealKeyCount!=1 || HealMappingCount!=1)
+    {
+        AddIssue(Context,TEXT("ET-HEAL-004"),TEXT("IMC_Default needs exactly one Q mapping to IA_ET_Heal."),Issues);
     }
 }

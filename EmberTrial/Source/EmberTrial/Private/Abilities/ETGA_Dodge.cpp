@@ -36,6 +36,7 @@ UETGA_Dodge::UETGA_Dodge()
     CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Attack_Light);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_HitReact);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_Dead);
+    ActivationBlockedTags.AddTag(ETGameplayTags::State_Healing);
 }
 
 bool UETGA_Dodge::ReadCostAmount(const UGameplayEffect* Effect, float Level, float& OutCost)
@@ -155,7 +156,8 @@ bool UETGA_Dodge::HasValidRecoveryCancelPolicy() const
         !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Attacking) &&
         ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dodging) &&
         ActivationBlockedTags.HasTagExact(ETGameplayTags::State_HitReact) &&
-        ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dead);
+        ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dead) &&
+            ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Healing);
 }
 
 bool UETGA_Dodge::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,

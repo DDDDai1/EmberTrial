@@ -36,6 +36,7 @@ UETGA_LightAttack::UETGA_LightAttack()
     ActivationBlockedTags.AddTag(ETGameplayTags::State_HitReact);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_Dodging);
     ActivationBlockedTags.AddTag(ETGameplayTags::State_Dead);
+    ActivationBlockedTags.AddTag(ETGameplayTags::State_Healing);
 }
 
 bool UETGA_LightAttack::HasValidDamageConfiguration() const
@@ -200,7 +201,8 @@ bool UETGA_LightAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
     const UETCombatTraceComponent* Trace =
         BodyCharacter->FindComponentByClass<UETCombatTraceComponent>();
     UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
-    return HasValidComboConfiguration() && IsValid(AttackMontage) && IsValid(AnimInstance) &&
+    return !ActorInfo->AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Healing) &&
+        HasValidComboConfiguration() && IsValid(AttackMontage) && IsValid(AnimInstance) &&
         IsValid(Trace) && Trace->CanStartAttack() &&
         AnimInstance->GetCurrentActiveMontage() == nullptr;
 }

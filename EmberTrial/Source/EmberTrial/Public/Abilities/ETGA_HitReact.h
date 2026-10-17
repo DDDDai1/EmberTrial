@@ -15,6 +15,7 @@ class EMBERTRIAL_API UETGA_HitReact : public UGameplayAbility
 public:
     UETGA_HitReact();
 
+    bool HasValidHealingCancelPolicy() const;
 protected:
     virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
         const FGameplayAbilityActorInfo* ActorInfo,

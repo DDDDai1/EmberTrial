@@ -265,6 +265,10 @@ B2沿用同一方案：预计60–100手动 / 相关检查5–15，界面复制�
 
 B1为孤立素材批，三素材各检查一次加正式地图1–2分钟短基线，无Build / 旧自动化 / 临时Controller图。蒙皮与采样信息以实际预览 / 导出为准，静态数值不能替代视觉通过；缺项填未找到再读取证据，不要求用户猜数值。
 
+2026-10-17 B1素材验收通过，用户15 / 等待1分钟；保存日志与哈希支持三资产落地，精确姿势 / 采样与短基线依用户预览反馈，不把名称扫描当属性测量。Source / 旧资产未变，不追加旧功能矩阵。保存[B1报告](Reports/M2_04B1_Verification.md)后同轮生成[B2指南](M2_04B2_HealingAbility.md)，继续执行用户手动源码与Git分工。
+
+B2计划新Healing.Ability使用真实Montage / Notify / GE覆盖十三场景；手调旧事件仅负向注入，不代替成功路径。复用Resource / StaminaRecovery / RecoveryDodge，共四项；相关实机10–15分钟集中Q / HUD / 互斥 / P / 真实伤害 / 重建，无临时Controller测试图，不重跑未变墙坡 / 帧率 / Flow / Invulnerability矩阵。预算120–180未计实耗；状态记录明确“静态候选 / 待用户实施”，不伪造新Build / Success。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-当前Stage [B1指南](M2_04B1_HealingAnimation.md)、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。
+当前Stage [B1验收报告](Reports/M2_04B1_Verification.md)、[来源61项](AssetManifest.csv)、[B2完整指南](M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。

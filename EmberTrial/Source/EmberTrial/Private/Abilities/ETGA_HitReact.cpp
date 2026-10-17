@@ -26,6 +26,7 @@ UETGA_HitReact::UETGA_HitReact()
     ActivationBlockedTags.AddTag(ETGameplayTags::State_Dead);
     CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Attack_Light);
     CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Dodge);
+    CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Heal);
 }
 
 bool UETGA_HitReact::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -34,7 +35,7 @@ bool UETGA_HitReact::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
     const FGameplayTagContainer* TargetTags,
     FGameplayTagContainer* OptionalRelevantTags) const
 {
-    if (!ActorInfo || !Super::CanActivateAbility(
+    if (!ActorInfo || !HasValidHealingCancelPolicy() || !Super::CanActivateAbility(
         Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
     {
         return false;
@@ -68,7 +69,8 @@ void UETGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     if (!IsValid(Character) || Character->IsCombatDead() || !IsValid(ASC) || !IsValid(HitReactMontage) ||
         !CommitAbility(Handle, ActorInfo, ActivationInfo) ||
         ASC->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) ||
-        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dodging))
+        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dodging)||
+        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Healing))
     {
         // Do not overlap a formal attack if its cancellation is still deferred.
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
@@ -137,4 +139,10 @@ void UETGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle,
         TEXT("[M1-04C1] Hit end Character=%s Cancelled=%d HitTag=%d"),
         *CharacterName, bWasCancelled ? 1 : 0,
         ASC.IsValid() && ASC->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) ? 1 : 0);
+}
+
+bool UETGA_HitReact::HasValidHealingCancelPolicy() const
+{
+    return CancelAbilitiesWithTag.HasTagExact(ETGameplayTags::Ability_Heal) &&
+        !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Healing);
 }
