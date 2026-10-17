@@ -257,6 +257,14 @@ B2沿用同一方案：预计60–100手动 / 相关检查5–15，界面复制�
 
 2026-10-17 M2-04A继续方案B：[完整指南](M2_04A_HealingResource.md)预算100–150手动 / 相关实机5–10分钟，尚未计实耗。新Healing.Resource覆盖真实原生治疗GE、成功消费 / 被拒不扣、满血 / 无次数 / 死亡 / Pause / 非法配置、同身体控制 / 激活保持、同步Health / 次数回调重入与结束解绑。手动只走原4、永久原生ET_Healing命令、P、Retry / Stop及短基线，无新临时Controller函数 / 按键或验收图；本批未改旧连段 / 闪避 / 资源实现，不机械重跑旧矩阵。原生测试不代替后续Notify、正式Q与次数HUD验收；这些留B / C。当前仅候选 / 静态核对，无新Build / Success / Cook，实际100 / 53 / 58与累计2391 / 235保持。
 
+2026-10-17 M2-04A按方案B验收：实际60 / 等待5分钟，独立检查未拆。新Healing.Resource一次真实Success、三项目Valid与实机4→固定GE治疗 / Pause / 耗尽 / Retry已核对；不重跑未变Combo / Dodge / Lifecycle、不建临时Controller图。暂停恢复后额外4使样本50→90，如实记录实际值，不因与指南示例不同追加补验；Stop再开 / 具体画面按用户反馈，日志仅一轮PIE及Retry，不伪造额外轮次。58资产哈希保持，原生默认值通过继承生效，不为Source变化强制重存Content。[A报告](Reports/M2_04A_Verification.md)无待补；累计2451 / 明确240、M2为440 / 55，无新Cook。
+
+2026-10-17新增协作约定：每批收到完成反馈后，先核对证据并保存验收报告；**无待补项时同一轮直接生成下一批完整操作指南并更新当前入口**，不再等待用户另发“进入下一章”。有实际缺口时先处理该窄项，不把失败写成通过。该约定不授权助手自动修改Source / UE资产、执行Build或Stage / Commit / Push；手动实践与Git分工保持。
+
+2026-10-17 B1指南下发：[治疗动画完整步骤](M2_04B1_HealingAnimation.md)与[数值JSON](Data/M2_04B1_HealPoseValues.json)已保存。空白LS_ET_Heal_01 → AS_ET_Heal_01 → AM_ET_Heal_01；五帧0 / 8 / 18 / 22 / 30、七控制器完整L/R/S，8–18相同停留，B2生效预留15帧 / .5秒。旋转向量来自旧M0 / Combo，新的组合 / 时序尚未在UE求值 / 蒙皮预览，用户先查0 / 8再补余帧；未伪造视觉通过。30fps / 排他End31、DefaultSlot / Loop1 / Blend .10与.10 / AutoBlendOut，Notifies保持空，不改Skeleton；B2再添加原生生效Notify。预算45–75手动 / 检查5–10未计实耗，无新C++ / Build / 旧测试 / Cook或Controller测试图。工程仍105 / 56 / 清单58，与A验收基线保持；预计三新素材后来源61。当前累计2451 / 明确240不变；完成并保存报告且无待补项时，按用户新增约定同轮下发B2。
+
+B1为孤立素材批，三素材各检查一次加正式地图1–2分钟短基线，无Build / 旧自动化 / 临时Controller图。蒙皮与采样信息以实际预览 / 导出为准，静态数值不能替代视觉通过；缺项填未找到再读取证据，不要求用户猜数值。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-当前Stage本验收边界、[治疗路线](M2_04_HealingRoadmap.md) / [A指南](M2_04A_HealingResource.md)、状态 / 设计 / 上章未提交收尾。A实物完成后按[A末尾](M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)Stage完整五新 / 五旧与三个正式身体实际差异，用户Commit / Push；Raw证据 / 脚本 / 候选 / 日志、生成产物与历史包本地。当前没有助手Git索引或UE运行。
+当前Stage [B1指南](M2_04B1_HealingAnimation.md)、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。

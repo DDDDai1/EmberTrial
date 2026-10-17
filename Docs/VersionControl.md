@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-17最新现状：**C主体已由用户提交efaae3e，HEAD / 缓存origin/main一致；本轮新增[治疗路线](M2_04_HealingRoadmap.md) / [A指南](M2_04A_HealingResource.md)与状态设计交接，Source保持已验收100 / 53，未提交的C / 整章报告及来源58项说明可合并。A实物完成后按[最后清单](M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)重新Stage五新 / 五旧完整源码和三个正式身体实际合法差异；当前无新实现 / 编译 / 测试。Raw / 候选 / 生成文件本地，助手不操作索引 / 上传或联网核验。
+**2026-10-17最新现状：**A主体已由用户提交685a0f3，HEAD / 缓存origin一致，Source无差异；本轮未联网核验。当前新增[B1指南](M2_04B1_HealingAnimation.md) / [数值JSON](Data/M2_04B1_HealPoseValues.json)与状态 / 自动进入下一章约定，A报告与清单收尾如未提交可合并。B1实物尚未创建，没有新Source或素材可Stage；实际105 / 56 / 来源58。完成后按[B1末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三素材及真实来源 / 报告；Raw本地，Git由用户操作。
 
 ## 1. 已配置内容
 
@@ -349,3 +349,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 2026-10-17 M2-04路线 / A指南下发：A身体离散3/3、固定原生Health GE成功扣数 / 重入保护、事件快照 / 失活保留与EndPlay解绑、仅PIE ET_Healing复用入口、玩家ET-HEAL-001与一项Healing.Resource长期自动化。五新 / 五旧候选与十个精确替换锚点、本机5.5.4 Instant成功句柄 / 应用查询 / Pauser / 默认子对象与既有Ready语义静态核对；A指南含完整代码、三身体逐项配置、5–10分钟短查与末尾Push清单，不建临时Controller验收图、不重跑未变Combo / Dodge矩阵。预计A105 / 56 / 58；当前工程仍100 / 53 / 58，未写Source / UE资产、执行Build / 新测试 / Cook或计预计工时。累计2391 / 明确235，M2为380 / 50保持；B1动画 / B2正式能力与Q / C次数HUD待后续下发。
 
 本轮Push边界：先提交路线 / A指南与状态 / 架构 / 验收 / Introduction / 上章收尾文档；A实物完成后按[A末尾](M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)重新Stage完整Source与实际资产差异。仍由用户检查Staged Diff、Commit、Push，未变资产不人为重存，Raw不Force Add。
+
+2026-10-17 M2-04A验收：用户19:17全项通过，手动60 / 等待5。十份实现与候选C++ Token一致（九份仅排版 / 末尾换行），其余95旧Source保持C；实际105 / 56 / 来源58。Editor18:19:24 / Game18:20:47覆盖最终Source，CodeModel40+13+3；19:13三正式身体项目Valid / Issues0，19:13:57.118 Healing.Resource实际Success。正式75→100 / 2次、满血拒绝、P内75与2次保持 / Applied0、耗尽0拒绝、19:16:29 Retry新100 / 3次与原HUD / Stop清理有日志；具体输入画面 / Stop再开按用户反馈，不补造第二轮PIE。58资产 / Config / uproject / 冻结B1保持，清单只更新三个身体的来源说明 / 验收阶段。累计2451 / 明确240、M2为440 / 55，04当前60 / 5，独立检查未拆；未重跑未变旧矩阵或新Cook。[A报告](Reports/M2_04A_Verification.md)无待补，B1动画素材待下发，正式Q / GA与次数HUD仍未完成。初查十Source已Stage完整内容，核对期间用户完成685a0f3，最终HEAD / 缓存origin一致、Source无差异；当前只提交最新文档收尾，助手未代改工程 / Git索引或执行UE测试。
+
+核对期间用户已将A完整十份Source与原指南纳入`685a0f3`，最终HEAD / 缓存origin/main一致，Source工作区无差异，不需要重复Stage源码。当前新增[A报告](Reports/M2_04A_Verification.md)、来源三个正式身体说明及状态 / 架构 / 验收 / 路线 / Introduction收尾需要Stage最新文档差异。完整提交范围见[A报告末尾](Reports/M2_04A_Verification.md#5-本次-commit--push固定放在最后)。58资产均无差异，不强制重存Content；Raw / 生成文件 / 日志 / 历史包本地，Stage / Commit / Push由用户操作，助手未联网核验远端。
+
+2026-10-17 B1指南下发：[治疗动画完整步骤](M2_04B1_HealingAnimation.md)与[数值JSON](Data/M2_04B1_HealPoseValues.json)已保存。空白LS_ET_Heal_01 → AS_ET_Heal_01 → AM_ET_Heal_01；五帧0 / 8 / 18 / 22 / 30、七控制器完整L/R/S，8–18相同停留，B2生效预留15帧 / .5秒。旋转向量来自旧M0 / Combo，新的组合 / 时序尚未在UE求值 / 蒙皮预览，用户先查0 / 8再补余帧；未伪造视觉通过。30fps / 排他End31、DefaultSlot / Loop1 / Blend .10与.10 / AutoBlendOut，Notifies保持空，不改Skeleton；B2再添加原生生效Notify。预算45–75手动 / 检查5–10未计实耗，无新C++ / Build / 旧测试 / Cook或Controller测试图。工程仍105 / 56 / 清单58，与A验收基线保持；预计三新素材后来源61。当前累计2451 / 明确240不变；完成并保存报告且无待补项时，按用户新增约定同轮下发B2。
+
+当前Stage [B1指南](M2_04B1_HealingAnimation.md)、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。

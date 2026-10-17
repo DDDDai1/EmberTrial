@@ -1,0 +1,677 @@
+{
+  "Engine": "5.5.4",
+  "Status": "Planned manual asset creation; not yet evaluated / baked / visually verified",
+  "Rig": "/Game/Characters/Mannequins/Rigs/CR_Mannequin_Body",
+  "AuthoringMesh": "/Game/Characters/Mannequins/Meshes/SKM_Manny",
+  "PreviewMesh": "/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple",
+  "Skeleton": "/Game/Characters/Mannequins/Meshes/SK_Mannequin",
+  "FPS": 30,
+  "CoordinateSpace": "Anim Details local control values relative to template control offsets; not actor / bone / initial / offset transforms",
+  "RotationOrder": [
+    "X (Roll)",
+    "Y (Pitch)",
+    "Z (Yaw)"
+  ],
+  "Interpolation": "Linear",
+  "FKSwitches": {
+    "arm_r_fk_ik_switch": false,
+    "arm_l_fk_ik_switch": false,
+    "spine_fk_ik_switch": false
+  },
+  "LevelSequence": "/Game/EmberTrial/Animations/Healing/Sequence/LS_ET_Heal_01",
+  "AnimationSequence": "/Game/EmberTrial/Animations/Healing/Clips/AS_ET_Heal_01",
+  "Montage": "/Game/EmberTrial/Animations/Healing/Montages/AM_ET_Heal_01",
+  "PlaybackStart": 0,
+  "PlaybackEndExclusive": 31,
+  "LastPoseKeyFrame": 30,
+  "ExpectedBakeFrameIntervals": 31,
+  "ExpectedBakeSamplePoints": 32,
+  "ExpectedBakeSeconds": 1.0333333333333334,
+  "PlannedCommitFrame": 15,
+  "PlannedCommitSeconds": 0.5,
+  "NotifyAddedInThisBatch": false,
+  "StableHoldBegin": 8,
+  "StableHoldEnd": 18,
+  "MontageSettings": {
+    "Slot": "DefaultGroup.DefaultSlot",
+    "LoopCount": 1,
+    "PlayRate": 1,
+    "RateScale": 1,
+    "BlendInSeconds": 0.1,
+    "BlendOutSeconds": 0.1,
+    "EnableAutoBlendOut": true
+  },
+  "Provenance": [
+    "Docs/Data/M0_05A_AttackPoseValues.json",
+    "Docs/Data/M0_05B_DefensivePoseValues.json",
+    "Docs/Data/M2_03A_AttackPoseValues.json"
+  ],
+  "VerificationBoundary": "All individual rotation vectors reuse known M0 / Combo values. This combined healing pose, timing and baked assets have NOT been evaluated or visually verified in UE. User preview required.",
+  "Frames": [
+    {
+      "Frame": 0,
+      "Label": "准备",
+      "Controls": {
+        "spine_01_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            -20,
+            15
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            70
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            -20,
+            25
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            70
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "Frame": 8,
+      "Label": "收拢到腰肋",
+      "Controls": {
+        "spine_01_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            10,
+            -55
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            80
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            -20,
+            30
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            85
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "Frame": 18,
+      "Label": "停留结束",
+      "Controls": {
+        "spine_01_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            10,
+            -55
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            80
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            -20,
+            30
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            85
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "Frame": 22,
+      "Label": "收回",
+      "Controls": {
+        "spine_01_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            -15,
+            25
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            60
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            -20,
+            25
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            70
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "Frame": 30,
+      "Label": "回到准备",
+      "Controls": {
+        "spine_01_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            -20,
+            15
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            70
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_r_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "upperarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            -20,
+            25
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "lowerarm_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            70
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        },
+        "hand_l_fk_ctrl": {
+          "Location": [
+            0,
+            0,
+            0
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Scale": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    }
+  ]
+}

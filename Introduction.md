@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：[M2-01](Docs/Reports/M2_01_Verification.md)、[M2-02](Docs/Reports/M2_02_Verification.md)与[M2-03三段轻攻击整章](Docs/Reports/M2_03_Verification.md)已验收，无待补项。当前100Source / 53cpp / 来源58，三段 / 单槽缓冲与恢复阶段正式闪避取消成立；当前进入[M2-04治疗路线](Docs/M2_04_HealingRoadmap.md)，[A完整指南](Docs/M2_04A_HealingResource.md)已下发待用户手动实现，工程尚未改动。累计用户手动39小时51分钟 / 已明确等待3小时55分钟，独立包仍M1 C3 Attempt02，无M2新Cook。
+当前进度：[M2-01](Docs/Reports/M2_01_Verification.md)、[M2-02](Docs/Reports/M2_02_Verification.md)、[M2-03](Docs/Reports/M2_03_Verification.md)与[M2-04A](Docs/Reports/M2_04A_Verification.md)已验收。当前进入[B1治疗动画素材](Docs/M2_04B1_HealingAnimation.md)，完整五帧数值 / 三素材步骤已下发待用户制作；实际仍105Source / 56cpp / 来源58，累计手动40小时51分钟 / 等待4小时。B2正式GA / Q与C次数HUD待后续接入，独立包仍M1 C3 Attempt02。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -757,6 +757,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 - 创建工程 / C++ 类 / 蓝图、基础节点和编辑器配置继续由用户实践。我逐次说明目标、入口、名称 / 父类 / 路径、代码、步骤、预期结果和验收，不一次布置整个系统。
 - 2026-10-04补充：蓝图说明逐节点写出白色执行线、数据引脚、Target、Is Valid的Input Object与有效 / 无效分支；验收逐组列准备、操作、画面 / 日志预期及清理恢复，不用笼统转述旧章节替代关键步骤。B1文档按用户要求保留原样，B2起执行此规范。
 - 2026-10-09补充：用户已完成GitHub首次Push，之后按每章完成进度Commit / Push。每份后续开发指南最后固定列出本章需提交的源码、UE资产、文档与实际改动时才包含的文件，并说明忽略产物留本地；用户完成反馈、我更新验收 / 清单后再上传。收尾内容插在Push清单之前，清单始终在指南最后；助手不自动代替用户Stage / Commit / Push。当前入口为[Docs/M1_05C2_BehaviorTreeMeleeAttack.md](Docs/M1_05C2_BehaviorTreeMeleeAttack.md)，完整版本控制约定见[VersionControl](Docs/VersionControl.md)。
+- 2026-10-17新增协作约定：每批收到完成反馈后，先核对证据并保存验收报告；**无待补项时同一轮直接生成下一批完整操作指南并更新当前入口**，不再等待用户另发“进入下一章”。有实际缺口时先处理该窄项，不把失败写成通过。该约定不授权助手自动修改Source / UE资产、执行Build或Stage / Commit / Push；手动实践与Git分工保持。
 - 我可以先检查工程、准备文档、审查代码和设计测试；不在用户练习期间悄悄完成同一份基础实现。用户要求接手后即可直接处理，不反复确认。
 - 遇到复杂架构、编译 / 链接 / Cook / 崩溃、跨系统状态错误或难以描述的问题，我先读取实际代码和日志定位，给出修正代码与验证步骤。C++ 修复仍按上面的手动规则；其他操作依照用户授权范围执行。
 - 用户只需描述最后一个操作和异常现象即可启动排查，不需要先猜根因。能提供完整文本日志最好；蓝图连线 / 布局用截图，时序 / 动画问题用短视频。具体模板见 `Docs/IssueTemplate.md`。
@@ -854,7 +855,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-17，M0、[M1](Docs/Reports/M1_Verification.md)、[M2-01](Docs/Reports/M2_01_Verification.md)、[M2-02](Docs/Reports/M2_02_Verification.md)与[M2-03](Docs/Reports/M2_03_Verification.md)已验收。**当前100Source / 53cpp / 来源58，三段各25 / 有限缓冲、恢复阶段闪避取消与清理已成立。累计用户手动2391 / 已明确等待235分钟；独立包仍C3 Attempt02，无新Cook或性能改善结论，最终投递作品尚未完成。M2-04已按[路线](Docs/M2_04_HealingRoadmap.md)下发[A资源 / 生效事务](Docs/M2_04A_HealingResource.md)，待用户手动实施；动画 / 正式输入与次数HUD后续分批；C主体由用户提交efaae3e，缓存origin同哈希，本轮未联网核验。当前只提交最新报告 / 清单 / 状态，手动C++与方案B保持。实时入口见[Progress](Docs/Progress.md)，以下保留原M0起点：
+**截至2026-10-17，M0、[M1](Docs/Reports/M1_Verification.md)、M2-01 / 02 / 03与[M2-04A](Docs/Reports/M2_04A_Verification.md)已验收。**当前105Source / 56cpp / 来源58，累计手动2451 / 等待240分钟；当前[B1治疗动画指南](Docs/M2_04B1_HealingAnimation.md)已下发待制作，完整治疗能力 / Q与次数HUD留B2 / C。独立包仍C3 Attempt02，最终投递作品尚未完成。手动C++、方案B与每章用户自行Push保持；实时入口见[Progress](Docs/Progress.md)，以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -866,4 +867,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-当前提交[M2-04路线](Docs/M2_04_HealingRoadmap.md) / [A指南](Docs/M2_04A_HealingResource.md)、本计划 / Progress / Backlog / 架构 / 验收流程 / 版本管理交接与上章未提交的验收 / 来源收尾。A实物完成后按[A末尾](Docs/M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)提交完整五新 / 五旧Source、三个正式身体实际差异与核实后的报告 / 清单；当前工程仍已验收基线，不预先提交空类或Raw候选。Stage / Commit / Push由用户完成，日志 / 生成文件 / 历史包留本地。
+当前Stage [B1指南](Docs/M2_04B1_HealingAnimation.md)、[数值JSON](Docs/Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](Docs/M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。

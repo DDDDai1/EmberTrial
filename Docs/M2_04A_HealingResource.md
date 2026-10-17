@@ -1,8 +1,8 @@
 # M2-04A：有限治疗次数与成功生效事务
 
-2026-10-17，固定 **UE5.5.4**。从[M2-03整章已验收基线](Reports/M2_03_Verification.md)继续；本指南是**待用户手动实现**，没有替你修改Source、运行Build或获得新Success。当前实际仍100Source / 53cpp / 来源58；本批完成后预计105 / 56 / 58（Core40cpp / UI13 / Editor3）。累计手动2391 / 已明确等待235分钟保持。
+2026-10-17，固定 **UE5.5.4**。**本批已按用户19:17反馈与源码 / 构建 / 自动化 / 实机日志核对验收通过，无待补项。**实际105Source / 56cpp / 来源58，五新 / 五旧与指南一致，三Valid与Healing.Resource Success。手动60 / 等待5，累计2451 / 明确等待240分钟；见[A验收报告](Reports/M2_04A_Verification.md)。以下步骤保留供复查，无需重复执行；下一[B1治疗动画指南](M2_04B1_HealingAnimation.md)已下发，从第2节开始；正式治疗动作 / Q / 次数HUD留后续。
 
-预计手动 **100–150分钟**，含理解与录入、组件配置、5–10分钟相关检查和记录；构建等待另记。可分两次做：先录第3–7节，第二次录测试并Build / 检查。治疗整章8h基础预算与批次边界见[治疗路线](M2_04_HealingRoadmap.md)。
+原下发预算手动 **100–150分钟**（非当前待办），含理解与录入、组件配置、5–10分钟相关检查和记录；构建等待另记。可分两次做：先录第3–7节，第二次录测试并Build / 检查。治疗整章8h基础预算与批次边界见[治疗路线](M2_04_HealingRoadmap.md)。
 
 ## 1. 本批结果、职责与规则
 
@@ -870,10 +870,4 @@ Build错误用**文字**贴第一条真实编译 / UHT / 链接错误及前后�
 
 ## 13. 本批 Commit / Push（固定放在最后）
 
-**现在准备阶段**只Stage新治疗路线 / A指南与本次更新的状态设计文档；上章[C报告](Reports/M2_03C_Verification.md) / [整章报告](Reports/M2_03_Verification.md)、来源58项说明若未提交可合并。当前Source仍是已验收C，不将Raw候选当作工程源码提交。
-
-**A手动完成并检查通过后**，在CLion刷新Changes，按第2节精确路径Stage五新 / 五旧**十份完整Source**：资源h/cpp、GE h/cpp、测试cpp、Character h/cpp、PlayerController h/cpp、Editor Validator.cpp。不要只Stage创建骨架；如之前已Stage，再修改后将最新Unstaged差异重新Stage，检查Staged Diff包含完整函数和测试。
-
-资产只提交实际合法变化的三个正式身体：`EmberTrial/Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset`、`EmberTrial/Content/EmberTrial/Characters/Enemies/BP_ETMeleeEnemy.uasset`、`EmberTrial/Content/EmberTrial/Tests/Blueprints/BP_ETCombatTrainingTarget.uasset`。验收时我核对实际路径 / SHA再更新AssetManifest；没有差异不人为重存或Force Add。来源仍58项，不给原生GE另造资产来源行。
-
-文档Stage本指南 / 治疗路线、Progress / Backlog / M2_Roadmap / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction与实际新增验收报告 / 来源记录。审阅后Commit，可用`feat: add body-owned healing charges and successful effect spend`，再由你Push。Raw证据 / 候选 / 生成CMake / IDE缓存、Binaries / Intermediate / Saved、日志 / 视频 / 历史包保留本地。助手不Stage / Commit / Push，当前也没有运行新的Build / 测试；准备阶段不能写已通过A或治疗整章完成。
+当前Stage [B1指南](M2_04B1_HealingAnimation.md)、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。
