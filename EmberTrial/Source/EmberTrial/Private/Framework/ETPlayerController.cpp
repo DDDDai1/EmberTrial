@@ -7,6 +7,7 @@
 #include "Abilities/ETGameplayTags.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "Resources/ETStaminaRecoveryComponent.h"
+#include "Resources/ETHealingResourceComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Engine/World.h"
 
@@ -114,5 +115,39 @@ void AETPlayerController::ET_Stamina(float Delta)
         IsValid(Recovery) && Recovery->IsRecoveryScheduled() ? 1 : 0, World->IsPaused() ? 1 : 0);
 #else
     (void)Delta;
+#endif
+}
+
+void AETPlayerController::ET_Healing(float Amount)
+{
+#if WITH_EDITOR
+    UWorld* World = GetWorld();
+    AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(GetPawn());
+    UETHealingResourceComponent* Healing = IsValid(Body)
+        ? Body->FindComponentByClass<UETHealingResourceComponent>() : nullptr;
+    if (!World || World->WorldType != EWorldType::PIE || !IsLocalController() ||
+        !IsValid(Body) || !IsValid(Healing) || !FMath::IsFinite(Amount) ||
+        Amount < 0.0f || Amount > 1000.0f)
+    {
+        UE_LOG(LogETPlayerController, Display,
+            TEXT("[M2-04A] Debug rejected Reason=ContextOrValue"));
+        return;
+    }
+    float Before = 0.0f;
+    float MaxHealth = 0.0f;
+    Body->GetGameplayHealthSnapshot(Before, MaxHealth);
+    const bool bApplied = Amount > 0.0f && Body->IsFormalActionIdle() &&
+        Healing->TryApplyHealing(Amount);
+    int32 Charges = 0;
+    int32 MaxCharges = 0;
+    const bool bAvailable = Healing->GetHealingSnapshot(Charges, MaxCharges);
+    float After = 0.0f;
+    Body->GetGameplayHealthSnapshot(After, MaxHealth);
+    UE_LOG(LogETPlayerController, Display,
+        TEXT("[M2-04A] Debug Owner=%s Available=%d Amount=%.1f Applied=%d Health=%.1f->%.1f/%.1f Charges=%d/%d Paused=%d"),
+        *GetNameSafe(Body), bAvailable ? 1 : 0, Amount, bApplied ? 1 : 0,
+        Before, After, MaxHealth, Charges, MaxCharges, World->IsPaused() ? 1 : 0);
+#else
+    (void)Amount;
 #endif
 }

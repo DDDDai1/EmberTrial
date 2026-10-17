@@ -1,8 +1,8 @@
 # M2-03C：恢复阶段闪避取消与战斗集成
 
-2026-10-16，固定 **UE5.5.4**。前置[B已验收](Reports/M2_03B_Verification.md)，当前99Source / 52cpp / 来源58项；1→2→3已成立，攻击期间2仍拒绝。**本批只生成手动操作指南，尚未写入Source / 修改资产或运行Build / 测试。**一新 / 七旧Source，实施后预计100Source / 53cpp，来源仍58，无新UE资产。
+2026-10-16，固定 **UE5.5.4**。**本批按用户14:15反馈与源码 / 构建 / 测试日志核对验收通过，无待补项。**实际100Source / 53cpp / 来源58，一新 / 七旧、三项Success；C手动40 / 等待5，详见[C报告](Reports/M2_03C_Verification.md)。[M2-03整章](Reports/M2_03_Verification.md)同步通过；下方步骤保留供复查，无需重复执行，下一[M2-04治疗路线](M2_04_HealingRoadmap.md) / [A完整指南](M2_04A_HealingResource.md)已下发待用户操作。
 
-全部C++仍由你手动录入。预计手动 **90–150分钟**：代码 / 理解60–100、资产 / 输入核对10–20、相关检查10–15、记录5–10，构建等待另列，可分两次完成。原路线C的60–100分钟上调为90–150，原因是本批补齐预检失败保留原攻击、保存标签默认值校验和可复用真实交接测试；不是新增旧功能验收矩阵。整章10h基础预算仍保持，未计本批实耗。
+原下发预算（非当前待办）：手动 **90–150分钟**：代码 / 理解60–100、资产 / 输入核对10–20、相关检查10–15、记录5–10，构建等待另列，可分两次完成。原路线C的60–100分钟上调为90–150，原因是本批补齐预检失败保留原攻击、保存标签默认值校验和可复用真实交接测试；不是新增旧功能验收矩阵。整章10h基础预算仍保持，未计本批实耗。
 
 ## 1. 交付规则与实现分工
 
@@ -673,13 +673,13 @@ Set-Location 'E:\UE_Project\Demo'
 
 4. 两目标成功再开工程。若失败，贴第一条真实C++ / UHT错误与文件行号；exit6不是根因。不删除全工程缓存，不用旧DLL继续验收。
 
-### 7.1 测试时间类型补修（2026-10-16）
+### 7.1 测试时间类型补修（已关闭，2026-10-16）
 
 第6节完整测试已将`FrozenTime`更正为`double`。UE5.5.4的`UWorld::GetTimeSeconds()`返回double；旧指南用float保存后再传入TestEqual，使两实参变成double / float，触发C2666重载歧义。这是指南的类型错误，不是手动录入问题。
 
-若已录入旧版，只在ETLightComboCancelTests.cpp约第240行，把`const float FrozenTime=World->GetTimeSeconds();`改为`const double FrozenTime=World->GetTimeSeconds();`。第243行TestEqual保持原样，不降低断言或修改玩法。保存、保持UE关闭后继续第7节Editor / 索引 / Game Build，再按第9节运行相关测试；目前没有补修后的Build / Success，不重做未受影响的资产配置。
+若已录入旧版，只在ETLightComboCancelTests.cpp约第240行，把`const float FrozenTime=World->GetTimeSeconds();`改为`const double FrozenTime=World->GetTimeSeconds();`。第243行TestEqual保持原样，不降低断言或修改玩法。保存、保持UE关闭后继续第7节Editor / 索引 / Game Build，再按第9节运行相关测试；该补修已随正常双构建与三项Success关闭，无需重做本节或未受影响资产配置。
 
-### 7.2 暂停变量声明遗漏补修（2026-10-16）
+### 7.2 暂停变量声明遗漏补修（已关闭，2026-10-16）
 
 若第246行报`bDodgePaused`未声明，说明局部替换时漏掉了`const bool bDodgePaused = Advance(.50f);`。上次两行示例的替换边界不够明确，现给出完整区块：从**紧接闪避推进.05秒之后**的`SetPauserPlayerState(Pauser)`开始，到后面的`CheckDamage(1);`结束，整体对齐为下列内容；不要改前面第一次暂停攻击的bPaused。
 
@@ -696,7 +696,7 @@ Set-Location 'E:\UE_Project\Demo'
         CheckDamage(1);
 ```
 
-这行不只是变量声明：它实际推进暂停世界.50秒并保存结果，后面的if会检查推进是否成功。不能仅改if变量名、设为true或删除检查。当前源码仍由用户手动补回，保存后继续正常Build；没有补修后Build或自动化Success记录。
+这行不只是变量声明：它实际推进暂停世界.50秒并保存结果，后面的if会检查推进是否成功。不能仅改if变量名、设为true或删除检查。该声明与实际暂停推进已由用户补回，最终源码匹配更正候选、双构建与三项测试通过，本项已关闭。
 
 ## 8. 既有资产与输入核对（不新建蓝图验收图）
 
@@ -777,9 +777,6 @@ slomo1 / 默认数值 / Debug False、Source资产Save All：
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-- **一新Source**：`EmberTrial/Source/EmberTrial/Tests/ETLightComboCancelTests.cpp`。
-- **七旧Source**：`EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_LightAttack.h`、对应`Private/Abilities/ETGA_LightAttack.cpp`；`Public/Abilities/ETGA_Dodge.h`与对应cpp；`Public/Characters/EmberTrialCharacter.h`、`Public/Combat/ETCombatLifeComponent.h`；`EmberTrial/Source/EmberTrialEditor/Private/Validation/ETGameplayAssetValidator.cpp`。只提交完整保存后的实际修改，Character.cpp / Trace / 位移Task无计划差异。
-- **资产**：既有GA_ET_Dodge的标签默认值 / Compile保存真实差异；BP_ThirdPersonCharacter仅有合法输入或编译保存差异时纳入。无新资产 / 输入映射 / Montage；来源清单验收时更新实际哈希，总数仍58，不预填新SHA。
-- **文档**：本指南、B报告 / 已验收状态、来源58项与Progress / Backlog / 路线 / Architecture / 验收流程 / Introduction / VersionControl的最新收尾。B主体已在本地HEAD / 缓存origin/main `9a0cf14`，本轮未联网核验；当前C只有指南，完成后再Stage实际实现。
+一新 / 七旧完整源码与此前指南 / B收尾已由用户纳入efaae3e，HEAD / 缓存origin一致，初查新测试暂存骨架已更新为完整实现。当前只Stage [C报告](Reports/M2_03C_Verification.md) / [整章报告](Reports/M2_03_Verification.md)、来源58项最新说明与Progress / Backlog / 路线 / Architecture / 验收流程 / Introduction / VersionControl的本轮收尾。完整源码路径与实际范围见[C报告最后清单](Reports/M2_03C_Verification.md#5-本次-commit--push固定放在最后)，Source / Content无差异不人为重存。
 
-恢复默认值并Save All → CLion刷新Changes → 重新Stage本批完整文件 → 检查Staged Diff → Commit → Push。可用`feat: allow dodge cancel during light attack recovery`；本轮仅文档可用`docs: verify light combo and prepare recovery dodge cancel`。仍由用户操作Git。Raw / 日志 / 生成CMake / IDE缓存 / Binaries / Intermediate / Saved与历史包留本地，不Force Add。
+CLion刷新Changes → Stage最新报告 / 文档 → 检查Staged Diff → Commit → Push，可用`docs: close light combo recovery cancel milestone`。Raw / 日志 / 生成CMake / IDE缓存 / Binaries / Intermediate / Saved和历史包留本地；Git由用户操作，本轮未联网核验远端。

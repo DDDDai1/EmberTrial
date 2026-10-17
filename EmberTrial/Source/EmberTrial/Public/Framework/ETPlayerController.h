@@ -23,6 +23,9 @@ public:
 	UFUNCTION(Exec, meta = (DevelopmentOnly))
 	void ET_Stamina(float Delta);
 
+	UFUNCTION(Exec, meta = (DevelopmentOnly))
+	void ET_Healing(float Amount);
+
 protected:
 	virtual void SetupInputComponent() override;
 	virtual void BeginPlay() override;

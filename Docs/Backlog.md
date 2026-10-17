@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-16。**[M2-03B已验收](Reports/M2_03B_Verification.md)，无待补项；[M2-03C完整指南已下发](M2_03C_RecoveryDodgeCancel.md)，待用户手动实施。**实际99Source / 52cpp / 来源58项，正式三段攻击 / 单槽缓冲成立，攻击中2仍拒绝。C计划一新 / 七旧Source，预计100 / 53 / 58；本轮没有代改工程或执行UE Build / 测试。B手动50 / 等待5，累计2351 / 明确等待230分钟；独立包仍M1 C3 Attempt02。
+更新2026-10-17。**[M2-03整章](Reports/M2_03_Verification.md)已验收；现在进入[M2-04有限次数治疗](M2_04_HealingRoadmap.md)，[A完整指南](M2_04A_HealingResource.md)已下发待用户手动实现。**A先做身体次数3/3、固定原生治疗GE / 成功扣数、事件快照与复用测试入口；动画 / 正式Q / 次数HUD在后续批次。工程实际仍100Source / 53cpp / 来源58，未代写Source或运行Build / 新测试；预计A完成105 / 56 / 58。累计手动2391 / 已明确等待235分钟保持，独立包仍M1 C3 Attempt02。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -90,17 +90,19 @@
 | M2-02A | [GAS闪避动作与成本提交](M2_02A_DodgeAction.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_02A_Verification.md)：90 / 46 / 51；四Success / 六Valid / 原地成本与清理；50 / 5，无待补 |
 | M2-02B | [方向位移与正式输入](M2_02B_DirectionalDodge.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_02B_Verification.md)：93 / 48 / 51，双构建 / 两Success / 两Valid / 正式位移与清理；30 / 5，无待补 |
 | M2-02C | [短无敌与集成](M2_02C_Invulnerability.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_02C_Verification.md)：三新 / 八旧，双构建 / 索引50 / 三项Success，时点补修关闭；实机两次保护与Retry / Continue，30 / 5 |
-| M2-03 | [三段轻攻击路线](M2_03_LightComboRoadmap.md) | 你手动实现，我分批设计 / 审查 | 进行中 | A / B通过，C恢复闪避取消指南已下发；整章10h预算保持，尚未总验收 |
+| M2-03 | [三段轻攻击整章验收](Reports/M2_03_Verification.md) | 你手动实现，我分批设计 / 审查 | 完成 | A / B / C通过，100 / 53 / 58；三段 / 单槽缓冲 / 恢复闪避取消 / 清理成立，140 / 20分钟，无待补 |
 | M2-03A | [第2 / 3段动画与Montage](M2_03A_ComboAnimationAssets.md) | 你手动制作，我审查 | 完成 | [验收](Reports/M2_03A_Verification.md)：六新素材，96 / 50 / 清单57；旧实现保持，预览与短基线完成，50 / 10分钟，无待补 |
 | M2-03B | [三段轻攻击 / 单槽缓冲](M2_03B_LightCombo.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_03B_Verification.md)：99 / 52 / 58，双构建 / 两Success / 三段各25 / 清理通过，50 / 5，无待补 |
-| M2-03C | [恢复阶段闪避取消](M2_03C_RecoveryDodgeCancel.md) | 你手动代码 / 配置，我设计 / 审查 | 进行中 | 一新 / 七旧预计100 / 53 / 58；三段恢复交接、拒绝保留原攻击、相关三项Success及短查；预算90–150 / 检查10–15，当前C2065暂停声明补回待手改 / 正常重建，尚未验收 |
+| M2-03C | [恢复阶段闪避取消](M2_03C_RecoveryDodgeCancel.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_03C_Verification.md)：一新 / 七旧、双构建 / 索引53 / 三Success，三段恢复取消 / 预检拒绝保留原攻击 / Retry / Stop通过；40 / 5，编译补项已关闭 |
+| M2-04 | [有限次数治疗分批路线](M2_04_HealingRoadmap.md) | 你手动实现，我设计 / 审查 | 进行中 | A待实施；B1素材 / B2正式能力 / C次数HUD依次下发，整章8h基础预算 |
+| M2-04A | [治疗次数 / 成功生效事务](M2_04A_HealingResource.md) | 你手动实现，我核对 | 待用户操作 | 五新 / 五旧预计105 / 56 / 58，3/3 / 原生GE成功扣数 / 快照 / Healing.Resource / 5–10分钟短查；当前无新Success |
 
-历史说明：下方保留各批当时的实施记录，以顶部任务表为当前状态。**实际99Source / 52cpp / 来源58，独立包仍M1 C3 Attempt02。**M2-02与03A / B已验收；C指南已下发，尚无恢复闪避取消实现，原数字4诊断入口保留。
+历史说明：下方保留各批当时的实施记录，以顶部任务表为当前状态。**当前100Source / 53cpp / 来源58，独立包仍M1 C3 Attempt02。**M2-03已完成，M2-04A指南已下发待用户操作；原3 / 4诊断入口保留，不把本章完成等同最终交付。
 
 ## 暂缓到中后期
 
 - Blender 接入、关键武器 / 祭坛 / 角色模型的设计制作；先确定规格并完成一个模型试做再估量。
-- GAS四类能力深化、完整构筑UI、持久化与最终表现：按M2及后续阶段分批完成；当前Core / UI / Editor模块与单段战斗已成立。
+- GAS四类能力深化、完整构筑UI、持久化与最终表现：按M2及后续阶段分批完成；当前Core / UI / Editor模块、玩家三段与恢复闪避取消已成立。
 
 ## 各批历史基线与实施记录
 
@@ -191,3 +193,11 @@ C2已验收无待补，新增合法GA Probe48项，累计2001 /175。C3不加C++
 2026-10-16 M2-03B指南下发：现有LightAttack扩展为玩家单能力三段、单槽.25世界秒缓冲；1 / 2段.60–.80连段窗，延后Timer调度切段、激活 / 段代次及Montage实例身份隔离，每段独立Trace Serial，敌人保持旧单段10。新建独立AM_ET_Light_01复用旧AS，避免污染敌人 / Practice / Dodge测试共用Montage。三新 / 六旧候选、精确替换锚点、代码块 / 本机5.5.4 API与旧生命 / 阵营 / 无敌路径已静态核对；已结束Task正常EndTask后撤销其旧Ability指针，迟到原生回调与停止时重入各有防护。新增Flow计划真实Montage / Notify / Sweep / GE、过期 / 一槽 / 取消 / Pause / 死亡 / EndPlay与旧Task负向回调，仅复用旧Dodge.Invulnerability，不重跑未变资源 / Practice / 墙坡矩阵。预算120–210手动 / 相关检查10–15，未计实耗。工程仍96 / 50 / 57，Source / 资产 / Config / uproject与A验收哈希保持，没有B编译 / Success / 验收或新Cook。[从第2节开始](M2_03B_LightCombo.md#2-准备与文件清单)。只读Git确认HEAD / 缓存origin/main均2202e74，旧C实现与A素材已纳入提交，远端本轮未联网核验；当前仅提交新指南与状态文档，用户操作Stage / Commit / Push。
 
 2026-10-16 M2-03B验收 / C下发：用户13:26全项通过，手动50 / 等待5；九份候选与实物一致（两文件仅缩进），其余90旧Source保持A。实际99 / 52 / 清单58；Editor12:52:20 / Game12:59:58、索引36+13+3；13:14:11 Flow与13:14:37 Invulnerability均Success。正式PIE目标三段独立Serial、100→75→50→25、受击取消 / P / 敌人单段10与HUD / Stop清理有直接记录，具体输入和最终配置按用户反馈。旧共用AM重存SHA改变，但与本地旧LFS对象的导出数据逐字节相同，差异在头 / 缩略图区，无连段Notify名称，不是待补验问题；四旧资产真实SHA更新。[B报告](Reports/M2_03B_Verification.md)通过，无玩法Error；用户已提交9a0cf14、缓存origin一致，本轮未联网核验或操作Git索引。累计2351 / 明确230，M2为340 / 45，03为100 / 15。[C指南](M2_03C_RecoveryDodgeCancel.md)一新 / 七旧、13个精确锚点：读取当前命中结束到淡出前的恢复区间，Dodge先完整预检再由GAS取消Ability.Attack.Light；非法 / 不足拒绝保留原攻击，旧Trace / 输入 / 待切段清除，复用原成本 / RMS / 保护。新RecoveryDodge驱动三段交接 / 失败保留 / Pause / 受击 / 死亡 / EndPlay，仅复用Flow和Invulnerability。C预算90–150 / 检查10–15，未计实耗，候选锚点 / 本机5.5.4 API / 清理语义已静态检查，未写Source或运行新测试，无C Success / 新Cook。
+
+2026-10-16 M2-03C / 整章收口：用户14:15全项完成，手动40 / 等待5；一新 / 七旧与最终候选一致（两份仅排版），92旧Source保持B。实际100 / 53 / 来源58，Editor14:04:25 / Game14:06:08覆盖最终Source，CodeModel37+13+3。14:09:01.866 Flow、14:09:02.384 RecoveryDodge、14:09:25.623 Invulnerability三Success，C2666 / C2065补项关闭，未删断言。实机三段恢复先Attack取消再Dodge、一次25、150.05cm / SourceTime .3001、P与受击 / 保护清理、死亡后14:15:10.986 Retry新双100与Stop清理有直接记录；具体输入 / 画面、敌人10和项目Valid按反馈，当前日志无玩法Error / Accessed None。58资产 / Config / uproject / 冻结B1保持B哈希，清单仅更新Dodge来源说明，不强制重存资产。[C报告](Reports/M2_03C_Verification.md)与[整章报告](Reports/M2_03_Verification.md)无待补；累计2391 / 明确235，M2为380 / 50，03为140 / 20分钟。初查测试暂存骨架随后由用户在核对期间完成efaae3e提交，最终完整测试与工作区一致、Source无差异，缓存origin同哈希；未联网核验或代操作Git。当前仅最新报告 / 清单 / 状态收尾待Stage / Commit / Push，下一M2-04按治疗次数 / 生效点再分批下发；没有助手UE Build / 测试、工程修改、新Cook或新章空类。
+
+2026-10-17 M2-04路线 / A指南下发：A身体离散3/3、固定原生Health GE成功扣数 / 重入保护、事件快照 / 失活保留与EndPlay解绑、仅PIE ET_Healing复用入口、玩家ET-HEAL-001与一项Healing.Resource长期自动化。五新 / 五旧候选与十个精确替换锚点、本机5.5.4 Instant成功句柄 / 应用查询 / Pauser / 默认子对象与既有Ready语义静态核对；A指南含完整代码、三身体逐项配置、5–10分钟短查与末尾Push清单，不建临时Controller验收图、不重跑未变Combo / Dodge矩阵。预计A105 / 56 / 58；当前工程仍100 / 53 / 58，未写Source / UE资产、执行Build / 新测试 / Cook或计预计工时。累计2391 / 明确235，M2为380 / 50保持；B1动画 / B2正式能力与Q / C次数HUD待后续下发。
+
+## 当前批次 Commit / Push（固定放在最后）
+
+本轮Stage [治疗路线](M2_04_HealingRoadmap.md) / [A指南](M2_04A_HealingResource.md)、当前状态 / 架构 / 验收流程 / Introduction / VersionControl；上章C / 整章报告与来源58项说明未提交的可合并。A实物完成后按[A末尾](M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)重新Stage五新 / 五旧完整Source与三个正式身体实际合法差异。当前Source仍基线，Raw / 候选 / 日志 / 生成文件 / 历史包本地，Git由用户操作。

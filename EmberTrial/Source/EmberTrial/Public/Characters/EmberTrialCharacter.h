@@ -23,6 +23,7 @@ class UETCombatTraceComponent;
 class UETCombatLifeComponent;
 class UETStaminaAttributeSet;
 class UETStaminaRecoveryComponent;
+class UETHealingResourceComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -88,6 +89,10 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 		meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UETStaminaRecoveryComponent> StaminaRecoveryComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Healing",
+		meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UETHealingResourceComponent> HealingResourceComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "1.0"))
 	float InitialMaxHealth = 100.0f;
 
@@ -107,6 +112,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 	friend class FETDodgeInvulnerabilityTest;
 	friend class FETLightComboFlowTest;
 	friend class FETLightComboCancelTest;
+	friend class FETHealingResourceTest;
 
 	bool bStartupAttributesInitialized = false;
 	bool bGameplayReady = false;

@@ -25,6 +25,7 @@
 #include "Combat/ETCombatTraceComponent.h"
 #include "Combat/ETCombatLifeComponent.h"
 #include "Resources/ETStaminaRecoveryComponent.h"
+#include "Resources/ETHealingResourceComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -45,6 +46,8 @@ AEmberTrialCharacter::AEmberTrialCharacter()
     CombatLifeComponent = CreateDefaultSubobject<UETCombatLifeComponent>(TEXT("CombatLife"));
 
     StaminaRecoveryComponent = CreateDefaultSubobject<UETStaminaRecoveryComponent>(TEXT("StaminaRecovery"));
+
+    HealingResourceComponent = CreateDefaultSubobject<UETHealingResourceComponent>(TEXT("HealingResource"));
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);

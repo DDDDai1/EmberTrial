@@ -1,6 +1,6 @@
 # M2-03：三段轻攻击分批路线
 
-2026-10-16，UE5.5.4。前置M2-02与[A素材](Reports/M2_03A_Verification.md) / [B连段](Reports/M2_03B_Verification.md)均已验收；[C恢复闪避取消指南](M2_03C_RecoveryDodgeCancel.md)已下发待手动实施。实际99Source / 52cpp / 来源58，玩家三段各25 / 敌人单段10；C预计100 / 53 / 58。03实际100 / 等待15分钟，累计2351 / 明确230，整章10h基础预算保持。
+2026-10-16，UE5.5.4。**[A / B / C整章已验收](Reports/M2_03_Verification.md)，无待补项。**当前100Source / 53cpp / 来源58，玩家三段各25、单槽.25世界秒输入缓冲与三段恢复闪避取消成立，敌人保持单段10。03实际手动140 / 等待20，累计2391 / 明确235分钟；下一[M2-04治疗路线](M2_04_HealingRoadmap.md) / [A指南](M2_04A_HealingResource.md)已下发待实施，无新Cook。
 
 ## 1. 目标行为与分批
 
@@ -10,9 +10,9 @@
 | --- | --- | ---: |
 | A，已完成 | 独立第2 / 3段Control Rig源、烘焙AS与Montage，共6新资产；第1段复用原攻击，现有左键 / 敌人链路保持 | 实际50 / 等待10分钟，独立检查未拆 |
 | [B，已完成](Reports/M2_03B_Verification.md) | 扩展现有LightAttack的玩家连段配置、单槽有限输入缓冲、当前Montage通知 / 身份驱动推进、每段独立Trace Serial；相关真实命中自动化 | 实际50 / 等待5分钟，独立检查未拆 |
-| [C，待用户操作](M2_03C_RecoveryDodgeCancel.md) | 恢复阶段闪避取消、与受击 / 死亡 / Pause / 世界重建集成；只补相关专项 | 90–150分钟，相关检查10–15，构建等待另列 |
+| [C，已完成](Reports/M2_03C_Verification.md) | 恢复阶段闪避取消、与受击 / 死亡 / Pause / 世界重建集成；只补相关专项 | 实际40 / 等待5分钟，独立检查未拆 |
 
-这些估算是10h内的操作安排，另留理解 / 排障余量，不要求做满。C预算含新增交接 / 失败保留自动化与标签默认值契约，较最初60–100上调；完整代码已下发，不预建额外空类。A完成只代表素材，不把独立预览说成已完成三段Gameplay。
+原10h预算用于规划，不要求做满；实际登记手动140 / 等待20，不包含未量化的助手设计与理解时间。A只验收素材，B / C分别以真实连段和恢复交接关闭Gameplay；未将素材预览冒充运行验证。
 
 ## 2. 数据与职责
 
@@ -21,14 +21,14 @@
 - **输入缓冲**最多1条，暂定有效0.25世界秒；新单次输入可以更新这1条的时间，不能累积两条。允许推进时读取过期状态，每次推进最多消费一次，推进后清空；第3段不排第4段。最终值由B实机校准。
 - **推进时段**计划由原生Montage NotifyState驱动，并带当前Montage实例 / 窗口Token / 段代次身份。第1 / 2段为18–24帧（.60–.80秒），B已通过；过早输入若到窗口时已过期便丢弃，有效输入在窗口打开或窗口内新输入时推进。A先完成命中素材，B已装配原生连段通知并通过真实三段验收。
 - **Trace**每个新段先关闭前段、再分配独立Serial和SeenTargets；同目标每段最多一次，三段最多3次。旧Notify结束 / 旧Task回调不得关闭新段窗口，不能只把整个Combo当一个Serial。遮挡与无敌拒绝仍消费当前段候选，下一段重新判定。
-- **取消**先使旧段回调失效、关闭当前Trace / 清输入，再停止自己的Montage。受击 / 死亡从任意段取消；C方案从当前段命中结束读到自动淡出前；Dodge完整预检通过才由GAS PreActivate取消原轻攻击，失败保留原攻击。C指南已下发但未实施，不删除其余Dodging / HitReact / Dead门控。
+- **取消**先使旧段回调失效、关闭当前Trace / 清输入，再停止自己的Montage。受击 / 死亡从任意段取消；C方案从当前段命中结束读到自动淡出前；Dodge完整预检通过才由GAS PreActivate取消原轻攻击，失败保留原攻击。C已验收，Dodging / HitReact / Dead其余门控保留。
 - **暂停**冻结世界时钟与动作；暂停前已接受且尚有效的缓冲随世界时间冻结，暂停菜单期间输入不入队，恢复也不把菜单按键生成新输入。原Flush / 焦点规则沿用。
 
 B已将Timer定义为离开Notify栈后的调度，不保证跨一个渲染帧；用激活 / 段代次和Montage实例拒绝旧事件。已结束Task先正常EndTask再撤销其Ability指针，防队列内旧委托清掉新一轮同名Montage的归属；停止前后复核身份。不靠动画长度Delay解锁，也不让UI / AnimBP负责伤害或段推进。没有新全局事件总线、常驻Tick组件或逐帧扫描世界。
 
 ## 3. 本批资产边界
 
-A制作时正式第1段仍使用旧`/Game/EmberTrial/Animations/Practice/Montages/AM_M0_Attack_01_Montage`。B细化为新建`/Game/EmberTrial/Animations/Combo/Montages/AM_ET_Light_01`，复用同一旧AS_M0_Attack_01但独立配置命中 / 连段通知；玩家1 / 2段添加新连段窗，第三段只有命中窗。旧共用AM继续供敌人、历史Practice与Dodge真实命中测试，保持字节不变。
+A制作时正式第1段仍使用旧`/Game/EmberTrial/Animations/Practice/Montages/AM_M0_Attack_01_Montage`。B细化为新建`/Game/EmberTrial/Animations/Combo/Montages/AM_ET_Light_01`，复用同一旧AS_M0_Attack_01但独立配置命中 / 连段通知；玩家1 / 2段添加新连段窗，第三段只有命中窗。旧共用AM继续供敌人、历史Practice与Dodge真实命中测试；B虽重存包头 / 缩略图区，其导出数据与旧LFS对象逐字节相同，C资产哈希保持B。
 
 A复用SK_Mannequin / CR_Mannequin_Body：第2段回抽、第3段短促前击，均为原地上肢占位。A新顺序 / 时间已由用户预览并验收；助手未重做Rig求值或完整资产属性读取。最终全身重心、武器、脚步与更有辨识度的三段打磨留美术阶段，不把当前素材当最终动作质量。
 
@@ -36,8 +36,8 @@ A不改C++ / GA / 输入 / AnimBP，不Build / Cook或重跑旧Dodge测试。新
 
 ## 4. 当前操作
 
-[A](Reports/M2_03A_Verification.md) / [B](Reports/M2_03B_Verification.md)已通过，无需补验。当前打开[C指南第2节](M2_03C_RecoveryDodgeCancel.md#2-准备与文件清单)：一新 / 七旧Source、原GA_Dodge两标签容器，旧2仍走角色Request；新交接自动化与相关旧两项驱动时序，手动只查10–15分钟。本章尚未总验收。
+[A](Reports/M2_03A_Verification.md) / [B](Reports/M2_03B_Verification.md) / [C](Reports/M2_03C_Verification.md)均通过，[整章结论](Reports/M2_03_Verification.md)已生成。原指南保留供复查，无需重新执行；当前仅提交最新验收 / 清单 / 状态收尾。下一开发章[M2-04有限次数治疗](M2_04_HealingRoadmap.md)已下发[A完整指南](M2_04A_HealingResource.md)，从第2节手动实施；当前没有助手代建空类。
 
 ## 5. 本次 Commit / Push（固定放在最后）
 
-B实现已提交9a0cf14，本地HEAD / 缓存origin一致，远端未联网核验。当前Stage B报告 / 清单58项 / 状态、C新指南与同步文档；实施后按[C末尾](M2_03C_RecoveryDodgeCancel.md#11-本批-commit--push固定放在最后)提交一新 / 七旧和Dodge标签等真实差异。旧共用AM重存的导出数据保持已在B报告说明，不回滚用户资产。Raw / 日志 / 生成文件 / 旧包本地，用户Commit / Push。
+C主体 / 完整新测试已由用户纳入efaae3e，HEAD / 缓存origin一致；初查AM暂存骨架已关闭。当前Stage C与整章报告、来源58项阶段说明、已验收状态 / 设计文字，按[C报告末尾](Reports/M2_03C_Verification.md#5-本次-commit--push固定放在最后)Commit / Push；无差异的Source / Content不重复制造提交。Raw / 日志 / 生成文件 / 历史包本地，远端本轮未联网核验。

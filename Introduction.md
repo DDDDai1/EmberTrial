@@ -1,10 +1,10 @@
 # 《烬火试炼》Ember Trial — UE5 求职 Demo 开发计划
 
-版本：v1.4 · 更新日期：2026-10-16 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
+版本：v1.4 · 更新日期：2026-10-17 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M2-01 / M2-02与M2-03[A素材](Docs/Reports/M2_03A_Verification.md) / [B三段连击](Docs/Reports/M2_03B_Verification.md)已验收；[C恢复闪避取消指南](Docs/M2_03C_RecoveryDodgeCancel.md)已下发待手动实施。实际99Source / 52cpp / 来源58，计划100 / 53 / 58；当前三段各25 / 单槽缓冲成立，攻击中2仍拒绝。累计用户手动39小时11分钟 / 已明确等待3小时50分钟，独立包仍M1 C3 Attempt02，未运行C Build / 测试。
+当前进度：[M2-01](Docs/Reports/M2_01_Verification.md)、[M2-02](Docs/Reports/M2_02_Verification.md)与[M2-03三段轻攻击整章](Docs/Reports/M2_03_Verification.md)已验收，无待补项。当前100Source / 53cpp / 来源58，三段 / 单槽缓冲与恢复阶段正式闪避取消成立；当前进入[M2-04治疗路线](Docs/M2_04_HealingRoadmap.md)，[A完整指南](Docs/M2_04A_HealingResource.md)已下发待用户手动实现，工程尚未改动。累计用户手动39小时51分钟 / 已明确等待3小时55分钟，独立包仍M1 C3 Attempt02，无M2新Cook。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -653,7 +653,7 @@ Shipping 关闭作弊与开发菜单。截图 / 视频清楚标注是否启用�
 
 **M2-01A实际追加：**已报告手动60 / 等待5分钟，累计手动2071分钟（34小时31分钟）/ 已明确等待190分钟。A完成属性 / Ready基础；M2余下实现预算暂不因这一小批线性缩减，范围与后续成本继续分批校准。
 
-**2026-10-15实际追加：**M2-01为130 / 等待15，M2-02为110 / 15，M2-03A为50 / 10、B为50 / 5分钟；M2当前手动340 / 等待45。项目累计2351分钟（39小时11分钟）/ 已明确等待230分钟（3小时50分钟）；独立检查未拆时，助手设计排障未计入用户手动，预算不按录入速度线性缩减。
+**截至2026-10-16实际追加：**M2-01为130 / 等待15，M2-02为110 / 15，M2-03为140 / 20（A50 / 10、B50 / 5、C40 / 5）分钟；M2当前手动380 / 等待50。项目累计2391分钟（39小时51分钟）/ 已明确等待235分钟（3小时55分钟）；独立检查未拆时，助手设计排障未计入用户手动，预算不按录入速度线性缩减。
 
 ### 11.2 阶段计划
 
@@ -854,7 +854,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-16，M0、[M1](Docs/Reports/M1_Verification.md)、[M2-01](Docs/Reports/M2_01_Verification.md)、[M2-02](Docs/Reports/M2_02_Verification.md)与M2-03[A](Docs/Reports/M2_03A_Verification.md) / [B](Docs/Reports/M2_03B_Verification.md)已验收。**99Source / 52cpp / 来源58，三段各25与单槽缓冲成立；[C指南](Docs/M2_03C_RecoveryDodgeCancel.md)准备恢复阶段闪避取消，尚未实施。累计用户手动2351 / 已明确等待230分钟；独立包仍C3 Attempt02，无M2新Cook或性能改善结论。会话切图重建世界、所有C++手动与方案B保持；HEAD / 缓存origin/main为9a0cf14，本轮未联网核验，Git由用户操作。实时入口见[Progress](Docs/Progress.md)，以下保留原M0起点：
+**截至2026-10-17，M0、[M1](Docs/Reports/M1_Verification.md)、[M2-01](Docs/Reports/M2_01_Verification.md)、[M2-02](Docs/Reports/M2_02_Verification.md)与[M2-03](Docs/Reports/M2_03_Verification.md)已验收。**当前100Source / 53cpp / 来源58，三段各25 / 有限缓冲、恢复阶段闪避取消与清理已成立。累计用户手动2391 / 已明确等待235分钟；独立包仍C3 Attempt02，无新Cook或性能改善结论，最终投递作品尚未完成。M2-04已按[路线](Docs/M2_04_HealingRoadmap.md)下发[A资源 / 生效事务](Docs/M2_04A_HealingResource.md)，待用户手动实施；动画 / 正式输入与次数HUD后续分批；C主体由用户提交efaae3e，缓存origin同哈希，本轮未联网核验。当前只提交最新报告 / 清单 / 状态，手动C++与方案B保持。实时入口见[Progress](Docs/Progress.md)，以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -863,3 +863,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 5. 记录实耗工时与问题，更新 Backlog / Progress，再推进 M1。此时才根据真实速度修正总排期。
 
 **后续所有实现以本计划的功能边界、验收条件和证据要求推进；发生变更时更新版本与原因，让作品始终保持可运行、可理解、可展示。**
+
+## 18. 当前开发批次 Commit / Push（固定放在最后）
+
+当前提交[M2-04路线](Docs/M2_04_HealingRoadmap.md) / [A指南](Docs/M2_04A_HealingResource.md)、本计划 / Progress / Backlog / 架构 / 验收流程 / 版本管理交接与上章未提交的验收 / 来源收尾。A实物完成后按[A末尾](Docs/M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)提交完整五新 / 五旧Source、三个正式身体实际差异与核实后的报告 / 清单；当前工程仍已验收基线，不预先提交空类或Raw候选。Stage / Commit / Push由用户完成，日志 / 生成文件 / 历史包留本地。

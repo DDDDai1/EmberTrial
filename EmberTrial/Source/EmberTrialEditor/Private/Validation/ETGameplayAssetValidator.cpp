@@ -11,6 +11,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "Characters/EmberTrialCharacter.h"
+#include "Resources/ETHealingResourceComponent.h"
 #include "Engine/Blueprint.h"
 #include "EnhancedActionKeyMapping.h"
 #include "GameplayEffect.h"
@@ -192,7 +193,7 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint,
     UObject* Defaults, int32& Issues)
 {
     for (const TCHAR* Name : {TEXT("AbilitySystemComponent"), TEXT("HealthAttributes"),
-        TEXT("StaminaAttributes"), TEXT("StaminaRecoveryComponent"),
+        TEXT("StaminaAttributes"), TEXT("StaminaRecoveryComponent"), TEXT("HealingResourceComponent"),
         TEXT("CombatTraceComponent"), TEXT("CombatLifeComponent")})
     {
         RequireObject(Blueprint, Defaults, Name, TEXT("ET-BODY-001"), Issues);
@@ -225,6 +226,17 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint,
         == TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter");
     if (bPlayer)
     {
+        const FObjectPropertyBase* HealingProperty = FindFProperty<FObjectPropertyBase>(
+            Defaults->GetClass(), TEXT("HealingResourceComponent"));
+        const UETHealingResourceComponent* Healing = HealingProperty
+            ? Cast<UETHealingResourceComponent>(HealingProperty->GetObjectPropertyValue_InContainer(Defaults))
+            : nullptr;
+        if (IsValid(Healing) && !Healing->HasValidConfiguration())
+        {
+            AddIssue(Blueprint, TEXT("ET-HEAL-001"),
+                TEXT("Healing requires AutoActivate, MaxCharges 1..9 and InitialCharges 0..MaxCharges."), Issues);
+        }
+
         RequireObject(Blueprint, Defaults, TEXT("DodgeAbilityClass"), TEXT("ET-DODGE-001"), Issues);
         UObject* Mapping = RequireObject(Blueprint, Defaults,
             TEXT("DefaultMappingContext"), TEXT("ET-BODY-003"), Issues);

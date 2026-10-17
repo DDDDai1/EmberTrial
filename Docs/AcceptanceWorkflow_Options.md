@@ -253,6 +253,10 @@ B2沿用同一方案：预计60–100手动 / 相关检查5–15，界面复制�
 
 2026-10-16 C继续方案B：[指南](M2_03C_RecoveryDodgeCancel.md)预算90–150手动 / 相关检查10–15，未计实耗。一项新RecoveryDodge驱动三段恢复交接、预检失败保留原攻击、待切段被2取消、Pause / 受击 / 死亡 / EndPlay；复用Flow与Invulnerability，不重跑未变资源 / Practice / 位移矩阵或新Cook。手动不改非法GA / 临时体力函数、不赶精确窗口，沿旧输入 / 正式交战 / Retry / Stop短流程；EndPlay按UE延迟RMS移除协议检查，不用不可能的立即容器为空断言。当前只有静态候选，无新Success或助手Build / 测试。
 
+2026-10-16 C / 三段整章按方案B关闭：实际40 / 等待5，03合计140 / 20，独立检查未拆报。新RecoveryDodge与Flow / Invulnerability三项实际Success、双构建 / 索引53、实机三段取消 / 一次25 / P / Retry / Stop有证据；不重跑未变资源 / Practice / 位移矩阵。时间类型与遗漏暂停推进声明两次编译失败均保留、修复后通过，不删断言。58资产哈希保持，项目Valid与具体键鼠 / 画面按用户反馈，不为缺少独立Valid日志追加旧矩阵；该保存GA的原生策略已由测试加载验证。累计2391 / 明确235，无新Cook；[C报告](Reports/M2_03C_Verification.md)与[整章报告](Reports/M2_03_Verification.md)无待补。
+
+2026-10-17 M2-04A继续方案B：[完整指南](M2_04A_HealingResource.md)预算100–150手动 / 相关实机5–10分钟，尚未计实耗。新Healing.Resource覆盖真实原生治疗GE、成功消费 / 被拒不扣、满血 / 无次数 / 死亡 / Pause / 非法配置、同身体控制 / 激活保持、同步Health / 次数回调重入与结束解绑。手动只走原4、永久原生ET_Healing命令、P、Retry / Stop及短基线，无新临时Controller函数 / 按键或验收图；本批未改旧连段 / 闪避 / 资源实现，不机械重跑旧矩阵。原生测试不代替后续Notify、正式Q与次数HUD验收；这些留B / C。当前仅候选 / 静态核对，无新Build / Success / Cook，实际100 / 53 / 58与累计2391 / 235保持。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-当前随B报告 / 来源58项与C新指南提交本流程更新；实施文件按[C末尾](M2_03C_RecoveryDodgeCancel.md#11-本批-commit--push固定放在最后)由用户重新Stage / Commit / Push。Raw证据 / 脚本 / 日志、生成产物与历史包本地，未运行的C测试不登记通过。
+当前Stage本验收边界、[治疗路线](M2_04_HealingRoadmap.md) / [A指南](M2_04A_HealingResource.md)、状态 / 设计 / 上章未提交收尾。A实物完成后按[A末尾](M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)Stage完整五新 / 五旧与三个正式身体实际差异，用户Commit / Push；Raw证据 / 脚本 / 候选 / 日志、生成产物与历史包本地。当前没有助手Git索引或UE运行。

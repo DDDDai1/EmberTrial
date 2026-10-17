@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-16最新现状：**B主体已由用户提交`9a0cf14`，HEAD / 缓存origin/main一致，Source / Content / Config工作区无差异；远端本轮未联网核验。[B验收报告](Reports/M2_03B_Verification.md)与来源58项收尾、[C新指南](M2_03C_RecoveryDodgeCancel.md) / 同步文档待重新Stage。C代码尚未实施，助手不操作索引 / Commit / Push。Raw / 生成文件本地。
+**2026-10-17最新现状：**C主体已由用户提交efaae3e，HEAD / 缓存origin/main一致；本轮新增[治疗路线](M2_04_HealingRoadmap.md) / [A指南](M2_04A_HealingResource.md)与状态设计交接，Source保持已验收100 / 53，未提交的C / 整章报告及来源58项说明可合并。A实物完成后按[最后清单](M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)重新Stage五新 / 五旧完整源码和三个正式身体实际合法差异；当前无新实现 / 编译 / 测试。Raw / 候选 / 生成文件本地，助手不操作索引 / 上传或联网核验。
 
 ## 1. 已配置内容
 
@@ -343,3 +343,9 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 2026-10-16 M2-03B准备：当前可提交新指南与Progress / Backlog / M2路线 / 连段路线 / Architecture / 验收流程 / Introduction及A交接更新。完成手动实现后重新Stage三新 / 六旧完整源码、独立AM_ET_Light_01、玩家GA / AM02真实配置差异与核实后的来源记录，逐项见[B末尾](M2_03B_LightCombo.md#12-本批-commit--push固定放在最后)。没有差异的敌人GA / 角色 / 地图不人为重存；Raw / 候选脚本 / 生成文件 / 旧包不Force Add。本轮仅静态检查，未运行B构建或测试。
 
 2026-10-16 B已验收：用户已提交一新AM01、四旧资产真实差异与三新 / 六旧源码；旧共用AM重存导出数据相同，清单58项如实更新新SHA。当前提交B报告 / 状态及C指南；C实施后按[最后清单](M2_03C_RecoveryDodgeCancel.md#11-本批-commit--push固定放在最后)重新Stage一新测试 / 七旧Source、Dodge标签与真实资产差异、更新清单 / 文档，未改文件不制造差异。无助手Git索引 / 网络或UE构建操作。
+
+2026-10-16 C / 整章验收通过：双构建、三Success、100 / 53 / 58与实际清理已核对。初查新测试仅暂存创建骨架，用户随后efaae3e已纳入完整测试（含double时间与暂停推进），最终源码无差异、缓存origin同哈希；记录状态随用户新提交更新，不再要求重复Stage源码。当前仅按[C报告末尾](Reports/M2_03C_Verification.md#5-本次-commit--push固定放在最后)提交本轮报告 / 清单 / 状态收尾，无Content变化不人为重存。
+
+2026-10-17 M2-04路线 / A指南下发：A身体离散3/3、固定原生Health GE成功扣数 / 重入保护、事件快照 / 失活保留与EndPlay解绑、仅PIE ET_Healing复用入口、玩家ET-HEAL-001与一项Healing.Resource长期自动化。五新 / 五旧候选与十个精确替换锚点、本机5.5.4 Instant成功句柄 / 应用查询 / Pauser / 默认子对象与既有Ready语义静态核对；A指南含完整代码、三身体逐项配置、5–10分钟短查与末尾Push清单，不建临时Controller验收图、不重跑未变Combo / Dodge矩阵。预计A105 / 56 / 58；当前工程仍100 / 53 / 58，未写Source / UE资产、执行Build / 新测试 / Cook或计预计工时。累计2391 / 明确235，M2为380 / 50保持；B1动画 / B2正式能力与Q / C次数HUD待后续下发。
+
+本轮Push边界：先提交路线 / A指南与状态 / 架构 / 验收 / Introduction / 上章收尾文档；A实物完成后按[A末尾](M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)重新Stage完整Source与实际资产差异。仍由用户检查Staged Diff、Commit、Push，未变资产不人为重存，Raw不Force Add。

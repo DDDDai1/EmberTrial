@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本1.1；更新2026-10-16。**[M2-03B已验收](Reports/M2_03B_Verification.md)，无待补项；[M2-03C完整指南已下发](M2_03C_RecoveryDodgeCancel.md)，待用户手动实施。**实际99Source / 52cpp / 来源58项，正式三段攻击 / 单槽缓冲成立，攻击中2仍拒绝。C计划一新 / 七旧Source，预计100 / 53 / 58；本轮没有代改工程或执行UE Build / 测试。B手动50 / 等待5，累计2351 / 明确等待230分钟；独立包仍M1 C3 Attempt02。 Core / UI两个Runtime及一个Editor模块保持。
+版本1.1；更新2026-10-17。**[M2-03整章](Reports/M2_03_Verification.md)已验收；现在进入[M2-04有限次数治疗](M2_04_HealingRoadmap.md)，[A完整指南](M2_04A_HealingResource.md)已下发待用户手动实现。**A先做身体次数3/3、固定原生治疗GE / 成功扣数、事件快照与复用测试入口；动画 / 正式Q / 次数HUD在后续批次。工程实际仍100Source / 53cpp / 来源58，未代写Source或运行Build / 新测试；预计A完成105 / 56 / 58。累计手动2391 / 已明确等待235分钟保持，独立包仍M1 C3 Attempt02。
 
 ## 1. 模块边界
 
@@ -16,7 +16,7 @@ flowchart LR
 |---|---|---|
 | EmberTrial | 已有角色、练习动作 / 位移、交互Actor、ASC / 属性集 / 就绪、正式轻攻击Ability / Tag、命中组件 / Notify与原有自动测试 | 不依赖UMG / EmberTrialUI / Editor模块 |
 | EmberTrialUI | 入口、LocalPlayerSubsystem、双Widget / Bootstrap与Presenter已实现 / 验收 | 公开UMG / 私有核心和GameplayAbilities依赖；核心仍不依赖UI |
-| EmberTrialEditor | 尚未创建 | 真正需要编辑器校验器时再建，禁止进入 Game 目标 |
+| EmberTrialEditor | M1-07C已实现两个校验器，当前继续扩展配置契约 | 依赖Runtime定义，只进入Editor目标，禁止进入Game目标 |
 
 CLion CodeModel 用于索引；真实编译由 UBT / UHT 执行。每个模块使用自己的 Definitions 和搜索路径，避免混合导入 / 导出宏。
 
@@ -198,7 +198,7 @@ Ability记录弱ASC与本次ActiveEffect Handle；应用GE可能同步触发取�
 
 ## 17. M2-03分批设计与素材基线
 
-[分批路线](M2_03_LightComboRoadmap.md)选择由现有LightAttack能力拥有玩家整条链，保留敌人默认单段；共享真实伤害 / 无敌策略。计划小型段配置数组、单个有限时输入、当前Montage / Notify身份与段代次推进，每段重开Trace Serial，统一取消清理；不另建重复伤害系统或全局队列。B已实现并通过验收，C恢复取消指南下发但未实施；按后面各节区分当前实现和下一步候选。
+[分批路线](M2_03_LightComboRoadmap.md)选择由现有LightAttack能力拥有玩家整条链，保留敌人默认单段；共享真实伤害 / 无敌策略。计划小型段配置数组、单个有限时输入、当前Montage / Notify身份与段代次推进，每段重开Trace Serial，统一取消清理；不另建重复伤害系统或全局队列。B / C均已实现并通过验收；后面各节记录当前实现与验证边界。
 
 [A当前只做素材](M2_03A_ComboAnimationAssets.md)：独立第2 / 3段LS / AS / Montage共6资产，复用已知FK姿势值改变顺序 / 时序；原第1段与敌人 / Dodge测试引用保持。没有Source / GA / 输入 / AnimBP改动，不为素材预览搭验收图或重跑旧测试。A下发时为96 / 50 / 清单51，实物验收后已57；新骨骼插值 / 蒙皮与烘焙需要用户预览，未声称新Rig求值或正式连段完成。
 
@@ -212,14 +212,22 @@ Ability持有当前Montage Task、激活 / 段代次、一条带到期世界时�
 
 新Flow临时世界使用保存的Montage / Notify / Sweep / 伤害GE，并将目标放在当前手部附近隔离几何，检查三段真实扣血、缓冲、取消 / Pause / 死亡 / EndPlay。旧Notify / Serial / 已结束Task回调是负向注入，不伪造正向命中；该夹具不证明AI寻路、自然站位命中范围、表现质量或硬件性能。两项实际Success与正式PIE三段各25已核对，[B验收](Reports/M2_03B_Verification.md)通过；实际99 / 52 / 58。旧共享AM虽重存，导出数据与A旧LFS对象相同，已记录包头 / 缩略图区差异。
 
-## 19. M2-03C恢复交接候选（待用户实施）
+## 19. M2-03C恢复交接（已验收）
 
 [C指南](M2_03C_RecoveryDodgeCancel.md)让原LightAttack提供纯查询：玩家当前实例 / 控制权与Montage身份一致、可取消、当前播放位置处于唯一命中通知结束至自动淡出前。Dodge保留完整成本 / 冷却 / 地面 / RMS / 输入 / 配置门控，仅该恢复状态允许与Attacking共存；移除硬阻断后由原生CanActivate约束，不全局放开动作。
 
 通过ASC正常TryActivate预检后，GAS PreActivate使用CancelAbilitiesWithTag取消Ability.Attack.Light；旧能力清自己的Trace / Task / 输入 / Timer，新Dodge再核对交接完成后准备原Montage / RMS、提交一次25和原.15保护。预检失败不取消原攻击；底层准备或提交期异常发生在交接之后时不恢复旧攻击，已付取消不退款。无需Character先Cancel、TagCount手调、新Notify / Timer / UI状态或第二套位移逻辑。
 
-一新测试 / 七旧Source预计100 / 53 / 58；保存的GA标签由公共策略谓词与ET-DODGE-004校验，避免蓝图旧默认值覆盖原生新策略。新RecoveryDodge真实驱动三段交接、失败保留、待切段清除、Pause / 受击 / 死亡 / EndPlay；结束世界只断言自己的RMS已标记移除 / Task释放，不要求EndPlay后容器立即为空。此为静态候选，无C Build / Success；正式实现仍B。
+一新测试 / 七旧Source已落地，当前100 / 53 / 58；保存的GA标签由公共策略谓词与ET-DODGE-004校验，避免蓝图旧默认值覆盖原生新策略。新RecoveryDodge真实驱动三段交接、失败保留、待切段清除、Pause / 受击 / 死亡 / EndPlay；结束世界只断言自己的RMS已标记移除 / Task释放，不要求EndPlay后容器立即为空。[C验收](Reports/M2_03C_Verification.md)已通过：双构建 / 索引53、三项实际Success与实机三段取消 / 一次25 / Pause / Retry / Stop成立。58资产 / Config保持B，原生标签继承无需人为重存GA；时间类型 / 暂停声明补修已关闭。
 
-## 20. 本批 Commit / Push（固定放在最后）
+## 20. M2-04治疗资源设计（A指南已下发，未实现）
 
-本设计随B验收 / 来源58项与C指南提交；C手动实施后按其末尾清单重新Stage一新 / 七旧、Dodge / 角色真实差异和更新来源。Raw / 生成文件 / 包本地，Git由用户操作，不提前记录实现或测试通过。
+[治疗路线](M2_04_HealingRoadmap.md)分A资源 / B1素材 / B2动作 / C次数HUD。[A指南](M2_04A_HealingResource.md)计划由Character创建一个HealingResource默认子对象，离散3/3属于身体；仅Player启用，敌人 / 训练默认休眠。Health / Stamina GameplayReady保留原语义，治疗资源另给可用快照；同身体Possess / 暂停 / 失活恢复保留次数，新身体重新初始化。
+
+固定原生Instant Health Add(Base) / SetByCaller.HealthDelta成功后减一次；用WasSuccessfullyApplied而非持续Handle.IsValid，健康与次数同步回调期间拒绝重入，失活不退款，EndPlay撤销快照 / 解绑。资源无Tick / Timer、无动画或UI依赖；未来GA在有效Notify时至多调用一次，当前没有State.Healing、正式Q或次数Presenter。ET_Healing是仅PIE修改的复用诊断入口，不能当作正式能力已完成。
+
+A候选五新 / 五旧预计105Source / 56cpp，工程实际仍100 / 53 / 来源58；当前只做本机API / 精确替换 / 文档静态核对，没有替用户编译或获得新测试Success。未来B2统一Healing互斥 / Recovery / 受击取消，C再接UI；不提前修改既有动作或广播全局资源Ready。
+
+## 21. 本批 Commit / Push（固定放在最后）
+
+Stage本轮治疗设计、[路线](M2_04_HealingRoadmap.md) / [A指南](M2_04A_HealingResource.md)与状态 / 上章未提交收尾文档；A实际完成后按[最后清单](M2_04A_HealingResource.md#13-本批-commit--push固定放在最后)提交完整Source与三个正式身体实际差异。Raw候选 / 证据、生成文件 / 包本地，当前工程不改、Git由用户操作。
