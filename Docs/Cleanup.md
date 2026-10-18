@@ -50,6 +50,20 @@ Source仍111份 / 59cpp。本批未交互式实机、未重新DataValidation或C
 
 额度快照：开工5小时已用51% / 周已用8%，收尾检查57% / 9%；不使用重置，不把助手时间计入用户手动实耗。
 
+## 第4批：攻击身份查询去重与受击链路整理
+
+LightAttack两个玩家请求共用18项身份条件，提取为私有FindPlayerStageMontageInstance；原绑定取值与条件等价，各自保留“下一段”或“三段恢复取消”的区别，不缓存实时状态。攻击其他函数在格式化相邻字符串拼接归一化后有效Token保持，日志文字不变；HitReact只改格式 / 注释。两个能力共四文件分区说明输入缓冲、Notify身份、段推进、旧Task与整链收尾，数值、反射字段、日志与敌人单段语义保持。
+
+现有Combo.Flow增加实例ID不匹配、玩家输入禁用、暂停时两个请求都拒绝且不留补执行的窄检查，原测试场景 / 断言全部保留。四份指南移除整文件实现 / 测试副本及旧恢复查询，改为Source入口，保留配置、接入差异与排障；连段路线页补共享与差异规则，清除过期待实施描述。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，CLion三模块元数据刷新成功。现有11项EmberTrial自动化全部Success，0 Fail / 0 NotRun；Combo.Flow日志确认新增三组边界断言已执行，原连段 / 真实伤害 / 旧回调 / 取消 / 暂停 / 死亡 / EndPlay场景保留，未以新简化测试替代。
+
+共有18项条件及局部绑定逐项等价，调用方特有门控保留；其他攻击代码仅排版 / 注释 / 等值相邻字符串换行，日志文字保持。HitReact有效Token保持，原Combo.Flow的全部Token在新增检查之外保持；五份Source的clang-format检查通过。四份指南共移除1660行重复代码（8份整文件副本及1份旧查询），改为当前Source入口，保留有用解释和操作材料。
+
+106份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改；文档链接 / 围栏与Git差异检查通过。Source仍111份 / 59cpp。收益是减少重复身份判断与维护位置、提升可读性和边界可验证性；数值、伤害和性能行为保持，不宣称帧率提升。
+
+本批未交互式实机、重新DataValidation或Cook / 打包。完整快照、差异、日志与测试JSON位于Raw/Cleanup/2026-10-18_Batch04。额度快照：开工5小时已用59% / 周已用9%，收尾检查67% / 11%；未使用重置，不把助手时间计入用户手动实耗。
+
 ## 后续队列
 
 1. 共享标识符、旧Practice / 诊断入口引用审计，确认后移除无用路径。
@@ -58,25 +72,25 @@ Source仍111份 / 59cpp。本批未交互式实机、未重新DataValidation或C
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-前三批均已收口，其余队列未完成。后续继续按独立职责清理，不重建临时Controller验收图，不进入新玩法开发。
+前四批已收口，其余队列未完成。后续按独立职责继续清理，不重建临时Controller验收图，不进入新玩法开发。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第2批已提交，开工HEAD为417cf70。本批共12项，按CLion实际Diff由用户Stage / Commit / Push：
+第3批已提交，开工HEAD为f4c3353。本批共12项，按CLion实际Diff由用户Stage / Commit / Push：
 
-- EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_Dodge.h
-- EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_Dodge.cpp
-- EmberTrial/Source/EmberTrial/Public/Abilities/Tasks/ETAbilityTask_DodgeMove.h
-- EmberTrial/Source/EmberTrial/Private/Abilities/Tasks/ETAbilityTask_DodgeMove.cpp
-- Docs/M2_02_DodgeRoadmap.md
-- Docs/M2_02A_DodgeAction.md
-- Docs/M2_02B_DirectionalDodge.md
-- Docs/M2_02C_Invulnerability.md
+- EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_LightAttack.h
+- EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_LightAttack.cpp
+- EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_HitReact.h
+- EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_HitReact.cpp
+- EmberTrial/Source/EmberTrial/Tests/ETLightComboFlowTests.cpp
+- Docs/M1_04A_LightAttackAbility.md
+- Docs/M1_04C1_HitReaction.md
+- Docs/M2_03B_LightCombo.md
+- Docs/M2_03C_RecoveryDodgeCancel.md
+- Docs/M2_03_LightComboRoadmap.md
 - Docs/Cleanup.md
 - Docs/Progress.md
-- Docs/Architecture.md
-- Docs/Backlog.md
 
-可用提交说明：Clarify dodge lifecycle and consolidate source references。
+可用提交说明：Deduplicate player attack context and clarify combat lifecycle。
 
-Content / Config不因清理重存；Raw基线、日志 / 报告、构建产物和生成索引留本地。助手不Stage / Commit / Push。
+Content / Config不因清理重存；Raw证据、日志 / 测试报告、生成索引和构建产物留本地。助手不Stage / Commit / Push。

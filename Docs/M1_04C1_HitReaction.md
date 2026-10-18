@@ -1,5 +1,7 @@
 # M1-04C1：生命观察组件与正式GAS受击
 
+2026-10-18清理同步：本页保留历史设计、资产配置、接入差异和验收依据，整文件代码以当前Source链接为准；当前已包含后续连段、闪避与治疗集成，勿把旧步骤整批重做或覆盖现有工程。当前职责见[连段路线页](M2_03_LightComboRoadmap.md)，本次清理提交见[Cleanup](Cleanup.md)。
+
 日期：2026-10-06；UE5.5.4。前置：[B2真实伤害已验收](Reports/M1_04B2_Verification.md)。**状态：用户已实施，C1验收通过。**手动25 / 等待5分钟，45份Source / 22cpp、双构建产物与受击 / 取消清理日志已核对，见[C1结果](Reports/M1_04C1_Verification.md)。后续执行[C2一次死亡](M1_04C2_DeathState.md)。以下保留原操作步骤与实施前预算，不要求重复制作；本指南下发时助手未改Source / UE资产或代执行Build / PIE。
 
 ## 1. 成果、时间与边界
@@ -73,197 +75,15 @@ UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_HitReact,
 
 ### 5.1 ETGA_HitReact.h全文
 
-```cpp
-#pragma once
+当前源码：[ETGA_HitReact.h](../EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_HitReact.h)。
 
-#include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
-#include "ETGA_HitReact.generated.h"
-
-class UAnimMontage;
-class UAbilityTask_PlayMontageAndWait;
-
-UCLASS(Blueprintable)
-class EMBERTRIAL_API UETGA_HitReact : public UGameplayAbility
-{
-    GENERATED_BODY()
-
-public:
-    UETGA_HitReact();
-
-protected:
-    virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-        const FGameplayAbilityActorInfo* ActorInfo,
-        const FGameplayTagContainer* SourceTags = nullptr,
-        const FGameplayTagContainer* TargetTags = nullptr,
-        FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-
-    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-        const FGameplayAbilityActorInfo* ActorInfo,
-        const FGameplayAbilityActivationInfo ActivationInfo,
-        const FGameplayEventData* TriggerEventData) override;
-
-    virtual void EndAbility(const FGameplayAbilitySpecHandle Handle,
-        const FGameplayAbilityActorInfo* ActorInfo,
-        const FGameplayAbilityActivationInfo ActivationInfo,
-        bool bReplicateEndAbility, bool bWasCancelled) override;
-
-private:
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Hit React")
-    TObjectPtr<UAnimMontage> HitReactMontage;
-
-    UPROPERTY(Transient)
-    TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
-
-    UFUNCTION()
-    void HandleMontageCompleted();
-
-    UFUNCTION()
-    void HandleMontageAborted();
-};
-```
+受击保留原配置与GAS入口；不负责直接修改生命。
 
 ### 5.2 ETGA_HitReact.cpp全文
 
-```cpp
-#include "Abilities/ETGA_HitReact.h"
-#include "Abilities/ETGameplayTags.h"
-#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "AbilitySystemComponent.h"
-#include "Animation/AnimInstance.h"
-#include "Animation/AnimMontage.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "ETPracticeActionComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
+当前源码：[ETGA_HitReact.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_HitReact.cpp)。
 
-DEFINE_LOG_CATEGORY_STATIC(LogETHitReact, Log, All);
-
-UETGA_HitReact::UETGA_HitReact()
-{
-    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-    NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
-    ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateNo;
-    bRetriggerInstancedAbility = false;
-
-    FGameplayTagContainer AssetTags;
-    AssetTags.AddTag(ETGameplayTags::Ability_HitReact);
-    SetAssetTags(AssetTags);
-    ActivationOwnedTags.AddTag(ETGameplayTags::State_HitReact);
-    ActivationBlockedTags.AddTag(ETGameplayTags::State_HitReact);
-    CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Attack_Light);
-}
-
-bool UETGA_HitReact::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayTagContainer* SourceTags,
-    const FGameplayTagContainer* TargetTags,
-    FGameplayTagContainer* OptionalRelevantTags) const
-{
-    if (!ActorInfo || !Super::CanActivateAbility(
-        Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-    {
-        return false;
-    }
-    AEmberTrialCharacter* Character =
-        Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get());
-    float Health = 0.0f;
-    float MaxHealth = 0.0f;
-    if (!IsValid(Character) || !Character->HasAuthority() ||
-        ActorInfo->OwnerActor.Get() != Character ||
-        Character->GetAbilitySystemComponent() != ActorInfo->AbilitySystemComponent.Get() ||
-        !Character->GetGameplayHealthSnapshot(Health, MaxHealth) ||
-        !FMath::IsFinite(Health) || !FMath::IsFinite(MaxHealth) ||
-        MaxHealth < 1.0f || Health <= 0.0f || Health > MaxHealth ||
-        UGameplayStatics::IsGamePaused(Character))
-    {
-        return false;
-    }
-    return IsValid(HitReactMontage) && IsValid(ActorInfo->GetAnimInstance());
-}
-
-void UETGA_HitReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayAbilityActivationInfo ActivationInfo,
-    const FGameplayEventData* TriggerEventData)
-{
-    (void)TriggerEventData;
-    AEmberTrialCharacter* Character = ActorInfo
-        ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
-    UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
-    if (!IsValid(Character) || !IsValid(ASC) || !IsValid(HitReactMontage) ||
-        !CommitAbility(Handle, ActorInfo, ActivationInfo) ||
-        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Attacking))
-    {
-        // Do not overlap a formal attack if its cancellation is still deferred.
-        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
-        return;
-    }
-
-    if (UETPracticeActionComponent* Practice =
-        Character->FindComponentByClass<UETPracticeActionComponent>())
-    {
-        Practice->CancelPracticeAction();
-    }
-    Character->StopJumping();
-    Character->ConsumeMovementInputVector();
-    if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
-    {
-        Movement->StopMovementImmediately();
-    }
-
-    MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-        this, NAME_None, HitReactMontage, 1.0f, NAME_None, true, 0.0f, 0.0f, true);
-    if (!MontageTask)
-    {
-        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
-        return;
-    }
-    MontageTask->OnCompleted.AddDynamic(this, &ThisClass::HandleMontageCompleted);
-    MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::HandleMontageAborted);
-    MontageTask->OnCancelled.AddDynamic(this, &ThisClass::HandleMontageAborted);
-    UE_LOG(LogETHitReact, Display,
-        TEXT("[M1-04C1] Hit begin Character=%s Montage=%s"),
-        *GetNameSafe(Character), *GetNameSafe(HitReactMontage.Get()));
-    MontageTask->ReadyForActivation();
-}
-
-void UETGA_HitReact::HandleMontageCompleted()
-{
-    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
-}
-
-void UETGA_HitReact::HandleMontageAborted()
-{
-    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
-}
-
-void UETGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayAbilityActivationInfo ActivationInfo,
-    bool bReplicateEndAbility, bool bWasCancelled)
-{
-    if (!IsEndAbilityValid(Handle, ActorInfo))
-    {
-        return;
-    }
-    if (ScopeLockCount > 0)
-    {
-        Super::EndAbility(Handle, ActorInfo, ActivationInfo,
-            bReplicateEndAbility, bWasCancelled);
-        return;
-    }
-    const FString CharacterName = GetNameSafe(ActorInfo->AvatarActor.Get());
-    const TWeakObjectPtr<UAbilitySystemComponent> ASC = ActorInfo->AbilitySystemComponent;
-    MontageTask = nullptr;
-    Super::EndAbility(Handle, ActorInfo, ActivationInfo,
-        bReplicateEndAbility, bWasCancelled);
-    UE_LOG(LogETHitReact, Display,
-        TEXT("[M1-04C1] Hit end Character=%s Cancelled=%d HitTag=%d"),
-        *CharacterName, bWasCancelled ? 1 : 0,
-        ASC.IsValid() && ASC->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) ? 1 : 0);
-}
-```
+受击在正式取消完成后启动自己的Montage；死亡与其他动作取消优先级保持。
 
 采用ServerOnly是为了本地权威身体都能受击，包括没有Controller的训练身体；不能照抄玩家攻击的LocalOnly / LocalPlayer检查。这不代表已实现网络同步。能力不限制站定 / 地面，因此移动时也可受击；空中速度会被停止后继续受重力影响，尚无专用空中受击动画。
 

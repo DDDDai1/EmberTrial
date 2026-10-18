@@ -1,6 +1,6 @@
 # M2-03：三段轻攻击分批路线
 
-2026-10-16，UE5.5.4。**[A / B / C整章已验收](Reports/M2_03_Verification.md)，无待补项。**当前100Source / 53cpp / 来源58，玩家三段各25、单槽.25世界秒输入缓冲与三段恢复闪避取消成立，敌人保持单段10。03实际手动140 / 等待20，累计2391 / 明确235分钟；下一[M2-04治疗路线](M2_04_HealingRoadmap.md) / [A指南](M2_04A_HealingResource.md)已下发待实施，无新Cook。
+更新2026-10-18，UE5.5.4。[A / B / C整章已验收](Reports/M2_03_Verification.md)，本页保留连段设计与当前职责。功能基线已到M2-04B2，正在[代码与文档清理](Cleanup.md)；实时规模见[Progress](Progress.md)。M2-03历史手动140 / 等待20分钟，无M2新Cook，不再保留过期的下一章待实施状态。
 
 ## 1. 目标行为与分批
 
@@ -34,10 +34,23 @@ A复用SK_Mannequin / CR_Mannequin_Body：第2段回抽、第3段短促前击，
 
 A不改C++ / GA / 输入 / AnimBP，不Build / Cook或重跑旧Dodge测试。新素材仅独立预览，正式地图一轮约1–2分钟短基线即可。B修改共享LightAttack、复用原Trace接口后才触发敌人单段及Dodge真实命中测试相关回归，不把旧矩阵机械重跑。
 
+## 当前查询与资源所有权
+
+当前完整实现：[LightAttack头文件](../EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_LightAttack.h) / [cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_LightAttack.cpp)，[受击cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_HitReact.cpp)。
+
+| 查询 / 状态 | 共用部分 | 保留的差异 |
+| --- | --- | --- |
+| 连段输入 | FindPlayerStageMontageInstance核对存活玩家、控制权、ASC / 动画归属、Montage实例ID、输入与暂停 | 需要下一段；输入有效期、窗口Token与单槽消费仍单独处理 |
+| 恢复闪避查询 | 同一私有身份查询，不持久缓存结果或返回指针 | 三段都可取消；仍要求可取消、实际播放和HitEnd至淡出前的位置 |
+| 段清理 | 快照旧Task / Montage / Trace，再撤销成员归属并结束旧资源 | 只解绑自己旧Task的原生委托；结束后撤销旧Task的Ability指针，保护新段 |
+| 整链结束 | 失效激活 / 段序号，清Timer / 输入 / Trace，再交给GAS结束 | 父类结束可能触发新激活，之后只记录快照，不重置实例字段 |
+
+18项共有身份条件只在一个私有查询维护；初次激活、真实伤害提交仍保留各自门控，不扩大成跨系统通用基类。配置数值、敌人单段、玩家三段、缓冲有效期与伤害语义保持；本次不宣称帧率提升。
+
 ## 4. 当前操作
 
-[A](Reports/M2_03A_Verification.md) / [B](Reports/M2_03B_Verification.md) / [C](Reports/M2_03C_Verification.md)均通过，[整章结论](Reports/M2_03_Verification.md)已生成。原指南保留供复查，无需重新执行；当前仅提交最新验收 / 清单 / 状态收尾。下一开发章[M2-04有限次数治疗](M2_04_HealingRoadmap.md)已下发[A完整指南](M2_04A_HealingResource.md)，从第2节手动实施；当前没有助手代建空类。
+M2-03及后续M2-04B2已完成，本次仅清理当前实现。四份攻击 / 受击文件整理格式与所有权注释，两个玩家请求合并身份检查；现有Combo.Flow增补边界检查，原测试断言保留。2026-10-18本批正常Editor / Game Build、CLion元数据刷新与全部11项现有自动化通过；新增三组上下文边界断言已执行，旧测试场景保留。静态等价核对、格式与保护文件检查通过；未重新实机、资产校验或打包，完整证据见Cleanup。
 
 ## 5. 本次 Commit / Push（固定放在最后）
 
-C主体 / 完整新测试已由用户纳入efaae3e，HEAD / 缓存origin一致；初查AM暂存骨架已关闭。当前Stage C与整章报告、来源58项阶段说明、已验收状态 / 设计文字，按[C报告末尾](Reports/M2_03C_Verification.md#5-本次-commit--push固定放在最后)Commit / Push；无差异的Source / Content不重复制造提交。Raw / 日志 / 生成文件 / 历史包本地，远端本轮未联网核验。
+当前为清理第4批，按[Cleanup末尾](Cleanup.md)提交五份Source与七份同步文档；历史M2-03交付证据仍见[C报告](Reports/M2_03C_Verification.md#5-本次-commit--push固定放在最后)。不把历史清单当本轮待办，不强制重存无变化资产。Raw / 日志 / 生成文件 / 历史包本地；Git由用户操作。

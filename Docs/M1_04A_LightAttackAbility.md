@@ -1,5 +1,7 @@
 # M1-04A：正式 GAS 单段攻击
 
+2026-10-18清理同步：本页保留历史设计、资产配置、接入差异和验收依据，整文件代码以当前Source链接为准；当前已包含后续连段、闪避与治疗集成，勿把旧步骤整批重做或覆盖现有工程。当前职责见[连段路线页](M2_03_LightComboRoadmap.md)，本次清理提交见[Cleanup](Cleanup.md)。
+
 日期：2026-10-06；UE 5.5.4。前置M1-03通过。**状态：已验收。用户手动50分钟 / 构建等待2分钟，源码、双目标receipt、索引与能力日志核对通过，见[A验收](Reports/M1_04A_Verification.md)。**下方实施步骤保留供复查，无需重做；下一步[B1命中窗口与扫掠](M1_04B1_AttackTrace.md)。整体分批见[M1-04路线](M1_04_CombatRoadmap.md)。
 
 ## 1. 本批成果、范围与时间
@@ -101,227 +103,15 @@ public class EmberTrial : ModuleRules
 
 ### 4.1 ETGA_LightAttack.h：完整内容
 
-```cpp
-#pragma once
+当前源码：[ETGA_LightAttack.h](../EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_LightAttack.h)。
 
-#include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
-#include "ETGA_LightAttack.generated.h"
-
-class UAnimMontage;
-class UAbilityTask_PlayMontageAndWait;
-
-UCLASS(Blueprintable)
-class EMBERTRIAL_API UETGA_LightAttack : public UGameplayAbility
-{
-    GENERATED_BODY()
-
-public:
-    UETGA_LightAttack();
-
-protected:
-    virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-        const FGameplayAbilityActorInfo* ActorInfo,
-        const FGameplayTagContainer* SourceTags = nullptr,
-        const FGameplayTagContainer* TargetTags = nullptr,
-        FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-
-    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-        const FGameplayAbilityActorInfo* ActorInfo,
-        const FGameplayAbilityActivationInfo ActivationInfo,
-        const FGameplayEventData* TriggerEventData) override;
-
-    virtual void EndAbility(const FGameplayAbilitySpecHandle Handle,
-        const FGameplayAbilityActorInfo* ActorInfo,
-        const FGameplayAbilityActivationInfo ActivationInfo,
-        bool bReplicateEndAbility, bool bWasCancelled) override;
-
-private:
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Attack")
-    TObjectPtr<UAnimMontage> AttackMontage;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Attack",
-        meta = (ClampMin = "0.0", Units = "cm/s"))
-    float AttackMaxHorizontalSpeed = 3.0f;
-
-    UPROPERTY(Transient)
-    TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
-
-    UFUNCTION()
-    void HandleMontageCompleted();
-
-    UFUNCTION()
-    void HandleMontageAborted();
-};
-```
+当前声明包含段配置、三层身份与私有玩家段上下文查询；资产字段与公开请求接口保持。
 
 ### 4.2 ETGA_LightAttack.cpp：完整内容
 
-```cpp
-#include "Abilities/ETGA_LightAttack.h"
-#include "Abilities/ETGameplayTags.h"
-#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "AbilitySystemComponent.h"
-#include "Animation/AnimInstance.h"
-#include "Animation/AnimMontage.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "ETPracticeActionComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PlayerController.h"
-#include "Kismet/GameplayStatics.h"
+当前源码：[ETGA_LightAttack.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_LightAttack.cpp)。
 
-DEFINE_LOG_CATEGORY_STATIC(LogETLightAttack, Log, All);
-
-UETGA_LightAttack::UETGA_LightAttack()
-{
-    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-    NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalOnly;
-    ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateNo;
-    bRetriggerInstancedAbility = false;
-
-    FGameplayTagContainer AssetTags;
-    AssetTags.AddTag(ETGameplayTags::Ability_Attack_Light);
-    SetAssetTags(AssetTags);
-    ActivationOwnedTags.AddTag(ETGameplayTags::State_Attacking);
-    ActivationBlockedTags.AddTag(ETGameplayTags::State_Attacking);
-}
-
-bool UETGA_LightAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayTagContainer* SourceTags,
-    const FGameplayTagContainer* TargetTags,
-    FGameplayTagContainer* OptionalRelevantTags) const
-{
-    if (!ActorInfo || !Super::CanActivateAbility(
-        Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-    {
-        return false;
-    }
-
-    AEmberTrialCharacter* Character =
-        Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get());
-    if (!IsValid(Character) || ActorInfo->OwnerActor.Get() != Character ||
-        !Character->IsGameplayReady() ||
-        Character->GetAbilitySystemComponent() != ActorInfo->AbilitySystemComponent.Get())
-    {
-        return false;
-    }
-
-    float Health = 0.0f;
-    float MaxHealth = 0.0f;
-    if (!Character->GetGameplayHealthSnapshot(Health, MaxHealth) ||
-        !FMath::IsFinite(Health) || !FMath::IsFinite(MaxHealth) ||
-        MaxHealth < 1.0f || Health <= 0.0f || Health > MaxHealth)
-    {
-        return false;
-    }
-
-    APlayerController* Controller = Cast<APlayerController>(Character->GetController());
-    if (!IsValid(Controller) || !Controller->IsLocalController() ||
-        Controller->GetPawn() != Character || Controller->IsMoveInputIgnored() ||
-        UGameplayStatics::IsGamePaused(Character))
-    {
-        return false;
-    }
-
-    UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
-    if (!IsValid(Movement) || !Movement->IsMovingOnGround() ||
-        !FMath::IsFinite(AttackMaxHorizontalSpeed) || AttackMaxHorizontalSpeed < 0.0f ||
-        Character->GetVelocity().SizeSquared2D() > FMath::Square(AttackMaxHorizontalSpeed))
-    {
-        return false;
-    }
-
-    // Migration boundary: formal attack cannot overlap a practice action.
-    const UETPracticeActionComponent* Practice =
-        Character->FindComponentByClass<UETPracticeActionComponent>();
-    if (Practice && !Practice->IsPracticeActionIdle())
-    {
-        return false;
-    }
-
-    UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
-    return IsValid(AttackMontage) && IsValid(AnimInstance) &&
-        AnimInstance->GetCurrentActiveMontage() == nullptr;
-}
-
-void UETGA_LightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayAbilityActivationInfo ActivationInfo,
-    const FGameplayEventData* TriggerEventData)
-{
-    (void)TriggerEventData;
-    AEmberTrialCharacter* Character = ActorInfo
-        ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
-    if (!IsValid(Character) || !IsValid(AttackMontage) ||
-        !CommitAbility(Handle, ActorInfo, ActivationInfo))
-    {
-        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
-        return;
-    }
-
-    Character->StopJumping();
-    Character->ConsumeMovementInputVector();
-    if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
-    {
-        Movement->StopMovementImmediately();
-    }
-
-    MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-        this, NAME_None, AttackMontage, 1.0f, NAME_None, true, 0.0f, 0.0f, true);
-    if (!MontageTask)
-    {
-        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
-        return;
-    }
-    MontageTask->OnCompleted.AddDynamic(this, &ThisClass::HandleMontageCompleted);
-    MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::HandleMontageAborted);
-    MontageTask->OnCancelled.AddDynamic(this, &ThisClass::HandleMontageAborted);
-
-    UE_LOG(LogETLightAttack, Display,
-        TEXT("[M1-04A] Begin Character=%s Ability=%s Montage=%s"),
-        *GetNameSafe(Character), *GetNameSafe(this), *GetNameSafe(AttackMontage.Get()));
-    MontageTask->ReadyForActivation();
-}
-
-void UETGA_LightAttack::HandleMontageCompleted()
-{
-    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, false);
-}
-
-void UETGA_LightAttack::HandleMontageAborted()
-{
-    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false, true);
-}
-
-void UETGA_LightAttack::EndAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayAbilityActivationInfo ActivationInfo,
-    bool bReplicateEndAbility, bool bWasCancelled)
-{
-    if (!IsEndAbilityValid(Handle, ActorInfo))
-    {
-        return;
-    }
-    if (ScopeLockCount > 0)
-    {
-        Super::EndAbility(Handle, ActorInfo, ActivationInfo,
-            bReplicateEndAbility, bWasCancelled);
-        return;
-    }
-
-    const FString CharacterName = GetNameSafe(ActorInfo->AvatarActor.Get());
-    const TWeakObjectPtr<UAbilitySystemComponent> ASC = ActorInfo->AbilitySystemComponent;
-    MontageTask = nullptr;
-    Super::EndAbility(Handle, ActorInfo, ActivationInfo,
-        bReplicateEndAbility, bWasCancelled);
-
-    UE_LOG(LogETLightAttack, Display,
-        TEXT("[M1-04A] End Character=%s Cancelled=%d AttackingTag=%d"),
-        *CharacterName, bWasCancelled ? 1 : 0,
-        ASC.IsValid() && ASC->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) ? 1 : 0);
-}
-```
+当前实现统一两个玩家请求的身份检查，各自保留连段资格和恢复窗口门控；伤害与资源清理仍按现有链路执行。
 
 ### 4.3 为什么这样分工
 
