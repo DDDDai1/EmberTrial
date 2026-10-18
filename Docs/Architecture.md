@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-18。功能基线M2-04B2已验收，当前执行[代码 / 文档清理](Cleanup.md)第2批；共享AI黑板契约见[专页](AI_BlackboardContract.md)。实时规模与验证状态只在[Progress](Progress.md)维护，历史阶段记录保留，不进入下一功能章。
+更新2026-10-18。功能基线M2-04B2已验收，当前执行[代码 / 文档清理](Cleanup.md)；共享AI黑板契约见[专页](AI_BlackboardContract.md)。实时规模与验证状态只在[Progress](Progress.md)维护，历史阶段记录保留，不进入下一功能章。
 
 ## 1. 模块边界
 

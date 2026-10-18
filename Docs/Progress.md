@@ -13,9 +13,9 @@
 
 ## 当前交接
 
-2026-10-18用户授权分批直接清理。首批治疗四文件的排版 / 注释已完成；第2批统一AI黑板键已收口，新增1头 / 修改4cpp，保留有依赖的Practice与诊断入口。正常Editor / Game Build、CLion元数据与CMake刷新通过，正式BT及隔离Probe均Valid，全部11项现有自动化Success；资产 / Config保持，未新打包或进行交互式AI实机。详见[清理记录](Cleanup.md)及[AI黑板契约](AI_BlackboardContract.md)。
+2026-10-18用户授权分批直接清理。前两批已完成并提交；第3批正式闪避Ability与移动Task四文件的格式 / 所有权注释已收口，三份指南移除11份重复整文件代码共1825行，并补充当前时序。正常Editor / Game Build、CLion元数据刷新、全部11项现有自动化Success；有效Token / 预处理指令保持，107份其他Source与290项受保护文件哈希一致。本批未交互式实机、重新资产校验或打包。详见[清理记录](Cleanup.md)与[闪避路线页](M2_02_DodgeRoadmap.md)。
 
-B2主体在a6c5ab8，首批清理已提交f0b4fd7；本批Git提交与推送仍由用户操作。历史细节见[报告目录](Reports/)与各章指南，进度页只维护当前状态。
+本批基线HEAD为417cf70，Git提交与推送仍由用户操作。历史细节见[报告目录](Reports/)与各章指南，进度页只维护当前状态。
 
 ## 资源与工期校准
 
@@ -39,4 +39,4 @@ B2主体在a6c5ab8，首批清理已提交f0b4fd7；本批Git提交与推送仍�
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-第2批新增共享黑板键头与契约文档，修改四份消费者cpp及Cleanup / Progress / Architecture / Backlog / Introduction，共11项；具体清单见Cleanup末尾。Content / Config无变化，不强制重存。Raw备份 / 检查、生成文件、日志与历史包本地；助手不操作Git索引。
+第3批为四份闪避Source与八份同步文档，共12项；具体清单见Cleanup末尾。Content / Config保持，不强制重存。Raw基线 / 检查、生成文件、日志与历史包本地；助手不操作Git索引。

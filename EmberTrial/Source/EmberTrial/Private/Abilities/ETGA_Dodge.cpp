@@ -20,6 +20,8 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogETDodge, Log, All);
 
+// ---- 默认Tag与配置契约 ----
+
 UETGA_Dodge::UETGA_Dodge()
 {
     InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
@@ -41,6 +43,7 @@ UETGA_Dodge::UETGA_Dodge()
 
 bool UETGA_Dodge::ReadCostAmount(const UGameplayEffect* Effect, float Level, float& OutCost)
 {
+    // Cost GE只接受单个Instant固定负值；拒绝夹限后看似支付成功的部分扣费。
     OutCost = 0.0f;
     if (!IsValid(Effect) || !FMath::IsFinite(Level) || Level < 1.0f ||
         Effect->DurationPolicy != EGameplayEffectDurationType::Instant ||
@@ -66,72 +69,94 @@ bool UETGA_Dodge::ReadCostAmount(const UGameplayEffect* Effect, float Level, flo
 bool UETGA_Dodge::HasValidMovementConfiguration() const
 {
     return UETAbilityTask_DodgeMove::IsConfigurationValid(DodgeDistance, DodgeDuration) &&
-        IsValid(DodgeMontage) && !DodgeMontage->HasRootMotion() &&
-        FMath::IsFinite(DodgeMontage->GetPlayLength()) && DodgeMontage->GetPlayLength() > DodgeDuration;
+           IsValid(DodgeMontage) && !DodgeMontage->HasRootMotion() &&
+           FMath::IsFinite(DodgeMontage->GetPlayLength()) &&
+           DodgeMontage->GetPlayLength() > DodgeDuration;
 }
 
 bool UETGA_Dodge::HasValidInvulnerabilityConfiguration() const
 {
     const UGameplayEffect* Effect = GetDefault<UETDodgeInvulnerabilityEffect>();
     return FMath::IsFinite(InvulnerabilityDuration) && InvulnerabilityDuration >= 0.01f &&
-        InvulnerabilityDuration <= DodgeDuration && IsValid(Effect) &&
-        Effect->DurationPolicy == EGameplayEffectDurationType::HasDuration &&
-        Effect->StackingType == EGameplayEffectStackingType::None &&
-        Effect->Modifiers.Num() == 0 && Effect->Executions.Num() == 0 &&
-        Effect->GetGrantedTags().Num() == 1 &&
-        Effect->GetGrantedTags().HasTagExact(ETGameplayTags::State_Invulnerable);
+           InvulnerabilityDuration <= DodgeDuration && IsValid(Effect) &&
+           Effect->DurationPolicy == EGameplayEffectDurationType::HasDuration &&
+           Effect->StackingType == EGameplayEffectStackingType::None &&
+           Effect->Modifiers.Num() == 0 && Effect->Executions.Num() == 0 &&
+           Effect->GetGrantedTags().Num() == 1 &&
+           Effect->GetGrantedTags().HasTagExact(ETGameplayTags::State_Invulnerable);
 }
+
+// ---- 本次无敌窗口：应用结果可能触发同步取消 ----
 
 bool UETGA_Dodge::StartInvulnerabilityWindow(UAbilitySystemComponent* ASC, uint32 Serial)
 {
-    if (!IsValid(ASC) || !HasValidInvulnerabilityConfiguration()) { return false; }
+    if (!IsValid(ASC) || !HasValidInvulnerabilityConfiguration())
+    {
+        return false;
+    }
     FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
-    if (!Context.IsValid()) { return false; }
+    if (!Context.IsValid())
+    {
+        return false;
+    }
     Context.AddSourceObject(this);
     FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(
         UETDodgeInvulnerabilityEffect::StaticClass(), GetAbilityLevel(), Context);
-    if (!Spec.IsValid()) { return false; }
+    if (!Spec.IsValid())
+    {
+        return false;
+    }
     Spec.Data->SetDuration(InvulnerabilityDuration, true);
     const TWeakObjectPtr<UAbilitySystemComponent> WeakASC(ASC);
-    const FActiveGameplayEffectHandle Applied = ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+    const FActiveGameplayEffectHandle Applied =
+        ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
     ASC = WeakASC.Get();
     // Granting a tag can synchronously cancel/end this activation before Apply returns.
     if (Serial != ActivationSerial || !IsActive() || !IsValid(ASC))
     {
-        if (IsValid(ASC) && Applied.IsValid()) { ASC->RemoveActiveGameplayEffect(Applied); }
+        if (IsValid(ASC) && Applied.IsValid())
+        {
+            ASC->RemoveActiveGameplayEffect(Applied);
+        }
         return false;
     }
     if (!Applied.IsValid() || !ASC->GetActiveGameplayEffect(Applied) ||
         !ASC->HasMatchingGameplayTag(ETGameplayTags::State_Invulnerable))
     {
-        if (Applied.IsValid()) { ASC->RemoveActiveGameplayEffect(Applied); }
+        if (Applied.IsValid())
+        {
+            ASC->RemoveActiveGameplayEffect(Applied);
+        }
         return false;
     }
     InvulnerabilityASC = ASC;
     InvulnerabilityHandle = Applied;
     UE_LOG(LogETDodge, Display,
-        TEXT("[M2-02C] Window begin Body=%s Serial=%u Duration=%.3f TagCount=%d"),
-        *GetNameSafe(ASC->GetAvatarActor()), Serial, InvulnerabilityDuration,
-        ASC->GetTagCount(ETGameplayTags::State_Invulnerable));
+           TEXT("[M2-02C] Window begin Body=%s Serial=%u Duration=%.3f TagCount=%d"),
+           *GetNameSafe(ASC->GetAvatarActor()), Serial, InvulnerabilityDuration,
+           ASC->GetTagCount(ETGameplayTags::State_Invulnerable));
     return true;
 }
 
+// ---- 激活预检与单次成本提交 ----
+
 bool UETGA_Dodge::CheckCost(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
+                            const FGameplayAbilityActorInfo* ActorInfo,
+                            FGameplayTagContainer* OptionalRelevantTags) const
 {
     UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
-    AEmberTrialCharacter* Body = ActorInfo ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
+    AEmberTrialCharacter* Body =
+        ActorInfo ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
     float Stamina = 0.0f;
     float MaxStamina = 0.0f;
     float Cost = 0.0f;
-    if (!IsValid(ASC) || !IsValid(Body) || Body->IsActorBeingDestroyed() ||
-        !Body->HasAuthority() || Body->IsCombatDead() ||
-        ActorInfo->OwnerActor.Get() != Body || Body->GetAbilitySystemComponent() != ASC ||
-        !Body->GetWorld() || Body->GetWorld()->GetNetMode() != NM_Standalone ||
-        UGameplayStatics::IsGamePaused(Body) ||
-        !Body->GetGameplayStaminaSnapshot(Stamina, MaxStamina) ||
-        !FMath::IsFinite(Stamina) || !FMath::IsFinite(MaxStamina) ||
-        MaxStamina < 1.0f || Stamina < 0.0f || Stamina > MaxStamina ||
+    if (!IsValid(ASC) || !IsValid(Body) || Body->IsActorBeingDestroyed() || !Body->HasAuthority() ||
+        Body->IsCombatDead() || ActorInfo->OwnerActor.Get() != Body ||
+        Body->GetAbilitySystemComponent() != ASC || !Body->GetWorld() ||
+        Body->GetWorld()->GetNetMode() != NM_Standalone || UGameplayStatics::IsGamePaused(Body) ||
+        !Body->GetGameplayStaminaSnapshot(Stamina, MaxStamina) || !FMath::IsFinite(Stamina) ||
+        !FMath::IsFinite(MaxStamina) || MaxStamina < 1.0f || Stamina < 0.0f ||
+        Stamina > MaxStamina ||
         !ReadCostAmount(GetCostGameplayEffect(), GetAbilityLevel(Handle, ActorInfo), Cost) ||
         Stamina < Cost)
     {
@@ -141,63 +166,85 @@ bool UETGA_Dodge::CheckCost(const FGameplayAbilitySpecHandle Handle,
 }
 
 void UETGA_Dodge::ApplyCost(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayAbilityActivationInfo ActivationInfo) const
+                            const FGameplayAbilityActorInfo* ActorInfo,
+                            const FGameplayAbilityActivationInfo ActivationInfo) const
 {
-    if (bCostSubmitted || !CheckCost(Handle, ActorInfo, nullptr)) { return; }
+    if (bCostSubmitted || !CheckCost(Handle, ActorInfo, nullptr))
+    {
+        return;
+    }
     bCostSubmitted = true; // Guard BEFORE the GE can synchronously notify observers.
     Super::ApplyCost(Handle, ActorInfo, ActivationInfo);
 }
 
 bool UETGA_Dodge::HasValidRecoveryCancelPolicy() const
 {
-    return CancelAbilitiesWithTag.Num()==1 &&
-        CancelAbilitiesWithTag.HasTagExact(ETGameplayTags::Ability_Attack_Light) &&
-        !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Attacking) &&
-        ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dodging) &&
-        ActivationBlockedTags.HasTagExact(ETGameplayTags::State_HitReact) &&
-        ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dead) &&
-            ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Healing);
+    return CancelAbilitiesWithTag.Num() == 1 &&
+           CancelAbilitiesWithTag.HasTagExact(ETGameplayTags::Ability_Attack_Light) &&
+           !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Attacking) &&
+           ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dodging) &&
+           ActivationBlockedTags.HasTagExact(ETGameplayTags::State_HitReact) &&
+           ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dead) &&
+           ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Healing);
 }
 
 bool UETGA_Dodge::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
-    const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+                                     const FGameplayAbilityActorInfo* ActorInfo,
+                                     const FGameplayTagContainer* SourceTags,
+                                     const FGameplayTagContainer* TargetTags,
+                                     FGameplayTagContainer* OptionalRelevantTags) const
 {
     if (!ActorInfo || !HasValidRecoveryCancelPolicy() ||
         !CheckCost(Handle, ActorInfo, OptionalRelevantTags) ||
         !Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-    { return false; }
-    AEmberTrialCharacter* Body=Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get());
-    APlayerController* PC=IsValid(Body) ? Cast<APlayerController>(Body->GetController()) : nullptr;
-    UCharacterMovementComponent* Movement=IsValid(Body) ? Body->GetCharacterMovement() : nullptr;
-    const UETPracticeActionComponent* Practice=IsValid(Body)
-        ? Body->FindComponentByClass<UETPracticeActionComponent>() : nullptr;
-    UAbilitySystemComponent* ASC=ActorInfo->AbilitySystemComponent.Get();
-    const FGameplayAbilitySpec* AttackSpec=IsValid(Body) && IsValid(ASC)
-        ? ASC->FindAbilitySpecFromHandle(Body->GetLightAttackSpecHandle()) : nullptr;
-    const UETGA_LightAttack* Attack=AttackSpec && AttackSpec->IsActive()
-        ? Cast<UETGA_LightAttack>(AttackSpec->GetPrimaryInstance()) : nullptr;
-    const bool bRecovery=IsValid(Attack) && Attack->CanCancelIntoDodge();
-    UAnimInstance* Anim=ActorInfo->GetAnimInstance();
-    return IsValid(Body) && Body->GetCombatTeam()==EETCombatTeam::Player &&
-        IsValid(PC) && PC->IsLocalController() && PC->GetPawn()==Body && !PC->IsMoveInputIgnored() &&
-        (Body->IsFormalActionIdle() || bRecovery) && (!Practice || Practice->IsPracticeActionIdle()) &&
-        IsValid(Movement) && Movement->IsMovingOnGround() && !Movement->HasRootMotionSources() &&
-        !Body->GetVelocity().ContainsNaN() && HasValidMovementConfiguration() &&
-        HasValidInvulnerabilityConfiguration() && !Body->GetDodgeWorldDirection().IsNearlyZero() &&
-        IsValid(Anim) && (!Anim->GetCurrentActiveMontage() || bRecovery);
+    {
+        return false;
+    }
+    AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get());
+    APlayerController* PC =
+        IsValid(Body) ? Cast<APlayerController>(Body->GetController()) : nullptr;
+    UCharacterMovementComponent* Movement = IsValid(Body) ? Body->GetCharacterMovement() : nullptr;
+    const UETPracticeActionComponent* Practice =
+        IsValid(Body) ? Body->FindComponentByClass<UETPracticeActionComponent>() : nullptr;
+    UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+    const FGameplayAbilitySpec* AttackSpec =
+        IsValid(Body) && IsValid(ASC)
+            ? ASC->FindAbilitySpecFromHandle(Body->GetLightAttackSpecHandle())
+            : nullptr;
+    const UETGA_LightAttack* Attack =
+        AttackSpec && AttackSpec->IsActive()
+            ? Cast<UETGA_LightAttack>(AttackSpec->GetPrimaryInstance())
+            : nullptr;
+    const bool bRecovery = IsValid(Attack) && Attack->CanCancelIntoDodge();
+    UAnimInstance* Anim = ActorInfo->GetAnimInstance();
+    return IsValid(Body) && Body->GetCombatTeam() == EETCombatTeam::Player && IsValid(PC) &&
+           PC->IsLocalController() && PC->GetPawn() == Body && !PC->IsMoveInputIgnored() &&
+           (Body->IsFormalActionIdle() || bRecovery) &&
+           (!Practice || Practice->IsPracticeActionIdle()) && IsValid(Movement) &&
+           Movement->IsMovingOnGround() && !Movement->HasRootMotionSources() &&
+           !Body->GetVelocity().ContainsNaN() && HasValidMovementConfiguration() &&
+           HasValidInvulnerabilityConfiguration() &&
+           !Body->GetDodgeWorldDirection().IsNearlyZero() && IsValid(Anim) &&
+           (!Anim->GetCurrentActiveMontage() || bRecovery);
 }
 
+// ---- 激活事务：动画 -> 位移准备 -> 扣费 -> 无敌 ----
+// ReadyForActivation / Commit / GE应用均可能同步结束能力；各步后的序号检查不可合并。
+
 void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-    const FGameplayEventData* TriggerEventData)
+                                  const FGameplayAbilityActorInfo* ActorInfo,
+                                  const FGameplayAbilityActivationInfo ActivationInfo,
+                                  const FGameplayEventData* TriggerEventData)
 {
     (void)TriggerEventData;
-    if (!IsActive()) { return; } // PreActivate cancellation may synchronously end us.
+    if (!IsActive())
+    {
+        return;
+    } // PreActivate cancellation may synchronously end us.
     const uint32 Serial = ++ActivationSerial;
     bCostSubmitted = false;
-    AEmberTrialCharacter* Body = ActorInfo ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
+    AEmberTrialCharacter* Body =
+        ActorInfo ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
     UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
     float Before = 0.0f;
     float MaxStamina = 0.0f;
@@ -210,9 +257,9 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         Body->IsCombatDead() || UGameplayStatics::IsGamePaused(Body) ||
         ASC->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) ||
         ASC->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) ||
-        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dead) || ASC->GetAnimatingAbility()!=nullptr ||
-        Direction.IsNearlyZero() || !IsValid(Movement) || !Movement->IsMovingOnGround() ||
-        Movement->HasRootMotionSources() ||
+        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dead) ||
+        ASC->GetAnimatingAbility() != nullptr || Direction.IsNearlyZero() || !IsValid(Movement) ||
+        !Movement->IsMovingOnGround() || Movement->HasRootMotionSources() ||
         !Body->GetGameplayStaminaSnapshot(Before, MaxStamina) ||
         !ReadCostAmount(GetCostGameplayEffect(), GetAbilityLevel(Handle, ActorInfo), Cost))
     {
@@ -233,7 +280,10 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::HandleMontageAborted);
     MontageTask->OnCancelled.AddDynamic(this, &ThisClass::HandleMontageAborted);
     MontageTask->ReadyForActivation();
-    if (Serial != ActivationSerial || !IsActive()) { return; }
+    if (Serial != ActivationSerial || !IsActive())
+    {
+        return;
+    }
     UAnimInstance* Anim = ActorInfo->GetAnimInstance();
     if (!IsValid(Anim) || !Anim->GetActiveInstanceForMontage(DodgeMontage) ||
         ASC->GetAnimatingAbility() != this || !Anim->Montage_IsPlaying(DodgeMontage))
@@ -242,7 +292,8 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         return;
     }
     // Prepare our source before charging. No movement tick runs inside this synchronous call.
-    MoveTask = UETAbilityTask_DodgeMove::CreateDodgeMove(this, Direction, DodgeDistance, DodgeDuration);
+    MoveTask =
+        UETAbilityTask_DodgeMove::CreateDodgeMove(this, Direction, DodgeDistance, DodgeDuration);
     if (!MoveTask)
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
@@ -251,7 +302,10 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     MoveTask->OnCompleted.AddDynamic(this, &ThisClass::HandleMoveCompleted);
     MoveTask->OnAborted.AddDynamic(this, &ThisClass::HandleMoveAborted);
     MoveTask->ReadyForActivation();
-    if (Serial != ActivationSerial || !IsActive()) { return; }
+    if (Serial != ActivationSerial || !IsActive())
+    {
+        return;
+    }
     if (!IsValid(MoveTask) || !MoveTask->IsMovementReady())
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
@@ -259,30 +313,40 @@ void UETGA_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     }
     // Montage and source exist. Commit once; cancellation cleans the prepared source.
     const bool bCommitted = CommitAbility(Handle, ActorInfo, ActivationInfo);
-    if (Serial != ActivationSerial || !IsActive()) { return; }
+    if (Serial != ActivationSerial || !IsActive())
+    {
+        return;
+    }
     float After = 0.0f;
     if (!bCommitted || !bCostSubmitted || Body->IsCombatDead() ||
         !Body->GetGameplayStaminaSnapshot(After, MaxStamina) ||
         !FMath::IsNearlyEqual(Before - After, Cost, 0.001f))
     {
         UE_LOG(LogETDodge, Warning, TEXT("[M2-02A] Commit failed Body=%s Submitted=%d"),
-            *GetNameSafe(Body), bCostSubmitted ? 1 : 0);
+               *GetNameSafe(Body), bCostSubmitted ? 1 : 0);
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
     }
     const bool bWindowStarted = StartInvulnerabilityWindow(ASC, Serial);
-    if (Serial != ActivationSerial || !IsActive()) { return; }
+    if (Serial != ActivationSerial || !IsActive())
+    {
+        return;
+    }
     if (!bWindowStarted)
     {
-        UE_LOG(LogETDodge, Warning, TEXT("[M2-02C] Window application failed after payment Body=%s"),
-            *GetNameSafe(Body));
+        UE_LOG(LogETDodge, Warning,
+               TEXT("[M2-02C] Window application failed after payment Body=%s"),
+               *GetNameSafe(Body));
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
     }
     UE_LOG(LogETDodge, Display,
-        TEXT("[M2-02A] Begin Body=%s Serial=%u Before=%.1f After=%.1f Cost=%.1f Dodging=%d"),
-        *GetNameSafe(Body), Serial, Before, After, Cost, ASC->GetTagCount(ETGameplayTags::State_Dodging));
+           TEXT("[M2-02A] Begin Body=%s Serial=%u Before=%.1f After=%.1f Cost=%.1f Dodging=%d"),
+           *GetNameSafe(Body), Serial, Before, After, Cost,
+           ASC->GetTagCount(ETGameplayTags::State_Dodging));
 }
+
+// ---- 任务信号与统一收尾 ----
 
 void UETGA_Dodge::HandleMontageCompleted()
 {
@@ -306,15 +370,21 @@ void UETGA_Dodge::HandleMoveAborted()
 }
 
 void UETGA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-    bool bReplicateEndAbility, bool bWasCancelled)
+                             const FGameplayAbilityActorInfo* ActorInfo,
+                             const FGameplayAbilityActivationInfo ActivationInfo,
+                             bool bReplicateEndAbility, bool bWasCancelled)
 {
-    if (!IsEndAbilityValid(Handle, ActorInfo)) { return; }
+    if (!IsEndAbilityValid(Handle, ActorInfo))
+    {
+        return;
+    }
+    // GAS仍持有ScopeLock时交由父类排队；实际结束前不能提前拆除本次资源。
     if (ScopeLockCount > 0)
     {
         Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
         return;
     }
+    // 先使旧激活失效并解绑信号，再让父类结束Task，防销毁回调重复进入。
     ++ActivationSerial;
     if (IsValid(MontageTask))
     {
@@ -330,9 +400,11 @@ void UETGA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
     }
     MoveTask = nullptr; // Super ends active tasks; their OnDestroy releases their own source.
     const FString BodyName = GetNameSafe(ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr);
-    const TWeakObjectPtr<UAbilitySystemComponent> ASC = ActorInfo
-        ? ActorInfo->AbilitySystemComponent : TWeakObjectPtr<UAbilitySystemComponent>();
+    const TWeakObjectPtr<UAbilitySystemComponent> ASC =
+        ActorInfo ? ActorInfo->AbilitySystemComponent : TWeakObjectPtr<UAbilitySystemComponent>();
     const bool bSubmitted = bCostSubmitted;
+    // 父类结束可触发外部监听：先快照并清空成员，后续只移除旧Handle。
+    // 不按Tag批量清理，也不改写回调中可能建立的新激活状态。
     const TWeakObjectPtr<UAbilitySystemComponent> WindowOwner = InvulnerabilityASC;
     const FActiveGameplayEffectHandle WindowToRemove = InvulnerabilityHandle;
     InvulnerabilityASC.Reset();
@@ -343,12 +415,13 @@ void UETGA_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
         const bool bRemoved = WindowOwner->RemoveActiveGameplayEffect(WindowToRemove);
         UAbilitySystemComponent* RemainingASC = WindowOwner.Get();
         UE_LOG(LogETDodge, Display,
-            TEXT("[M2-02C] Window cleanup Body=%s Removed=%d RemainingTag=%d"),
-            *BodyName, bRemoved ? 1 : 0,
-            IsValid(RemainingASC) ? RemainingASC->GetTagCount(ETGameplayTags::State_Invulnerable) : 0);
+               TEXT("[M2-02C] Window cleanup Body=%s Removed=%d RemainingTag=%d"), *BodyName,
+               bRemoved ? 1 : 0,
+               IsValid(RemainingASC) ? RemainingASC->GetTagCount(ETGameplayTags::State_Invulnerable)
+                                     : 0);
     }
     UE_LOG(LogETDodge, Display,
-        TEXT("[M2-02A] End Body=%s Cancelled=%d CostSubmitted=%d Dodging=%d"),
-        *BodyName, bWasCancelled ? 1 : 0, bSubmitted ? 1 : 0,
-        ASC.IsValid() ? ASC->GetTagCount(ETGameplayTags::State_Dodging) : 0);
+           TEXT("[M2-02A] End Body=%s Cancelled=%d CostSubmitted=%d Dodging=%d"), *BodyName,
+           bWasCancelled ? 1 : 0, bSubmitted ? 1 : 0,
+           ASC.IsValid() ? ASC->GetTagCount(ETGameplayTags::State_Dodging) : 0);
 }

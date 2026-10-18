@@ -18,7 +18,7 @@
 
 ## 检查与覆盖边界
 
-四文件有效Token、预处理指令保持一致；检查generated头顺序、其他Source / 资产 / Config未改与文档链接。未运行新UE Build / 测试，不把历史Success写成本批新结果。纯排版 / 注释按方案B静态收尾，逻辑 / 反射批执行构建与相关测试，最终统一自动化 / 实机 / 包短查。
+四文件有效Token、预处理指令保持一致；检查generated头顺序、其他Source / 资产 / Config未改与文档链接。首批当次未运行新UE Build / 测试；第2批已补正常构建与全11项自动化，不把历史Success冒充当次新结果。纯排版 / 注释按方案B静态收尾，逻辑 / 反射批执行构建与相关测试，最终统一自动化 / 实机 / 包短查。
 
 首批结果：四文件有效Token / 预处理指令一致，106份其他Source与63项资产 / Config字节保持；40处受影响文档链接检查通过，clang-format格式检查通过。两个指南共删除557行重复源码，Progress从267行精简至42行；旧内容与原未提交文档均有本地快照。
 
@@ -36,6 +36,20 @@ Practice与诊断入口仍有正式互斥 / 清理、测试或复用检查依赖
 
 额度快照：本批开始5小时已用41% / 周已用6%，收尾检查49% / 8%；保持小批次收口，未使用额度重置。助手构建 / 测试时间不计入用户手动实耗。
 
+## 第3批：正式闪避生命周期可读性
+
+范围为ETGA_Dodge.h / .cpp与ETAbilityTask_DodgeMove.h / .cpp。统一控制流、运算符与长条件换行，补充职责分区，解释同步回调序号保护、位移 / 动画 / 无敌独立结束、只释放自己RMS与GE Handle、幂等回调与不退款边界。行为、判断顺序、默认值、反射声明与日志文本保持；不为排版引入共用基类或新配置。
+
+A / B / C三份闪避指南移除11份重复的整文件实现 / 测试代码，改为Source链接；保留局部接入差异、配置、测试断言意图与已解决的计时问题。路线页增加当前所有权 / 时序说明并删除过期“下一步待开发”与待提交描述。Architecture / Backlog入口不再复制当前批次编号。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，CLion三模块元数据刷新成功。全部11项现有EmberTrial自动化Success，0 Fail / 0 NotRun，包含成本 / 位移 / 短无敌、恢复闪避取消、治疗互斥、体力与旧Practice路径；并非新建简化测试替代原断言。
+
+四文件有效Token / 预处理指令一致，clang-format格式检查通过；107份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改。文档链接与代码围栏核对通过；11份重复代码共1825行已移除。收益为可读性、职责与时序可解释性、减少文档漂移；功能 / 性能行为保持，不宣称帧率收益。
+
+Source仍111份 / 59cpp。本批未交互式实机、未重新DataValidation或Cook / 打包；资产Valid沿用第2批历史结果，不写成本批新执行。完整差异 / 日志 / 测试JSON留在Raw/Cleanup/2026-10-18_Batch03。
+
+额度快照：开工5小时已用51% / 周已用8%，收尾检查57% / 9%；不使用重置，不把助手时间计入用户手动实耗。
+
 ## 后续队列
 
 1. 共享标识符、旧Practice / 诊断入口引用审计，确认后移除无用路径。
@@ -44,14 +58,25 @@ Practice与诊断入口仍有正式互斥 / 清理、测试或复用检查依赖
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-当前前两批已收口，后续队列未完成，不重建临时Controller验收图。下一批优先选择动作 / 生命周期中的一组可独立验证改动。
+前三批均已收口，其余队列未完成。后续继续按独立职责清理，不重建临时Controller验收图，不进入新玩法开发。
 
 ## 本批 Commit / Push（固定放在最后）
 
-基于已提交的首批f0b4fd7，本批共11项文件：
+第2批已提交，开工HEAD为417cf70。本批共12项，按CLion实际Diff由用户Stage / Commit / Push：
 
-- 新增EmberTrial/Source/EmberTrial/Public/AI/ETBlackboardKeys.h、Docs/AI_BlackboardContract.md。
-- 修改Core模块Private/AI下ETAIController.cpp、ETBTTask_PursuitMove.cpp、ETBTTask_MeleeAttack.cpp，以及Editor模块Private/Validation/ETProjectAssetValidator.cpp。
-- 同步Docs/Cleanup.md、Docs/Progress.md、Docs/Architecture.md、Docs/Backlog.md、Introduction.md。
+- EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_Dodge.h
+- EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_Dodge.cpp
+- EmberTrial/Source/EmberTrial/Public/Abilities/Tasks/ETAbilityTask_DodgeMove.h
+- EmberTrial/Source/EmberTrial/Private/Abilities/Tasks/ETAbilityTask_DodgeMove.cpp
+- Docs/M2_02_DodgeRoadmap.md
+- Docs/M2_02A_DodgeAction.md
+- Docs/M2_02B_DirectionalDodge.md
+- Docs/M2_02C_Invulnerability.md
+- Docs/Cleanup.md
+- Docs/Progress.md
+- Docs/Architecture.md
+- Docs/Backlog.md
 
-在CLion查看Diff后由用户Stage / Commit / Push，可用提交说明：Consolidate AI blackboard key contract。Content / Config无变化，不Force Add Raw、构建 / 日志 / CMake生成文件。助手未操作Git索引或远程。
+可用提交说明：Clarify dodge lifecycle and consolidate source references。
+
+Content / Config不因清理重存；Raw基线、日志 / 报告、构建产物和生成索引留本地。助手不Stage / Commit / Push。
