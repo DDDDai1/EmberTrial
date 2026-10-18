@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-17最新现状：**用户已提交B1三素材 / 数值JSON与A收尾至fd94aad，HEAD / 缓存origin/main一致，Source无差异；本轮未联网核验。[B1验收](Reports/M2_04B1_Verification.md)通过，来源已61，实际105Source / 56cpp；当前[B2完整指南](M2_04B2_HealingAbility.md)待用户实施，助手只改文档 / 本地Raw候选。当前Stage最新B1报告 / 清单与B2指南 / 状态文档即可，Raw本地；B2代码 / GA / 输入 / AM完成后按其末尾实际差异清单另提交，不预建空类。
+**2026-10-17最新现状：**[B2已验收](Reports/M2_04B2_Verification.md)，实际110Source / 59cpp / 来源63。核对期间用户提交a6c5ab8，HEAD / 缓存origin/main一致，Source工作区无差异，五份资产HEAD中的LFS OID匹配本地SHA；本轮未联网核验服务器状态。主体已提交，当前只Stage最新报告 / 指南 / 来源 / 状态文档收尾；Raw本地。助手未操作Git索引；按用户要求不进入下一章。
 
 ## 1. 已配置内容
 
@@ -358,4 +358,4 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-当前Stage [B1验收报告](Reports/M2_04B1_Verification.md)、[来源61项](AssetManifest.csv)、[B2完整指南](M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。
+核对期间用户已将B2十六份完整Source与五份实际变动LFS资产提交至a6c5ab8，HEAD / 缓存origin/main一致；Source工作区无差异，五份HEAD资产LFS OID与本地SHA匹配，本轮未联网核验远端或LFS服务器。无需重复Stage已提交源码 / 资产。当前只Stage新增[B2报告](Reports/M2_04B2_Verification.md)、B2指南 / 来源63项 / Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction及其他已明确未提交文档的最新差异，检查Staged Diff后由用户Commit / Push，可用`docs: verify formal healing ability milestone`。Raw / 日志 / 生成文件 / 历史包本地；助手未操作Git索引。本次没有下一章新增内容。

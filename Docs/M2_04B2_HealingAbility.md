@@ -1,6 +1,6 @@
 # M2-04B2：正式治疗能力、单次生效Notify与Q输入
 
-2026-10-17，固定 **UE5.5.4**。前置[A资源事务](Reports/M2_04A_Verification.md)与[B1治疗素材](Reports/M2_04B1_Verification.md)均已验收；下发基线为105Source / 56cpp / 来源61。用户现已录入本批源码，实际110Source / 59cpp，首次Build在ETGA_Heal.cpp遇到C2280；按当次明确授权，助手已直接修复两处Tag列表并同步第3.2 / 9.1节，**待用户重新Build，B2尚未验收**。资产配置完成后来源预计63，不预记完成；助手未代执行Build / 自动测试或修改UE资产。
+2026-10-17，固定 **UE5.5.4**。**本批已验收通过，无待补项**；用户21:07全部完成，实际手动40 / 等待5分钟。[B2报告](Reports/M2_04B2_Verification.md)已保存；110Source / 59cpp / 来源63，双Build、四项Success、七Valid与正式Q / 取消 / HUD / 重建通过。C2280补修已关闭，第3.2与9.1保留最终代码 / 原因。原操作步骤供复查，无需重做；按用户本次要求，验收后不进入或生成C，等待其他安排。
 
 手动预算 **120–180分钟**，含理解录入 / 配置 / 10–15分钟相关检查 / 记录，构建等待另记。原路线100–160微调，原因是本批一次补齐11旧文件门控与可复用取消 / 旧回调检查；不是增加旧验收图。可分两次：先录第3–8节源码，第二次Build / 配置 / 短查。M2-04整章8h基础预算保留，A / B1已实际75 / 等待6分钟，预计时间不当作实耗。
 
@@ -36,7 +36,7 @@ E:\UE_Project\Demo\EmberTrial\Source\
 ├─ EmberTrial\Private\Abilities\ETGA_Heal.cpp                             新，第3.2节全文
 ├─ EmberTrial\Public\Animation\ETAN_HealCommit.h                         新，第3.3节全文
 ├─ EmberTrial\Private\Animation\ETAN_HealCommit.cpp                        新，第3.4节全文
-├─ EmberTrial\Tests\ETHealingAbilityTests.cpp                             新，第8节全文
+├─ EmberTrial\Tests\ETHealAbilityTests.cpp                             新，第8节全文
 ├─ EmberTrial\Public\Abilities\ETGameplayTags.h                           旧，第4.1节
 ├─ EmberTrial\Private\Abilities\ETGameplayTags.cpp                         旧，第4.1节
 ├─ EmberTrial\Public\Characters\EmberTrialCharacter.h                     旧，第5.1节
@@ -54,344 +54,13 @@ E:\UE_Project\Demo\EmberTrial\Source\
 
 ## 3. 五份新文件中的四份Runtime类
 
-### 3.1 ETGA_Heal.h完整内容
+### 3.1 ETGA_Heal.h：当前源码
 
-```cpp
-#pragma once
+当前完整实现见[ETGA_Heal.h](../EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_Heal.h)。已完成首批排版与注释清理，当前Source为唯一维护版本；以下保留装配步骤和设计说明。
 
-#include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
-#include "ETGA_Heal.generated.h"
+### 3.2 ETGA_Heal.cpp：当前源码
 
-class AEmberTrialCharacter;
-class UAnimMontage;
-class UAnimNotify;
-class UAnimSequenceBase;
-class USkeletalMeshComponent;
-class UAbilityTask_PlayMontageAndWait;
-class UAbilitySystemComponent;
-
-UCLASS(Blueprintable)
-class EMBERTRIAL_API UETGA_Heal : public UGameplayAbility
-{
-    GENERATED_BODY()
-public:
-    UETGA_Heal();
-    bool HasValidConfiguration() const;
-    bool HasValidTagPolicy() const;
-    void HandleHealCommit(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
-        int32 MontageInstanceID, UAnimNotify* NotifyToken);
-
-protected:
-    virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-        const FGameplayAbilityActorInfo* ActorInfo,
-        const FGameplayTagContainer* SourceTags = nullptr,
-        const FGameplayTagContainer* TargetTags = nullptr,
-        FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-        const FGameplayAbilityActorInfo* ActorInfo,
-        const FGameplayAbilityActivationInfo ActivationInfo,
-        const FGameplayEventData* TriggerEventData) override;
-    virtual void EndAbility(const FGameplayAbilitySpecHandle Handle,
-        const FGameplayAbilityActorInfo* ActorInfo,
-        const FGameplayAbilityActivationInfo ActivationInfo,
-        bool bReplicateEndAbility, bool bWasCancelled) override;
-
-private:
-    friend class FETHealingAbilityTest;
-    UPROPERTY(EditDefaultsOnly, Category="EmberTrial|Healing")
-    TObjectPtr<UAnimMontage> HealMontage;
-    UPROPERTY(EditDefaultsOnly, Category="EmberTrial|Healing", meta=(ClampMin="1.0", ClampMax="1000.0"))
-    float HealAmount = 40.0f;
-    UPROPERTY(Transient)
-    TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
-    UPROPERTY(Transient)
-    TObjectPtr<UAnimMontage> ActiveMontage;
-
-    TWeakObjectPtr<UAnimNotify> ActiveCommitToken;
-    uint32 ActivationSerial = 0;
-    int32 ActiveMontageInstanceID = INDEX_NONE;
-    float ActiveHealAmount = 0.0f;
-    float ActiveCommitTime = 0.0f;
-    bool bCommitAttempted = false;
-    bool bStarting = false;
-    bool bEnding = false;
-
-    bool ReadContext(const FGameplayAbilityActorInfo* ActorInfo,
-        AEmberTrialCharacter*& OutBody, UAbilitySystemComponent*& OutASC) const;
-    void ReleaseMontage();
-    UFUNCTION()
-    void HandleCompleted();
-    UFUNCTION()
-    void HandleAborted();
-};
-```
-
-### 3.2 ETGA_Heal.cpp完整内容
-
-```cpp
-#include "Abilities/ETGA_Heal.h"
-#include "Abilities/ETGameplayTags.h"
-#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "Animation/ETAN_HealCommit.h"
-#include "AbilitySystemComponent.h"
-#include "Animation/AnimInstance.h"
-#include "Animation/AnimMontage.h"
-#include "Animation/AnimSequenceBase.h"
-#include "Animation/Skeleton.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "Engine/World.h"
-#include "Engine/SkeletalMesh.h"
-#include "ETPracticeActionComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PlayerController.h"
-#include "Resources/ETHealingResourceComponent.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETHeal, Log, All);
-
-UETGA_Heal::UETGA_Heal()
-{
-    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-    NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerOnly;
-    ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateNo;
-    bRetriggerInstancedAbility = false;
-    FGameplayTagContainer AssetTags;
-    AssetTags.AddTag(ETGameplayTags::Ability_Heal);
-    SetAssetTags(AssetTags);
-    ActivationOwnedTags.AddTag(ETGameplayTags::State_Healing);
-    const FGameplayTag BlockedTags[] = {ETGameplayTags::State_Healing, ETGameplayTags::State_Attacking,
-        ETGameplayTags::State_Dodging, ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead};
-    for (const FGameplayTag& Tag : BlockedTags)
-    {
-        ActivationBlockedTags.AddTag(Tag);
-    }
-}
-
-bool UETGA_Heal::HasValidTagPolicy() const
-{
-    if (GetAssetTags().Num()!=1 || !GetAssetTags().HasTagExact(ETGameplayTags::Ability_Heal) ||
-        ActivationOwnedTags.Num()!=1 || !ActivationOwnedTags.HasTagExact(ETGameplayTags::State_Healing) ||
-        CancelAbilitiesWithTag.Num()!=0 || BlockAbilitiesWithTag.Num()!=0 || ActivationBlockedTags.Num()!=5) { return false; }
-    const FGameplayTag BlockedTags[] = {ETGameplayTags::State_Healing, ETGameplayTags::State_Attacking,
-        ETGameplayTags::State_Dodging, ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead};
-    for (const FGameplayTag& Tag : BlockedTags)
-    {
-        if (!ActivationBlockedTags.HasTagExact(Tag)) { return false; }
-    }
-    return true;
-}
-
-bool UETGA_Heal::HasValidConfiguration() const
-{
-    if (!HasValidTagPolicy() || GetCostGameplayEffect() || GetCooldownGameplayEffect() ||
-        !FMath::IsFinite(HealAmount) || HealAmount<1.0f || HealAmount>1000.0f ||
-        !IsValid(HealMontage) || !IsValid(HealMontage->GetSkeleton()) || HealMontage->HasRootMotion() ||
-        !FMath::IsNearlyEqual(HealMontage->RateScale,1.0f) || !HealMontage->bEnableAutoBlendOut ||
-        HealMontage->SlotAnimTracks.Num()!=1 ||
-        HealMontage->SlotAnimTracks[0].SlotName!=FName(TEXT("DefaultSlot")) ||
-        HealMontage->SlotAnimTracks[0].AnimTrack.AnimSegments.Num()!=1 ||
-        HealMontage->CompositeSections.Num()!=1 ||
-        !HealMontage->CompositeSections[0].NextSectionName.IsNone() || HealMontage->Notifies.Num()!=1)
-    { return false; }
-    const FAnimSegment& Segment=HealMontage->SlotAnimTracks[0].AnimTrack.AnimSegments[0];
-    const UAnimSequenceBase* Clip=Segment.GetAnimReference();
-    const FAnimNotifyEvent& Event=HealMontage->Notifies[0];
-    const float Length=HealMontage->GetPlayLength();
-    const float FadeIn=HealMontage->BlendIn.GetBlendTime();
-    const float FadeOut=HealMontage->BlendOut.GetBlendTime();
-    return IsValid(Clip) && Clip->GetSkeleton()==HealMontage->GetSkeleton() &&
-        Clip->Notifies.Num()==0 && FMath::IsNearlyEqual(Clip->RateScale,1.0f) &&
-        Segment.LoopingCount==1 && FMath::IsNearlyZero(Segment.StartPos) &&
-        FMath::IsNearlyZero(Segment.AnimStartTime) && FMath::IsNearlyEqual(Segment.AnimPlayRate,1.0f) &&
-        FMath::IsNearlyEqual(Segment.AnimEndTime,Clip->GetPlayLength(),.001f) &&
-        FMath::IsFinite(Length) && Length>0.2f && FMath::IsFinite(FadeIn) && FadeIn>=0.0f &&
-        FMath::IsFinite(FadeOut) && FadeOut>=0.0f &&
-        IsValid(Event.Notify) && Event.Notify->IsA<UETAN_HealCommit>() && !Event.NotifyStateClass &&
-        Event.IsBranchingPoint() && FMath::IsNearlyEqual(Event.NotifyTriggerChance,1.0f) &&
-        Event.NotifyFilterType==ENotifyFilterType::NoFiltering && FMath::IsFinite(Event.GetTime()) &&
-        Event.GetTime()>FMath::Max(.05f,FadeIn) && Event.GetTime()<Length-FadeOut;
-}
-
-bool UETGA_Heal::ReadContext(const FGameplayAbilityActorInfo* ActorInfo,
-    AEmberTrialCharacter*& OutBody, UAbilitySystemComponent*& OutASC) const
-{
-    OutBody=ActorInfo ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
-    OutASC=ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
-    APlayerController* PC=IsValid(OutBody) ? Cast<APlayerController>(OutBody->GetController()) : nullptr;
-    const UCharacterMovementComponent* Move=IsValid(OutBody) ? OutBody->GetCharacterMovement() : nullptr;
-    const UETPracticeActionComponent* Practice=IsValid(OutBody)
-        ? OutBody->FindComponentByClass<UETPracticeActionComponent>() : nullptr;
-    return IsValid(OutBody) && !OutBody->IsActorBeingDestroyed() && OutBody->HasAuthority() &&
-        OutBody->IsGameplayReady() && !OutBody->IsCombatDead() && OutBody->GetCombatTeam()==EETCombatTeam::Player &&
-        ActorInfo->OwnerActor.Get()==OutBody && IsValid(OutASC) && OutBody->GetAbilitySystemComponent()==OutASC &&
-        OutBody->GetWorld() && OutBody->GetWorld()->GetNetMode()==NM_Standalone && !OutBody->GetWorld()->IsPaused() &&
-        IsValid(PC) && PC->IsLocalController() && PC->GetPawn()==OutBody && !PC->IsMoveInputIgnored() &&
-        IsValid(Move) && Move->IsMovingOnGround() && !Move->HasRootMotionSources() &&
-        !OutBody->GetVelocity().ContainsNaN() && OutBody->GetVelocity().SizeSquared2D()<=9.0 &&
-        (!Practice || Practice->IsPracticeActionIdle()) && IsValid(ActorInfo->GetAnimInstance());
-}
-
-bool UETGA_Heal::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
-    const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
-{
-    AEmberTrialCharacter* Body=nullptr;UAbilitySystemComponent* ASC=nullptr;
-    if (!HasValidConfiguration() || !ReadContext(ActorInfo,Body,ASC) || !Body->IsFormalActionIdle() ||
-        !Super::CanActivateAbility(Handle,ActorInfo,SourceTags,TargetTags,OptionalRelevantTags)) { return false; }
-    const UETHealingResourceComponent* Resource=Body->FindComponentByClass<UETHealingResourceComponent>();
-    UAnimInstance* Anim=ActorInfo->GetAnimInstance();
-    return IsValid(Resource) && Resource->CanApplyHealing(HealAmount) &&
-        !Anim->GetCurrentActiveMontage() && Anim->GetSkelMeshComponent()->GetSkeletalMeshAsset() &&
-        Anim->GetSkelMeshComponent()->GetSkeletalMeshAsset()->GetSkeleton()==HealMontage->GetSkeleton();
-}
-
-void UETGA_Heal::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-    const FGameplayEventData* TriggerEventData)
-{
-    (void)TriggerEventData;
-    if (!IsActive()) { return; }
-    ++ActivationSerial;if (ActivationSerial==0) { ++ActivationSerial; }
-    const uint32 Serial=ActivationSerial;
-    bEnding=false;bStarting=true;bCommitAttempted=false;
-    AEmberTrialCharacter* Body=nullptr;UAbilitySystemComponent* ASC=nullptr;
-    if (!HasValidConfiguration() || !ReadContext(ActorInfo,Body,ASC))
-    { EndAbility(Handle,ActorInfo,ActivationInfo,false,true);return; }
-    if (ActorInfo->GetAnimInstance()->GetCurrentActiveMontage() ||
-        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) ||
-        ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dodging) ||
-        ASC->HasMatchingGameplayTag(ETGameplayTags::State_HitReact))
-    { EndAbility(Handle,ActorInfo,ActivationInfo,false,true);return; }
-    const UETHealingResourceComponent* Resource=Body->FindComponentByClass<UETHealingResourceComponent>();
-    if (!IsValid(Resource) || !Resource->CanApplyHealing(HealAmount))
-    { EndAbility(Handle,ActorInfo,ActivationInfo,false,true);return; }
-    ActiveMontage=HealMontage;ActiveHealAmount=HealAmount;
-    ActiveCommitToken=ActiveMontage->Notifies[0].Notify;
-    ActiveCommitTime=ActiveMontage->Notifies[0].GetTime();
-    Body->StopJumping();Body->ConsumeMovementInputVector();
-    Body->GetCharacterMovement()->StopMovementImmediately();
-    UAbilityTask_PlayMontageAndWait* Task=UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-        this,NAME_None,ActiveMontage,1.0f,NAME_None,true,1.0f,0.0f,true);
-    if (!Task) { EndAbility(Handle,ActorInfo,ActivationInfo,false,true);return; }
-    MontageTask=Task;
-    Task->OnCompleted.AddDynamic(this,&ThisClass::HandleCompleted);
-    Task->OnInterrupted.AddDynamic(this,&ThisClass::HandleAborted);
-    Task->OnCancelled.AddDynamic(this,&ThisClass::HandleAborted);
-    const TWeakObjectPtr<UAbilitySystemComponent> WeakASC=ASC;
-    const TWeakObjectPtr<UAnimInstance> WeakAnim=ActorInfo->GetAnimInstance();
-    UAnimMontage* StartingMontage=ActiveMontage;
-    Task->ReadyForActivation();
-    ASC=WeakASC.Get();UAnimInstance* Anim=WeakAnim.Get();
-    if (!IsActive() || Serial!=ActivationSerial)
-    {
-        // PlayMontage may assign ownership after a synchronous cancellation.
-        if (!IsActive() && IsValid(ASC) && ASC->GetAnimatingAbility()==this && ASC->GetCurrentMontage()==StartingMontage)
-        {
-            ASC->CurrentMontageStop(0.0f);
-            if (!IsActive() && ASC->GetAnimatingAbility()==this && ASC->GetCurrentMontage()==StartingMontage)
-            { ASC->ClearAnimatingAbility(this); }
-        }
-        return;
-    }
-    FAnimMontageInstance* Instance=IsValid(Anim) ? Anim->GetActiveInstanceForMontage(ActiveMontage) : nullptr;
-    if (!IsValid(ASC) || !Instance || !Anim->Montage_IsPlaying(ActiveMontage) ||
-        ASC->GetAnimatingAbility()!=this || MontageTask!=Task)
-    { EndAbility(Handle,ActorInfo,ActivationInfo,false,true);return; }
-    ActiveMontageInstanceID=Instance->GetInstanceID();bStarting=false;
-    UE_LOG(LogETHeal,Display,TEXT("[M2-04B2] Begin Body=%s Serial=%u MontageID=%d CommitAt=%.3f Amount=%.1f"),
-        *GetNameSafe(Body),Serial,ActiveMontageInstanceID,ActiveCommitTime,ActiveHealAmount);
-}
-
-void UETGA_Heal::HandleHealCommit(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
-    int32 MontageInstanceID, UAnimNotify* NotifyToken)
-{
-    if (!IsActive() || bStarting || bEnding || bCommitAttempted || !CurrentActorInfo ||
-        Animation!=ActiveMontage || MontageInstanceID!=ActiveMontageInstanceID ||
-        !IsValid(NotifyToken) || ActiveCommitToken.Get()!=NotifyToken) { return; }
-    AEmberTrialCharacter* Body=Cast<AEmberTrialCharacter>(CurrentActorInfo->AvatarActor.Get());
-    UAnimInstance* Anim=CurrentActorInfo->GetAnimInstance();
-    FAnimMontageInstance* Instance=IsValid(Anim) ? Anim->GetMontageInstanceForID(MontageInstanceID) : nullptr;
-    if (!IsValid(Body) || Mesh!=Body->GetMesh() || !Instance || !Instance->IsActive() ||
-        Instance->Montage!=ActiveMontage || Instance->GetPosition()+KINDA_SMALL_NUMBER<ActiveCommitTime ||
-        !Body->GetWorld() || Body->GetWorld()->IsPaused()) { return; }
-    // Seal the attempt before any framework / attribute callbacks can re-enter.
-    bCommitAttempted=true;
-    const uint32 Serial=ActivationSerial;const FString BodyName=GetNameSafe(Body);
-    UAbilitySystemComponent* ASC=nullptr;
-    if (!ReadContext(CurrentActorInfo,Body,ASC) || ASC->GetAnimatingAbility()!=this ||
-        ASC->GetCurrentMontage()!=ActiveMontage)
-    { EndAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,false,true);return; }
-    const bool bFrameworkCommitted=CommitAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo);
-    if (!IsActive() || Serial!=ActivationSerial || bEnding) { return; }
-    if (!bFrameworkCommitted)
-    { EndAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,false,true);return; }
-    if (!ReadContext(CurrentActorInfo,Body,ASC))
-    { EndAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,false,true);return; }
-    UETHealingResourceComponent* Resource=Body->FindComponentByClass<UETHealingResourceComponent>();
-    const bool bApplied=IsValid(Resource) && Resource->TryApplyHealing(ActiveHealAmount);
-    // Log the captured attempt even if the successful GE synchronously ended this ability.
-    UE_LOG(LogETHeal,Display,TEXT("[M2-04B2] Commit Body=%s Serial=%u Applied=%d"),*BodyName,Serial,bApplied ? 1 : 0);
-    if (!IsActive() || Serial!=ActivationSerial || bEnding) { return; }
-    if (!bApplied) { EndAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,false,true); }
-}
-
-void UETGA_Heal::ReleaseMontage()
-{
-    const uint32 Serial=ActivationSerial;
-    UAbilityTask_PlayMontageAndWait* OldTask=MontageTask;
-    UAnimMontage* OldMontage=ActiveMontage;const int32 OldID=ActiveMontageInstanceID;
-    const TWeakObjectPtr<UAbilitySystemComponent> WeakASC=CurrentActorInfo
-        ? CurrentActorInfo->AbilitySystemComponent : TWeakObjectPtr<UAbilitySystemComponent>();
-    const TWeakObjectPtr<UAnimInstance> WeakAnim=CurrentActorInfo ? CurrentActorInfo->GetAnimInstance() : nullptr;
-    UAnimInstance* Anim=WeakAnim.Get();
-    FAnimMontageInstance* Instance=IsValid(Anim) && OldID!=INDEX_NONE ? Anim->GetMontageInstanceForID(OldID) : nullptr;
-    MontageTask=nullptr;ActiveMontage=nullptr;ActiveMontageInstanceID=INDEX_NONE;ActiveCommitToken.Reset();
-    ActiveHealAmount=0.0f;ActiveCommitTime=0.0f;
-    if (IsValid(OldTask))
-    {
-        OldTask->OnCompleted.RemoveAll(this);OldTask->OnInterrupted.RemoveAll(this);OldTask->OnCancelled.RemoveAll(this);
-        if (Instance)
-        {
-            if (Instance->OnMontageBlendedInEnded.IsBoundToObject(OldTask)) { Instance->OnMontageBlendedInEnded.Unbind(); }
-            if (Instance->OnMontageBlendingOutStarted.IsBoundToObject(OldTask)) { Instance->OnMontageBlendingOutStarted.Unbind(); }
-            if (Instance->OnMontageEnded.IsBoundToObject(OldTask)) { Instance->OnMontageEnded.Unbind(); }
-        }
-        OldTask->EndTask();OldTask->Ability=nullptr;
-    }
-    UAbilitySystemComponent* ASC=WeakASC.Get();Anim=WeakAnim.Get();
-    Instance=IsValid(Anim) && OldID!=INDEX_NONE ? Anim->GetMontageInstanceForID(OldID) : nullptr;
-    if (Serial==ActivationSerial && IsValid(ASC) && IsValid(OldMontage) &&
-        ASC->GetAnimatingAbility()==this && ASC->GetCurrentMontage()==OldMontage && (Instance || OldID==INDEX_NONE))
-    {
-        ASC->CurrentMontageStop(.10f);
-        if (Serial==ActivationSerial && ASC->GetAnimatingAbility()==this && ASC->GetCurrentMontage()==OldMontage)
-        { ASC->ClearAnimatingAbility(this); }
-    }
-}
-
-void UETGA_Heal::HandleCompleted()
-{ if (IsActive() && !bEnding) { EndAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,false,false); } }
-void UETGA_Heal::HandleAborted()
-{ if (IsActive() && !bEnding) { EndAbility(CurrentSpecHandle,CurrentActorInfo,CurrentActivationInfo,false,true); } }
-void UETGA_Heal::EndAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-    bool bReplicateEndAbility, bool bWasCancelled)
-{
-    if (!IsEndAbilityValid(Handle,ActorInfo) || bEnding) { return; }
-    if (ScopeLockCount>0)
-    { Super::EndAbility(Handle,ActorInfo,ActivationInfo,bReplicateEndAbility,bWasCancelled);return; }
-    const uint32 EndedSerial=ActivationSerial;const bool bAttempted=bCommitAttempted;
-    const FString BodyName=GetNameSafe(ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr);
-    const TWeakObjectPtr<UAbilitySystemComponent> ASC=ActorInfo ? ActorInfo->AbilitySystemComponent : TWeakObjectPtr<UAbilitySystemComponent>();
-    bEnding=true;bStarting=false;++ActivationSerial;ReleaseMontage();
-    Super::EndAbility(Handle,ActorInfo,ActivationInfo,bReplicateEndAbility,bWasCancelled);
-    // No instance-field resets after Super: an End callback may have begun a new activation.
-    UE_LOG(LogETHeal,Display,TEXT("[M2-04B2] End Body=%s Serial=%u Cancelled=%d CommitAttempted=%d HealingTag=%d"),
-        *BodyName,EndedSerial,bWasCancelled ? 1 : 0,bAttempted ? 1 : 0,
-        ASC.IsValid() && ASC->HasMatchingGameplayTag(ETGameplayTags::State_Healing) ? 1 : 0);
-}
-```
+当前完整实现见[ETGA_Heal.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_Heal.cpp)。已完成首批排版与注释清理，当前Source为唯一维护版本；以下保留装配步骤和设计说明。
 
 ReleaseMontage沿用现有连段的所有权顺序：先撤销自身活动引用 / 解绑自身委托，正常EndTask后才置旧Task.Ability=nullptr，最后只停属于自身旧实例的Montage。自然结束时实例可能已从动画系统移除，Super.EndAbility仍会通过ASC.NotifyAbilityEnded清自己的动画能力指针；新增自动化也检查结束后无旧所有权。不能在活动Task尚未结束时清Ability，也不能用Stop All Montages / 清所有GAS Tag代替局部清理。Super.EndAbility后不再重置实例字段，保护结束回调里新开始的激活。这个顺序已核对本机引擎源码，新治疗实现仍待本批Build与测试。
 
@@ -1045,7 +714,7 @@ ValidateInput开头计数区：
 
 规则：ET-HEAL-001仍是A次数配置；002正式治疗GA / 引用 / Montage契约，003受击取消策略，004 IA / IMC。Invalid时按实际字段修，不删校验器或通过None资源绕过。
 
-## 8. 新长期自动化：ETHealingAbilityTests.cpp全文
+## 8. 新长期自动化：ETHealAbilityTests.cpp全文
 
 普通Tests目录.cpp，不是Texts，不加UCLASS / generated头。测试加载**实际保存GA与Montage / Notify**，用临时世界 / Quinn / 真实GAS与原生GE推进；正向成功必须经过动画真实通知。手动调用Notify / 旧Task只作为提前 / 重复 / 迟到事件的负向注入，不能替代成功路径。
 
@@ -1308,7 +977,7 @@ CLion Reload CMake Project，三个CodeModel保留；预期**59cpp=Core43 + UI13
 
 本次按用户明确授权，助手已直接修复**构造函数和HasValidTagPolicy两处**：先声明`const FGameplayTag BlockedTags[]`，再按`const FGameplayTag&`遍历。这样数组元素在初始化时转换成可复制的普通Tag值，不复制注册对象，五项Blocked规则不变。第3.2节完整代码也已同步。这属于指南代码问题，不是用户录入错误；其他源码与资产未改，不需手动重复替换。
 
-**接下来仍由用户构建：**保持UE关闭，CLion如提示外部修改则Reload from Disk，重新执行本节Refresh-CLion脚本；成功后执行Game Development Build，再继续第10节配置。无需清缓存或删除Intermediate。本次只做修改范围 / 文档一致性与本机引擎接口核对，未代执行Build / 自动测试，B2尚未验收。此前已Stage的ETGA_Heal.cpp需要在最终Commit前重新Stage最新修改。
+**补修已关闭：**用户随后完成正常Editor / Game Build与四项自动化，21:07报告本批完成；最终源码含上述两处数组修复，构建产物覆盖最终保存时间。无需为此清缓存、删除Intermediate或重跑已通过检查。当时助手只修改并静态核对，没有代Build / 自动测试；此前已Stage的ETGA_Heal.cpp在最终Commit前仍需纳入最新工作树差异。
 
 ## 10. UE资产配置（不新增蓝图业务节点）
 
@@ -1433,33 +1102,22 @@ Healing.Resource / Healing.Ability / StaminaRecovery / RecoveryDodge四项：
 
 代码错误文字贴第一条真实C++ / UHT / 链接错误及前后几行，不只给UBT exit6；自动化给测试名 / 首条Expected。通知问题截图完整AM轨道 + 右键时间菜单 / 所选通知Details；Tag问题截图该GA资产名与容器，输入问题截图IA与IMC唯一Q行 / 玩家两个引用。行为说明输入顺序、当时血量 / 次数与实际 / 期望，必要时短视频。日志只需路径 / 大致时间，不必摘几十行；普通报错不自动授权改源码。
 
-我保存B2验收报告且无待补项后，会同一轮直接生成C次数Presenter / HUD指南；有问题先给窄补修，不重跑未变矩阵。
+本批报告已保存、无待补项；用户本次明确要求先不进入下一章，故本轮不生成C次数Presenter / HUD指南。后续等待用户安排，不追加旧验收矩阵。
 
 ## 13. 本批 Commit / Push（固定放在最后）
 
-**当前实现阶段：**B1素材与A源码已由用户提交fd94aad；B2源码已录入，尚待正常Build与后续配置 / 检查。提交本指南、B1报告 / 来源与状态文档的实际差异；第9.1节直接补修的ETGA_Heal.cpp也要重新Stage最新内容，不能只提交原先暂存的版本。Raw候选 / 证据保持本地，本次没有自动Commit / Push。
+B2主体已由用户提交a6c5ab8；十六份Source完整实现、实际五份LFS资产均已纳入，Source工作区无差异，HEAD / 缓存origin/main一致。五份资产HEAD的LFS OID与本地SHA匹配，本轮未联网核验服务器状态。当前不需要重新Stage无变化的Source / Content。
 
-**B2实物完成并验收后：**CLion刷新Changes，按第2节完整路径Stage五新 / 十一旧共十六份Source；新测试需完整实现，不只创建骨架，已Stage后又修改需重新Stage最新差异。
+当前仅Stage[B2报告](Reports/M2_04B2_Verification.md)、本指南 / 来源63项与Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction等最新文档差异，其他已明确未提交收尾可合并；检查Staged Diff后用户自行Commit / Push，可用`docs: verify formal healing ability milestone`。
 
-两新LFS资产：
+本批已提交源码范围见第2节，测试实际ETHealAbilityTests.cpp；已提交五份LFS资产为：
 
 ```text
 EmberTrial/Content/EmberTrial/Abilities/GA_ET_Heal.uasset
 EmberTrial/Content/EmberTrial/Input/Actions/IA_ET_Heal.uasset
-```
-
-七旧资产按实际合法变化Stage，不人为制造重存：
-
-```text
 EmberTrial/Content/EmberTrial/Animations/Healing/Montages/AM_ET_Heal_01.uasset
 EmberTrial/Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset
 EmberTrial/Content/ThirdPerson/Input/IMC_Default.uasset
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_LightAttack.uasset
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_EnemyLightAttack.uasset
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_Dodge.uasset
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_HitReact.uasset
 ```
 
-来源清单待实物核对后预计61→63，并更新AM / 玩家 / IA / IMC / 旧GA实际SHA；新原生Notify不是新的美术资产，不另造来源行。制作LS / AS、Rig / Skeleton / AnimBP / 地图本批无计划变化，出现额外修改先给原因，不全部勾选掩盖。
-
-届时一起Stage B2报告 / 本指南 / 状态设计文档与真实来源更新，检查Staged Diff / LFS指针，再由用户Commit / Push。建议`feat: add notify-committed healing ability and Q input`；仅当前指南可用`docs: prepare formal healing ability`。Raw证据 / 候选 / 本地脚本、日志 / 视频、Binaries / Intermediate / Saved、生成CMake / IDE缓存和历史包留本地，不Force Add；助手不操作Git索引或上传。
+四旧GA / 制作源 / Rig / Skeleton / AnimBP / 地图 / Config无本批字节差异，不强制重存。Raw / 日志 / 候选 / 本地脚本、生成索引 / IDE缓存、Binaries / Intermediate / Saved与历史包本地，不Force Add；助手未操作Git索引。按用户本次要求没有下一章新增内容。

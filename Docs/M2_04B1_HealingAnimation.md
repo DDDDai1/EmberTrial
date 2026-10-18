@@ -1,6 +1,6 @@
 # M2-04B1：治疗动画素材与Montage
 
-2026-10-17，固定 **UE5.5.4**。**本批已验收通过，无待补项**；用户19:48确认全部正常，实际手动15 / 等待1分钟。三份素材与保存记录已核对，实际105Source / 56cpp / 来源61，累计2466 / 明确等待241分钟。[B1报告](Reports/M2_04B1_Verification.md)记录具体采样数字未填与未独立Rig求值的证据边界；原步骤 / 数值保留供查，不必重做。现直接进入[B2完整指南](M2_04B2_HealingAbility.md)。
+2026-10-17，固定 **UE5.5.4**。本素材批已验收（用户19:48、15 / 等待1分钟），原步骤 / 数值保留供查，无需重做。[B1报告](Reports/M2_04B1_Verification.md)与后续[B2报告](Reports/M2_04B2_Verification.md)均通过；当前110Source / 59cpp / 来源63。按用户本次要求在B2收尾后停止，不进入下一章。
 
 预计手动 **45–75分钟**：制作 / 烘焙30–45，Montage5–10，相关检查5–10，保存记录5–10；加载 / 烘焙等待按实际另记。这些是预算，不计为已投入时间。收到完成反馈后先保存验收报告，**无待补项时同一轮直接下发B2完整指南**，不再等待“进入下一章”；发现问题只处理具体缺口。C++手动 / Git用户操作的约定继续执行。
 
@@ -262,4 +262,4 @@ AM唯一AS / DefaultSlot / Loop1 / Blend .10与.10 / AutoBlendOut；Notifies空�
 
 ## 9. 本批 Commit / Push（固定放在最后）
 
-当前Stage [B1验收报告](Reports/M2_04B1_Verification.md)、[来源61项](AssetManifest.csv)、[B2完整指南](M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。
+核对期间用户已将B2十六份完整Source与五份实际变动LFS资产提交至a6c5ab8，HEAD / 缓存origin/main一致；Source工作区无差异，五份HEAD资产LFS OID与本地SHA匹配，本轮未联网核验远端或LFS服务器。无需重复Stage已提交源码 / 资产。当前只Stage新增[B2报告](Reports/M2_04B2_Verification.md)、B2指南 / 来源63项 / Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction及其他已明确未提交文档的最新差异，检查Staged Diff后由用户Commit / Push，可用`docs: verify formal healing ability milestone`。Raw / 日志 / 生成文件 / 历史包本地；助手未操作Git索引。本次没有下一章新增内容。

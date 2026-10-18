@@ -269,6 +269,10 @@ B1为孤立素材批，三素材各检查一次加正式地图1–2分钟短基�
 
 B2计划新Healing.Ability使用真实Montage / Notify / GE覆盖十三场景；手调旧事件仅负向注入，不代替成功路径。复用Resource / StaminaRecovery / RecoveryDodge，共四项；相关实机10–15分钟集中Q / HUD / 互斥 / P / 真实伤害 / 重建，无临时Controller测试图，不重跑未变墙坡 / 帧率 / Flow / Invulnerability矩阵。预算120–180未计实耗；状态记录明确“静态候选 / 待用户实施”，不伪造新Build / Success。
 
+2026-10-17 M2-04B2验收：用户21:07全项完成、无问题，手动40 / 等待5。实际110Source / 59cpp，16份中15份与最终候选Token一致、Validator仅移除非必需显式include，94旧Source保持B1；测试实际文件ETHealAbilityTests.cpp，类 / 路径不变。C2280两处授权补修已落地，Editor20:50:48 / Game20:51:48覆盖最终20:48:49源码，CodeModel43+13+3。21:03:34.141 Healing.Ability、.299 Resource、21:03:50.181 StaminaRecovery、21:04:09.767 RecoveryDodge均Success，七正式资产Valid / Issues0。正式Q晚提交40 / 一次扣数、真实HUD、耗尽 / 前取消、Retry新身体、Dodge与敌人10 / P / Stop有日志；具体输入、活动治疗暂停、Continue与再开等按用户确认，精确时序由自动化支持，不补造PIE样本或追加旧矩阵。两新GA / IA与三旧玩家 / IMC / AM真实变化，来源63，58旧资产 / Config / uproject / 冻结指南保持；四旧GA继承原生新策略，不强制重存。累计2506 / 明确246，M2为495 / 61，04为115 / 11。[B2报告](Reports/M2_04B2_Verification.md)无待补；本轮不改工程 / Git、不代Build / 测试 / Cook。用户明确本次验收后先不进入下一章，故不生成C或新类，等待其安排；这只覆盖本次衔接，不永久取消通用自动衔接约定。
+
+本次按用户明确要求在B2验收后停止衔接，优先于“无待补则同轮生成下一指南”的通用约定；这只是本次安排，后续何时继续由用户说明。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-当前Stage [B1验收报告](Reports/M2_04B1_Verification.md)、[来源61项](AssetManifest.csv)、[B2完整指南](M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。
+核对期间用户已将B2十六份完整Source与五份实际变动LFS资产提交至a6c5ab8，HEAD / 缓存origin/main一致；Source工作区无差异，五份HEAD资产LFS OID与本地SHA匹配，本轮未联网核验远端或LFS服务器。无需重复Stage已提交源码 / 资产。当前只Stage新增[B2报告](Reports/M2_04B2_Verification.md)、B2指南 / 来源63项 / Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction及其他已明确未提交文档的最新差异，检查Staged Diff后由用户Commit / Push，可用`docs: verify formal healing ability milestone`。Raw / 日志 / 生成文件 / 历史包本地；助手未操作Git索引。本次没有下一章新增内容。

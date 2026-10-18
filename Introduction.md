@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：[M2-01](Docs/Reports/M2_01_Verification.md)、[M2-02](Docs/Reports/M2_02_Verification.md)、[M2-03](Docs/Reports/M2_03_Verification.md)与[M2-04A](Docs/Reports/M2_04A_Verification.md) / [B1素材](Docs/Reports/M2_04B1_Verification.md)已验收。当前进入[B2正式治疗能力与Q输入](Docs/M2_04B2_HealingAbility.md)，完整代码 / 配置与分组检查已下发待手动实现；实际105Source / 56cpp / 来源61，累计手动41小时6分钟 / 已明确等待4小时1分钟。次数HUD留C，独立包仍M1 C3 Attempt02。
+当前进度：M2-01 / 02 / 03与M2-04A / B1 / [B2](Docs/Reports/M2_04B2_Verification.md)已验收。正式Q治疗与单次Notify提交 / 取消清理已完成，实际110Source / 59cpp / 来源63，累计手动41小时46分钟 / 已明确等待4小时6分钟。次数HUD仍未完成；按用户本次要求收尾后不进入下一章，等待其他安排。独立包仍M1 C3 Attempt02。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -653,7 +653,7 @@ Shipping 关闭作弊与开发菜单。截图 / 视频清楚标注是否启用�
 
 **M2-01A实际追加：**已报告手动60 / 等待5分钟，累计手动2071分钟（34小时31分钟）/ 已明确等待190分钟。A完成属性 / Ready基础；M2余下实现预算暂不因这一小批线性缩减，范围与后续成本继续分批校准。
 
-**截至2026-10-17实际追加：**M2-01为130 / 等待15，M2-02为110 / 15，M2-03为140 / 20，M2-04当前75 / 6（A60 / 5、B1为15 / 1）分钟；M2当前手动455 / 等待56。项目累计2466分钟（41小时6分钟）/ 已明确等待241分钟（4小时1分钟）；独立检查未拆时，助手设计排障未计入用户手动，预算不按录入速度线性缩减。B2预计120–180未计实耗。
+**截至2026-10-17实际追加：**M2-01为130 / 等待15，M2-02为110 / 15，M2-03为140 / 20，M2-04当前115 / 11（A60 / 5、B1为15 / 1、B2为40 / 5）分钟；M2当前手动495 / 等待61。项目累计2506分钟（41小时46分钟）/ 已明确等待246分钟（4小时6分钟）；独立检查未拆时，助手设计排障未计入用户手动，预算不按录入速度线性缩减。
 
 ### 11.2 阶段计划
 
@@ -758,6 +758,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 - 2026-10-04补充：蓝图说明逐节点写出白色执行线、数据引脚、Target、Is Valid的Input Object与有效 / 无效分支；验收逐组列准备、操作、画面 / 日志预期及清理恢复，不用笼统转述旧章节替代关键步骤。B1文档按用户要求保留原样，B2起执行此规范。
 - 2026-10-09补充：用户已完成GitHub首次Push，之后按每章完成进度Commit / Push。每份后续开发指南最后固定列出本章需提交的源码、UE资产、文档与实际改动时才包含的文件，并说明忽略产物留本地；用户完成反馈、我更新验收 / 清单后再上传。收尾内容插在Push清单之前，清单始终在指南最后；助手不自动代替用户Stage / Commit / Push。当前入口为[Docs/M1_05C2_BehaviorTreeMeleeAttack.md](Docs/M1_05C2_BehaviorTreeMeleeAttack.md)，完整版本控制约定见[VersionControl](Docs/VersionControl.md)。
 - 2026-10-17新增协作约定：每批收到完成反馈后，先核对证据并保存验收报告；**无待补项时同一轮直接生成下一批完整操作指南并更新当前入口**，不再等待用户另发“进入下一章”。有实际缺口时先处理该窄项，不把失败写成通过。该约定不授权助手自动修改Source / UE资产、执行Build或Stage / Commit / Push；手动实践与Git分工保持。
+- 2026-10-17本次例外：用户要求M2-04B2验收结束后先不进入下一章；本轮只收尾并等待其他安排，不生成C。一般自动衔接规则的其他范围保持。
 - 我可以先检查工程、准备文档、审查代码和设计测试；不在用户练习期间悄悄完成同一份基础实现。用户要求接手后即可直接处理，不反复确认。
 - 遇到复杂架构、编译 / 链接 / Cook / 崩溃、跨系统状态错误或难以描述的问题，我先读取实际代码和日志定位，给出修正代码与验证步骤。C++ 修复仍按上面的手动规则；其他操作依照用户授权范围执行。
 - 用户只需描述最后一个操作和异常现象即可启动排查，不需要先猜根因。能提供完整文本日志最好；蓝图连线 / 布局用截图，时序 / 动画问题用短视频。具体模板见 `Docs/IssueTemplate.md`。
@@ -855,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-17，M0、[M1](Docs/Reports/M1_Verification.md)、M2-01 / 02 / 03与[M2-04A](Docs/Reports/M2_04A_Verification.md) / [B1](Docs/Reports/M2_04B1_Verification.md)已验收。**当前105Source / 56cpp / 来源61，累计2466 / 等待241分钟；当前[B2完整指南](Docs/M2_04B2_HealingAbility.md)待手动实施，从第2节开始，次数HUD留C。独立包仍C3 Attempt02，最终投递作品尚未完成。手动C++、方案B与每章用户自行Push保持；实时入口见[Progress](Docs/Progress.md)，以下保留原M0起点：
+**截至2026-10-17，M0、[M1](Docs/Reports/M1_Verification.md)、M2-01 / 02 / 03与M2-04A / B1 / [B2](Docs/Reports/M2_04B2_Verification.md)已验收。**当前110Source / 59cpp / 来源63，累计2506 / 等待246分钟；次数HUD尚未实现。按用户本次要求，B2报告保存后先不进入下一章，等待其其他安排。独立包仍C3 Attempt02，最终投递作品尚未完成；手动C++ / 方案B / 用户自行Push保持，以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -867,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-当前Stage [B1验收报告](Docs/Reports/M2_04B1_Verification.md)、[来源61项](Docs/AssetManifest.csv)、[B2完整指南](Docs/M2_04B2_HealingAbility.md)、B1指南交接，以及Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction的实际文档差异。用户已提交B1三素材 / 数值JSON与A源码至fd94aad，HEAD / 缓存origin一致，本轮未联网核验；本次未改Source或UE资产，不预建空类。B2实施后按[指南末尾](Docs/M2_04B2_HealingAbility.md#13-本批-commit--push固定放在最后)Stage五新 / 十一旧Source、两新GA / IA与AM / 玩家 / IMC / 旧GA的合法实际差异，实物核对后来源预计63。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成。
+核对期间用户已将B2十六份完整Source与五份实际变动LFS资产提交至a6c5ab8，HEAD / 缓存origin/main一致；Source工作区无差异，五份HEAD资产LFS OID与本地SHA匹配，本轮未联网核验远端或LFS服务器。无需重复Stage已提交源码 / 资产。当前只Stage新增[B2报告](Docs/Reports/M2_04B2_Verification.md)、B2指南 / 来源63项 / Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction及其他已明确未提交文档的最新差异，检查Staged Diff后由用户Commit / Push，可用`docs: verify formal healing ability milestone`。Raw / 日志 / 生成文件 / 历史包本地；助手未操作Git索引。本次没有下一章新增内容。
