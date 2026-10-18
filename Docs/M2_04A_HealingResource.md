@@ -10,6 +10,10 @@
 
 ET_Healing长期保留为PIE检查入口，调用同一资源服务；0只读，非Editor实现为空。当前[Controller代码](../EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp)将0–1000幅度作为内部诊断保护常量，保留全部World / 身体 / 数值和Idle门控，不改变正式GA默认40或次数3/3。正式Q仍在唯一Notify处提交，开发命令不代替动画验证。
 
+## 当前原生治疗Effect契约
+
+[声明](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETHealingEffect.h) / [实现](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETHealingEffect.cpp)只固定Instant、唯一Health Add(Base)和SetByCaller_HealthDelta。资源组件创建自己的Spec并提供Amount，负责次数 / 成功事务；AttributeSet负责夹限与死亡封口，不把这些判断复制到Effect。固定结构短而明确，不为两类不同Effect引入通用工厂。完整类统一链接Source，原配置 / 排障步骤仍保留作历史学习材料。
+
 ## 1. 本批结果、职责与规则
 
 本批先得到“真实生命GE成功一次 → 治疗次数减一”，生命HUD直接响应原属性事件。通过永久保留、仅PIE有效的原生开发命令检查，不搭临时蓝图图表。原A阶段尚无动作 / Q；当前正式Q已通过GA / Notify接入同一服务，次数HUD仍未完成，不另写扣次数逻辑。
@@ -70,42 +74,13 @@ E:\UE_Project\Demo\EmberTrial\Source\
 
 ### 4.1 ETHealingEffect.h：完整内容
 
-```cpp
-#pragma once
+当前源码：[ETHealingEffect.h](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETHealingEffect.h)。
 
-#include "CoreMinimal.h"
-#include "GameplayEffect.h"
-#include "ETHealingEffect.generated.h"
-
-UCLASS()
-class EMBERTRIAL_API UETHealingEffect : public UGameplayEffect
-{
-    GENERATED_BODY()
-
-public:
-    UETHealingEffect(const FObjectInitializer& ObjectInitializer);
-};
-```
 
 ### 4.2 ETHealingEffect.cpp：完整内容
 
-```cpp
-#include "Abilities/Effects/ETHealingEffect.h"
-#include "Abilities/ETGameplayTags.h"
-#include "Attributes/ETHealthAttributeSet.h"
+当前源码：[ETHealingEffect.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETHealingEffect.cpp)。
 
-UETHealingEffect::UETHealingEffect(const FObjectInitializer& ObjectInitializer)
-    : Super(ObjectInitializer)
-{
-    DurationPolicy = EGameplayEffectDurationType::Instant;
-    FSetByCallerFloat Magnitude;
-    Magnitude.DataTag = ETGameplayTags::SetByCaller_HealthDelta;
-    FGameplayModifierInfo& Modifier = Modifiers.AddDefaulted_GetRef();
-    Modifier.Attribute = UETHealthAttributeSet::GetHealthAttribute();
-    Modifier.ModifierOp = EGameplayModOp::AddBase;
-    Modifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(Magnitude);
-}
-```
 
 这里是原生类，不在Content Browser再建GE蓝图，不新增SetByCaller Tag。复用已有HealthDelta的正数表达治疗；原攻击继续传负数，伤害阵营 / 无敌判定不改。正式治疗不能通过SetNumericAttributeBase直接改血或由UI先改数字。
 

@@ -224,42 +224,55 @@ WidgetBlueprint类型DataValidation实际执行，暂停、失败和其余5个Wi
 
 完整快照、差异、等价 / 格式检查、CodeModel、构建、配置 / 资产校验与测试JSON位于Raw/Cleanup/2026-10-18_Batch14。收尾额度快照：5小时已用75% / 剩余25%，周已用25% / 剩余75%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第14批后）
+## 第15批：两个原生Effect的小批次契约整理
 
-累计14批涉及69 / 115份Source（60%文件覆盖率）、32份Markdown，已记录移除10289行代码副本。文件覆盖率不是整体清理完成率，部分文件仅完成局部审计 / 引用归一，仍需最终统一验证。
+开工HEAD为00e2170，第14批已提交、工作区干净；5小时已用77% / 周已用25%。剩余23%，只选四份短Source：HealingEffect与DodgeInvulnerabilityEffect，不开启AI / Character大模块。
+
+四文件只做格式 / 注释，有效Token保持。说明固定Instant治疗与外部Amount / 次数事务的分工，以及HasDuration / TargetTags / 不堆叠、CDO默认0.15与GA Spec覆盖、按Handle清理的区别。原生子对象名 / Tag是稳定契约，不按“硬编码”改名；已有两个短Effect不强加通用工厂。数值、反射、默认值、Modifier与顺序均不变。
+
+两份指南移除四份重复整文件共61行，链接当前Source并补职责边界，保留配置 / 调试 / 验收经验。原13项测试未改，不为格式 / 注释新建镜像测试。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，三模块CLion元数据与CMake刷新成功，四份文件均在CodeModel。现有13项EmberTrial自动化全部Success，0 Fail / 0 NotRun / 0测试警告，包含真实治疗GE、无敌到期 / 取消及成本 / 位移。配置脚本PASS，Errors=0 / Warnings=0。
+
+111份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改。四文件有效Token / 格式、LF / 末尾换行、48处本地文档链接 / 围栏与Git差异检查通过；Source仍115份 / 61cpp。
+
+收益为数值来源、固定Effect结构与所有权说明更清楚、减少文档漂移；功能 / 性能行为保持，不宣称帧率收益。本批未重新交互式实机、DataValidation或Cook / 打包，不能把历史Valid当成本批新执行。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。证据位于Raw/Cleanup/2026-10-18_Batch15。
+
+收尾额度快照：5小时已用83% / 剩余17%，周已用26% / 剩余74%；未使用重置，不计入用户手动实耗。已进入约定15–20%余量区间，本批完成后停止开启新改动；额度回升后先复查，再继续Character / AI等队列。
+
+## 整体进度快照（第15批后）
+
+累计15批涉及73 / 115份Source（约63.5%文件覆盖率）、32份Markdown，已记录移除10350行代码副本。这不是整体清理完成率，部分文件仍只是局部审计 / 引用归一。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
-| 正式能力 / 属性 / 资源 | 主要GA、资源、死亡、Trace、Tag / Notify已整理 | Character大类、其他Effect与旧Practice引用审计 |
-| UI | HUD / Presenter / 观察、主菜单及暂停 / 失败呈现代码已整理 | 最终焦点 / 切图实机链路与跨模块复核 |
-| AI | 黑板键统一，已有历史回归证据 | Controller / Service / Task完整职责与失败重试审计 |
-| 工程 / 学习材料 | 相关指南改为Source入口，现有13项自动化保留 / 扩展 | Editor校验器、工具、测试夹具与剩余架构 / 操作文档 |
+| 正式能力 / 属性 / 资源 | 主要GA、属性 / 资源、三个原生Effect、死亡、Trace与Tag / Notify已整理 | Character大类、旧Practice引用与剩余规则审计 |
+| UI | HUD / Presenter / 观察、主菜单及暂停 / 失败已整理 | 统一焦点 / 切图实机与跨模块复核 |
+| AI | 黑板键统一，有历史回归证据 | Controller / Service / Task完整职责与取消 / 重试审计 |
+| 工程 / 学习材料 | 相关指南改为Source入口，现有13项自动化保留 / 扩展 | Editor校验器、工具、测试夹具及剩余架构 / 操作文档 |
 | 最终收尾 | 分批构建与检查 | 统一实机、Cook / 打包与收益汇总 |
 
-仍处于逐模块清理。后续暂估约10–15批及统一实机 / 打包，按未审计复杂度校准；不是精确工期。整体20–35小时是初估，不从批次数或文件覆盖率反推剩余小时。
+仍处于逐模块清理，后续暂估约10–15批及统一实机 / 打包，按复杂度校准；不是精确工期。整体20–35小时是初估，不从文件覆盖率反推剩余小时。
 
 ## 后续队列
 
-1. 角色、旧Practice / 诊断入口与其他Effect查引用再整理。
-2. AI职责、取消 / 重试与世界生命周期审计。
-3. Editor校验器、工具和测试夹具按真实复用需求整理。
-4. 架构 / 学习材料清理，保留面试复盘与排障价值。
-5. 统一自动化、实机与包短查，再汇总收益。
+1. Character与旧Practice / 诊断引用，确认后再整理。
+2. AI职责、取消 / 重试与世界生命周期。
+3. Editor校验器、工具、测试夹具与架构材料。
+4. 统一自动化、实机与包短查，再汇总收益。
 
-前十四批已收口；其余队列未完成，不进入新玩法开发。
+前十五批已收口；其余队列未完成，不进入新玩法开发。当前5小时余量17%，按约定停止开启新改动，额度回升后复查再继续。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批六份Source与两份指南 / Cleanup / Progress，共10项，验证已收口；由用户重新Stage最新Diff并Commit / Push。建议Commit信息：style: clarify pause and failure presentation lifecycle。
+本批四份Source与两份指南 / Cleanup / Progress，共8项，验证已收口；由用户重新Stage最新Diff并Commit / Push。建议Commit信息：style: clarify native healing and invulnerability effect contracts。
 
-- [ETPauseWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETPauseWidget.h)
-- [ETPauseWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETPauseWidget.cpp)
-- [ETFailureWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETFailureWidget.h)
-- [ETFailureWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETFailureWidget.cpp)
-- [ETFailureFlowComponent.h](../EmberTrial/Source/EmberTrialUI/Public/Flow/ETFailureFlowComponent.h)
-- [ETFailureFlowComponent.cpp](../EmberTrial/Source/EmberTrialUI/Private/Flow/ETFailureFlowComponent.cpp)
-- [M1_06B_FailureAndRetry.md](M1_06B_FailureAndRetry.md)
-- [M1_06D_PauseFlow.md](M1_06D_PauseFlow.md)
+- [ETHealingEffect.h](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETHealingEffect.h)
+- [ETHealingEffect.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETHealingEffect.cpp)
+- [ETDodgeInvulnerabilityEffect.h](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETDodgeInvulnerabilityEffect.h)
+- [ETDodgeInvulnerabilityEffect.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETDodgeInvulnerabilityEffect.cpp)
+- [M2_04A_HealingResource.md](M2_04A_HealingResource.md)
+- [M2_02C_Invulnerability.md](M2_02C_Invulnerability.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
