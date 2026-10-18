@@ -1,6 +1,8 @@
 # M2-04B2：正式治疗能力、单次生效Notify与Q输入
 
-2026-10-17，固定 **UE5.5.4**。**本批已验收通过，无待补项**；用户21:07全部完成，实际手动40 / 等待5分钟。[B2报告](Reports/M2_04B2_Verification.md)已保存；110Source / 59cpp / 来源63，双Build、四项Success、七Valid与正式Q / 取消 / HUD / 重建通过。C2280补修已关闭，第3.2与9.1保留最终代码 / 原因。原操作步骤供复查，无需重做；按用户本次要求，验收后不进入或生成C，等待其他安排。
+2026-10-18清理同步：历史接入已完成，运行实现以Source链接为准，不按旧整函数覆盖当前工程。治疗Notify无状态转发，GA / 资源组件仍拥有单次事务；本批构建、测试与提交见[Cleanup](Cleanup.md)。
+
+2026-10-17，固定 **UE5.5.4**。**本批已验收通过，无待补项**；用户21:07全部完成，实际手动40 / 等待5分钟。[B2报告](Reports/M2_04B2_Verification.md)已保存；当时110Source / 59cpp / 来源63，双Build、四项Success、七Valid与正式Q / 取消 / HUD / 重建通过。C2280补修已关闭，第3.2与9.1保留最终代码 / 原因。原操作步骤供复查，无需重做；按用户本次要求，验收后不进入或生成C，等待其他安排。
 
 手动预算 **120–180分钟**，含理解录入 / 配置 / 10–15分钟相关检查 / 记录，构建等待另记。原路线100–160微调，原因是本批一次补齐11旧文件门控与可复用取消 / 旧回调检查；不是增加旧验收图。可分两次：先录第3–8节源码，第二次Build / 配置 / 短查。M2-04整章8h基础预算保留，A / B1已实际75 / 等待6分钟，预计时间不当作实耗。
 
@@ -24,7 +26,7 @@ Q采用**原生Enhanced Input Started绑定**：IA / IMC只配资源，Character
 
 CommitAbility在有效Notify里调用，且**Cost Gameplay Effect Class / Cooldown Gameplay Effect Class必须None**。本批的次数成本不走标准按键成本GE；框架提交成功并复核同一次激活后，才由A组件一次治疗 / 一次扣数。同步回调可能取消动作，所以Commit日志使用捕获的Serial，End只记录CommitAttempted；End先出现、随后同Serial Commit Applied1在同步取消场景下合法，不代表第二次执行。成功事实以固定GE / 次数和Commit Applied结果判断，不根据最终净血量反推。
 
-生命周期 / Tag含义参考[Epic UE5.5 Gameplay Ability](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-gameplay-abilities-in-unreal-engine?application_version=5.5)。具体接口已按本机5.5.4 GameplayAbility / AbilityTask_PlayMontageAndWait / AnimMontage / SAnimNotifyPanel源代码核对；这是静态候选，**不等于已经编译或实测**。
+生命周期 / Tag含义参考[Epic UE5.5 Gameplay Ability](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-gameplay-abilities-in-unreal-engine?application_version=5.5)。具体接口已按本机5.5.4 GameplayAbility / AbilityTask_PlayMontageAndWait / AnimMontage / SAnimNotifyPanel源代码核对；这里是原接入的API核对说明；当前历史验收与本次清理验证分别见报告和Cleanup，不把API核对当成Build。
 
 ## 2. 准备与准确文件清单
 
@@ -32,10 +34,10 @@ Stop PIE → Save All → **关闭UE** → CLion保存。录完第3–8节全部
 
 ```text
 E:\UE_Project\Demo\EmberTrial\Source\
-├─ EmberTrial\Public\Abilities\ETGA_Heal.h                              新，第3.1节全文
-├─ EmberTrial\Private\Abilities\ETGA_Heal.cpp                             新，第3.2节全文
-├─ EmberTrial\Public\Animation\ETAN_HealCommit.h                         新，第3.3节全文
-├─ EmberTrial\Private\Animation\ETAN_HealCommit.cpp                        新，第3.4节全文
+├─ EmberTrial\Public\Abilities\ETGA_Heal.h                              原接入新建，现见第3.1节Source
+├─ EmberTrial\Private\Abilities\ETGA_Heal.cpp                             原接入新建，现见第3.2节Source
+├─ EmberTrial\Public\Animation\ETAN_HealCommit.h                         原接入新建，现见第3.3节Source
+├─ EmberTrial\Private\Animation\ETAN_HealCommit.cpp                        原接入新建，现见第3.4节Source
 ├─ EmberTrial\Tests\ETHealAbilityTests.cpp                             新，第8节全文
 ├─ EmberTrial\Public\Abilities\ETGameplayTags.h                           旧，第4.1节
 ├─ EmberTrial\Private\Abilities\ETGameplayTags.cpp                         旧，第4.1节
@@ -62,51 +64,15 @@ E:\UE_Project\Demo\EmberTrial\Source\
 
 当前完整实现见[ETGA_Heal.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_Heal.cpp)。已完成首批排版与注释清理，当前Source为唯一维护版本；以下保留装配步骤和设计说明。
 
-ReleaseMontage沿用现有连段的所有权顺序：先撤销自身活动引用 / 解绑自身委托，正常EndTask后才置旧Task.Ability=nullptr，最后只停属于自身旧实例的Montage。自然结束时实例可能已从动画系统移除，Super.EndAbility仍会通过ASC.NotifyAbilityEnded清自己的动画能力指针；新增自动化也检查结束后无旧所有权。不能在活动Task尚未结束时清Ability，也不能用Stop All Montages / 清所有GAS Tag代替局部清理。Super.EndAbility后不再重置实例字段，保护结束回调里新开始的激活。这个顺序已核对本机引擎源码，新治疗实现仍待本批Build与测试。
+ReleaseMontage沿用现有连段的所有权顺序：先撤销自身活动引用 / 解绑自身委托，正常EndTask后才置旧Task.Ability=nullptr，最后只停属于自身旧实例的Montage。自然结束时实例可能已从动画系统移除，Super.EndAbility仍会通过ASC.NotifyAbilityEnded清自己的动画能力指针；新增自动化也检查结束后无旧所有权。不能在活动Task尚未结束时清Ability，也不能用Stop All Montages / 清所有GAS Tag代替局部清理。Super.EndAbility后不再重置实例字段，保护结束回调里新开始的激活。上述顺序是原接入的引擎核对说明，治疗已完成历史验收；本次清理的实际Build与测试结果见Cleanup。
 
-### 3.3 ETAN_HealCommit.h完整内容
+### 3.3 ETAN_HealCommit.h当前源码
 
-```cpp
-#pragma once
-#include "CoreMinimal.h"
-#include "Animation/AnimNotifies/AnimNotify.h"
-#include "ETAN_HealCommit.generated.h"
+当前源码：[ETAN_HealCommit.h](../EmberTrial/Source/EmberTrial/Public/Animation/ETAN_HealCommit.h)。
 
-UCLASS(meta=(DisplayName="ET Heal Commit"))
-class EMBERTRIAL_API UETAN_HealCommit : public UAnimNotify
-{
-    GENERATED_BODY()
-public:
-    UETAN_HealCommit();
-    virtual void BranchingPointNotify(FBranchingPointNotifyPayload& Payload) override;
-};
-```
+### 3.4 ETAN_HealCommit.cpp当前源码
 
-### 3.4 ETAN_HealCommit.cpp完整内容
-
-```cpp
-#include "Animation/ETAN_HealCommit.h"
-#include "Abilities/ETGA_Heal.h"
-#include "AbilitySystemComponent.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "Components/SkeletalMeshComponent.h"
-
-UETAN_HealCommit::UETAN_HealCommit()
-{
-    bIsNativeBranchingPoint=true;
-#if WITH_EDITORONLY_DATA
-    bShouldFireInEditor=false;NotifyColor=FColor::Green;
-#endif
-}
-void UETAN_HealCommit::BranchingPointNotify(FBranchingPointNotifyPayload& Payload)
-{
-    USkeletalMeshComponent* Mesh=Payload.SkelMeshComponent;
-    AEmberTrialCharacter* Body=IsValid(Mesh) ? Cast<AEmberTrialCharacter>(Mesh->GetOwner()) : nullptr;
-    UAbilitySystemComponent* ASC=IsValid(Body) ? Body->GetAbilitySystemComponent() : nullptr;
-    UETGA_Heal* Heal=IsValid(ASC) ? Cast<UETGA_Heal>(ASC->GetAnimatingAbility()) : nullptr;
-    if (IsValid(Heal)) { Heal->HandleHealCommit(Mesh,Payload.SequenceAsset,Payload.MontageInstanceID,this); }
-}
-```
+当前源码：[ETAN_HealCommit.cpp](../EmberTrial/Source/EmberTrial/Private/Animation/ETAN_HealCommit.cpp)。
 
 通知对象属于资产、可能被多个角色共享；这里不存“是否已治疗”。一次提交状态只放GA实例，Notify转发Mesh / Montage / 实例ID / 自己作为Token。编辑器预览关闭业务触发，预览AM不会扣次数。
 
@@ -494,22 +460,11 @@ bool UETGA_HitReact::HasValidHealingCancelPolicy() const
 }
 ```
 
-### 6.4 ETStaminaRecoveryComponent.cpp：同一片段必须替换两处
+### 6.4 体力恢复的当前Tag契约
 
-StopObserving和RefreshObservation各一组`const FGameplayTag Tags[]`。下面原片段共出现**两次**，两次都替换；只改订阅不改解绑会造成索引不匹配：
+当前Recovery已在cpp私有GetStaminaRecoveryBlockingTags中维护五项Tag，注册 / 解绑使用同一个只读列表。Healing会立即阻断恢复，结束后按原世界时间规则恢复；不再复制“两处数组都替换”的旧补丁。
 
-**找到原内容：**
-
-```cpp
-ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead, ETGameplayTags::State_Dodging};
-```
-
-**替换为：**
-
-```cpp
-ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead, ETGameplayTags::State_Dodging,
-            ETGameplayTags::State_Healing};
-```
+见[当前实现](../EmberTrial/Source/EmberTrial/Private/Resources/ETStaminaRecoveryComponent.cpp)与[恢复规则 / 测试](M2_01B1_StaminaRecovery.md)。
 
 ### 6.5 ETCombatLifeComponent.h：只加一行测试friend
 

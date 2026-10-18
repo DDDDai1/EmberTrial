@@ -4,11 +4,19 @@
 
 日期：2026-10-06；UE5.5.4。前置：[M1-04A已验收](Reports/M1_04A_Verification.md)。**状态：用户已手动完成并验收，手动40 / 等待5分钟，见[B1结果](Reports/M1_04B1_Verification.md)。后续执行[B2真实伤害](M1_04B2_GameplayEffectDamage.md)。本文保留原实施步骤；验收本轮助手未修改Source、编译或运行新功能。**
 
+## 当前采样与候选职责（清理同步）
+
+TickComponent只负责有效采样点、身体到拳遮挡、连续扫掠与调试绘制；ProcessHitResults按原OutHits顺序去重 / 广播候选，再检查Blocking Hit。回调后立即确认Serial、窗口与Owner，防止同步取消 / 新攻击 / 销毁后继续处理旧结果。
+
+攻击登记清理SeenTargets，单个窗口关闭不清集合；每段攻击各自登记，串行隔离旧通知。CancelActiveAttack额外关窗是无有效登记时的停Tick兜底，不能把幂等保护按“重复”直接删除。Trace不判断阵营、无敌或GE成败，这些由当前Ability / Effect链路负责。
+
+半径、骨骼、偏移与采样距离仍是原蓝图配置；Debug绘制数值不改变碰撞。原生Tag的当前[声明](../EmberTrial/Source/EmberTrial/Public/Abilities/ETGameplayTags.h)与[定义](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGameplayTags.cpp)保留名字 / 注册顺序 / 说明字符串，不添加同名ini或运行时字符串别名。本批结果见[Cleanup](Cleanup.md)。
+
 ## 1. 本批成果和时间
 
 沿用左键 / 数字1正式攻击。在攻击Montage第8–14帧开启检测，沿右手骨骼连续位置做球形扫掠；一次攻击中每个Pawn只发出一次命中候选。同一目标下一次攻击可以再次命中。只有窗口开启时组件Tick，取消 / 撞墙 / 结束 / 停止PIE关闭检测。
 
-本批**不扣血**：候选命中日志里的Health仍100/100、玩家HUD仍100/100均正确。B2在同一个候选回调中加入真实GameplayEffect，训练目标和攻击输入继续复用。正式受击 / 死亡留C。
+原B1阶段只验证候选，不扣血。当前已接入真实GE、受击 / 死亡与玩家连段，旧版仅打印日志的完整Ability函数不再复制；候选与伤害职责仍分离。下方验收步骤保留为历史经验，不按原阶段数值覆盖当前配置。
 
 预计手动约90–150分钟：代码45–75、窗口 / 目标配置30–50、新行为检查15–25；构建等待和失败排查另计。这是本批预算，不要求按该时长完成，也不把A只用50分钟外推到首次碰撞接入。
 
@@ -71,381 +79,25 @@ NotifyState对象属于动画资产，不能在其中存“当前角色”“已
 
 ## 4. 检测组件
 
-### 4.1 ETCombatTraceComponent.h全文
+### 4.1 ETCombatTraceComponent.h当前声明
 
-```cpp
-#pragma once
+当前源码：[ETCombatTraceComponent.h](../EmberTrial/Source/EmberTrial/Public/Combat/ETCombatTraceComponent.h)。
 
-#include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "Engine/EngineTypes.h"
-#include "ETCombatTraceComponent.generated.h"
+### 4.2 ETCombatTraceComponent.cpp当前实现
 
-class APawn;
-class UAnimMontage;
-class UAnimSequenceBase;
-class UAnimNotifyState;
-class USkeletalMeshComponent;
-
-DECLARE_MULTICAST_DELEGATE_TwoParams(
-    FETCombatTraceHitSignature, uint32, const FHitResult&);
-
-UCLASS(ClassGroup = (EmberTrial), meta = (BlueprintSpawnableComponent))
-class EMBERTRIAL_API UETCombatTraceComponent : public UActorComponent
-{
-    GENERATED_BODY()
-
-public:
-    UETCombatTraceComponent();
-
-    bool CanStartAttack() const;
-    uint32 BeginAttack(UAnimMontage* Montage, int32 MontageInstanceID);
-    void EndAttack(uint32 Serial);
-
-    void SetAttackWindow(USkeletalMeshComponent* Mesh,
-        UAnimSequenceBase* Animation, int32 MontageInstanceID,
-        UAnimNotifyState* WindowToken, bool bOpen);
-
-    FETCombatTraceHitSignature OnTraceHit;
-
-protected:
-    virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-    virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-        FActorComponentTickFunction* ThisTickFunction) override;
-
-private:
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Trace")
-    FName TraceBoneName = TEXT("hand_r");
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Trace")
-    FVector TraceLocalOffset = FVector::ZeroVector;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Trace",
-        meta = (ClampMin = "1.0", Units = "cm"))
-    float TraceRadius = 25.0f;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Trace",
-        meta = (ClampMin = "1.0", Units = "cm"))
-    float MaxSampleTravel = 200.0f;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Trace")
-    bool bDrawDebug = true;
-
-    TWeakObjectPtr<USkeletalMeshComponent> SourceMesh;
-    TWeakObjectPtr<UAnimMontage> ExpectedMontage;
-    TWeakObjectPtr<UAnimNotifyState> ActiveWindow;
-    TSet<TWeakObjectPtr<APawn>> SeenTargets;
-
-    uint32 SerialCounter = 0;
-    uint32 ActiveSerial = 0;
-    int32 ActiveMontageInstanceID = INDEX_NONE;
-    int32 WindowCount = 0;
-    int32 SweepCount = 0;
-    bool bWindowOpen = false;
-    bool bHasPreviousPoint = false;
-    bool bBlockedByWorld = false;
-    FVector PreviousPoint = FVector::ZeroVector;
-
-    bool IsExpectedMontageActive() const;
-    void CloseWindow(const TCHAR* Reason);
-    void BlockAttack(const FHitResult& Hit, const TCHAR* Reason);
-};
-```
-
-### 4.2 ETCombatTraceComponent.cpp全文
-
-```cpp
-#include "Combat/ETCombatTraceComponent.h"
-#include "Animation/AnimInstance.h"
-#include "Animation/AnimMontage.h"
-#include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "CollisionQueryParams.h"
-#include "CollisionShape.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "DrawDebugHelpers.h"
-#include "Engine/World.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/Pawn.h"
-#include "Kismet/GameplayStatics.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETCombatTrace, Log, All);
-
-UETCombatTraceComponent::UETCombatTraceComponent()
-{
-    PrimaryComponentTick.bCanEverTick = true;
-    PrimaryComponentTick.bStartWithTickEnabled = false;
-    PrimaryComponentTick.bTickEvenWhenPaused = false;
-    PrimaryComponentTick.TickGroup = TG_PostPhysics;
-    bAutoActivate = true;
-}
-
-void UETCombatTraceComponent::BeginPlay()
-{
-    Super::BeginPlay();
-    if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
-    {
-        SourceMesh = Character->GetMesh();
-        if (SourceMesh.IsValid())
-        {
-            AddTickPrerequisiteComponent(SourceMesh.Get());
-        }
-    }
-    SetComponentTickEnabled(false);
-}
-
-bool UETCombatTraceComponent::CanStartAttack() const
-{
-    const USkeletalMeshComponent* Mesh = SourceMesh.Get();
-    return IsActive() && IsValid(GetOwner()) && IsValid(Mesh) &&
-        ActiveSerial == 0 && Mesh->GetBoneIndex(TraceBoneName) != INDEX_NONE &&
-        !TraceLocalOffset.ContainsNaN() &&
-        FMath::IsFinite(TraceRadius) && TraceRadius >= 1.0f &&
-        FMath::IsFinite(MaxSampleTravel) && MaxSampleTravel >= 1.0f;
-}
-
-bool UETCombatTraceComponent::IsExpectedMontageActive() const
-{
-    const USkeletalMeshComponent* Mesh = SourceMesh.Get();
-    const UAnimInstance* Anim = IsValid(Mesh) ? Mesh->GetAnimInstance() : nullptr;
-    const FAnimMontageInstance* Instance = IsValid(Anim) && ExpectedMontage.IsValid()
-        ? Anim->GetActiveInstanceForMontage(ExpectedMontage.Get()) : nullptr;
-    return Instance && Instance->GetInstanceID() == ActiveMontageInstanceID;
-}
-
-uint32 UETCombatTraceComponent::BeginAttack(UAnimMontage* Montage,
-    int32 MontageInstanceID)
-{
-    if (!CanStartAttack() || !IsValid(Montage) || MontageInstanceID == INDEX_NONE)
-    {
-        return 0;
-    }
-    ExpectedMontage = Montage;
-    ActiveMontageInstanceID = MontageInstanceID;
-    if (!IsExpectedMontageActive())
-    {
-        ExpectedMontage.Reset();
-        ActiveMontageInstanceID = INDEX_NONE;
-        return 0;
-    }
-    ++SerialCounter;
-    if (SerialCounter == 0)
-    {
-        ++SerialCounter;
-    }
-    ActiveSerial = SerialCounter;
-    SeenTargets.Reset();
-    WindowCount = 0;
-    SweepCount = 0;
-    bBlockedByWorld = false;
-    bHasPreviousPoint = false;
-    bWindowOpen = false;
-    ActiveWindow.Reset();
-    SetComponentTickEnabled(false);
-    UE_LOG(LogETCombatTrace, Display,
-        TEXT("[M1-04B1] Arm Owner=%s Serial=%u MontageID=%d"),
-        *GetNameSafe(GetOwner()), ActiveSerial, ActiveMontageInstanceID);
-    return ActiveSerial;
-}
-
-void UETCombatTraceComponent::SetAttackWindow(USkeletalMeshComponent* Mesh,
-    UAnimSequenceBase* Animation, int32 MontageInstanceID,
-    UAnimNotifyState* WindowToken, bool bOpen)
-{
-    if (ActiveSerial == 0 || Mesh != SourceMesh.Get() ||
-        Animation != ExpectedMontage.Get() ||
-        MontageInstanceID != ActiveMontageInstanceID || !IsValid(WindowToken))
-    {
-        return;
-    }
-    if (!bOpen)
-    {
-        if (bWindowOpen && ActiveWindow.Get() == WindowToken)
-        {
-            CloseWindow(TEXT("NotifyEnd"));
-        }
-        return;
-    }
-    if (bBlockedByWorld || !IsExpectedMontageActive())
-    {
-        return;
-    }
-    if (bWindowOpen)
-    {
-        UE_LOG(LogETCombatTrace, Warning,
-            TEXT("[M1-04B1] Overlapping window ignored Owner=%s Serial=%u"),
-            *GetNameSafe(GetOwner()), ActiveSerial);
-        return;
-    }
-    ActiveWindow = WindowToken;
-    bWindowOpen = true;
-    bHasPreviousPoint = false;
-    ++WindowCount;
-    SetComponentTickEnabled(true);
-    UE_LOG(LogETCombatTrace, Display,
-        TEXT("[M1-04B1] WindowOpen Owner=%s Serial=%u MontageID=%d Window=%d"),
-        *GetNameSafe(GetOwner()), ActiveSerial, ActiveMontageInstanceID, WindowCount);
-}
-
-void UETCombatTraceComponent::CloseWindow(const TCHAR* Reason)
-{
-    if (bWindowOpen)
-    {
-        UE_LOG(LogETCombatTrace, Display,
-            TEXT("[M1-04B1] WindowClose Owner=%s Serial=%u Reason=%s"),
-            *GetNameSafe(GetOwner()), ActiveSerial, Reason);
-    }
-    bWindowOpen = false;
-    bHasPreviousPoint = false;
-    ActiveWindow.Reset();
-    SetComponentTickEnabled(false);
-}
-
-void UETCombatTraceComponent::BlockAttack(const FHitResult& Hit,
-    const TCHAR* Reason)
-{
-    bBlockedByWorld = true;
-    UE_LOG(LogETCombatTrace, Display,
-        TEXT("[M1-04B1] Blocked Owner=%s Serial=%u Actor=%s Reason=%s"),
-        *GetNameSafe(GetOwner()), ActiveSerial, *GetNameSafe(Hit.GetActor()), Reason);
-#if ENABLE_DRAW_DEBUG
-    if (bDrawDebug)
-    {
-        DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 8.0f, 8,
-            FColor::Red, false, 0.35f);
-    }
-#endif
-    CloseWindow(Reason);
-}
-
-void UETCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-    FActorComponentTickFunction* ThisTickFunction)
-{
-    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    if (!bWindowOpen || ActiveSerial == 0 || UGameplayStatics::IsGamePaused(this))
-    {
-        return;
-    }
-    UWorld* World = GetWorld();
-    USkeletalMeshComponent* Mesh = SourceMesh.Get();
-    if (!IsValid(World) || !IsValid(Mesh) || !IsValid(GetOwner()) ||
-        !IsExpectedMontageActive() || Mesh->GetBoneIndex(TraceBoneName) == INDEX_NONE)
-    {
-        CloseWindow(TEXT("SourceLost"));
-        return;
-    }
-
-    const FVector Point = Mesh->GetSocketTransform(TraceBoneName, RTS_World)
-        .TransformPosition(TraceLocalOffset);
-    if (Point.ContainsNaN())
-    {
-        CloseWindow(TEXT("InvalidPoint"));
-        return;
-    }
-    if (bHasPreviousPoint &&
-        FVector::DistSquared(PreviousPoint, Point) > FMath::Square(MaxSampleTravel))
-    {
-        CloseWindow(TEXT("SampleJump"));
-        return;
-    }
-
-    FCollisionQueryParams Params(SCENE_QUERY_STAT(ETAttackTrace), false, GetOwner());
-    Params.bFindInitialOverlaps = true;
-    FHitResult OcclusionHit;
-    if (World->LineTraceSingleByChannel(OcclusionHit,
-        GetOwner()->GetActorLocation(), Point, ECC_Visibility, Params))
-    {
-        BlockAttack(OcclusionHit, TEXT("BodyToHandBlocked"));
-        return;
-    }
-
-    const FVector Start = bHasPreviousPoint ? PreviousPoint : Point;
-    PreviousPoint = Point;
-    bHasPreviousPoint = true;
-    TArray<FHitResult> Hits;
-    World->SweepMultiByChannel(Hits, Start, Point, FQuat::Identity,
-        ECC_Visibility, FCollisionShape::MakeSphere(TraceRadius), Params);
-    ++SweepCount;
-#if ENABLE_DRAW_DEBUG
-    if (bDrawDebug)
-    {
-        DrawDebugLine(World, Start, Point, FColor::Yellow, false, 0.12f, 0, 1.0f);
-        DrawDebugSphere(World, Start, TraceRadius, 12, FColor::Yellow, false, 0.12f);
-        DrawDebugSphere(World, Point, TraceRadius, 12, FColor::Yellow, false, 0.12f);
-    }
-#endif
-
-    const uint32 SampleSerial = ActiveSerial;
-    for (const FHitResult& Hit : Hits)
-    {
-        APawn* Target = Cast<APawn>(Hit.GetActor());
-        if (IsValid(Target) && Target != GetOwner())
-        {
-            const TWeakObjectPtr<APawn> Key(Target);
-            if (!SeenTargets.Contains(Key))
-            {
-                SeenTargets.Add(Key);
-                UE_LOG(LogETCombatTrace, Display,
-                    TEXT("[M1-04B1] Candidate Owner=%s Serial=%u Target=%s"),
-                    *GetNameSafe(GetOwner()), SampleSerial, *GetNameSafe(Target));
-                OnTraceHit.Broadcast(SampleSerial, Hit);
-                // Future damage callbacks may cancel the source ability or destroy a body.
-                if (ActiveSerial != SampleSerial || !bWindowOpen || !IsValid(GetOwner()))
-                {
-                    return;
-                }
-            }
-        }
-        if (Hit.bBlockingHit)
-        {
-            BlockAttack(Hit, TEXT("SweepBlocked"));
-            return;
-        }
-    }
-}
-
-void UETCombatTraceComponent::EndAttack(uint32 Serial)
-{
-    if (Serial == 0 || Serial != ActiveSerial)
-    {
-        return;
-    }
-    CloseWindow(TEXT("AttackEnd"));
-    UE_LOG(LogETCombatTrace, Display,
-        TEXT("[M1-04B1] Disarm Owner=%s Serial=%u Windows=%d Sweeps=%d Unique=%d Blocked=%d Tick=0"),
-        *GetNameSafe(GetOwner()), ActiveSerial, WindowCount, SweepCount,
-        SeenTargets.Num(), bBlockedByWorld ? 1 : 0);
-    ActiveSerial = 0;
-    ActiveMontageInstanceID = INDEX_NONE;
-    ExpectedMontage.Reset();
-    SeenTargets.Reset();
-}
-
-void UETCombatTraceComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    EndAttack(ActiveSerial);
-    OnTraceHit.Clear();
-    SetComponentTickEnabled(false);
-    if (SourceMesh.IsValid())
-    {
-        RemoveTickPrerequisiteComponent(SourceMesh.Get());
-    }
-    SourceMesh.Reset();
-    Super::EndPlay(EndPlayReason);
-}
-```
+当前源码：[ETCombatTraceComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatTraceComponent.cpp)。
 
 `SeenTargets`用弱引用身份，不用数组索引或Actor名字去重。日志名字只供人读取；对象销毁后同名的新对象仍是另一个目标。`Disarm.Tick=0`表示组件已调用关闭Tick，不是整角色或引擎动画停止Tick。
 
 ## 5. 原生NotifyState
 
-### 5.1 ETANS_AttackWindow.h全文
+### 5.1 ETANS_AttackWindow.h当前声明
 
 当前源码：[ETANS_AttackWindow.h](../EmberTrial/Source/EmberTrial/Public/Animation/ETANS_AttackWindow.h)。
 
 通知保持原生Branching Point与禁止编辑器预览触发；仅路由本次Mesh、Sequence、Montage实例ID、Token和开关，不缓存身体状态。
 
-### 5.2 ETANS_AttackWindow.cpp全文
+### 5.2 ETANS_AttackWindow.cpp当前实现
 
 当前源码：[ETANS_AttackWindow.cpp](../EmberTrial/Source/EmberTrial/Private/Animation/ETANS_AttackWindow.cpp)。
 
@@ -539,73 +191,11 @@ return IsValid(AttackMontage) && IsValid(AnimInstance) &&
     AnimInstance->GetCurrentActiveMontage() == nullptr;
 ```
 
-### 7.3 仅替换ActivateAbility函数全文
+### 7.3 Ability启动的当前实现
 
 这次在**实际GAS播放实例创建后**登记检测，不能把Montage资产指针当成播放实例身份。任务播放失败 / 同步取消时不会登记残余窗口。
 
-```cpp
-void UETGA_LightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-    const FGameplayAbilityActorInfo* ActorInfo,
-    const FGameplayAbilityActivationInfo ActivationInfo,
-    const FGameplayEventData* TriggerEventData)
-{
-    (void)TriggerEventData;
-    AEmberTrialCharacter* Character = ActorInfo
-        ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
-    UETCombatTraceComponent* Trace = IsValid(Character)
-        ? Character->FindComponentByClass<UETCombatTraceComponent>() : nullptr;
-    if (!IsValid(Character) || !IsValid(AttackMontage) || !IsValid(Trace) ||
-        !Trace->CanStartAttack() || !CommitAbility(Handle, ActorInfo, ActivationInfo))
-    {
-        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
-        return;
-    }
-
-    Character->StopJumping();
-    Character->ConsumeMovementInputVector();
-    if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement())
-    {
-        Movement->StopMovementImmediately();
-    }
-
-    ActiveTrace = Trace;
-    ActiveTraceSerial = 0;
-    TraceHitHandle = Trace->OnTraceHit.AddUObject(this, &ThisClass::HandleTraceHit);
-    MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-        this, NAME_None, AttackMontage, 1.0f, NAME_None, true, 0.0f, 0.0f, true);
-    if (!MontageTask)
-    {
-        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
-        return;
-    }
-    MontageTask->OnCompleted.AddDynamic(this, &ThisClass::HandleMontageCompleted);
-    MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::HandleMontageAborted);
-    MontageTask->OnCancelled.AddDynamic(this, &ThisClass::HandleMontageAborted);
-    UE_LOG(LogETLightAttack, Display,
-        TEXT("[M1-04A] Begin Character=%s Ability=%s Montage=%s"),
-        *GetNameSafe(Character), *GetNameSafe(this), *GetNameSafe(AttackMontage.Get()));
-    MontageTask->ReadyForActivation();
-    if (!IsActive())
-    {
-        return;
-    }
-
-    UAnimInstance* Anim = ActorInfo->GetAnimInstance();
-    FAnimMontageInstance* Instance = IsValid(Anim)
-        ? Anim->GetActiveInstanceForMontage(AttackMontage) : nullptr;
-    UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
-    if (!Instance || !IsValid(ASC) || ASC->GetAnimatingAbility() != this)
-    {
-        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
-        return;
-    }
-    ActiveTraceSerial = Trace->BeginAttack(AttackMontage, Instance->GetInstanceID());
-    if (ActiveTraceSerial == 0)
-    {
-        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
-    }
-}
-```
+当前源码：[ETGA_LightAttack.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_LightAttack.cpp)。
 
 ### 7.4 EndAbility只增加清理块
 
@@ -630,27 +220,11 @@ ActiveTrace.Reset();
 
 这样先撤销检测再由Super停止Montage；随后迟到的旧NotifyEnd因实例身份 / 无活动上下文而被忽略。原End日志、MontageTask置空、Super调用全部保留。
 
-### 7.5 在cpp末尾增加候选回调函数
+### 7.5 候选回调的当前实现
 
-```cpp
-void UETGA_LightAttack::HandleTraceHit(uint32 Serial, const FHitResult& Hit)
-{
-    if (!IsActive() || Serial == 0 || Serial != ActiveTraceSerial)
-    {
-        return;
-    }
-    AEmberTrialCharacter* Target = Cast<AEmberTrialCharacter>(Hit.GetActor());
-    float Health = 0.0f;
-    float MaxHealth = 0.0f;
-    const bool bTargetReady = IsValid(Target) &&
-        Target->GetGameplayHealthSnapshot(Health, MaxHealth);
-    UE_LOG(LogETLightAttack, Display,
-        TEXT("[M1-04B1] TraceHit Serial=%u Target=%s Ready=%d Health=%.1f MaxHealth=%.1f DamageApplied=0"),
-        Serial, *GetNameSafe(Hit.GetActor()), bTargetReady ? 1 : 0, Health, MaxHealth);
-}
-```
+当前源码：[ETGA_LightAttack.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_LightAttack.cpp)。
 
-本次回调只输出候选和属性快照；B2将在这里加入真实Effect。组件不需要Include ASC / 属性 / UI，不承担伤害政策。
+原B1回调只输出候选；当前Ability已接入真实Effect，完整策略以Source为准。Trace组件仍不需要Include ASC / 属性 / UI，也不承担伤害政策。
 
 接口已按本机5.5.4的AnimNotifyState.h / AnimNotify.h、AnimMontage.h、AnimInstance.h、AbilitySystemComponent.h、World.h核对；**静态核对不代替用户正常Build和实机结果**。
 
@@ -887,4 +461,4 @@ Editor Build / 索引 / Game Build：
 
 编译报错发第一条具体错误及上下文文字；Arm有、WindowOpen无时发Montage通知条和Details截图；轨迹有但漏目标时发胶囊响应表和相对摆放截图；取消 / 暂停时序问题用5–15秒短视频加操作顺序。不清缓存，不删除Intermediate试错，不默认授权助手直接改C++。
 
-下一步B2复用本组件、候选回调和目标，新增正式Damage GE / SetByCaller数值与真实伤害验证；本批候选通过不代表战斗伤害已验收。稳定数值 / 生命周期规则后续按重复收益逐步自动化，当前没有新的完整测试平台。
+原B1候选检查当时不代表伤害验收。当前B2 / C及后续连段已完成，长期自动化包含真实Montage通知 / 扫掠 / GE；清理回归结果见Cleanup，历史手动矩阵不要求每批重做。

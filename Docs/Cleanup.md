@@ -140,13 +140,29 @@ Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook
 
 完整快照、差异、进度盘点、构建 / 配置 / 测试JSON位于Raw/Cleanup/2026-10-18_Batch09。收尾额度快照：5小时已用27% / 剩余73%，周已用17% / 剩余83%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第9批后）
+## 第10批：命中采样职责拆分与原生事件契约整理
 
-截至本批，累计9批涉及43 / 113份Source（文件覆盖率约38%）、25份Markdown；已记录移除6654行重复代码副本，不计其他说明精简。这是改动覆盖统计，**不是整体清理完成率**：AI / 校验器有些文件只做过黑板键归一，测试与新共享头也计入，不能视为整文件审计完成。
+开工HEAD为bf4b1d3，第9批已提交、工作区干净；5小时已用29% / 周已用18%。范围为CombatTrace、GameplayTags、HealCommit共六份Source，不改资产、反射字段、Tag字符串、日志或数值。
+
+Trace的扫掠采样留在TickComponent，候选去重 / 广播 / 阻挡处理提取为私有ProcessHitResults；原循环逐Token展开等价，碰撞顺序、广播后Serial / 窗口 / Owner保护与本次去重范围保持。补充窗口内Tick、准确Montage身份、取消幂等兜底和EndPlay分区。四份Tag / HealCommit文件只做格式与职责注释，不为短路由引入新抽象层。
+
+两份指南移除Trace / HealCommit整文件与过时的完整GA启动 / 候选回调、恢复数组片段，共467行代码；保留碰撞 / 动画配置、操作排障与历史验收。原测试不改，不新建镜像测试。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，三模块CLion元数据与CMake刷新成功。全部12项EmberTrial自动化Success，0 Fail / 0 NotRun / 0测试警告；原测试未改，包含Combo.Flow的真实Montage通知 / 扫掠 / GE、治疗Notify与动作取消等既有场景，不把静态展开等价当成实机矩阵通过。
+
+配置脚本实际PASS，Errors=0 / Warnings=0。107份其他Source（含全部测试）、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改。六份Source格式、LF / 末尾换行、文档链接 / 围栏与Git差异检查通过，Source仍113份 / 60cpp。
+
+收益是缩短采样函数、明确候选分发与同步回调保护、提高Tag / Notify可读性和文档一致性；不宣称帧率提升。未重新交互式实机、DataValidation资产校验或Cook / 打包，不用历史Valid冒充当次结果。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+证据位于Raw/Cleanup/2026-10-18_Batch10。收尾额度快照：5小时已用36% / 剩余64%，周已用19% / 剩余81%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第10批后）
+
+截至本批，累计10批涉及49 / 113份Source（文件覆盖率约43%）、25份Markdown；已记录移除7121行重复代码副本，不计其他说明精简。这是改动覆盖统计，**不是整体清理完成率**：AI / 校验器有些文件只做过黑板键归一，测试与新共享头也计入，不能视为整文件审计完成。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
-| 正式能力 / 属性 / 资源 | 攻击、连段、闪避、受击、治疗、生命 / 体力、死亡与恢复主要链路已整理 | Character大类、CombatTrace、其他Effect / Tag / Notify及旧Practice引用审计 |
+| 正式能力 / 属性 / 资源 | 攻击、连段、闪避、受击、治疗、资源、死亡、Trace与原生Tag / 治疗Notify已整理 | Character大类、其他Effect及旧Practice引用审计 |
 | UI | 两HUD、状态Widget、Bootstrap及数值格式已整理 | 两Presenter、LocalPlayer观察、菜单 / 暂停 / 失败流程 |
 | AI | 黑板键统一；行为树与运行回归已有历史证据 | Controller / Service / Task完整职责、取消与失败重试审计 |
 | 工程 / 学习材料 | 相关指南改为Source入口，12项自动化保留并扩展 | Editor校验器、工具脚本、测试夹具复用、剩余架构 / 操作文档 |
@@ -162,21 +178,23 @@ Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-前九批已收口；其余队列未完成，不进入新玩法开发。
+前十批已收口；其余队列未完成，不进入新玩法开发。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第8批已提交，本批基线HEAD为97b5b98。五份Source与B1指南 / Cleanup / Progress共8项，验证已收口；由你在CLion查看Diff、重新Stage最新修改后Commit / Push。
+第9批已提交，本批基线HEAD为bf4b1d3。六份Source与两份指南 / Cleanup / Progress共10项，验证已收口；由你在CLion查看Diff、重新Stage最新修改后Commit / Push。
 
-- [ETStaminaRecoveryComponent.h](../EmberTrial/Source/EmberTrial/Public/Resources/ETStaminaRecoveryComponent.h)
-- [ETStaminaRecoveryComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Resources/ETStaminaRecoveryComponent.cpp)
-- [ETStaminaDeltaEffect.h](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETStaminaDeltaEffect.h)
-- [ETStaminaDeltaEffect.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETStaminaDeltaEffect.cpp)
-- [ETStaminaRecoveryTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETStaminaRecoveryTests.cpp)
-- [M2_01B1_StaminaRecovery.md](M2_01B1_StaminaRecovery.md)
+- [ETCombatTraceComponent.h](../EmberTrial/Source/EmberTrial/Public/Combat/ETCombatTraceComponent.h)
+- [ETCombatTraceComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatTraceComponent.cpp)
+- [ETGameplayTags.h](../EmberTrial/Source/EmberTrial/Public/Abilities/ETGameplayTags.h)
+- [ETGameplayTags.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGameplayTags.cpp)
+- [ETAN_HealCommit.h](../EmberTrial/Source/EmberTrial/Public/Animation/ETAN_HealCommit.h)
+- [ETAN_HealCommit.cpp](../EmberTrial/Source/EmberTrial/Private/Animation/ETAN_HealCommit.cpp)
+- [M1_04B1_AttackTrace.md](M1_04B1_AttackTrace.md)
+- [M2_04B2_HealingAbility.md](M2_04B2_HealingAbility.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-建议提交说明：Refactor stamina recovery subscriptions and verify cleanup guards。
+建议提交说明：Separate combat trace dispatch and clarify native event contracts。
 
 Content / Config / Build.cs / Target未改；Raw日志、快照、测试报告与生成文件留本地。助手未Stage / Commit / Push。
