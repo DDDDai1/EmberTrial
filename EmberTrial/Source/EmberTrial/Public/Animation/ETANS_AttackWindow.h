@@ -4,6 +4,7 @@
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "ETANS_AttackWindow.generated.h"
 
+// 通知对象可被多个播放实例共用，不在此缓存Mesh、Owner或窗口状态。
 UCLASS(meta = (DisplayName = "ET Attack Window"))
 class EMBERTRIAL_API UETANS_AttackWindow : public UAnimNotifyState
 {
@@ -11,8 +12,9 @@ class EMBERTRIAL_API UETANS_AttackWindow : public UAnimNotifyState
 
 public:
     UETANS_AttackWindow();
-    virtual void BranchingPointNotifyBegin(
-        FBranchingPointNotifyPayload& Payload) override;
-    virtual void BranchingPointNotifyEnd(
-        FBranchingPointNotifyPayload& Payload) override;
+    virtual void BranchingPointNotifyBegin(FBranchingPointNotifyPayload& Payload) override;
+    virtual void BranchingPointNotifyEnd(FBranchingPointNotifyPayload& Payload) override;
+
+private:
+    void Route(FBranchingPointNotifyPayload& Payload, bool bOpen);
 };

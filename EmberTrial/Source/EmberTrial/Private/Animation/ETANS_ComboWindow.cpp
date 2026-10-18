@@ -7,18 +7,32 @@
 
 UETANS_ComboWindow::UETANS_ComboWindow()
 {
-    bIsNativeBranchingPoint=true;
+    bIsNativeBranchingPoint = true;
 #if WITH_EDITORONLY_DATA
-    bShouldFireInEditor=false;NotifyColor=FColor::Cyan;
+    bShouldFireInEditor = false;
+    NotifyColor = FColor::Cyan;
 #endif
 }
-void UETANS_ComboWindow::BranchingPointNotifyBegin(FBranchingPointNotifyPayload& Payload) { Route(Payload,true); }
-void UETANS_ComboWindow::BranchingPointNotifyEnd(FBranchingPointNotifyPayload& Payload) { Route(Payload,false); }
-void UETANS_ComboWindow::Route(FBranchingPointNotifyPayload& Payload,bool bOpen)
+void UETANS_ComboWindow::BranchingPointNotifyBegin(FBranchingPointNotifyPayload& Payload)
 {
-    USkeletalMeshComponent* Mesh=Payload.SkelMeshComponent;
-    AEmberTrialCharacter* Body=IsValid(Mesh) ? Cast<AEmberTrialCharacter>(Mesh->GetOwner()) : nullptr;
-    UAbilitySystemComponent* ASC=IsValid(Body) ? Body->GetAbilitySystemComponent() : nullptr;
-    UETGA_LightAttack* Attack=IsValid(ASC) ? Cast<UETGA_LightAttack>(ASC->GetAnimatingAbility()) : nullptr;
-    if (IsValid(Attack)) { Attack->HandleComboWindow(Mesh,Payload.SequenceAsset,Payload.MontageInstanceID,this,bOpen); }
+    Route(Payload, true);
+}
+void UETANS_ComboWindow::BranchingPointNotifyEnd(FBranchingPointNotifyPayload& Payload)
+{
+    Route(Payload, false);
+}
+// 不持有上一轮Ability；每次通知都从当前Mesh的ASC查动画所有者。
+void UETANS_ComboWindow::Route(FBranchingPointNotifyPayload& Payload, bool bOpen)
+{
+    USkeletalMeshComponent* Mesh = Payload.SkelMeshComponent;
+    AEmberTrialCharacter* Body =
+        IsValid(Mesh) ? Cast<AEmberTrialCharacter>(Mesh->GetOwner()) : nullptr;
+    UAbilitySystemComponent* ASC = IsValid(Body) ? Body->GetAbilitySystemComponent() : nullptr;
+    UETGA_LightAttack* Attack =
+        IsValid(ASC) ? Cast<UETGA_LightAttack>(ASC->GetAnimatingAbility()) : nullptr;
+    if (IsValid(Attack))
+    {
+        Attack->HandleComboWindow(Mesh, Payload.SequenceAsset, Payload.MontageInstanceID, this,
+                                  bOpen);
+    }
 }

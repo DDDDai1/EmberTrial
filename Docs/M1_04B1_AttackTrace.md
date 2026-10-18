@@ -1,5 +1,7 @@
 # M1-04B1：动画命中窗口、扫掠与目标去重
 
+2026-10-18清理同步：本页保留历史配置、接入差异和验收依据，重复整文件以当前Source链接为准。Attack Window的Begin / End共用私有Route，窗口归Trace管理；Combo Window仍转发给当前攻击Ability，两种职责不混合。不要把历史步骤整批重做；本次范围、验证与提交见[Cleanup](Cleanup.md)。
+
 日期：2026-10-06；UE5.5.4。前置：[M1-04A已验收](Reports/M1_04A_Verification.md)。**状态：用户已手动完成并验收，手动40 / 等待5分钟，见[B1结果](Reports/M1_04B1_Verification.md)。后续执行[B2真实伤害](M1_04B2_GameplayEffectDamage.md)。本文保留原实施步骤；验收本轮助手未修改Source、编译或运行新功能。**
 
 ## 1. 本批成果和时间
@@ -439,73 +441,15 @@ void UETCombatTraceComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 ### 5.1 ETANS_AttackWindow.h全文
 
-```cpp
-#pragma once
+当前源码：[ETANS_AttackWindow.h](../EmberTrial/Source/EmberTrial/Public/Animation/ETANS_AttackWindow.h)。
 
-#include "CoreMinimal.h"
-#include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "ETANS_AttackWindow.generated.h"
-
-UCLASS(meta = (DisplayName = "ET Attack Window"))
-class EMBERTRIAL_API UETANS_AttackWindow : public UAnimNotifyState
-{
-    GENERATED_BODY()
-
-public:
-    UETANS_AttackWindow();
-    virtual void BranchingPointNotifyBegin(
-        FBranchingPointNotifyPayload& Payload) override;
-    virtual void BranchingPointNotifyEnd(
-        FBranchingPointNotifyPayload& Payload) override;
-};
-```
+通知保持原生Branching Point与禁止编辑器预览触发；仅路由本次Mesh、Sequence、Montage实例ID、Token和开关，不缓存身体状态。
 
 ### 5.2 ETANS_AttackWindow.cpp全文
 
-```cpp
-#include "Animation/ETANS_AttackWindow.h"
-#include "Animation/AnimNotifies/AnimNotify.h"
-#include "Combat/ETCombatTraceComponent.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "GameFramework/Actor.h"
+当前源码：[ETANS_AttackWindow.cpp](../EmberTrial/Source/EmberTrial/Private/Animation/ETANS_AttackWindow.cpp)。
 
-UETANS_AttackWindow::UETANS_AttackWindow()
-{
-    bIsNativeBranchingPoint = true;
-#if WITH_EDITORONLY_DATA
-    bShouldFireInEditor = false;
-    NotifyColor = FColor::Orange;
-#endif
-}
-
-void UETANS_AttackWindow::BranchingPointNotifyBegin(
-    FBranchingPointNotifyPayload& Payload)
-{
-    USkeletalMeshComponent* Mesh = Payload.SkelMeshComponent;
-    AActor* Owner = IsValid(Mesh) ? Mesh->GetOwner() : nullptr;
-    UETCombatTraceComponent* Trace = IsValid(Owner)
-        ? Owner->FindComponentByClass<UETCombatTraceComponent>() : nullptr;
-    if (IsValid(Trace))
-    {
-        Trace->SetAttackWindow(Mesh, Payload.SequenceAsset,
-            Payload.MontageInstanceID, this, true);
-    }
-}
-
-void UETANS_AttackWindow::BranchingPointNotifyEnd(
-    FBranchingPointNotifyPayload& Payload)
-{
-    USkeletalMeshComponent* Mesh = Payload.SkelMeshComponent;
-    AActor* Owner = IsValid(Mesh) ? Mesh->GetOwner() : nullptr;
-    UETCombatTraceComponent* Trace = IsValid(Owner)
-        ? Owner->FindComponentByClass<UETCombatTraceComponent>() : nullptr;
-    if (IsValid(Trace))
-    {
-        Trace->SetAttackWindow(Mesh, Payload.SequenceAsset,
-            Payload.MontageInstanceID, this, false);
-    }
-}
-```
+通知保持原生Branching Point与禁止编辑器预览触发；仅路由本次Mesh、Sequence、Montage实例ID、Token和开关，不缓存身体状态。
 
 本类在Montage中使用Native Branching Point，获取5.5.4真实播放实例ID。它没有Notify Tick，不负责采样骨骼；组件在Mesh更新完成后采样。不要另建Blueprint NotifyState，也不要在AnimBP事件图加同名通知。
 

@@ -13,30 +13,25 @@ UETANS_AttackWindow::UETANS_AttackWindow()
 #endif
 }
 
-void UETANS_AttackWindow::BranchingPointNotifyBegin(
-    FBranchingPointNotifyPayload& Payload)
+void UETANS_AttackWindow::BranchingPointNotifyBegin(FBranchingPointNotifyPayload& Payload)
 {
-    USkeletalMeshComponent* Mesh = Payload.SkelMeshComponent;
-    AActor* Owner = IsValid(Mesh) ? Mesh->GetOwner() : nullptr;
-    UETCombatTraceComponent* Trace = IsValid(Owner)
-        ? Owner->FindComponentByClass<UETCombatTraceComponent>() : nullptr;
-    if (IsValid(Trace))
-    {
-        Trace->SetAttackWindow(Mesh, Payload.SequenceAsset,
-            Payload.MontageInstanceID, this, true);
-    }
+    Route(Payload, true);
 }
 
-void UETANS_AttackWindow::BranchingPointNotifyEnd(
-    FBranchingPointNotifyPayload& Payload)
+void UETANS_AttackWindow::BranchingPointNotifyEnd(FBranchingPointNotifyPayload& Payload)
+{
+    Route(Payload, false);
+}
+
+// Begin / End只传开关，身份校验与窗口状态归Trace所有。
+void UETANS_AttackWindow::Route(FBranchingPointNotifyPayload& Payload, bool bOpen)
 {
     USkeletalMeshComponent* Mesh = Payload.SkelMeshComponent;
     AActor* Owner = IsValid(Mesh) ? Mesh->GetOwner() : nullptr;
-    UETCombatTraceComponent* Trace = IsValid(Owner)
-        ? Owner->FindComponentByClass<UETCombatTraceComponent>() : nullptr;
+    UETCombatTraceComponent* Trace =
+        IsValid(Owner) ? Owner->FindComponentByClass<UETCombatTraceComponent>() : nullptr;
     if (IsValid(Trace))
     {
-        Trace->SetAttackWindow(Mesh, Payload.SequenceAsset,
-            Payload.MontageInstanceID, this, false);
+        Trace->SetAttackWindow(Mesh, Payload.SequenceAsset, Payload.MontageInstanceID, this, bOpen);
     }
 }

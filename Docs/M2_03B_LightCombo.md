@@ -1,6 +1,6 @@
 # M2-03B：三段轻攻击、单槽输入缓冲与独立命中
 
-2026-10-18清理同步：本页保留历史设计、资产配置、接入差异和验收依据，整文件代码以当前Source链接为准；当前已包含后续连段、闪避与治疗集成，勿把旧步骤整批重做或覆盖现有工程。当前职责见[连段路线页](M2_03_LightComboRoadmap.md)，本次清理提交见[Cleanup](Cleanup.md)。
+2026-10-18清理同步：本页保留历史配置、接入差异和验收依据，重复整文件以当前Source链接为准。Attack Window的Begin / End共用私有Route，窗口归Trace管理；Combo Window仍转发给当前攻击Ability，两种职责不混合。不要把历史步骤整批重做；本次范围、验证与提交见[Cleanup](Cleanup.md)。
 
 2026-10-16，固定 **UE5.5.4**。**本批已按用户13:26反馈与源码 / 构建 / 日志核对验收通过，无待补项。**实际99Source / 52cpp / 来源58项，手动50 / 等待5；[B报告](Reports/M2_03B_Verification.md)记录两Success、正式三段各25与旧共用AM重存差异。下方原操作步骤保留供复查，无需重复执行；下一[C指南第2节](M2_03C_RecoveryDodgeCancel.md#2-准备与文件清单)。
 
@@ -57,55 +57,17 @@ E:\UE_Project\Demo\EmberTrial\Source\
 
 路径见第2节Public/Animation，完整内容：
 
-```cpp
-#pragma once
-#include "CoreMinimal.h"
-#include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "ETANS_ComboWindow.generated.h"
+当前源码：[ETANS_ComboWindow.h](../EmberTrial/Source/EmberTrial/Public/Animation/ETANS_ComboWindow.h)。
 
-UCLASS(meta=(DisplayName="ET Combo Window"))
-class EMBERTRIAL_API UETANS_ComboWindow : public UAnimNotifyState
-{
-    GENERATED_BODY()
-public:
-    UETANS_ComboWindow();
-    virtual void BranchingPointNotifyBegin(FBranchingPointNotifyPayload& Payload) override;
-    virtual void BranchingPointNotifyEnd(FBranchingPointNotifyPayload& Payload) override;
-private:
-    void Route(FBranchingPointNotifyPayload& Payload,bool bOpen);
-};
-```
+通知保持原生Branching Point与禁止编辑器预览触发；仅路由本次Mesh、Sequence、Montage实例ID、Token和开关，不缓存身体状态。
 
 ### 3.2 ETANS_ComboWindow.cpp
 
 路径见Private/Animation，完整内容：
 
-```cpp
-#include "Animation/ETANS_ComboWindow.h"
-#include "Animation/AnimNotifies/AnimNotify.h"
-#include "Abilities/ETGA_LightAttack.h"
-#include "AbilitySystemComponent.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "Components/SkeletalMeshComponent.h"
+当前源码：[ETANS_ComboWindow.cpp](../EmberTrial/Source/EmberTrial/Private/Animation/ETANS_ComboWindow.cpp)。
 
-UETANS_ComboWindow::UETANS_ComboWindow()
-{
-    bIsNativeBranchingPoint=true;
-#if WITH_EDITORONLY_DATA
-    bShouldFireInEditor=false;NotifyColor=FColor::Cyan;
-#endif
-}
-void UETANS_ComboWindow::BranchingPointNotifyBegin(FBranchingPointNotifyPayload& Payload) { Route(Payload,true); }
-void UETANS_ComboWindow::BranchingPointNotifyEnd(FBranchingPointNotifyPayload& Payload) { Route(Payload,false); }
-void UETANS_ComboWindow::Route(FBranchingPointNotifyPayload& Payload,bool bOpen)
-{
-    USkeletalMeshComponent* Mesh=Payload.SkelMeshComponent;
-    AEmberTrialCharacter* Body=IsValid(Mesh) ? Cast<AEmberTrialCharacter>(Mesh->GetOwner()) : nullptr;
-    UAbilitySystemComponent* ASC=IsValid(Body) ? Body->GetAbilitySystemComponent() : nullptr;
-    UETGA_LightAttack* Attack=IsValid(ASC) ? Cast<UETGA_LightAttack>(ASC->GetAnimatingAbility()) : nullptr;
-    if (IsValid(Attack)) { Attack->HandleComboWindow(Mesh,Payload.SequenceAsset,Payload.MontageInstanceID,this,bOpen); }
-}
-```
+通知保持原生Branching Point与禁止编辑器预览触发；仅路由本次Mesh、Sequence、Montage实例ID、Token和开关，不缓存身体状态。
 
 ## 4. 完整替换 LightAttack 两文件
 

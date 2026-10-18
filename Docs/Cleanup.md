@@ -78,6 +78,18 @@ Life对旧Practice头的跨目录相对include改为模块内规范包含名；�
 
 Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook / 打包，不能把旧失败页实机结果写成本批新验收。完整快照 / 差异 / 日志 / 测试JSON位于Raw/Cleanup/2026-10-18_Batch05。额度快照：开工5小时已用69% / 周已用11%，收尾检查75% / 12%；未使用重置，不计入用户手动实耗。
 
+## 第6批：动画窗口通知小批次
+
+开工5小时已用78% / 剩余22%，周已用12%，因此只选四份小型Notify Source。Attack Window的Begin / End重复路由提取为私有Route，两个入口仍分别传true / false；旧路由主体逐Token一致。Combo Window只整理格式 / 注释。两种通知不缓存身体状态，Trace / Ability仍分别拥有命中 / 连段窗口，不引入共用基类或新状态。
+
+两份指南移除四份重复通知代码共100行，保留资产配置、时间数值与历史排障。路由主体与开关逐Token比对等价，Combo通知有效Token保持，预处理 / 反射声明与所有权规则未变，四文件clang-format检查通过。
+
+本批UE5.5.4正常Editor / Game Development Build、CLion三模块元数据刷新成功；全部11项现有EmberTrial自动化Success，0 Fail / 0 NotRun，包含真实Montage通知、命中、连段及旧事件隔离。原测试不变，没有用镜像测试替代运行链路。
+
+107份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希一致，冻结B1指南未改；31处本地文档链接（含文件行号目标）与代码围栏、Git差异检查通过。Source仍111份 / 59cpp。收益是减少重复路由与提高可读性，不宣称帧率提升。未重新实机、DataValidation或Cook / 打包。完整证据位于Raw/Cleanup/2026-10-18_Batch06。
+
+收尾额度快照：5小时已用82% / 剩余18%，周已用13%。已到约定15–20%区间，本批完成后停止开启新改动；额度回升后先复查，再继续后续队列。未使用重置，不计入用户手动实耗。
+
 ## 后续队列
 
 1. 共享标识符、旧Practice / 诊断入口引用审计，确认后移除无用路径。
@@ -86,25 +98,21 @@ Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-前五批已收口，其余队列未完成。不重建临时Controller验收图，不进入新玩法开发；额度接近约定边界时只做可独立收尾的小批次。
+前六批已收口，其余队列未完成。当前额度余量18%，本轮不再开启第7批；额度回升后复查再继续，不进入新玩法开发。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第4批已提交，开工HEAD为3b5c02c。本批共12项，按CLion实际Diff由用户Stage / Commit / Push：
+第5批已提交，开工HEAD为4d8dd11。本批共8项，由用户在CLion核对实际Diff后Stage / Commit / Push：
 
-- EmberTrial/Source/EmberTrial/Public/Combat/ETCombatLifeComponent.h
-- EmberTrial/Source/EmberTrial/Private/Combat/ETCombatLifeComponent.cpp
-- EmberTrial/Source/EmberTrial/Public/Attributes/ETHealthAttributeSet.h
-- EmberTrial/Source/EmberTrial/Private/Attributes/ETHealthAttributeSet.cpp
-- EmberTrial/Source/EmberTrial/Public/Attributes/ETStaminaAttributeSet.h
-- EmberTrial/Source/EmberTrial/Private/Attributes/ETStaminaAttributeSet.cpp
-- Docs/M1_03A2_01_HealthReady.md
-- Docs/M1_04C1_HitReaction.md
-- Docs/M1_04C2_DeathState.md
-- Docs/M2_01A_StaminaFoundation.md
+- EmberTrial/Source/EmberTrial/Public/Animation/ETANS_AttackWindow.h
+- EmberTrial/Source/EmberTrial/Private/Animation/ETANS_AttackWindow.cpp
+- EmberTrial/Source/EmberTrial/Public/Animation/ETANS_ComboWindow.h
+- EmberTrial/Source/EmberTrial/Private/Animation/ETANS_ComboWindow.cpp
+- Docs/M1_04B1_AttackTrace.md
+- Docs/M2_03B_LightCombo.md
 - Docs/Cleanup.md
 - Docs/Progress.md
 
-可用提交说明：Clarify life-state ownership and attribute invariants。
+可用提交说明：Consolidate animation window routing。
 
-Content / Config不因清理重存；Raw证据、日志 / 测试报告、生成索引与构建产物本地。助手不Stage / Commit / Push。
+Content / Config不因清理重存；Raw、日志 / 测试报告、生成索引和构建产物本地。助手不Stage / Commit / Push。
