@@ -1,4 +1,5 @@
 #include "AI/ETBTTask_MeleeAttack.h"
+#include "AI/ETBlackboardKeys.h"
 #include "AI/ETAIController.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "AbilitySystemComponent.h"
@@ -13,7 +14,6 @@ DEFINE_LOG_CATEGORY_STATIC(LogETMeleeTask, Log, All);
 
 namespace
 {
-    const FName MeleeTargetKey(TEXT("TargetActor"));
 
     bool IsMeleeBodyAlive(const AEmberTrialCharacter* BodyCharacter)
     {
@@ -68,7 +68,7 @@ bool UETBTTask_MeleeAttack::GetLiveContext(UBehaviorTreeComponent& OwnerComp,
         IsMeleeBodyAlive(OutBody) && IsMeleeBodyAlive(OutTarget) &&
         OutController->GetPawn() == OutBody && OutBody->GetController() == OutController &&
         OutController->GetSensedPlayer() == OutTarget &&
-        IsValid(Board) && Board->GetValueAsObject(MeleeTargetKey) == OutTarget &&
+        IsValid(Board) && Board->GetValueAsObject(ETBlackboardKeys::TargetActor) == OutTarget &&
         OutBody->CanDealCombatDamageTo(OutTarget) && IsValid(OutASC) &&
         OutBody->GetAbilitySystemComponent() == OutASC &&
         OutBody->GetLightAttackSpecHandle() == ActiveSpecHandle &&

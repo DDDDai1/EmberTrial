@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-版本1.1；更新2026-10-17。**[M2-04B2正式治疗能力与Q输入已验收](Reports/M2_04B2_Verification.md)，无待补项。按用户本次要求，验收收尾后停止，等待其他安排，不进入或生成C。**五新 / 十一旧Source已落地，实际110Source / 59cpp / 来源63；四项自动化Success、七正式资产Valid与实机治疗 / 取消 / HUD / Retry通过。B2实际手动40 / 等待5分钟，累计2506 / 明确等待246分钟；次数HUD仍未完成，独立包仍M1 C3 Attempt02。
+更新2026-10-18。功能基线M2-04B2已验收，当前执行[代码 / 文档清理](Cleanup.md)第2批；共享AI黑板契约见[专页](AI_BlackboardContract.md)。实时规模与验证状态只在[Progress](Progress.md)维护，历史阶段记录保留，不进入下一功能章。
 
 ## 1. 模块边界
 

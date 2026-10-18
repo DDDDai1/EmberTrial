@@ -1,4 +1,5 @@
 #include "AI/ETBTTask_PursuitMove.h"
+#include "AI/ETBlackboardKeys.h"
 #include "AI/ETAIController.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
@@ -9,8 +10,6 @@ DEFINE_LOG_CATEGORY_STATIC(LogETPursuitMove, Log, All);
 
 namespace
 {
-    const FName PursuitMoveTargetActorKey(TEXT("TargetActor"));
-    const FName PursuitMoveStopDistanceKey(TEXT("PursuitStopDistance"));
 
     const TCHAR* DescribeMoveResult(EBTNodeResult::Type Result)
     {
@@ -30,9 +29,9 @@ UETBTTask_PursuitMove::UETBTTask_PursuitMove(
 {
     NodeName = TEXT("ET Pursuit Move To");
     bNotifyTaskFinished = true;
-    BlackboardKey.SelectedKeyName = PursuitMoveTargetActorKey;
+    BlackboardKey.SelectedKeyName = ETBlackboardKeys::TargetActor;
     AcceptableRadius = 150.0f;
-    AcceptableRadius.SetKey(PursuitMoveStopDistanceKey);
+    AcceptableRadius.SetKey(ETBlackboardKeys::PursuitStopDistance);
     bAllowPartialPath = false;
     bTrackMovingGoal = true;
     bRequireNavigableEndLocation = true;

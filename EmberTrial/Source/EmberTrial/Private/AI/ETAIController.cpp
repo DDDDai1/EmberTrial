@@ -1,4 +1,5 @@
 #include "AI/ETAIController.h"
+#include "AI/ETBlackboardKeys.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "Abilities/ETGameplayTags.h"
 #include "AbilitySystemComponent.h"
@@ -20,10 +21,6 @@ DEFINE_LOG_CATEGORY_STATIC(LogETAIController, Log, All);
 
 namespace
 {
-    const FName TargetActorKey(TEXT("TargetActor"));
-    const FName CanPursueKey(TEXT("CanPursue"));
-    const FName MeleeAttackKey(TEXT("CanMeleeAttack"));
-    const FName StopDistanceKey(TEXT("PursuitStopDistance"));
     constexpr float ArrivalTolerance = 1.0f;
 
     bool IsLiveBody(const AEmberTrialCharacter* BodyCharacter)
@@ -151,7 +148,7 @@ bool AETAIController::InitializeEnemyBlackboard()
         return false;
     }
 
-    const FBlackboard::FKey KeyID = Board->GetKeyID(TargetActorKey);
+    const FBlackboard::FKey KeyID = Board->GetKeyID(ETBlackboardKeys::TargetActor);
     const FBlackboardEntry* Entry = KeyID != FBlackboard::InvalidKey
         ? EnemyBlackboardAsset->GetKey(KeyID) : nullptr;
     const UBlackboardKeyType_Object* ObjectKey = Entry
@@ -165,9 +162,9 @@ bool AETAIController::InitializeEnemyBlackboard()
         return false;
     }
 
-    const FBlackboard::FKey GateID = Board->GetKeyID(CanPursueKey);
-    const FBlackboard::FKey DistanceID = Board->GetKeyID(StopDistanceKey);
-    const FBlackboard::FKey MeleeID = Board->GetKeyID(MeleeAttackKey);
+    const FBlackboard::FKey GateID = Board->GetKeyID(ETBlackboardKeys::CanPursue);
+    const FBlackboard::FKey DistanceID = Board->GetKeyID(ETBlackboardKeys::PursuitStopDistance);
+    const FBlackboard::FKey MeleeID = Board->GetKeyID(ETBlackboardKeys::CanMeleeAttack);
     if (GateID == FBlackboard::InvalidKey ||
         DistanceID == FBlackboard::InvalidKey || MeleeID == FBlackboard::InvalidKey ||
         Board->GetKeyType(GateID) != UBlackboardKeyType_Bool::StaticClass() ||
@@ -179,10 +176,10 @@ bool AETAIController::InitializeEnemyBlackboard()
             *GetNameSafe(this));
         return false;
     }
-    Board->ClearValue(TargetActorKey);
-    Board->SetValueAsBool(CanPursueKey, false);
-    Board->SetValueAsBool(MeleeAttackKey, false);
-    Board->SetValueAsFloat(StopDistanceKey, PursuitStopDistance);
+    Board->ClearValue(ETBlackboardKeys::TargetActor);
+    Board->SetValueAsBool(ETBlackboardKeys::CanPursue, false);
+    Board->SetValueAsBool(ETBlackboardKeys::CanMeleeAttack, false);
+    Board->SetValueAsFloat(ETBlackboardKeys::PursuitStopDistance, PursuitStopDistance);
     UE_LOG(LogETAIController, Display,
         TEXT("[M1-05C2] Blackboard ready Controller=%s Asset=%s Stop=%.1f Melee=%.1f"),
         *GetNameSafe(this), *GetNameSafe(EnemyBlackboardAsset.Get()),
@@ -221,7 +218,7 @@ bool AETAIController::IsPursuitAllowed() const
         ? BodyCharacter->GetCharacterMovement() : nullptr;
     return bPursuitAllowed && HasValidPursuitConfig() &&
         IsValid(PlayerBody) && IsValid(Board) &&
-        Board->GetValueAsObject(TargetActorKey) == PlayerBody &&
+        Board->GetValueAsObject(ETBlackboardKeys::TargetActor) == PlayerBody &&
         BodyCharacter->IsFormalActionIdle() && IsValid(Movement) &&
         Movement->IsMovingOnGround();
 }
@@ -238,7 +235,7 @@ bool AETAIController::IsMeleeAttackAllowed() const
         !IsValid(BodyCharacter) || !IsValid(PlayerBody) || !IsValid(Board) ||
         !IsValid(World) || World->GetNetMode() != NM_Standalone || World->IsPaused() ||
         World->GetTimeSeconds() < NextMeleeAttemptTime ||
-        Board->GetValueAsObject(TargetActorKey) != PlayerBody ||
+        Board->GetValueAsObject(ETBlackboardKeys::TargetActor) != PlayerBody ||
         !BodyCharacter->IsFormalActionIdle() ||
         !BodyCharacter->CanDealCombatDamageTo(PlayerBody) ||
         !BodyCharacter->GetLightAttackSpecHandle().IsValid() ||
@@ -288,7 +285,7 @@ void AETAIController::UpdatePursuitDecision()
         return;
     }
     if (!IsValid(PlayerBody) ||
-        Board->GetValueAsObject(TargetActorKey) != PlayerBody)
+        Board->GetValueAsObject(ETBlackboardKeys::TargetActor) != PlayerBody)
     {
         bHoldingDistance = false;
         CloseBoth(TEXT("NoTarget"), -1.0f);
@@ -349,9 +346,9 @@ void AETAIController::SetPursuitAllowed(bool bNewAllowed, const TCHAR* Reason,
     {
         if (UBlackboardComponent* Board = GetBlackboardComponent())
         {
-            if (Board->GetValueAsBool(CanPursueKey) != bNewAllowed)
+            if (Board->GetValueAsBool(ETBlackboardKeys::CanPursue) != bNewAllowed)
             {
-                Board->SetValueAsBool(CanPursueKey, bNewAllowed);
+                Board->SetValueAsBool(ETBlackboardKeys::CanPursue, bNewAllowed);
             }
         }
     }
@@ -377,9 +374,9 @@ void AETAIController::SetMeleeAttackAllowed(bool bNewAllowed,
     {
         if (UBlackboardComponent* Board = GetBlackboardComponent())
         {
-            if (Board->GetValueAsBool(MeleeAttackKey) != bNewAllowed)
+            if (Board->GetValueAsBool(ETBlackboardKeys::CanMeleeAttack) != bNewAllowed)
             {
-                Board->SetValueAsBool(MeleeAttackKey, bNewAllowed);
+                Board->SetValueAsBool(ETBlackboardKeys::CanMeleeAttack, bNewAllowed);
             }
         }
     }
@@ -603,7 +600,7 @@ void AETAIController::SetSensedPlayer(AEmberTrialCharacter* NewPlayer,
     TargetDeadHandle = TargetASC->RegisterGameplayTagEvent(
         ETGameplayTags::State_Dead, EGameplayTagEventType::NewOrRemoved).AddUObject(
             this, &ThisClass::HandleDeadTagChanged);
-    Board->SetValueAsObject(TargetActorKey, NewPlayer);
+    Board->SetValueAsObject(ETBlackboardKeys::TargetActor, NewPlayer);
     if (SensedPlayer.Get() != NewPlayer)
     {
         return;
@@ -611,7 +608,7 @@ void AETAIController::SetSensedPlayer(AEmberTrialCharacter* NewPlayer,
     UE_LOG(LogETAIController, Display,
         TEXT("[M1-05B1] Target acquired Controller=%s Player=%s Reason=%s BlackboardTarget=%s"),
         *GetNameSafe(this), *NewPlayerName, Reason,
-        *GetNameSafe(Board->GetValueAsObject(TargetActorKey)));
+        *GetNameSafe(Board->GetValueAsObject(ETBlackboardKeys::TargetActor)));
     UpdatePursuitDecision();
 }
 
@@ -634,7 +631,7 @@ void AETAIController::ClearSensedPlayer(const TCHAR* Reason)
     {
         if (bBlackboardReady)
         {
-            Board->ClearValue(TargetActorKey);
+            Board->ClearValue(ETBlackboardKeys::TargetActor);
         }
     }
     if (bHadTarget)

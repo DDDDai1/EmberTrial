@@ -6,16 +6,16 @@
 
 - 工程：E:/UE_Project/Demo/EmberTrial/EmberTrial.uproject。
 - UE5.5.4：D:/UE5/UE_5.5；CLion编辑，MSVC / UBT / UHT构建。
-- 110份Source / 59cpp，来源63项；M0、M1、M2-01 / 02 / 03及M2-04A / B1 / B2已验收。
+- 111份Source / 59cpp，来源63项；M0、M1、M2-01 / 02 / 03及M2-04A / B1 / B2已验收。
 - 功能：生命 / 体力HUD、三段攻击、方向闪避 / 成本 / 短无敌、Q治疗、近战AI、菜单 / 暂停 / 重试 / 会话检查点。
 - 次数HUD与M2-04整章未完成；Continue重建世界，持久存档未实现。
 - 独立包仍M1 C3 Attempt02，不包含M2功能；Editor验收不等于新版包验收。
 
 ## 当前交接
 
-2026-10-18用户授权分批直接清理源码与文档。首批为治疗GA / 资源组件四文件的排版与职责 / 生命周期注释，有效C++ Token保持一致，无玩法逻辑修改，详见[清理记录](Cleanup.md)。
+2026-10-18用户授权分批直接清理。首批治疗四文件的排版 / 注释已完成；第2批统一AI黑板键已收口，新增1头 / 修改4cpp，保留有依赖的Practice与诊断入口。正常Editor / Game Build、CLion元数据与CMake刷新通过，正式BT及隔离Probe均Valid，全部11项现有自动化Success；资产 / Config保持，未新打包或进行交互式AI实机。详见[清理记录](Cleanup.md)及[AI黑板契约](AI_BlackboardContract.md)。
 
-B2主体在a6c5ab8，原未提交文档收尾已保留，Git由用户操作。历史细节见[报告目录](Reports/)与各章指南，进度页只维护当前状态。
+B2主体在a6c5ab8，首批清理已提交f0b4fd7；本批Git提交与推送仍由用户操作。历史细节见[报告目录](Reports/)与各章指南，进度页只维护当前状态。
 
 ## 资源与工期校准
 
@@ -39,4 +39,4 @@ B2主体在a6c5ab8，原未提交文档收尾已保留，Git由用户操作。�
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-四治疗Source、.clang-format、Cleanup / Progress与两治疗指南按实际差异提交；原B2文档收尾保留可合并，需阅读Staged Diff。Content / Config无变化，不强制重存。Raw备份 / 检查、生成文件、日志与历史包本地；助手不操作Git索引。
+第2批新增共享黑板键头与契约文档，修改四份消费者cpp及Cleanup / Progress / Architecture / Backlog / Introduction，共11项；具体清单见Cleanup末尾。Content / Config无变化，不强制重存。Raw备份 / 检查、生成文件、日志与历史包本地；助手不操作Git索引。

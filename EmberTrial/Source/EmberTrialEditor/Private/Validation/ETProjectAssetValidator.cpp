@@ -1,4 +1,5 @@
 #include "Validation/ETProjectAssetValidator.h"
+#include "AI/ETBlackboardKeys.h"
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BTCompositeNode.h"
@@ -17,7 +18,6 @@ DEFINE_LOG_CATEGORY_STATIC(LogETAssetValidation, Log, All);
 
 namespace
 {
-    const FName ValidationStopDistanceKey(TEXT("PursuitStopDistance"));
     const FString ValidationTestRoot(TEXT("/Game/EmberTrial/Tests/Validation/"));
 
     UWidget* FindRequiredWidget(UWidgetBlueprint* Blueprint, FName WidgetName)
@@ -109,7 +109,7 @@ void UETProjectAssetValidator::ValidateTree(UBehaviorTree* Tree, int32& IssueCou
     }
 
     const UBlackboardData* Board = Tree->BlackboardAsset;
-    const FBlackboard::FKey KeyId = Board->GetKeyID(ValidationStopDistanceKey);
+    const FBlackboard::FKey KeyId = Board->GetKeyID(ETBlackboardKeys::PursuitStopDistance);
     const UClass* KeyType = Board->GetKeyType(KeyId).Get();
     if (!IsValid(KeyType) || !KeyType->IsChildOf(UBlackboardKeyType_Float::StaticClass()))
     {
@@ -160,7 +160,7 @@ void UETProjectAssetValidator::ValidateTree(UBehaviorTree* Tree, int32& IssueCou
                 continue;
             }
             ++PursuitCount;
-            if (Move->AcceptableRadius.GetKey() != ValidationStopDistanceKey)
+            if (Move->AcceptableRadius.GetKey() != ETBlackboardKeys::PursuitStopDistance)
             {
                 AddIssue(Tree, TEXT("ET-AI-003"),
                     TEXT("ET Pursuit Move To: bind Acceptable Radius to PursuitStopDistance; a constant 90 is not a binding."),
