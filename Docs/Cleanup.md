@@ -90,6 +90,22 @@ Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook
 
 收尾额度快照：5小时已用82% / 剩余18%，周已用13%。已到约定15–20%区间，本批完成后停止开启新改动；额度回升后先复查，再继续后续队列。未使用重置，不计入用户手动实耗。
 
+## 第7批：资源HUD数值格式去重与本地化测试
+
+额度已回升，开工5小时已用1% / 周已用13%，第6批已提交。生命 / 体力HUD共四文件整理格式与订阅分区；原本重复的FNumberFormattingOptions / FText::Format收敛为UI私有无状态头文件，保留各自LOCTEXT命名空间 / Key、标题、状态、BindWidget和日志级别，不引入通用Widget基类或改变Presenter。
+
+新增UI模块原生格式化测试，检查三种locale、整数显示 / 分组、调用方Pattern、保留FText的本地化历史，以及测试后语言 / locale / asset-group完整恢复。不调用角色、不修改属性或配置，不把文本测试当成HUD实机回归。
+
+两份HUD指南移除四份重复整文件，共376行代码，改为Source入口；保留布局 / 生命周期 / 排障经验，修正过时的当前文件计数并补显示职责边界。
+
+本批UE5.5.4正常Editor / Game Development Build均通过；三模块CLion元数据与CMake刷新成功，新私有头与测试已进入UI CodeModel。全部12项EmberTrial自动化Success，0 Fail / 0 NotRun / 0测试警告，原11项测试未改；新增格式化用例确认三种locale、取整 / 分组、FText历史与完整文化状态恢复。
+
+实际DataValidation按WidgetBlueprint类型执行，正式HealthHUD与StaminaHUD均有本项目Valid标记，命令汇总0 Error / 0 Warning。107份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持；冻结B1指南未改。六份Source格式检查、文档链接 / 围栏和Git差异检查通过。Source为113份 / 60cpp。
+
+收益是减少数值格式维护位置、提高阅读性并补本地化验证，不改变属性规则、不新增Tick，不宣称帧率提升。没有重新进行交互式HUD布局 / 输入实机或Cook / 打包。自动化启动仍出现既有EOS好友权限403环境警告，测试自身无警告，不属于本次改动。完整快照 / 差异 / 构建 / 校验 / 测试JSON位于Raw/Cleanup/2026-10-18_Batch07。
+
+收尾额度快照：5小时已用10% / 剩余90%，周已用15% / 剩余85%。未使用重置，不计入用户手动实耗。
+
 ## 后续队列
 
 1. 共享标识符、旧Practice / 诊断入口引用审计，确认后移除无用路径。
@@ -98,21 +114,23 @@ Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-前六批已收口，其余队列未完成。当前额度余量18%，本轮不再开启第7批；额度回升后复查再继续，不进入新玩法开发。
+前七批均已收口；其余队列未完成，不进入新玩法开发。额度数据为批次时点快照，后续开工仍需复查。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第5批已提交，开工HEAD为4d8dd11。本批共8项，由用户在CLion核对实际Diff后Stage / Commit / Push：
+第6批已提交，开工HEAD为ec1bd9d。本批验证已完成，共10项；由你在CLion查看Diff、重新Stage最新修改后Commit / Push。
 
-- EmberTrial/Source/EmberTrial/Public/Animation/ETANS_AttackWindow.h
-- EmberTrial/Source/EmberTrial/Private/Animation/ETANS_AttackWindow.cpp
-- EmberTrial/Source/EmberTrial/Public/Animation/ETANS_ComboWindow.h
-- EmberTrial/Source/EmberTrial/Private/Animation/ETANS_ComboWindow.cpp
-- Docs/M1_04B1_AttackTrace.md
-- Docs/M2_03B_LightCombo.md
-- Docs/Cleanup.md
-- Docs/Progress.md
+- [ETHealthHUDWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETHealthHUDWidget.h)
+- [ETHealthHUDWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETHealthHUDWidget.cpp)
+- [ETStaminaHUDWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETStaminaHUDWidget.h)
+- [ETStaminaHUDWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETStaminaHUDWidget.cpp)
+- [ETResourceHUDText.h](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETResourceHUDText.h)
+- [ETResourceHUDTextTests.cpp](../EmberTrial/Source/EmberTrialUI/Private/Tests/ETResourceHUDTextTests.cpp)
+- [M1_03B2_HealthHUD.md](M1_03B2_HealthHUD.md)
+- [M2_01B2_StaminaHUD.md](M2_01B2_StaminaHUD.md)
+- [Cleanup.md](Cleanup.md)
+- [Progress.md](Progress.md)
 
-可用提交说明：Consolidate animation window routing。
+建议提交说明：Share resource HUD text formatting and verify localization。
 
-Content / Config不因清理重存；Raw、日志 / 测试报告、生成索引和构建产物本地。助手不Stage / Commit / Push。
+Content / Config / Build.cs / Target未改；Raw / 日志 / 测试报告、CMake生成元数据与构建产物留本地。助手未Stage / Commit / Push。

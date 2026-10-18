@@ -1,4 +1,5 @@
 #include "Widgets/ETHealthHUDWidget.h"
+#include "Widgets/ETResourceHUDText.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Components/VerticalBox.h"
@@ -8,6 +9,8 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogETHealthHUD, Log, All);
 #define LOCTEXT_NAMESPACE "ETHealthHUD"
+
+// ---- 视图生命周期与订阅 ----
 
 void UETHealthHUDWidget::NativeConstruct()
 {
@@ -22,7 +25,7 @@ void UETHealthHUDWidget::NativeConstruct()
     // Construct may run more than once; subscription belongs to StartObserving.
     const UETHealthPresenter* Presenter = BoundPresenter.Get();
     ApplyViewData(Presenter ? Presenter->GetSnapshot() : FETHealthViewData{},
-        TEXT("ConstructSnapshot"));
+                  TEXT("ConstructSnapshot"));
 }
 
 void UETHealthHUDWidget::NativeDestruct()
@@ -47,12 +50,10 @@ void UETHealthHUDWidget::StartObserving(UETHealthPresenter* Presenter)
 
     BoundPresenter = Presenter;
     bObserving = true;
-    Presenter->OnViewDataChanged.AddUniqueDynamic(
-        this, &UETHealthHUDWidget::HandleViewDataChanged);
+    Presenter->OnViewDataChanged.AddUniqueDynamic(this, &UETHealthHUDWidget::HandleViewDataChanged);
 
-    UE_LOG(LogETHealthHUD, Display,
-        TEXT("[M1-03B2] View subscribed Widget=%s Presenter=%s"),
-        *GetNameSafe(this), *GetNameSafe(Presenter));
+    UE_LOG(LogETHealthHUD, Display, TEXT("[M1-03B2] View subscribed Widget=%s Presenter=%s"),
+           *GetNameSafe(this), *GetNameSafe(Presenter));
 
     // Bind first, then get current data: a late-joining View needs no new effect.
     ApplyViewData(Presenter->GetSnapshot(), TEXT("SubscribeSnapshot"));
@@ -65,15 +66,15 @@ void UETHealthHUDWidget::StopObserving()
     UETHealthPresenter* Presenter = BoundPresenter.Get();
     if (Presenter)
     {
-        Presenter->OnViewDataChanged.RemoveDynamic(
-            this, &UETHealthHUDWidget::HandleViewDataChanged);
+        Presenter->OnViewDataChanged.RemoveDynamic(this,
+                                                   &UETHealthHUDWidget::HandleViewDataChanged);
     }
     BoundPresenter.Reset();
 
     if (bWasObserving)
     {
-        UE_LOG(LogETHealthHUD, Display,
-            TEXT("[M1-03B2] View unsubscribed Widget=%s"), *GetNameSafe(this));
+        UE_LOG(LogETHealthHUD, Display, TEXT("[M1-03B2] View unsubscribed Widget=%s"),
+               *GetNameSafe(this));
     }
 }
 
@@ -86,14 +87,14 @@ void UETHealthHUDWidget::HandleViewDataChanged(const FETHealthViewData& Data)
     ApplyViewData(Data, TEXT("ViewDataChanged"));
 }
 
-void UETHealthHUDWidget::ApplyViewData(
-    const FETHealthViewData& Data, const TCHAR* Reason)
+// ---- 事件快照渲染；只共享数字文本策略，状态标题与比例仍由各面板负责 ----
+
+void UETHealthHUDWidget::ApplyViewData(const FETHealthViewData& Data, const TCHAR* Reason)
 {
     if (!HealthStatusText || !HealthValuesText || !HealthBar || !HealthContent)
     {
-        UE_LOG(LogETHealthHUD, Warning,
-            TEXT("[M1-03B2] Missing required BindWidget Widget=%s"),
-            *GetNameSafe(this));
+        UE_LOG(LogETHealthHUD, Warning, TEXT("[M1-03B2] Missing required BindWidget Widget=%s"),
+               *GetNameSafe(this));
         return;
     }
 
@@ -101,13 +102,8 @@ void UETHealthHUDWidget::ApplyViewData(
     {
         HealthStatusText->SetText(LOCTEXT("HealthTitle", "生命值"));
         HealthContent->SetVisibility(ESlateVisibility::HitTestInvisible);
-        FNumberFormattingOptions NumberOptions;
-        NumberOptions.SetMinimumFractionalDigits(0);
-        NumberOptions.SetMaximumFractionalDigits(0);
-        HealthValuesText->SetText(FText::Format(
-            LOCTEXT("HealthValues", "{0} / {1}"),
-            FText::AsNumber(Data.Health, &NumberOptions),
-            FText::AsNumber(Data.MaxHealth, &NumberOptions)));
+        HealthValuesText->SetText(ETResourceHUDText::FormatValues(
+            LOCTEXT("HealthValues", "{0} / {1}"), Data.Health, Data.MaxHealth));
         HealthBar->SetPercent(Data.HealthFraction);
     }
     else
@@ -132,12 +128,13 @@ void UETHealthHUDWidget::ApplyViewData(
         }
     }
 
-    const FString StateName = StaticEnum<EETHealthViewState>()->GetNameStringByValue(
-        static_cast<int64>(Data.State));
-    UE_LOG(LogETHealthHUD, Display,
-        TEXT("[M1-03B2] View Widget=%s State=%s Health=%.1f MaxHealth=%.1f Fraction=%.3f Reason=%s"),
-        *GetNameSafe(this), *StateName, Data.Health, Data.MaxHealth,
-        Data.HealthFraction, Reason);
+    const FString StateName =
+        StaticEnum<EETHealthViewState>()->GetNameStringByValue(static_cast<int64>(Data.State));
+    UE_LOG(
+        LogETHealthHUD, Display,
+        TEXT(
+            "[M1-03B2] View Widget=%s State=%s Health=%.1f MaxHealth=%.1f Fraction=%.3f Reason=%s"),
+        *GetNameSafe(this), *StateName, Data.Health, Data.MaxHealth, Data.HealthFraction, Reason);
 }
 
 #undef LOCTEXT_NAMESPACE
