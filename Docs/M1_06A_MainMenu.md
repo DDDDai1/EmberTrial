@@ -1,8 +1,16 @@
 # M1-06A：独立主菜单与战斗入口
 
-下发与验收：2026-10-10；UE **5.5.4**。前置[M1-05总验收](Reports/M1_05_Verification.md)通过，分批计划见[M1-06路线](M1_06_FlowRoadmap.md)。**A功能验收通过：用户21:13全项反馈、双目标Build / 29cpp索引、菜单切图与清理日志已核对。**六新Source / 两旧cpp、四新资产与启动 / Cook配置完成，清单44；实际手动45 / 等待5分钟。Unity补修已关闭；菜单空HUD初始化Warning已定位、非阻塞，待下一批原生构建收口，见第11.1节与[验收报告](Reports/M1_06A_Verification.md)。助手本轮未改Source、Build或代Commit / Push。
+2026-10-18清理同步：本页保留历史实施 / 配置 / 排障经验，当前整文件实现以Source链接为准，不按旧全文覆盖现有工程。当前已接菜单继续、原生暂停与检查点；这轮清理由助手按用户授权直接修改，普通功能开发的手动实践约定保留。验证与本批Push清单见[Cleanup](Cleanup.md)。
 
-继续约定：所有C++由你手动写入，明确授权后我才直接改源码。本文没有临时验收按键 / 函数，主要操作是新建文件、Designer和Class / 地图配置；Blueprint Event Graph本批留空。最后一节列出本批Commit / Push内容。
+下发与验收：2026-10-10；UE **5.5.4**。前置[M1-05总验收](Reports/M1_05_Verification.md)通过，分批计划见[M1-06路线](M1_06_FlowRoadmap.md)。**A功能验收通过：用户21:13全项反馈、双目标Build / 29cpp索引、菜单切图与清理日志已核对。**六新Source / 两旧cpp、四新资产与启动 / Cook配置完成，清单44；实际手动45 / 等待5分钟。Unity补修已关闭；菜单空HUD初始化Warning已定位、非阻塞，已在后续B原生构建收口，见第11.1节与[验收报告](Reports/M1_06A_Verification.md)。以上是原A实施记录；当前清理的源码修改与验证以Cleanup为准。
+
+原实施约定：C++由你手动写入；当前清理按本轮授权由助手直接修改。本文没有临时验收按键 / 函数，主要操作是新建文件、Designer和Class / 地图配置；Blueprint Event Graph本批留空。最后一节列出本批Commit / Push内容。
+
+## 当前主菜单实现与职责
+
+Controller拥有唯一菜单View和自己的Session失败订阅。CanHandleMenuAction集中结束 / pending / 本地 / 当前View判断；开始 / 继续仍额外要求World，退出保持原范围。ApplyMenuInputMode复用UIOnly、清键、鼠标与初始焦点，仍只在原两个合法调用点执行，不缓存身份。
+
+层级100是原装配契约的内部命名常量；GameplayMap仍是可配置软引用，默认正式地图保留；显式设为None仍预检拒绝，不因C++默认值自动改图。Widget只呈现busy / Continue快照与发意图，按钮名、中文、焦点、反射字段和会话规则不改。当前具备“继续本次试炼”，A阶段的“继续禁用”只描述历史阶段。
 
 ## 1. 完成后看到什么、预计多久
 
@@ -100,151 +108,11 @@ void AETMenuGameMode::HandleStartingNewPlayer_Implementation(
 
 ### 4.1 ETMainMenuWidget.h全文
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-#include "ETMainMenuWidget.generated.h"
-
-class UButton;
-class UTextBlock;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETMenuActionRequested);
-
-UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
-class EMBERTRIALUI_API UETMainMenuWidget : public UUserWidget
-{
-    GENERATED_BODY()
-
-public:
-    bool HasRequiredLayout() const;
-    void ShowReady();
-    void ShowPending(const FText& Message);
-    void ShowError(const FText& Message);
-    void FocusStartButton();
-
-    UPROPERTY(BlueprintAssignable, Category = "EmberTrial|Menu")
-    FETMenuActionRequested OnStartRequested;
-
-    UPROPERTY(BlueprintAssignable, Category = "EmberTrial|Menu")
-    FETMenuActionRequested OnQuitRequested;
-
-protected:
-    virtual void NativeOnInitialized() override;
-
-private:
-    void ApplyState(bool bPending, const FText& Message);
-
-    UFUNCTION()
-    void HandleStartClicked();
-
-    UFUNCTION()
-    void HandleQuitClicked();
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UButton> StartButton;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UButton> ContinueButton;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UButton> QuitButton;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> StatusText;
-
-    bool bBusy = false;
-};
-```
+当前源码：[ETMainMenuWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETMainMenuWidget.h)。
 
 ### 4.2 ETMainMenuWidget.cpp全文
 
-```cpp
-#include "Widgets/ETMainMenuWidget.h"
-#include "Components/Button.h"
-#include "Components/TextBlock.h"
-#include "GameFramework/PlayerController.h"
-#include "Logging/LogMacros.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETMainMenuView, Log, All);
-
-bool UETMainMenuWidget::HasRequiredLayout() const
-{
-    return IsValid(StartButton.Get()) && IsValid(ContinueButton.Get()) &&
-        IsValid(QuitButton.Get()) && IsValid(StatusText.Get());
-}
-
-void UETMainMenuWidget::NativeOnInitialized()
-{
-    Super::NativeOnInitialized();
-    if (!HasRequiredLayout())
-    {
-        UE_LOG(LogETMainMenuView, Warning,
-            TEXT("[M1-06A] Missing menu BindWidget Widget=%s"),
-            *GetNameSafe(this));
-        return;
-    }
-    StartButton->OnClicked.AddUniqueDynamic(
-        this, &UETMainMenuWidget::HandleStartClicked);
-    QuitButton->OnClicked.AddUniqueDynamic(
-        this, &UETMainMenuWidget::HandleQuitClicked);
-}
-
-void UETMainMenuWidget::ShowReady()
-{
-    ApplyState(false, FText::FromString(
-        TEXT("尚无存档，继续功能暂不可用。")));
-}
-
-void UETMainMenuWidget::ShowPending(const FText& Message)
-{
-    ApplyState(true, Message);
-}
-
-void UETMainMenuWidget::ShowError(const FText& Message)
-{
-    ApplyState(false, Message);
-}
-
-void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
-{
-    bBusy = bPending;
-    if (!HasRequiredLayout())
-    {
-        return;
-    }
-    StartButton->SetIsEnabled(!bBusy);
-    ContinueButton->SetIsEnabled(false);
-    QuitButton->SetIsEnabled(!bBusy);
-    StatusText->SetText(Message);
-}
-
-void UETMainMenuWidget::FocusStartButton()
-{
-    APlayerController* Controller = GetOwningPlayer();
-    if (!bBusy && IsValid(StartButton.Get()) && IsValid(Controller))
-    {
-        StartButton->SetUserFocus(Controller);
-    }
-}
-
-void UETMainMenuWidget::HandleStartClicked()
-{
-    if (!bBusy)
-    {
-        OnStartRequested.Broadcast();
-    }
-}
-
-void UETMainMenuWidget::HandleQuitClicked()
-{
-    if (!bBusy)
-    {
-        OnQuitRequested.Broadcast();
-    }
-}
-```
+当前源码：[ETMainMenuWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETMainMenuWidget.cpp)。
 
 事件只在NativeOnInitialized绑定一次，ShowPending控制按钮可用性，Controller还会再次检查请求状态。Continue在A始终禁用，没有假存档值或空点击行为。C接入会话检查点后再更新资格与文案；UI结构不需要重建。
 
@@ -252,235 +120,11 @@ void UETMainMenuWidget::HandleQuitClicked()
 
 ### 5.1 ETMainMenuController.h全文
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Engine/EngineBaseTypes.h"
-#include "GameFramework/PlayerController.h"
-#include "ETMainMenuController.generated.h"
-
-class UETMainMenuWidget;
-class UWorld;
-
-UCLASS()
-class EMBERTRIALUI_API AETMainMenuController : public APlayerController
-{
-    GENERATED_BODY()
-
-public:
-    AETMainMenuController();
-
-protected:
-    virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
-    UFUNCTION()
-    void HandleStartRequested();
-
-    UFUNCTION()
-    void HandleQuitRequested();
-
-    void HandleTravelFailure(UWorld* FailedWorld,
-        ETravelFailure::Type FailureType, const FString& ErrorString);
-    void RecoverAfterFailure(const FText& Message);
-    void RemoveMenuWidget();
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Menu")
-    TSubclassOf<UETMainMenuWidget> MainMenuWidgetClass;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Menu")
-    TSoftObjectPtr<UWorld> GameplayMap;
-
-    UPROPERTY(Transient)
-    TObjectPtr<UETMainMenuWidget> MenuWidget;
-
-    FDelegateHandle TravelFailureHandle;
-    bool bTransitionPending = false;
-    bool bEndingPlay = false;
-};
-```
+当前源码：[ETMainMenuController.h](../EmberTrial/Source/EmberTrialUI/Public/FrontEnd/ETMainMenuController.h)。
 
 ### 5.2 ETMainMenuController.cpp全文
 
-```cpp
-#include "FrontEnd/ETMainMenuController.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Engine/Engine.h"
-#include "Engine/World.h"
-#include "GameFramework/Pawn.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "Logging/LogMacros.h"
-#include "Misc/PackageName.h"
-#include "Widgets/ETMainMenuWidget.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETMainMenu, Log, All);
-
-AETMainMenuController::AETMainMenuController()
-{
-    bAutoManageActiveCameraTarget = false;
-    GameplayMap = TSoftObjectPtr<UWorld>(FSoftObjectPath(
-        TEXT("/Game/EmberTrial/Maps/L_ET_VerticalSlice.L_ET_VerticalSlice")));
-}
-
-void AETMainMenuController::BeginPlay()
-{
-    Super::BeginPlay();
-    bEndingPlay = false;
-    bTransitionPending = false;
-    if (!IsLocalController() || !GetLocalPlayer() || GetNetMode() != NM_Standalone)
-    {
-        return;
-    }
-    if (!MainMenuWidgetClass)
-    {
-        UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06A] Missing MainMenuWidgetClass Controller=%s"),
-            *GetNameSafe(this));
-        return;
-    }
-    MenuWidget = CreateWidget<UETMainMenuWidget>(this, MainMenuWidgetClass);
-    if (!IsValid(MenuWidget.Get()) || !MenuWidget->HasRequiredLayout())
-    {
-        UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06A] Menu creation or layout failed Controller=%s"),
-            *GetNameSafe(this));
-        RemoveMenuWidget();
-        return;
-    }
-    MenuWidget->OnStartRequested.AddUniqueDynamic(
-        this, &AETMainMenuController::HandleStartRequested);
-    MenuWidget->OnQuitRequested.AddUniqueDynamic(
-        this, &AETMainMenuController::HandleQuitRequested);
-    MenuWidget->ShowReady();
-    if (!MenuWidget->AddToPlayerScreen(100))
-    {
-        UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06A] Menu AddToPlayerScreen failed Controller=%s"),
-            *GetNameSafe(this));
-        RemoveMenuWidget();
-        return;
-    }
-    bShowMouseCursor = true;
-    UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
-        this, MenuWidget.Get(), EMouseLockMode::DoNotLock, true);
-    MenuWidget->FocusStartButton();
-    if (GEngine)
-    {
-        TravelFailureHandle = GEngine->OnTravelFailure().AddUObject(
-            this, &AETMainMenuController::HandleTravelFailure);
-    }
-    UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Menu ready Controller=%s Widget=%s Pawn=%s"),
-        *GetNameSafe(this), *GetNameSafe(MenuWidget.Get()), *GetNameSafe(GetPawn()));
-}
-
-void AETMainMenuController::HandleStartRequested()
-{
-    if (bEndingPlay || bTransitionPending || !IsLocalController() ||
-        !IsValid(MenuWidget.Get()) || !GetWorld())
-    {
-        return;
-    }
-    const FString PackageName = GameplayMap.ToSoftObjectPath().GetLongPackageName();
-    const bool bValidMap = !GameplayMap.IsNull() &&
-        FPackageName::IsValidLongPackageName(PackageName) &&
-        FPackageName::DoesPackageExist(PackageName) &&
-        FPackageName::GetShortName(PackageName) !=
-            UGameplayStatics::GetCurrentLevelName(this, true);
-    if (!bValidMap)
-    {
-        UE_LOG(LogETMainMenu, Warning,
-            TEXT("[M1-06A] Game map unavailable Path=%s"), *PackageName);
-        RecoverAfterFailure(FText::FromString(
-            TEXT("游戏地图不可用，请检查主菜单配置。")));
-        return;
-    }
-    bTransitionPending = true;
-    MenuWidget->ShowPending(FText::FromString(TEXT("正在进入试炼…")));
-    UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Start requested Controller=%s Map=%s"),
-        *GetNameSafe(this), *PackageName);
-    UGameplayStatics::OpenLevel(this, FName(*PackageName), true);
-}
-
-void AETMainMenuController::HandleQuitRequested()
-{
-    if (bEndingPlay || bTransitionPending || !IsLocalController() ||
-        !IsValid(MenuWidget.Get()))
-    {
-        return;
-    }
-    bTransitionPending = true;
-    MenuWidget->ShowPending(FText::FromString(TEXT("正在退出…")));
-    UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Quit requested Controller=%s"), *GetNameSafe(this));
-    UKismetSystemLibrary::QuitGame(this, this, EQuitPreference::Quit, false);
-}
-
-void AETMainMenuController::HandleTravelFailure(UWorld* FailedWorld,
-    ETravelFailure::Type FailureType, const FString& ErrorString)
-{
-    if (bEndingPlay || !bTransitionPending || FailedWorld != GetWorld())
-    {
-        return;
-    }
-    UE_LOG(LogETMainMenu, Warning,
-        TEXT("[M1-06A] Travel failed Type=%d Error=%s"),
-        static_cast<int32>(FailureType), *ErrorString);
-    RecoverAfterFailure(FText::FromString(TEXT("进入试炼失败，请重试。")));
-}
-
-void AETMainMenuController::RecoverAfterFailure(const FText& Message)
-{
-    bTransitionPending = false;
-    if (bEndingPlay || !IsValid(MenuWidget.Get()) || !IsLocalController())
-    {
-        return;
-    }
-    MenuWidget->ShowError(Message);
-    bShowMouseCursor = true;
-    UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
-        this, MenuWidget.Get(), EMouseLockMode::DoNotLock, true);
-    MenuWidget->FocusStartButton();
-}
-
-void AETMainMenuController::RemoveMenuWidget()
-{
-    if (!IsValid(MenuWidget.Get()))
-    {
-        MenuWidget = nullptr;
-        return;
-    }
-    const FString PreviousName = GetNameSafe(MenuWidget.Get());
-    MenuWidget->OnStartRequested.RemoveDynamic(
-        this, &AETMainMenuController::HandleStartRequested);
-    MenuWidget->OnQuitRequested.RemoveDynamic(
-        this, &AETMainMenuController::HandleQuitRequested);
-    MenuWidget->RemoveFromParent();
-    MenuWidget = nullptr;
-    UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Menu removed Controller=%s Widget=%s"),
-        *GetNameSafe(this), *PreviousName);
-}
-
-void AETMainMenuController::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    bEndingPlay = true;
-    if (GEngine && TravelFailureHandle.IsValid())
-    {
-        GEngine->OnTravelFailure().Remove(TravelFailureHandle);
-    }
-    TravelFailureHandle.Reset();
-    RemoveMenuWidget();
-    UE_LOG(LogETMainMenu, Display,
-        TEXT("[M1-06A] Menu controller end Controller=%s Reason=%d"),
-        *GetNameSafe(this), static_cast<int32>(EndPlayReason));
-    Super::EndPlay(EndPlayReason);
-}
-```
+当前源码：[ETMainMenuController.cpp](../EmberTrial/Source/EmberTrialUI/Private/FrontEnd/ETMainMenuController.cpp)。
 
 地图是软引用，只用PackageName预检并发起OpenLevel，没有LoadSynchronous。pending先置True再切图，Widget也立即禁用按钮，防止同世界连续请求。EndPlay先设结束标记、解绑全局失败事件和Widget通知、再移除View。切图失败恢复只处理旧菜单Controller仍有效且收到本世界TravelFailure的情况；世界已被销毁的加载故障不能由这个旧Controller恢复，M1-07打包专项再验证实际包与失败路径。
 
@@ -490,56 +134,7 @@ void AETMainMenuController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 只把`E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\Framework\ETPlayerController.cpp`替换为下面全文，**原ETPlayerController.h不改**：
 
-```cpp
-#include "Framework/ETPlayerController.h"
-#include "GameFramework/Pawn.h"
-#include "Logging/LogMacros.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETPlayerController, Log, All);
-
-void AETPlayerController::BeginPlay()
-{
-    Super::BeginPlay();
-    if (IsLocalController() && GetLocalPlayer())
-    {
-        FInputModeGameOnly GameInput;
-        GameInput.SetConsumeCaptureMouseDown(false);
-        SetInputMode(GameInput);
-        bShowMouseCursor = false;
-        FlushPressedKeys();
-        UE_LOG(LogETPlayerController, Display,
-            TEXT("[M1-06A] Game input ready Controller=%s"), *GetNameSafe(this));
-    }
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M1-02B] Controller BeginPlay Controller=%s Local=%d Pawn=%s"),
-        *GetNameSafe(this), IsLocalController() ? 1 : 0, *GetNameSafe(GetPawn()));
-}
-
-void AETPlayerController::OnPossess(APawn* InPawn)
-{
-    Super::OnPossess(InPawn);
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M1-02B] Possess Controller=%s Pawn=%s"),
-        *GetNameSafe(this), *GetNameSafe(GetPawn()));
-}
-
-void AETPlayerController::OnUnPossess()
-{
-    const FString PreviousPawnName = GetNameSafe(GetPawn());
-    Super::OnUnPossess();
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M1-02B] UnPossess Controller=%s PreviousPawn=%s CurrentPawn=%s"),
-        *GetNameSafe(this), *PreviousPawnName, *GetNameSafe(GetPawn()));
-}
-
-void AETPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M1-02B] Controller EndPlay Controller=%s Reason=%d"),
-        *GetNameSafe(this), static_cast<int32>(EndPlayReason));
-    Super::EndPlay(EndPlayReason);
-}
-```
+当前源码：[ETPlayerController.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp)。
 
 新增代码只在本地游戏Controller BeginPlay建立输入策略。Game Only把焦点交给游戏视口、恢复鼠标捕获；`SetConsumeCaptureMouseDown(false)`让首次捕获的点击也能送入游戏，`FlushPressedKeys()`清掉控制器已有按键状态。这不取代现有暂停开 / 关的Flush，也不修改攻击 / 闪避 / 交互规则。
 
