@@ -5,10 +5,11 @@
 #include "Input/Events.h"
 #include "InputCoreTypes.h"
 
+// ---- 必需控件与一次初始化；Widget树拥有按钮 ----
+
 bool UETPauseWidget::HasRequiredLayout() const
 {
-    return IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) &&
-        IsValid(StatusText.Get());
+    return IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) && IsValid(StatusText.Get());
 }
 
 void UETPauseWidget::NativeOnInitialized()
@@ -21,6 +22,8 @@ void UETPauseWidget::NativeOnInitialized()
     BTN_Resume->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleResumeClicked);
     MainMenuButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleMainMenuClicked);
 }
+
+// ---- 状态呈现；无Tick / 属性Binding，也不修改世界 ----
 
 void UETPauseWidget::ShowReady()
 {
@@ -39,6 +42,7 @@ void UETPauseWidget::ShowError(const FText& Message)
 
 void UETPauseWidget::ApplyState(bool bPending, const FText& Message)
 {
+    // 先写本地状态，布局无效时也不能绕过pending继续发请求。
     bBusy = bPending;
     if (HasRequiredLayout())
     {
@@ -47,6 +51,8 @@ void UETPauseWidget::ApplyState(bool bPending, const FText& Message)
         StatusText->SetText(Message);
     }
 }
+
+// ---- 焦点与按钮意图；聚焦不等于执行按钮 ----
 
 void UETPauseWidget::FocusResume()
 {
@@ -73,8 +79,9 @@ void UETPauseWidget::HandleMainMenuClicked()
     }
 }
 
-FReply UETPauseWidget::NativeOnKeyUp(const FGeometry& InGeometry,
-    const FKeyEvent& InKeyEvent)
+// ---- UIOnly输入适配：P释放被消费；busy时也不向游戏层泄漏 ----
+
+FReply UETPauseWidget::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
     if (InKeyEvent.GetKey() == EKeys::P)
     {
@@ -85,12 +92,12 @@ FReply UETPauseWidget::NativeOnKeyUp(const FGeometry& InGeometry,
 }
 
 FReply UETPauseWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry,
-    const FPointerEvent& InMouseEvent)
+                                               const FPointerEvent& InMouseEvent)
 {
     if (!bBusy && IsValid(BTN_Resume.Get()) &&
         InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
     {
-        // Only background clicks bubble here; buttons handle their own clicks.
+        // 背景左键只将焦点还给继续按钮，不自动继续；按钮自身处理自己的点击。
         return FReply::Handled().SetUserFocus(BTN_Resume->TakeWidget());
     }
     return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);

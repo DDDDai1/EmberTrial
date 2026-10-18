@@ -206,42 +206,60 @@ WidgetBlueprint类型DataValidation实际执行：主菜单、暂停、失败、
 
 完整快照、等价 / 格式检查、CodeModel、构建、配置 / 资产校验与测试JSON位于Raw/Cleanup/2026-10-18_Batch13。收尾额度快照：5小时已用66% / 剩余34%，周已用23% / 剩余77%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第13批后）
+## 第14批：暂停 / 失败View与协调组件可读性
 
-累计13批涉及63 / 115份Source（约55%文件覆盖率）、31份Markdown，已记录移除8814行代码副本。覆盖率不是整体清理完成率：其中有部分审计、测试与共享头，不代表所有文件已完整审查。
+开工HEAD为ca5790e，第13批已提交、工作区干净；5小时已用68% / 周已用24%。范围Pause / Failure Widget与FailureFlow共六份Source，统一格式与职责分区，注释说明身份观察、死亡呈现时序、暂停所有权、输入恢复与结束清理。
+
+两个UI层级150 / 200命名为cpp内部常量，其余五文件有效Token保持；Flow展开常量后有效Token保持。保留历史类名、字段、Widget Intent / BTN_Resume、中文、地图默认值与全部判断 / 回调 / 清理顺序，不强行抽象短Widget或合并不同职责的三个状态标记。未新增玩法或镜像测试，原13项均保留。
+
+B / D两份指南移除11份历史整文件副本共1475行，链接当前Source；保留布局、配置、排障与分层验收。共享呈现规则集中在D、B保留入口，合并重复清理说明，移除旧HEAD / 缓存远端时点叙述。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，三模块CLion元数据与CMake刷新成功，六份修改文件均在CodeModel。现有13项EmberTrial自动化全部Success，0 Fail / 0 NotRun / 0测试警告，原测试与断言未改。
+
+WidgetBlueprint类型DataValidation实际执行，暂停、失败和其余5个Widget均有本项目Valid标记，汇总0 Error / 0 Warning；验证父类 / BindWidget / 结构，不替代焦点与暂停时序实机检查。配置脚本PASS，Errors=0 / Warnings=0。
+
+109份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改。六份Source格式、有效Token等价（Flow展开两个常量后）、LF / 末尾换行、文档链接 / 围栏与Git差异检查通过。Source仍115份 / 61cpp。
+
+收益为职责 / 所有权 / 时序可读性、层级命名与文档一致性，不宣称帧率提升。本批没有重新进行键鼠焦点、暂停 / 失败交替或切图的交互式实机矩阵，未Cook / 打包；不把13项既有自动化当成完整UI流程回归。启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+完整快照、差异、等价 / 格式检查、CodeModel、构建、配置 / 资产校验与测试JSON位于Raw/Cleanup/2026-10-18_Batch14。收尾额度快照：5小时已用75% / 剩余25%，周已用25% / 剩余75%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第14批后）
+
+累计14批涉及69 / 115份Source（60%文件覆盖率）、32份Markdown，已记录移除10289行代码副本。文件覆盖率不是整体清理完成率，部分文件仅完成局部审计 / 引用归一，仍需最终统一验证。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
-| 正式能力 / 属性 / 资源 | 攻击、连段、闪避、受击、治疗、资源、死亡、Trace与原生Tag / Notify已整理 | Character大类、其他Effect及旧Practice引用审计 |
-| UI | 两HUD、状态Widget、Bootstrap、两Presenter、LocalPlayer观察、独立主菜单已整理 | 暂停 / 失败View与统一流程 |
-| AI | 黑板键统一；行为树与运行回归已有历史证据 | Controller / Service / Task职责、取消与失败重试审计 |
-| 工程 / 学习材料 | 相关指南改为Source入口，Core Controller与诊断入口已审计，13项测试保留 / 扩展 | Editor校验器、工具、测试夹具复用、剩余架构 / 操作文档 |
-| 最终收尾 | 分批正常构建与对应验证 | 统一实机链路、Cook / 打包与收益汇总 |
+| 正式能力 / 属性 / 资源 | 主要GA、资源、死亡、Trace、Tag / Notify已整理 | Character大类、其他Effect与旧Practice引用审计 |
+| UI | HUD / Presenter / 观察、主菜单及暂停 / 失败呈现代码已整理 | 最终焦点 / 切图实机链路与跨模块复核 |
+| AI | 黑板键统一，已有历史回归证据 | Controller / Service / Task完整职责与失败重试审计 |
+| 工程 / 学习材料 | 相关指南改为Source入口，现有13项自动化保留 / 扩展 | Editor校验器、工具、测试夹具与剩余架构 / 操作文档 |
+| 最终收尾 | 分批构建与检查 | 统一实机、Cook / 打包与收益汇总 |
 
-仍处于逐模块清理，未进入统一收尾。后续暂估约10–15批及统一实机 / 打包，按复杂度校准；不是精确剩余工期。20–35小时是整体有效工作初估，不从批次数或文件覆盖率反推精确小时。
+仍处于逐模块清理。后续暂估约10–15批及统一实机 / 打包，按未审计复杂度校准；不是精确工期。整体20–35小时是初估，不从批次数或文件覆盖率反推剩余小时。
 
 ## 后续队列
 
-1. 旧Practice / 诊断入口查引用，确认无用后才删除。
-2. 动作 / 生命周期保持取消、输入与迟到回调隔离。
-3. 暂停 / 失败UI与AI重复逻辑按职责整理。
-4. 工具 / 测试 / 架构材料清理，保留学习与面试复盘。
-5. 统一自动化、实机链路与包短查，再汇总收益。
+1. 角色、旧Practice / 诊断入口与其他Effect查引用再整理。
+2. AI职责、取消 / 重试与世界生命周期审计。
+3. Editor校验器、工具和测试夹具按真实复用需求整理。
+4. 架构 / 学习材料清理，保留面试复盘与排障价值。
+5. 统一自动化、实机与包短查，再汇总收益。
 
-前十三批已收口；其余队列未完成，不进入新玩法开发。
+前十四批已收口；其余队列未完成，不进入新玩法开发。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批四份Source与四份指南 / Cleanup / Progress，共10项，验证已收口；由用户重新Stage最新Diff并Commit / Push。建议Commit信息：refactor: centralize main menu guards and input setup。
+本批六份Source与两份指南 / Cleanup / Progress，共10项，验证已收口；由用户重新Stage最新Diff并Commit / Push。建议Commit信息：style: clarify pause and failure presentation lifecycle。
 
-- [ETMainMenuController.h](../EmberTrial/Source/EmberTrialUI/Public/FrontEnd/ETMainMenuController.h)
-- [ETMainMenuController.cpp](../EmberTrial/Source/EmberTrialUI/Private/FrontEnd/ETMainMenuController.cpp)
-- [ETMainMenuWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETMainMenuWidget.h)
-- [ETMainMenuWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETMainMenuWidget.cpp)
-- [M1_06A_MainMenu.md](M1_06A_MainMenu.md)
+- [ETPauseWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETPauseWidget.h)
+- [ETPauseWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETPauseWidget.cpp)
+- [ETFailureWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETFailureWidget.h)
+- [ETFailureWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETFailureWidget.cpp)
+- [ETFailureFlowComponent.h](../EmberTrial/Source/EmberTrialUI/Public/Flow/ETFailureFlowComponent.h)
+- [ETFailureFlowComponent.cpp](../EmberTrial/Source/EmberTrialUI/Private/Flow/ETFailureFlowComponent.cpp)
 - [M1_06B_FailureAndRetry.md](M1_06B_FailureAndRetry.md)
-- [M1_06C_SessionCheckpoints.md](M1_06C_SessionCheckpoints.md)
-- [M1_06_FlowRoadmap.md](M1_06_FlowRoadmap.md)
+- [M1_06D_PauseFlow.md](M1_06D_PauseFlow.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 

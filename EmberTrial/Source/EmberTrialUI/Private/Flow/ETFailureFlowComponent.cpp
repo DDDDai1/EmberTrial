@@ -15,12 +15,21 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogETFailureFlow, Log, All);
 
+namespace
+{
+// 现有呈现层级；Failure覆盖Pause，值属于装配契约而非资源配置。
+constexpr int32 PauseWidgetZOrder = 150;
+constexpr int32 FailureWidgetZOrder = 200;
+} // namespace
+
+// ---- 组件初始化与外部事件注册；保留历史类名以兼容序列化配置 ----
+
 UETFailureFlowComponent::UETFailureFlowComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
     bAutoActivate = true;
-    MainMenuMap = TSoftObjectPtr<UWorld>(FSoftObjectPath(
-        TEXT("/Game/EmberTrial/Maps/L_ET_MainMenu.L_ET_MainMenu")));
+    MainMenuMap = TSoftObjectPtr<UWorld>(
+        FSoftObjectPath(TEXT("/Game/EmberTrial/Maps/L_ET_MainMenu.L_ET_MainMenu")));
 }
 
 void UETFailureFlowComponent::BeginPlay()
@@ -28,9 +37,8 @@ void UETFailureFlowComponent::BeginPlay()
     bEndingPlay = false;
     Super::BeginPlay();
     AETPlayerController* Controller = Cast<AETPlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController() ||
-        !Controller->GetLocalPlayer() || !GetWorld() ||
-        GetWorld()->GetNetMode() != NM_Standalone)
+    if (!IsValid(Controller) || !Controller->IsLocalController() || !Controller->GetLocalPlayer() ||
+        !GetWorld() || GetWorld()->GetNetMode() != NM_Standalone)
     {
         return;
     }
@@ -40,32 +48,30 @@ void UETFailureFlowComponent::BeginPlay()
     Session = Instance ? Instance->GetSubsystem<UETRunSessionSubsystem>() : nullptr;
     if (!UIContext.IsValid() || !Session.IsValid())
     {
-        UE_LOG(LogETFailureFlow, Warning,
-            TEXT("[M1-06D] Missing UI context or session Owner=%s"),
-            *GetNameSafe(Controller));
+        UE_LOG(LogETFailureFlow, Warning, TEXT("[M1-06D] Missing UI context or session Owner=%s"),
+               *GetNameSafe(Controller));
         return;
     }
-    PauseRequestHandle = Controller->OnPauseRequested.AddUObject(
-        this, &ThisClass::HandlePauseRequested);
-    UIContext->OnObservedPawnChanged.AddUniqueDynamic(
-        this, &ThisClass::HandleObservedPawnChanged);
-    SessionFailureHandle = Session->OnTravelFailed.AddUObject(
-        this, &ThisClass::HandleSessionFailure);
-    BindPawn(UIContext->GetObservedController() == Controller
-        ? UIContext->GetObservedPawn() : nullptr);
-    UE_LOG(LogETFailureFlow, Display,
-        TEXT("[M1-06D] Game flow ready Owner=%s Session=%s"),
-        *GetNameSafe(Controller), *GetNameSafe(Session.Get()));
+    PauseRequestHandle =
+        Controller->OnPauseRequested.AddUObject(this, &ThisClass::HandlePauseRequested);
+    UIContext->OnObservedPawnChanged.AddUniqueDynamic(this, &ThisClass::HandleObservedPawnChanged);
+    SessionFailureHandle =
+        Session->OnTravelFailed.AddUObject(this, &ThisClass::HandleSessionFailure);
+    BindPawn(UIContext->GetObservedController() == Controller ? UIContext->GetObservedPawn()
+                                                              : nullptr);
+    UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Game flow ready Owner=%s Session=%s"),
+           *GetNameSafe(Controller), *GetNameSafe(Session.Get()));
 }
+
+// ---- 实时身份与身体状态查询，不缓存Pawn / Ready / 死亡结论 ----
 
 bool UETFailureFlowComponent::HasCurrentContext() const
 {
     AETPlayerController* Controller = ControllerOwner.Get();
     UWorld* World = GetWorld();
-    return !bEndingPlay && IsValid(World) && !World->bIsTearingDown &&
-        IsValid(Controller) && Controller->IsLocalController() &&
-        UIContext.IsValid() && Session.IsValid() &&
-        UIContext->GetObservedController() == Controller;
+    return !bEndingPlay && IsValid(World) && !World->bIsTearingDown && IsValid(Controller) &&
+           Controller->IsLocalController() && UIContext.IsValid() && Session.IsValid() &&
+           UIContext->GetObservedController() == Controller;
 }
 
 bool UETFailureFlowComponent::HasCurrentBody(bool bExpectedDead) const
@@ -76,9 +82,8 @@ bool UETFailureFlowComponent::HasCurrentBody(bool bExpectedDead) const
     }
     AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(ControllerOwner->GetPawn());
     UETCombatLifeComponent* Life = BoundLife.Get();
-    return IsValid(Body) && UIContext->GetObservedPawn() == Body &&
-        Body->IsGameplayReady() && IsValid(Life) && Life->GetOwner() == Body &&
-        Life->IsDead() == bExpectedDead;
+    return IsValid(Body) && UIContext->GetObservedPawn() == Body && Body->IsGameplayReady() &&
+           IsValid(Life) && Life->GetOwner() == Body && Life->IsDead() == bExpectedDead;
 }
 
 bool UETFailureFlowComponent::HasCurrentDeadBody() const
@@ -86,22 +91,23 @@ bool UETFailureFlowComponent::HasCurrentDeadBody() const
     return HasCurrentBody(true);
 }
 
-void UETFailureFlowComponent::HandleObservedPawnChanged(
-    APawn* PreviousPawn, APawn* CurrentPawn)
+// ---- 旧身体解绑与新Life快照；相同有效订阅去重 ----
+
+void UETFailureFlowComponent::HandleObservedPawnChanged(APawn* PreviousPawn, APawn* CurrentPawn)
 {
     (void)PreviousPawn;
     if (!bEndingPlay && UIContext.IsValid())
     {
-        BindPawn(UIContext->GetObservedController() == ControllerOwner.Get()
-            ? CurrentPawn : nullptr);
+        BindPawn(UIContext->GetObservedController() == ControllerOwner.Get() ? CurrentPawn
+                                                                             : nullptr);
     }
 }
 
 void UETFailureFlowComponent::BindPawn(APawn* CurrentPawn)
 {
     AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(CurrentPawn);
-    UETCombatLifeComponent* NextLife = IsValid(Body)
-        ? Body->FindComponentByClass<UETCombatLifeComponent>() : nullptr;
+    UETCombatLifeComponent* NextLife =
+        IsValid(Body) ? Body->FindComponentByClass<UETCombatLifeComponent>() : nullptr;
     if (IsValid(NextLife) && BoundLife.Get() == NextLife && DeathHandle.IsValid())
     {
         if (HasCurrentDeadBody())
@@ -121,12 +127,9 @@ void UETFailureFlowComponent::BindPawn(APawn* CurrentPawn)
         return;
     }
     BoundLife = NextLife;
-    DeathHandle = NextLife->OnDeathSealed.AddUObject(
-        this, &ThisClass::HandleDeathSealed);
-    UE_LOG(LogETFailureFlow, Display,
-        TEXT("[M1-06D] Life bound Owner=%s Body=%s Dead=%d"),
-        *GetNameSafe(GetOwner()), *GetNameSafe(CurrentPawn),
-        NextLife->IsDead() ? 1 : 0);
+    DeathHandle = NextLife->OnDeathSealed.AddUObject(this, &ThisClass::HandleDeathSealed);
+    UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Life bound Owner=%s Body=%s Dead=%d"),
+           *GetNameSafe(GetOwner()), *GetNameSafe(CurrentPawn), NextLife->IsDead() ? 1 : 0);
     if (HasCurrentDeadBody())
     {
         QueueFailure();
@@ -138,19 +141,20 @@ void UETFailureFlowComponent::StopObservingLife()
     if (UETCombatLifeComponent* Life = BoundLife.Get())
     {
         Life->OnDeathSealed.Remove(DeathHandle);
-        UE_LOG(LogETFailureFlow, Display,
-            TEXT("[M1-06D] Life unbound Owner=%s Body=%s"),
-            *GetNameSafe(GetOwner()), *GetNameSafe(Life->GetOwner()));
+        UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Life unbound Owner=%s Body=%s"),
+               *GetNameSafe(GetOwner()), *GetNameSafe(Life->GetOwner()));
     }
     DeathHandle.Reset();
     BoundLife.Reset();
 }
 
+// ---- 存活暂停、继续与暂停所有权；不取消当前战斗动作 ----
+
 void UETFailureFlowComponent::HandlePauseRequested()
 {
     if (!HasCurrentBody(false) || bCommandPending || bPresentationQueued ||
-        IsValid(FailureWidget.Get()) || IsValid(PauseWidget.Get()) ||
-        Session->IsTravelPending() || UGameplayStatics::IsGamePaused(this))
+        IsValid(FailureWidget.Get()) || IsValid(PauseWidget.Get()) || Session->IsTravelPending() ||
+        UGameplayStatics::IsGamePaused(this))
     {
         return;
     }
@@ -162,8 +166,8 @@ void UETFailureFlowComponent::PresentPause()
     if (!PauseWidgetClass || PauseWidgetClass->HasAnyClassFlags(CLASS_Abstract))
     {
         UE_LOG(LogETFailureFlow, Warning,
-            TEXT("[M1-06D] Missing concrete PauseWidgetClass Owner=%s"),
-            *GetNameSafe(GetOwner()));
+               TEXT("[M1-06D] Missing concrete PauseWidgetClass Owner=%s"),
+               *GetNameSafe(GetOwner()));
         return;
     }
     AETPlayerController* Controller = ControllerOwner.Get();
@@ -177,7 +181,7 @@ void UETFailureFlowComponent::PresentPause()
     PauseWidget->OnResumeIntent.AddUniqueDynamic(this, &ThisClass::HandleResumeRequested);
     PauseWidget->OnMainMenuIntent.AddUniqueDynamic(this, &ThisClass::HandleMainMenuRequested);
     PauseWidget->ShowReady();
-    if (!PauseWidget->AddToPlayerScreen(150) ||
+    if (!PauseWidget->AddToPlayerScreen(PauseWidgetZOrder) ||
         !UGameplayStatics::SetGamePaused(this, true))
     {
         UE_LOG(LogETFailureFlow, Warning, TEXT("[M1-06D] Pause presentation rejected"));
@@ -190,13 +194,12 @@ void UETFailureFlowComponent::PresentPause()
         Body->StopJumping();
     }
     Controller->bShowMouseCursor = true;
-    UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
-        Controller, PauseWidget.Get(), EMouseLockMode::DoNotLock, true);
+    UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller, PauseWidget.Get(),
+                                                   EMouseLockMode::DoNotLock, true);
     PauseWidget->FocusResume();
     NotifyMenuState();
-    UE_LOG(LogETFailureFlow, Display,
-        TEXT("[M1-06D] Pause shown Owner=%s Widget=%s Paused=1"),
-        *GetNameSafe(Controller), *GetNameSafe(PauseWidget.Get()));
+    UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Pause shown Owner=%s Widget=%s Paused=1"),
+           *GetNameSafe(Controller), *GetNameSafe(PauseWidget.Get()));
 }
 
 void UETFailureFlowComponent::HandleResumeRequested()
@@ -211,18 +214,18 @@ void UETFailureFlowComponent::HandleResumeRequested()
         QueueFailure();
         return;
     }
-    if (UGameplayStatics::IsGamePaused(this) &&
-        !UGameplayStatics::SetGamePaused(this, false))
+    if (UGameplayStatics::IsGamePaused(this) && !UGameplayStatics::SetGamePaused(this, false))
     {
         PauseWidget->ShowError(FText::FromString(TEXT("无法继续，请再次尝试。")));
         return;
     }
     RemovePauseWidget();
     RestoreOwnedInput();
-    UE_LOG(LogETFailureFlow, Display,
-        TEXT("[M1-06D] Pause resumed Owner=%s Paused=%d"),
-        *GetNameSafe(GetOwner()), UGameplayStatics::IsGamePaused(this) ? 1 : 0);
+    UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Pause resumed Owner=%s Paused=%d"),
+           *GetNameSafe(GetOwner()), UGameplayStatics::IsGamePaused(this) ? 1 : 0);
 }
+
+// ---- 死亡封锁之后呈现；普通NextTick与已暂停立即替换两条路径保持 ----
 
 void UETFailureFlowComponent::HandleDeathSealed(UETCombatLifeComponent* SourceLife)
 {
@@ -234,8 +237,8 @@ void UETFailureFlowComponent::HandleDeathSealed(UETCombatLifeComponent* SourceLi
 
 void UETFailureFlowComponent::QueueFailure()
 {
-    if (!HasCurrentDeadBody() || bPresentationQueued ||
-        IsValid(FailureWidget.Get()) || bCommandPending)
+    if (!HasCurrentDeadBody() || bPresentationQueued || IsValid(FailureWidget.Get()) ||
+        bCommandPending)
     {
         return;
     }
@@ -248,11 +251,10 @@ void UETFailureFlowComponent::QueueFailure()
     }
     bPresentationQueued = true;
     // Retain B's next-tick ordering after death and Controller BeginPlay.
-    PresentationHandle = GetWorld()->GetTimerManager().SetTimerForNextTick(
-        this, &ThisClass::PresentFailure);
-    UE_LOG(LogETFailureFlow, Display,
-        TEXT("[M1-06D] Failure queued Owner=%s Body=%s"),
-        *GetNameSafe(GetOwner()), *GetNameSafe(BoundLife->GetOwner()));
+    PresentationHandle =
+        GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::PresentFailure);
+    UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Failure queued Owner=%s Body=%s"),
+           *GetNameSafe(GetOwner()), *GetNameSafe(BoundLife->GetOwner()));
 }
 
 void UETFailureFlowComponent::CancelPresentation()
@@ -277,22 +279,22 @@ void UETFailureFlowComponent::PresentFailure()
     if (!FailureWidgetClass || FailureWidgetClass->HasAnyClassFlags(CLASS_Abstract))
     {
         UE_LOG(LogETFailureFlow, Warning,
-            TEXT("[M1-06D] Missing concrete FailureWidgetClass Owner=%s"),
-            *GetNameSafe(Controller));
+               TEXT("[M1-06D] Missing concrete FailureWidgetClass Owner=%s"),
+               *GetNameSafe(Controller));
         return;
     }
     FailureWidget = CreateWidget<UETFailureWidget>(Controller, FailureWidgetClass);
     if (!IsValid(FailureWidget.Get()) || !FailureWidget->HasRequiredLayout())
     {
-        UE_LOG(LogETFailureFlow, Warning,
-            TEXT("[M1-06D] Failure layout invalid Owner=%s"), *GetNameSafe(Controller));
+        UE_LOG(LogETFailureFlow, Warning, TEXT("[M1-06D] Failure layout invalid Owner=%s"),
+               *GetNameSafe(Controller));
         RemoveFailureWidget();
         return;
     }
     FailureWidget->OnRetryRequested.AddUniqueDynamic(this, &ThisClass::HandleRetryRequested);
     FailureWidget->OnMainMenuRequested.AddUniqueDynamic(this, &ThisClass::HandleMainMenuRequested);
     FailureWidget->ShowReady();
-    if (!FailureWidget->AddToPlayerScreen(200))
+    if (!FailureWidget->AddToPlayerScreen(FailureWidgetZOrder))
     {
         RemoveFailureWidget();
         return;
@@ -309,15 +311,17 @@ void UETFailureFlowComponent::PresentFailure()
     RemovePauseWidget();
     bCommandPending = false;
     Controller->bShowMouseCursor = true;
-    UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
-        Controller, FailureWidget.Get(), EMouseLockMode::DoNotLock, true);
+    UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller, FailureWidget.Get(),
+                                                   EMouseLockMode::DoNotLock, true);
     FailureWidget->FocusRetryButton();
     NotifyMenuState();
     UE_LOG(LogETFailureFlow, Display,
-        TEXT("[M1-06D] Failure shown Owner=%s Body=%s Widget=%s Paused=%d"),
-        *GetNameSafe(Controller), *GetNameSafe(BoundLife->GetOwner()),
-        *GetNameSafe(FailureWidget.Get()), UGameplayStatics::IsGamePaused(this) ? 1 : 0);
+           TEXT("[M1-06D] Failure shown Owner=%s Body=%s Widget=%s Paused=%d"),
+           *GetNameSafe(Controller), *GetNameSafe(BoundLife->GetOwner()),
+           *GetNameSafe(FailureWidget.Get()), UGameplayStatics::IsGamePaused(this) ? 1 : 0);
 }
+
+// ---- 会话命令；先pending，再调用可能同步失败的请求 ----
 
 void UETFailureFlowComponent::HandleRetryRequested()
 {
@@ -364,14 +368,15 @@ void UETFailureFlowComponent::HandleMainMenuRequested()
     }
 }
 
-void UETFailureFlowComponent::HandleSessionFailure(
-    UWorld* FailedWorld, const FText& Message)
+void UETFailureFlowComponent::HandleSessionFailure(UWorld* FailedWorld, const FText& Message)
 {
     if (!bEndingPlay && FailedWorld == GetWorld() && bCommandPending)
     {
         RecoverActivePanel(Message);
     }
 }
+
+// ---- 失败恢复当前面板；不复活身体，不缓存过期会话结果 ----
 
 void UETFailureFlowComponent::RecoverActivePanel(const FText& Message)
 {
@@ -394,30 +399,31 @@ void UETFailureFlowComponent::RecoverActivePanel(const FText& Message)
         QueueFailure();
         return;
     }
-    const FText Error = Message.IsEmpty()
-        ? FText::FromString(TEXT("请求未完成，请重新选择。")) : Message;
+    const FText Error =
+        Message.IsEmpty() ? FText::FromString(TEXT("请求未完成，请重新选择。")) : Message;
     AETPlayerController* Controller = ControllerOwner.Get();
     Controller->bShowMouseCursor = true;
     if (IsValid(FailureWidget.Get()) && HasCurrentDeadBody())
     {
         FailureWidget->ShowError(Error);
-        UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
-            Controller, FailureWidget.Get(), EMouseLockMode::DoNotLock, true);
+        UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller, FailureWidget.Get(),
+                                                       EMouseLockMode::DoNotLock, true);
         FailureWidget->FocusRetryButton();
     }
     else if (IsValid(PauseWidget.Get()))
     {
         PauseWidget->ShowError(Error);
-        UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
-            Controller, PauseWidget.Get(), EMouseLockMode::DoNotLock, true);
+        UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller, PauseWidget.Get(),
+                                                       EMouseLockMode::DoNotLock, true);
         PauseWidget->FocusResume();
     }
     NotifyMenuState();
     UE_LOG(LogETFailureFlow, Display,
-        TEXT("[M1-06D] Panel recovered Owner=%s Message=%s Paused=%d"),
-        *GetNameSafe(Controller), *Error.ToString(),
-        UGameplayStatics::IsGamePaused(this) ? 1 : 0);
+           TEXT("[M1-06D] Panel recovered Owner=%s Message=%s Paused=%d"), *GetNameSafe(Controller),
+           *Error.ToString(), UGameplayStatics::IsGamePaused(this) ? 1 : 0);
 }
+
+// ---- View主动解绑；不同意图名称与焦点保持各自契约 ----
 
 void UETFailureFlowComponent::RemovePauseWidget()
 {
@@ -427,9 +433,8 @@ void UETFailureFlowComponent::RemovePauseWidget()
         PauseWidget->OnResumeIntent.RemoveDynamic(this, &ThisClass::HandleResumeRequested);
         PauseWidget->OnMainMenuIntent.RemoveDynamic(this, &ThisClass::HandleMainMenuRequested);
         PauseWidget->RemoveFromParent();
-        UE_LOG(LogETFailureFlow, Display,
-            TEXT("[M1-06D] Pause removed Owner=%s Widget=%s"),
-            *GetNameSafe(GetOwner()), *WidgetName);
+        UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Pause removed Owner=%s Widget=%s"),
+               *GetNameSafe(GetOwner()), *WidgetName);
     }
     PauseWidget = nullptr;
 }
@@ -442,9 +447,8 @@ void UETFailureFlowComponent::RemoveFailureWidget()
         FailureWidget->OnRetryRequested.RemoveDynamic(this, &ThisClass::HandleRetryRequested);
         FailureWidget->OnMainMenuRequested.RemoveDynamic(this, &ThisClass::HandleMainMenuRequested);
         FailureWidget->RemoveFromParent();
-        UE_LOG(LogETFailureFlow, Display,
-            TEXT("[M1-06D] Failure removed Owner=%s Widget=%s"),
-            *GetNameSafe(GetOwner()), *WidgetName);
+        UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Failure removed Owner=%s Widget=%s"),
+               *GetNameSafe(GetOwner()), *WidgetName);
     }
     FailureWidget = nullptr;
 }
@@ -457,16 +461,18 @@ void UETFailureFlowComponent::NotifyMenuState()
     }
 }
 
+// ---- 只释放本组件的暂停；恢复GameOnly、首击、清键和视口焦点 ----
+
 void UETFailureFlowComponent::RestoreOwnedInput()
 {
+    // 先撤销所有权，再校验当前身份；若解暂停失败才重新取回。
     const bool bReleasePause = bOwnsPause;
     bOwnsPause = false;
     if (!bReleasePause || !HasCurrentContext() || Session->IsTravelPending())
     {
         return;
     }
-    if (UGameplayStatics::IsGamePaused(this) &&
-        !UGameplayStatics::SetGamePaused(this, false))
+    if (UGameplayStatics::IsGamePaused(this) && !UGameplayStatics::SetGamePaused(this, false))
     {
         bOwnsPause = true;
         UE_LOG(LogETFailureFlow, Warning, TEXT("[M1-06D] Input restore pause rejected"));
@@ -481,6 +487,8 @@ void UETFailureFlowComponent::RestoreOwnedInput()
     UWidgetBlueprintLibrary::SetFocusToGameViewport();
     NotifyMenuState();
 }
+
+// ---- 结束先封口 / 清Timer / 解绑，不再更改正在结束的世界输入 ----
 
 void UETFailureFlowComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -508,8 +516,8 @@ void UETFailureFlowComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     UIContext.Reset();
     Session.Reset();
     ControllerOwner.Reset();
-    UE_LOG(LogETFailureFlow, Display,
-        TEXT("[M1-06D] Game flow end Owner=%s"), *GetNameSafe(GetOwner()));
+    UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Game flow end Owner=%s"),
+           *GetNameSafe(GetOwner()));
     // No input/focus/pause changes in an ending world.
     Super::EndPlay(EndPlayReason);
 }
