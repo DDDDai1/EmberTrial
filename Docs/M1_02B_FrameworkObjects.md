@@ -1,6 +1,14 @@
 # M1-02B：正式 Framework 对象与角色公开边界
 
+2026-10-18清理同步：本页保留历史接入 / 配置 / 验收经验，相关整文件或完整方法以当前Source链接为准，不覆盖已完成工程。本次格式、入口审计与验证见[Cleanup](Cleanup.md)。
+
 生成日期：2026-10-02；交接更新：2026-10-03。前置：[M1-02A 已验收](Reports/M1_02A_Verification.md)。**M1-02B 已通过**：用户手动 50 min、构建 / 索引等待 15 min；源码迁移、双目标构建、正式对象 / 地图装配及原功能回归验收完成。证据与日志范围见 [验收报告](Reports/M1_02B_Verification.md)。CLion 配置问题已解决，无需另发报告。本页保留实施步骤，下一批为 [M1-02C1](M1_02C1_LocalPlayerLifecycle.md)。
+
+## 当前Controller职责边界
+
+[头文件](../EmberTrial/Source/EmberTrial/Public/Framework/ETPlayerController.h) / [cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp)保留Possess日志、原生P释放意图、首次GameOnly输入与清键。Core的OnPauseRequested由UI Flow订阅；OnGameMenuStateChanged是现有蓝图事件桥接，不能因普通C++调用少而删掉反射入口。
+
+ET_Stamina / ET_Healing是复用的PIE诊断Exec，正式玩法由GA / 资源组件处理。0用于只读；非Editor方法体为空，PIE注入范围仍为体力±100、治疗0–1000。范围用内部常量命名，它们不是属性上限、GA成本或正式治疗量。World / 本地身份 / 暂停 / 死亡等原检查不变，命令不作为游戏产品输入。
 
 ## 1. 目标与选择
 
@@ -14,7 +22,7 @@ flowchart TD
     GM --> PC["BP_ETPlayerController : AETPlayerController"]
     GM --> Pawn["BP_ThirdPersonCharacter : AEmberTrialCharacter"]
     PC -->|Possess| Pawn
-    Future["下一批：UI 模块 Bootstrap"] -.装配到.-> PC
+    Future["当前BP装配的 UI 组件"] -.装配到.-> PC
 ~~~
 
 GameMode 选择本局对象并承载规则；Controller 承载控制与 Possess 生命周期；Character 是可更换的身体。具体资源和蓝图类在 Blueprint 中配置。[Epic：Gameplay Framework](https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-framework-in-unreal-engine?application_version=5.5)
@@ -25,7 +33,7 @@ GameMode 选择本局对象并承载规则；Controller 承载控制与 Possess 
 | AETPlayerController：记录控制 / 身体生命周期 | 本地 UI Bootstrap、Pawn 重绑、玩家 Inventory |
 | AEmberTrialCharacter：已有身体与输入、公开类型边界 | Character 持有 ASC / 战斗，UI 通过查询 / 委托读取 |
 
-UI 模块目前只有入口日志；本批不创建 Widget。原型动作 / E / P 继续用来验证迁移前后的行为，正式 Gameplay / UI 迁移按后续批次执行。
+原Framework阶段UI只有入口日志；当前已接HUD、暂停 / 失败流程。以下迁移步骤保留历史依据，当前Controller只发暂停意图并建立GameOnly输入，具体页面由UI模块装配。
 
 ## 2. 操作前准备与文件布局
 
@@ -135,84 +143,21 @@ public EmberTrial(ReadOnlyTargetRules Target) : base(Target)
 
 移动后的角色 .cpp 仍有 `#include "ETPracticeActionComponent.h"`。该组件暂留核心根目录，所以用**私有**搜索路径解决内部引用。UI 后续使用 Public 契约；不要把根目录加入 PublicIncludePaths。Public / Private 目录与 C++ 访问权限分别处理模块边界和成员访问。[Epic：模块结构与依赖](https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-modules?application_version=5.5)
 
-## 4. 新建 PlayerController
+## 4. PlayerController当前源码（历史接入）
 
 ### 4.1 ETPlayerController.h
 
 新文件：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Public\Framework\ETPlayerController.h`。
 
-~~~cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
-#include "ETPlayerController.generated.h"
-
-class APawn;
-
-UCLASS()
-class EMBERTRIAL_API AETPlayerController : public APlayerController
-{
-    GENERATED_BODY()
-
-protected:
-    virtual void BeginPlay() override;
-    virtual void OnPossess(APawn* InPawn) override;
-    virtual void OnUnPossess() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-};
-~~~
+当前源码：[ETPlayerController.h](../EmberTrial/Source/EmberTrial/Public/Framework/ETPlayerController.h)。
 
 ### 4.2 ETPlayerController.cpp
 
 新文件：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\Framework\ETPlayerController.cpp`。
 
-~~~cpp
-#include "Framework/ETPlayerController.h"
-#include "GameFramework/Pawn.h"
-#include "Logging/LogMacros.h"
+当前源码：[ETPlayerController.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp)。
 
-DEFINE_LOG_CATEGORY_STATIC(LogETPlayerController, Log, All);
-
-void AETPlayerController::BeginPlay()
-{
-    Super::BeginPlay();
-
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M1-02B] Controller BeginPlay Controller=%s Local=%d Pawn=%s"),
-        *GetNameSafe(this), IsLocalController() ? 1 : 0, *GetNameSafe(GetPawn()));
-}
-
-void AETPlayerController::OnPossess(APawn* InPawn)
-{
-    Super::OnPossess(InPawn);
-
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M1-02B] Possess Controller=%s Pawn=%s"),
-        *GetNameSafe(this), *GetNameSafe(GetPawn()));
-}
-
-void AETPlayerController::OnUnPossess()
-{
-    const FString PreviousPawnName = GetNameSafe(GetPawn());
-    Super::OnUnPossess();
-
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M1-02B] UnPossess Controller=%s PreviousPawn=%s CurrentPawn=%s"),
-        *GetNameSafe(this), *PreviousPawnName, *GetNameSafe(GetPawn()));
-}
-
-void AETPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M1-02B] Controller EndPlay Controller=%s Reason=%d"),
-        *GetNameSafe(this), static_cast<int32>(EndPlayReason));
-
-    Super::EndPlay(EndPlayReason);
-}
-~~~
-
-每个 override 都保留 Super；输入 / 控制与引擎委托仍由父类流程执行。这里不新加 Tick、计时器或另一套 PawnChanged 事件。后续 UI 可订阅 UE 已有的 OnPossessedPawnChanged。
+每个 override 都保留 Super；输入 / 控制与引擎委托仍由父类流程执行。这里不新加 Tick、计时器或另一套 PawnChanged 事件。当前UI通过LocalPlayer观察层订阅UE已有的OnPossessedPawnChanged。
 
 BeginPlay 和 Possess 的先后不作为本批固定契约；BeginPlay 中 Pawn=None 不能单独证明失败，最终以实际 Possess / 操控结果为准。记录旧 Pawn 的名称后再调用 Super，可以观察解绑，不把旧 Pawn 作为长期强引用保存。
 

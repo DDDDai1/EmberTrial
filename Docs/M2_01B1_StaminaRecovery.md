@@ -1,10 +1,16 @@
 # M2-01B1：体力恢复、阻断与复用检查入口
 
+2026-10-18清理同步：本页保留历史接入 / 配置 / 验收经验，相关整文件或完整方法以当前Source链接为准，不覆盖已完成工程。本次格式、入口审计与验证见[Cleanup](Cleanup.md)。
+
 **2026-10-15已验收，手动40 / 等待5分钟，无待补项。**见[B1报告](Reports/M2_01B1_Verification.md)。下一步[B2体力显示](M2_01B2_StaminaHUD.md)。下文保留原下发说明，“仅文档 / 尚未Build”表示下发时状态，不要求重做通过项；当时接入后为83Source / 42cpp / 清单48，当前规模见[Progress](Progress.md)。
 
 原方案生成2026-10-14、复核2026-10-15，固定UE5.5.4；前置[M2-01A](Reports/M2_01A_Verification.md)。历史接入已完成，不按旧步骤覆盖现有工程。
 
 原接入分为B1恢复规则 / 检查入口和B2事件驱动显示，分开验证两组生命周期。原预计手动80–130分钟，构建等待另列；实际手动40 / 等待5分钟见顶部历史验收，不把预算计为实耗。
+
+## PIE诊断入口的保留原因
+
+ET_Stamina仍由下方ke命令复用；普通C++没有直接调用不代表反射Exec未使用。当前[Controller实现](../EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp)把体力注入±100作为Editor内部保护常量，0查询、PIE / 本地 / 身体 / Authority检查与暂停 / 死亡拒绝均保持，不改变正式Stamina上限。
 
 ## 当前恢复契约（2026-10-18清理同步）
 
@@ -140,7 +146,7 @@ class UETStaminaRecoveryComponent;
     void ET_Stamina(float Delta);
 ```
 
-### 5.4 PlayerController.cpp：include与新增完整函数
+### 5.4 PlayerController.cpp：当前PIE体力入口
 
 在现有include区追加以下六条，原include与LogETPlayerController定义保留：
 
@@ -153,51 +159,9 @@ class UETStaminaRecoveryComponent;
 #include "Engine/World.h"
 ```
 
-在现有EndPlay函数的结束 `}` **之后**添加，不放进EndPlay内：
+诊断方法是Controller的独立成员，保留Editor条件编译；当前实现见源码入口，不从历史指南重复追加：
 
-```cpp
-void AETPlayerController::ET_Stamina(float Delta)
-{
-#if WITH_EDITOR
-    UWorld* World = GetWorld();
-    AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(GetPawn());
-    float Before = 0.0f;
-    float MaxStamina = 0.0f;
-    if (!World || World->WorldType != EWorldType::PIE || !IsLocalController() ||
-        !IsValid(Body) || !Body->HasAuthority() || !FMath::IsFinite(Delta) ||
-        FMath::Abs(Delta) > 100.0f || !Body->GetGameplayStaminaSnapshot(Before, MaxStamina))
-    {
-        UE_LOG(LogETPlayerController, Display,
-            TEXT("[M2-01B1] Debug rejected Controller=%s Reason=ContextOrValue"), *GetNameSafe(this));
-        return;
-    }
-    if (Delta != 0.0f && (World->IsPaused() || Body->IsCombatDead()))
-    {
-        UE_LOG(LogETPlayerController, Display,
-            TEXT("[M2-01B1] Debug rejected Controller=%s Reason=PausedOrDead"), *GetNameSafe(this));
-        return;
-    }
-    UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
-    if (Delta != 0.0f)
-    {
-        FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(
-            UETStaminaDeltaEffect::StaticClass(), 1.0f, ASC->MakeEffectContext());
-        if (!Spec.IsValid()) { return; }
-        Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_StaminaDelta, Delta);
-        ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
-    }
-    float After = 0.0f;
-    if (!Body->GetGameplayStaminaSnapshot(After, MaxStamina)) { return; }
-    const UETStaminaRecoveryComponent* Recovery = Body->FindComponentByClass<UETStaminaRecoveryComponent>();
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M2-01B1] Debug Owner=%s Delta=%.1f Before=%.1f After=%.1f Max=%.1f Time=%.3f Timer=%d Paused=%d"),
-        *GetNameSafe(Body), Delta, Before, After, MaxStamina, World->GetTimeSeconds(),
-        IsValid(Recovery) && Recovery->IsRecoveryScheduled() ? 1 : 0, World->IsPaused() ? 1 : 0);
-#else
-    (void)Delta;
-#endif
-}
-```
+当前源码：[ETPlayerController.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp)。
 
 Delta=0只读，可在暂停 / 已死亡时读当前身体；非零只允许PIE、有限[-100,100]、Ready且存活、世界未暂停。Game构建中的函数体没有修改资源的功能，不依赖DevelopmentOnly标签充当运行保护。这里是**开发注入**，不是正式闪避成本接口；不足时会夹到0，不能用它实现“资源不足拒绝能力”。
 

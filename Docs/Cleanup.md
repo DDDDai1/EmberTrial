@@ -172,16 +172,32 @@ Trace的扫掠采样留在TickComponent，候选去重 / 广播 / 阻挡处理�
 
 证据位于Raw/Cleanup/2026-10-18_Batch11。收尾额度快照：5小时已用44% / 剩余56%，周已用20% / 剩余80%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第11批后）
+## 第12批：LocalPlayer身份观察与Core Controller整理
 
-截至本批，累计11批涉及55 / 115份Source（文件覆盖率约48%）、25份Markdown；已记录移除7451行重复代码副本，不计其他说明精简。这是改动覆盖统计，**不是整体清理完成率**：AI / 校验器有些文件只做过黑板键归一，测试与新共享头也计入，不能视为整文件审计完成。
+开工HEAD为53d41fc，第11批已提交、工作区干净；5小时已用46% / 周已用20%。范围四份Source，统一排版 / 分区，说明弱引用stale、Controller / Pawn两层订阅、当前身份先更新后广播、旧对象EndPlay过滤与输入恢复。
+
+审计确认OnPauseRequested仍由UI Flow订阅，OnGameMenuStateChanged仍是蓝图事件桥接；ET_Stamina / ET_Healing通过反射ke命令复用，保留而不按“旧入口”直接删除。PIE注入限值100 / 1000命名为Editor内部常量，不是正式资源上限 / GA数值；WITH_EDITOR与DevelopmentOnly、0查询及原拒绝边界保留。三个文件有效Token保持，Controller展开常量后有效Token保持。
+
+四份指南移除六处整文件 / 完整诊断函数，共367行代码，改为Source入口；保留输入 / 配置 / 排障经验，修正“只有UI日志 / Q待实现”等过期状态。纯排版与等值常量替换不新增镜像测试，原13项均保留。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，三模块CLion元数据与CMake刷新成功，四份修改文件均在CodeModel中。全部13项EmberTrial自动化Success，0 Fail / 0 NotRun / 0测试警告；原测试与断言未改，包含治疗、连段、闪避、资源与UI数值用例。
+
+配置脚本PASS，Errors=0 / Warnings=0。四份Source格式、有效Token等价（Controller展开两个内部常量后）、LF / 末尾换行、71处本地文档链接 / 围栏与Git差异检查通过。111份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改；Source仍115份 / 61cpp。
+
+收益为职责 / 弱引用 / 时序可读性、诊断限值命名与文档同步，不宣称帧率提升。本批没有重新操作换Pawn / 暂停焦点的交互式实机矩阵，未执行DataValidation或Cook / 打包；自动化与静态等价不能作为这些项目的新验收。启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+完整快照、引用审计、等价 / 格式检查、CodeModel、构建 / 配置 / 测试JSON位于Raw/Cleanup/2026-10-18_Batch12。收尾额度快照：5小时已用56% / 剩余44%，周已用22% / 剩余78%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第12批后）
+
+截至本批，累计12批涉及59 / 115份Source（文件覆盖率约51%）、27份Markdown；已记录移除7818行重复代码副本，不计其他说明精简。这是改动覆盖统计，**不是整体清理完成率**：AI / 校验器有些文件只做过黑板键归一，测试与新共享头也计入，不能视为整文件审计完成。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
 | 正式能力 / 属性 / 资源 | 攻击、连段、闪避、受击、治疗、资源、死亡、Trace与原生Tag / 治疗Notify已整理 | Character大类、其他Effect及旧Practice引用审计 |
-| UI | 两HUD、状态Widget、Bootstrap、两Presenter与数值约束已整理 | LocalPlayer观察、菜单 / 暂停 / 失败流程 |
+| UI | 两HUD、状态Widget、Bootstrap、两Presenter、LocalPlayer观察与数值约束已整理 | 菜单 / 暂停 / 失败流程 |
 | AI | 黑板键统一；行为树与运行回归已有历史证据 | Controller / Service / Task完整职责、取消与失败重试审计 |
-| 工程 / 学习材料 | 相关指南改为Source入口，13项自动化保留 / 扩展 | Editor校验器、工具脚本、测试夹具复用、剩余架构 / 操作文档 |
+| 工程 / 学习材料 | 相关指南改为Source入口，Core Controller与PIE入口审计已做，13项自动化保留 / 扩展 | Editor校验器、工具脚本、测试夹具复用、剩余架构 / 操作文档 |
 | 最终收尾 | 分批正常构建与对应验证 | 清理完成后的统一实机链路、Cook / 打包和收益汇总 |
 
 目前处于逐模块清理阶段，尚未进入统一收尾。按每批约4–6份Source及同步文档的粒度，后续暂估约10–15批，再做统一实机 / 打包回归；这是工作量估计，不是承诺，审计确认无须改动的文件会保留，复杂依赖也可能增加批次。此前20–35小时是整体有效工作估计，不能从批次数反推剩余精确小时。
@@ -194,23 +210,21 @@ Trace的扫掠采样留在TickComponent，候选去重 / 广播 / 阻挡处理�
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-前十一批已收口；其余队列未完成，不进入新玩法开发。
+前十二批已收口；其余队列未完成，不进入新玩法开发。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第10批已提交，本批基线HEAD为e596d53。六份Source与两个HUD指南 / Cleanup / Progress共10项，验证已收口；由你在CLion查看Diff、重新Stage最新修改后Commit / Push，记得包含两个新文件。
+本批四份Source与四份指南 / Cleanup / Progress，共10项，验证已收口；由用户重新Stage最新Diff并Commit / Push。建议Commit信息：style: clarify local player lifecycle and controller diagnostics。
 
-- [ETHealthPresenter.h](../EmberTrial/Source/EmberTrialUI/Public/Presenters/ETHealthPresenter.h)
-- [ETHealthPresenter.cpp](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETHealthPresenter.cpp)
-- [ETStaminaPresenter.h](../EmberTrial/Source/EmberTrialUI/Public/Presenters/ETStaminaPresenter.h)
-- [ETStaminaPresenter.cpp](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETStaminaPresenter.cpp)
-- [ETResourceViewMath.h](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETResourceViewMath.h)
-- [ETResourceViewMathTests.cpp](../EmberTrial/Source/EmberTrialUI/Private/Tests/ETResourceViewMathTests.cpp)
-- [M1_03B2_HealthHUD.md](M1_03B2_HealthHUD.md)
-- [M2_01B2_StaminaHUD.md](M2_01B2_StaminaHUD.md)
+- [ETUILocalPlayerSubsystem.h](../EmberTrial/Source/EmberTrialUI/Public/Lifecycle/ETUILocalPlayerSubsystem.h)
+- [ETUILocalPlayerSubsystem.cpp](../EmberTrial/Source/EmberTrialUI/Private/Lifecycle/ETUILocalPlayerSubsystem.cpp)
+- [ETPlayerController.h](../EmberTrial/Source/EmberTrial/Public/Framework/ETPlayerController.h)
+- [ETPlayerController.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp)
+- [M1_02C1_LocalPlayerLifecycle.md](M1_02C1_LocalPlayerLifecycle.md)
+- [M1_02B_FrameworkObjects.md](M1_02B_FrameworkObjects.md)
+- [M2_01B1_StaminaRecovery.md](M2_01B1_StaminaRecovery.md)
+- [M2_04A_HealingResource.md](M2_04A_HealingResource.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-建议提交说明：Share resource presenter validation and test numeric edge cases。
-
-Content / Config / Build.cs / Target未改；Raw日志、快照、测试报告与生成文件留本地。助手未Stage / Commit / Push。
+Content / Config / Build.cs / Target保持；Raw日志、快照、测试报告与生成文件留本地。助手不Stage / Commit / Push。

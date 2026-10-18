@@ -1,6 +1,14 @@
 # M1-02C1：本地 UI 生命周期与 Pawn 订阅
 
-生成日期：2026-10-02；验收更新：2026-10-03。前置：[M1-02B 已验收](Reports/M1_02B_Verification.md)。**M1-02C1 已通过**：用户手动 30 min、构建 / 索引等待 4 min；源码与构建 / 生命周期日志已核对，完整测试按用户反馈登记。证据范围见 [验收报告](Reports/M1_02C1_Verification.md)。本页保留实施步骤，下一批为 [M1-02C2-01 Widget / Bootstrap](M1_02C2_01_WidgetBootstrap.md)。所有 C++ 继续由你手动实现。
+2026-10-18清理同步：本页保留历史接入 / 配置 / 验收经验，相关整文件或完整方法以当前Source链接为准，不覆盖已完成工程。本次格式、入口审计与验证见[Cleanup](Cleanup.md)。
+
+生成日期：2026-10-02；验收更新：2026-10-03。前置：[M1-02B 已验收](Reports/M1_02B_Verification.md)。**M1-02C1 已通过**：用户手动 30 min、构建 / 索引等待 4 min；源码与构建 / 生命周期日志已核对，完整测试按用户反馈登记。证据范围见 [验收报告](Reports/M1_02C1_Verification.md)。本页保留实施步骤，下一批为 [M1-02C2-01 Widget / Bootstrap](M1_02C2_01_WidgetBootstrap.md)。原接入按手动约定完成；当前清理按用户授权由助手直接修改。
+
+## 当前身份观察与事件契约
+
+[Subsystem声明](../EmberTrial/Source/EmberTrialUI/Public/Lifecycle/ETUILocalPlayerSubsystem.h) / [实现](../EmberTrial/Source/EmberTrialUI/Private/Lifecycle/ETUILocalPlayerSubsystem.cpp)只观察所属LocalPlayer的Controller / Pawn，不存角色资源，也不声明GameplayReady。相同有效对象去重，stale弱引用仍清理；不能仅因Get返回两个null就删掉IsStale判断。
+
+Controller与Pawn分层解绑，先更新当前身份再广播。Possess事件重新查询当前Controller.GetPawn，旧对象EndPlay先比对当前身份，避免清掉已换入的新对象。无需轮询 / Tick，也不在Core引入UI依赖。格式清理保留全部行为与日志，不能把本次自动化当成重跑4 / 5 / 6实机矩阵。
 
 ## 1. 本批目标
 
@@ -86,61 +94,7 @@ public class EmberTrialUI : ModuleRules
 
 完整路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialUI\Public\Lifecycle\ETUILocalPlayerSubsystem.h`。
 
-~~~cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Engine/EngineTypes.h"
-#include "Subsystems/LocalPlayerSubsystem.h"
-#include "ETUILocalPlayerSubsystem.generated.h"
-
-class AActor;
-class APawn;
-class APlayerController;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
-    FETUIObservedPawnChanged,
-    APawn*, PreviousPawn,
-    APawn*, CurrentPawn);
-
-UCLASS(BlueprintType)
-class EMBERTRIALUI_API UETUILocalPlayerSubsystem : public ULocalPlayerSubsystem
-{
-    GENERATED_BODY()
-
-public:
-    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-    virtual void Deinitialize() override;
-    virtual void PlayerControllerChanged(APlayerController* NewController) override;
-
-    UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
-    APlayerController* GetObservedController() const;
-
-    UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
-    APawn* GetObservedPawn() const;
-
-    UPROPERTY(BlueprintAssignable, Category = "EmberTrial|UI")
-    FETUIObservedPawnChanged OnObservedPawnChanged;
-
-private:
-    void RebindController(APlayerController* NewController);
-    void ClearController(const TCHAR* Reason);
-    void RefreshObservedPawn(const TCHAR* Reason);
-    void SetObservedPawn(APawn* NewPawn, const TCHAR* Reason);
-
-    UFUNCTION()
-    void HandlePossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
-
-    UFUNCTION()
-    void HandleControllerEndPlay(AActor* Actor, EEndPlayReason::Type Reason);
-
-    UFUNCTION()
-    void HandlePawnEndPlay(AActor* Actor, EEndPlayReason::Type Reason);
-
-    TWeakObjectPtr<APlayerController> ObservedController;
-    TWeakObjectPtr<APawn> ObservedPawn;
-};
-~~~
+当前源码：[ETUILocalPlayerSubsystem.h](../EmberTrial/Source/EmberTrialUI/Public/Lifecycle/ETUILocalPlayerSubsystem.h)。
 
 `generated.h` 是最后一条 include，由 UHT 生成。委托参数允许 nullptr，后续 Widget 必须将空 Pawn 当成正常状态处理。本批不暴露写入角色状态的接口。
 
@@ -148,187 +102,7 @@ private:
 
 完整路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialUI\Private\Lifecycle\ETUILocalPlayerSubsystem.cpp`。
 
-~~~cpp
-#include "Lifecycle/ETUILocalPlayerSubsystem.h"
-#include "Engine/LocalPlayer.h"
-#include "GameFramework/Pawn.h"
-#include "GameFramework/PlayerController.h"
-#include "Logging/LogMacros.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETUILifecycle, Log, All);
-
-void UETUILocalPlayerSubsystem::Initialize(FSubsystemCollectionBase& Collection)
-{
-    Super::Initialize(Collection);
-
-    ULocalPlayer* LocalPlayer = GetLocalPlayer();
-    UE_LOG(LogETUILifecycle, Display,
-        TEXT("[M1-02C1] UI local ready LocalPlayer=%s"),
-        *GetNameSafe(LocalPlayer));
-
-    APlayerController* InitialController = nullptr;
-    if (LocalPlayer && LocalPlayer->GetWorld())
-    {
-        InitialController = LocalPlayer->GetPlayerController(LocalPlayer->GetWorld());
-    }
-    RebindController(InitialController);
-}
-
-void UETUILocalPlayerSubsystem::Deinitialize()
-{
-    ClearController(TEXT("SubsystemDeinitialize"));
-
-    UE_LOG(LogETUILifecycle, Display,
-        TEXT("[M1-02C1] UI local deinitialized LocalPlayer=%s"),
-        *GetNameSafe(GetLocalPlayer()));
-
-    Super::Deinitialize();
-}
-
-void UETUILocalPlayerSubsystem::PlayerControllerChanged(APlayerController* NewController)
-{
-    Super::PlayerControllerChanged(NewController);
-    RebindController(NewController);
-}
-
-APlayerController* UETUILocalPlayerSubsystem::GetObservedController() const
-{
-    return ObservedController.Get();
-}
-
-APawn* UETUILocalPlayerSubsystem::GetObservedPawn() const
-{
-    return ObservedPawn.Get();
-}
-
-void UETUILocalPlayerSubsystem::RebindController(APlayerController* NewController)
-{
-    if (!IsValid(NewController))
-    {
-        NewController = nullptr;
-    }
-    else if (NewController->GetLocalPlayer() != GetLocalPlayer())
-    {
-        UE_LOG(LogETUILifecycle, Warning,
-            TEXT("[M1-02C1] Reject foreign Controller=%s"),
-            *GetNameSafe(NewController));
-        return;
-    }
-
-    if (ObservedController.Get() == NewController && !ObservedController.IsStale())
-    {
-        RefreshObservedPawn(TEXT("ControllerSnapshot"));
-        return;
-    }
-
-    ClearController(TEXT("ControllerChanged"));
-
-    if (!NewController)
-    {
-        return;
-    }
-
-    ObservedController = NewController;
-    NewController->OnPossessedPawnChanged.AddUniqueDynamic(
-        this, &UETUILocalPlayerSubsystem::HandlePossessedPawnChanged);
-    NewController->OnEndPlay.AddUniqueDynamic(
-        this, &UETUILocalPlayerSubsystem::HandleControllerEndPlay);
-
-    UE_LOG(LogETUILifecycle, Display,
-        TEXT("[M1-02C1] Controller bound Controller=%s"),
-        *GetNameSafe(NewController));
-
-    RefreshObservedPawn(TEXT("ControllerSnapshot"));
-}
-
-void UETUILocalPlayerSubsystem::ClearController(const TCHAR* Reason)
-{
-    APlayerController* PreviousController = ObservedController.Get();
-    if (PreviousController)
-    {
-        PreviousController->OnPossessedPawnChanged.RemoveDynamic(
-            this, &UETUILocalPlayerSubsystem::HandlePossessedPawnChanged);
-        PreviousController->OnEndPlay.RemoveDynamic(
-            this, &UETUILocalPlayerSubsystem::HandleControllerEndPlay);
-    }
-
-    ObservedController.Reset();
-    SetObservedPawn(nullptr, Reason);
-
-    if (PreviousController)
-    {
-        UE_LOG(LogETUILifecycle, Display,
-            TEXT("[M1-02C1] Controller cleared Controller=%s Reason=%s"),
-            *GetNameSafe(PreviousController), Reason);
-    }
-}
-
-void UETUILocalPlayerSubsystem::RefreshObservedPawn(const TCHAR* Reason)
-{
-    APlayerController* Controller = ObservedController.Get();
-    SetObservedPawn(Controller ? Controller->GetPawn() : nullptr, Reason);
-}
-
-void UETUILocalPlayerSubsystem::SetObservedPawn(APawn* NewPawn, const TCHAR* Reason)
-{
-    if (!IsValid(NewPawn))
-    {
-        NewPawn = nullptr;
-    }
-
-    APawn* PreviousPawn = ObservedPawn.Get();
-    if (PreviousPawn == NewPawn && !ObservedPawn.IsStale())
-    {
-        return;
-    }
-
-    if (PreviousPawn)
-    {
-        PreviousPawn->OnEndPlay.RemoveDynamic(
-            this, &UETUILocalPlayerSubsystem::HandlePawnEndPlay);
-    }
-
-    ObservedPawn = NewPawn;
-    if (NewPawn)
-    {
-        NewPawn->OnEndPlay.AddUniqueDynamic(
-            this, &UETUILocalPlayerSubsystem::HandlePawnEndPlay);
-    }
-
-    UE_LOG(LogETUILifecycle, Display,
-        TEXT("[M1-02C1] Pawn changed Previous=%s Current=%s Reason=%s"),
-        *GetNameSafe(PreviousPawn), *GetNameSafe(NewPawn), Reason);
-
-    OnObservedPawnChanged.Broadcast(PreviousPawn, NewPawn);
-}
-
-void UETUILocalPlayerSubsystem::HandlePossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
-{
-    (void)OldPawn;
-    (void)NewPawn;
-    RefreshObservedPawn(TEXT("PossessionChanged"));
-}
-
-void UETUILocalPlayerSubsystem::HandleControllerEndPlay(
-    AActor* Actor, EEndPlayReason::Type Reason)
-{
-    (void)Reason;
-    if (Actor == ObservedController.Get())
-    {
-        ClearController(TEXT("ControllerEndPlay"));
-    }
-}
-
-void UETUILocalPlayerSubsystem::HandlePawnEndPlay(
-    AActor* Actor, EEndPlayReason::Type Reason)
-{
-    (void)Reason;
-    if (Actor == ObservedPawn.Get())
-    {
-        SetObservedPawn(nullptr, TEXT("PawnEndPlay"));
-    }
-}
-~~~
+当前源码：[ETUILocalPlayerSubsystem.cpp](../EmberTrial/Source/EmberTrialUI/Private/Lifecycle/ETUILocalPlayerSubsystem.cpp)。
 
 ### 5.1 几处实现的目的
 

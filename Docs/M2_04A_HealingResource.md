@@ -1,12 +1,18 @@
 # M2-04A：有限治疗次数与成功生效事务
 
-2026-10-17，固定 **UE5.5.4**。**本批已按用户19:17反馈与源码 / 构建 / 自动化 / 实机日志核对验收通过，无待补项。**实际105Source / 56cpp / 来源58，五新 / 五旧与指南一致，三Valid与Healing.Resource Success。手动60 / 等待5，累计2451 / 明确等待240分钟；见[A验收报告](Reports/M2_04A_Verification.md)。以下步骤保留供复查，无需重复执行；下一[B1治疗动画指南](M2_04B1_HealingAnimation.md)已下发，从第2节开始；正式治疗动作 / Q / 次数HUD留后续。
+2026-10-18清理同步：本页保留历史接入 / 配置 / 验收经验，相关整文件或完整方法以当前Source链接为准，不覆盖已完成工程。本次格式、入口审计与验证见[Cleanup](Cleanup.md)。
+
+2026-10-17，固定 **UE5.5.4**。**本批已按用户19:17反馈与源码 / 构建 / 自动化 / 实机日志核对验收通过，无待补项。**实际105Source / 56cpp / 来源58，五新 / 五旧与指南一致，三Valid与Healing.Resource Success。手动60 / 等待5，累计2451 / 明确等待240分钟；见[A验收报告](Reports/M2_04A_Verification.md)。以下步骤保留供复查，无需重复执行；下一[B1治疗动画指南](M2_04B1_HealingAnimation.md)已下发，从第2节开始；原A下发时将动作 / Q / 次数HUD留给后续；当前正式动作 / Q已完成，次数HUD仍未完成。
 
 原下发预算手动 **100–150分钟**（非当前待办），含理解与录入、组件配置、5–10分钟相关检查和记录；构建等待另记。可分两次做：先录第3–7节，第二次录测试并Build / 检查。治疗整章8h基础预算与批次边界见[治疗路线](M2_04_HealingRoadmap.md)。
 
+## 当前PIE命令与正式Q边界
+
+ET_Healing长期保留为PIE检查入口，调用同一资源服务；0只读，非Editor实现为空。当前[Controller代码](../EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp)将0–1000幅度作为内部诊断保护常量，保留全部World / 身体 / 数值和Idle门控，不改变正式GA默认40或次数3/3。正式Q仍在唯一Notify处提交，开发命令不代替动画验证。
+
 ## 1. 本批结果、职责与规则
 
-本批先得到“真实生命GE成功一次 → 治疗次数减一”，生命HUD直接响应原属性事件。通过永久保留、仅PIE有效的原生开发命令检查，不搭临时蓝图图表。**暂时没有治疗动作、Q键或次数HUD**；这三项在B / C接入同一服务，不再另写扣次数逻辑。
+本批先得到“真实生命GE成功一次 → 治疗次数减一”，生命HUD直接响应原属性事件。通过永久保留、仅PIE有效的原生开发命令检查，不搭临时蓝图图表。原A阶段尚无动作 / Q；当前正式Q已通过GA / Notify接入同一服务，次数HUD仍未完成，不另写扣次数逻辑。
 
 | 条件 | 结果 |
 | --- | --- |
@@ -22,9 +28,9 @@
 
 资源属于角色的`UETHealingResourceComponent`，是离散整数，不放进连续AttributeSet。生命变化仍走GAS；上限夹限与死亡封锁仍由原Health AttributeSet负责。组件无Tick、无Timer，不依赖UMG / UI模块。只对Player阵营启用次数，敌人 / 训练目标继承同一原生子对象但保持休眠，不输出错误。
 
-**GameplayReady继续表示原Health / Stamina初始化可用。**治疗另有资源快照可用性，不将治疗配置错误扩大成整个身体无法攻击 / 闪避。正式能力以后需同时检查两者。组件只负责资源与生效；动作互斥 / 地面 / 动画窗口留给GA，不能在资源服务里硬性要求Idle（生效时未来GA本来就处于Healing状态）。本批开发入口单独要求Idle。
+**GameplayReady继续表示原Health / Stamina初始化可用。**治疗另有资源快照可用性，不将治疗配置错误扩大成整个身体无法攻击 / 闪避。当前正式GA同时检查这两项可用性。组件只负责资源与生效；动作互斥 / 地面 / 动画窗口留给GA，不能在资源服务里硬性要求Idle（生效时GA本来就处于Healing状态）。本批开发入口单独要求Idle。
 
-本机5.5.4已核对：`GameplayAbilities/Public/ActiveGameplayEffectHandle.h`的WasSuccessfullyApplied、`Private/AbilitySystemComponent.cpp`的ApplyGameplayEffectSpecToSelf与应用查询、原Health夹限及Ready顺序。固定原生GE只有一个正向Health Modifier，没有Exec / 概率 / 可替换蓝图效果。本服务针对这份固定契约；不声称可以回滚任意外部回调对世界的修改。连续两次独立成功调用会各消费一次；未来每个治疗动作只允许一个有效Notify提交由B负责。
+本机5.5.4已核对：`GameplayAbilities/Public/ActiveGameplayEffectHandle.h`的WasSuccessfullyApplied、`Private/AbilitySystemComponent.cpp`的ApplyGameplayEffectSpecToSelf与应用查询、原Health夹限及Ready顺序。固定原生GE只有一个正向Health Modifier，没有Exec / 概率 / 可替换蓝图效果。本服务针对这份固定契约；不声称可以回滚任意外部回调对世界的修改。连续两次独立成功调用会各消费一次；当前每个治疗动作只允许一个有效Notify提交，由已完成的B2能力负责。
 
 ## 2. 准备与文件路径
 
@@ -227,45 +233,11 @@ void ET_Stamina(float Delta);
 #include "Resources/ETHealingResourceComponent.h"
 ```
 
-第二处，在整个文件末尾、ET_Stamina完整函数的最后一个`}`之后，追加以下**完整函数**。不要插进`#if WITH_EDITOR`内部，也不替换ET_Stamina：
+ET_Healing与ET_Stamina是两个独立成员，各自保留Editor条件编译；当前实现见源码入口，不重复追加历史版本：
 
-```cpp
-void AETPlayerController::ET_Healing(float Amount)
-{
-#if WITH_EDITOR
-    UWorld* World = GetWorld();
-    AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(GetPawn());
-    UETHealingResourceComponent* Healing = IsValid(Body)
-        ? Body->FindComponentByClass<UETHealingResourceComponent>() : nullptr;
-    if (!World || World->WorldType != EWorldType::PIE || !IsLocalController() ||
-        !IsValid(Body) || !IsValid(Healing) || !FMath::IsFinite(Amount) ||
-        Amount < 0.0f || Amount > 1000.0f)
-    {
-        UE_LOG(LogETPlayerController, Display,
-            TEXT("[M2-04A] Debug rejected Reason=ContextOrValue"));
-        return;
-    }
-    float Before = 0.0f;
-    float MaxHealth = 0.0f;
-    Body->GetGameplayHealthSnapshot(Before, MaxHealth);
-    const bool bApplied = Amount > 0.0f && Body->IsFormalActionIdle() &&
-        Healing->TryApplyHealing(Amount);
-    int32 Charges = 0;
-    int32 MaxCharges = 0;
-    const bool bAvailable = Healing->GetHealingSnapshot(Charges, MaxCharges);
-    float After = 0.0f;
-    Body->GetGameplayHealthSnapshot(After, MaxHealth);
-    UE_LOG(LogETPlayerController, Display,
-        TEXT("[M2-04A] Debug Owner=%s Available=%d Amount=%.1f Applied=%d Health=%.1f->%.1f/%.1f Charges=%d/%d Paused=%d"),
-        *GetNameSafe(Body), bAvailable ? 1 : 0, Amount, bApplied ? 1 : 0,
-        Before, After, MaxHealth, Charges, MaxCharges, World->IsPaused() ? 1 : 0);
-#else
-    (void)Amount;
-#endif
-}
-```
+当前源码：[ETPlayerController.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp)。
 
-`Amount=0`只查询，暂停时也可查询。大于0表示尝试这次固定量的治疗；未空闲 / 暂停 / 满血等失败只输出Applied=0，不缓存命令。函数在非Editor构建中无修改行为，正式输入以后走GA，不让诊断入口成为成品作弊功能。
+`Amount=0`只查询，暂停时也可查询。大于0表示尝试这次固定量的治疗；未空闲 / 暂停 / 满血等失败只输出Applied=0，不缓存命令。函数在非Editor构建中无修改行为，正式Q输入走GA，诊断入口不作为成品输入。
 
 ## 7. Editor校验器：保留已有全部规则
 
