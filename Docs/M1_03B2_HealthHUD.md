@@ -1,8 +1,18 @@
 # M1-03B2：事件驱动生命值HUD
 
+2026-10-18清理同步：本页保留历史布局、接入差异和验收经验，HUD整文件以当前Source链接为准，不按旧步骤覆盖现有工程。当前功能基线已到M2-04B2，正在分批清理；B1冻结指南不改。本次验证和提交见[Cleanup](Cleanup.md)。
+
 **2026-10-04已验收通过，手动60 / 等待5 min；清理后的正常保存已补核对。**结果见 [B2验收](Reports/M1_03B2_Verification.md)，下一步 [B3数据源重绑](M1_03B3_DataSourceRebinding.md)。下文保留当时交接方案，“未写Source”等表示交接时状态，不要求重做已通过项。
 
-日期：2026-10-04。前置：[B1功能验收](Reports/M1_03B1_Verification.md)通过。本文是**待用户实施的方案**，代码尚未写进Source，新Widget尚未创建；不代表已Build或实机通过。预计手动 **120–180分钟**，构建 / 索引等待另计。可分“代码与面板”“临时蓝图与验收”两次完成。
+原方案日期：2026-10-04，原预计手动 **120–180分钟**，构建 / 索引等待另计。可分“代码与面板”“临时蓝图与验收”两次完成。
+
+## 当前显示与验证边界（清理同步）
+
+两个HUD仅共享[私有数值格式函数](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETResourceHUDText.h)：0位小数、随locale取整与分组，仍返回保留本地化历史的FText；调用方提供原LOCTEXT Pattern，不合并生命 / 体力的状态枚举、标题、日志级别或订阅。
+
+四个BindWidget名称 / 类型、DisableNativeTick、Ready=0仍可显示、NoPawn / Waiting折叠数值和进度条、晚订阅快照与重建解绑保持。格式化不改变真实属性，也不重算比例。
+
+新增[原生格式测试](../EmberTrial/Source/EmberTrialUI/Private/Tests/ETResourceHUDTextTests.cpp)覆盖en-US / de-DE / zh-Hans、取整 / 分组、调用方Pattern、FText跨locale重建与完整文化状态恢复。它不等于UMG布局、输入焦点或重绑定的实机验证；正常构建与真实资产结构校验另行记录，未执行不写通过。
 
 ## 1. 本批目标与边界
 
@@ -34,205 +44,19 @@ UI Build.cs已具备公开UMG、私有EmberTrial / GameplayAbilities依赖，本
 
 ## 3. 新建 ETHealthHUDWidget.h
 
-完整内容如下。`generated.h` 必须是最后一个include；四个BindWidget名称与第7节大小写完全一致。
+当前声明见下方Source链接。`generated.h` 必须是最后一个include；四个BindWidget名称与第7节大小写完全一致。
 
-```cpp
-#pragma once
+当前源码：[ETHealthHUDWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETHealthHUDWidget.h)。
 
-#include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-#include "Presenters/ETHealthPresenter.h"
-#include "ETHealthHUDWidget.generated.h"
-
-class UTextBlock;
-class UProgressBar;
-class UVerticalBox;
-
-UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
-class EMBERTRIALUI_API UETHealthHUDWidget : public UUserWidget
-{
-    GENERATED_BODY()
-
-public:
-    void StartObserving(UETHealthPresenter* Presenter);
-    void StopObserving();
-
-protected:
-    virtual void NativeConstruct() override;
-    virtual void NativeDestruct() override;
-
-private:
-    void ApplyViewData(const FETHealthViewData& Data, const TCHAR* Reason);
-
-    UFUNCTION()
-    void HandleViewDataChanged(const FETHealthViewData& Data);
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> HealthStatusText;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> HealthValuesText;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UProgressBar> HealthBar;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UVerticalBox> HealthContent;
-
-    TWeakObjectPtr<UETHealthPresenter> BoundPresenter;
-    bool bObserving = false;
-};
-```
+四个绑定控件、订阅入口与弱引用保持，具体职责见本页顶部当前边界。
 
 `DisableNativeTick` 与蓝图的Tick Frequency=Never配套，避免前面章节遇到的Native Tick警告。Start/Stop由Bootstrap用C++调用，不提供蓝图第二套业务订阅入口。
 
 ## 4. 新建 ETHealthHUDWidget.cpp
 
-```cpp
-#include "Widgets/ETHealthHUDWidget.h"
-#include "Components/TextBlock.h"
-#include "Components/ProgressBar.h"
-#include "Components/VerticalBox.h"
-#include "Internationalization/Text.h"
-#include "Logging/LogMacros.h"
-#include "UObject/Class.h"
+当前源码：[ETHealthHUDWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETHealthHUDWidget.cpp)。
 
-DEFINE_LOG_CATEGORY_STATIC(LogETHealthHUD, Log, All);
-#define LOCTEXT_NAMESPACE "ETHealthHUD"
-
-void UETHealthHUDWidget::NativeConstruct()
-{
-    Super::NativeConstruct();
-    SetIsFocusable(false);
-    SetVisibility(ESlateVisibility::HitTestInvisible);
-    if (IsDesignTime())
-    {
-        return;
-    }
-
-    // Construct may run more than once; subscription belongs to StartObserving.
-    const UETHealthPresenter* Presenter = BoundPresenter.Get();
-    ApplyViewData(Presenter ? Presenter->GetSnapshot() : FETHealthViewData{},
-        TEXT("ConstructSnapshot"));
-}
-
-void UETHealthHUDWidget::NativeDestruct()
-{
-    StopObserving();
-    Super::NativeDestruct();
-}
-
-void UETHealthHUDWidget::StartObserving(UETHealthPresenter* Presenter)
-{
-    StopObserving();
-    if (IsDesignTime())
-    {
-        return;
-    }
-
-    if (!IsValid(Presenter))
-    {
-        ApplyViewData(FETHealthViewData{}, TEXT("MissingPresenter"));
-        return;
-    }
-
-    BoundPresenter = Presenter;
-    bObserving = true;
-    Presenter->OnViewDataChanged.AddUniqueDynamic(
-        this, &UETHealthHUDWidget::HandleViewDataChanged);
-
-    UE_LOG(LogETHealthHUD, Display,
-        TEXT("[M1-03B2] View subscribed Widget=%s Presenter=%s"),
-        *GetNameSafe(this), *GetNameSafe(Presenter));
-
-    // Bind first, then get current data: a late-joining View needs no new effect.
-    ApplyViewData(Presenter->GetSnapshot(), TEXT("SubscribeSnapshot"));
-}
-
-void UETHealthHUDWidget::StopObserving()
-{
-    const bool bWasObserving = bObserving;
-    bObserving = false;
-    UETHealthPresenter* Presenter = BoundPresenter.Get();
-    if (Presenter)
-    {
-        Presenter->OnViewDataChanged.RemoveDynamic(
-            this, &UETHealthHUDWidget::HandleViewDataChanged);
-    }
-    BoundPresenter.Reset();
-
-    if (bWasObserving)
-    {
-        UE_LOG(LogETHealthHUD, Display,
-            TEXT("[M1-03B2] View unsubscribed Widget=%s"), *GetNameSafe(this));
-    }
-}
-
-void UETHealthHUDWidget::HandleViewDataChanged(const FETHealthViewData& Data)
-{
-    if (!bObserving || !BoundPresenter.IsValid())
-    {
-        return;
-    }
-    ApplyViewData(Data, TEXT("ViewDataChanged"));
-}
-
-void UETHealthHUDWidget::ApplyViewData(
-    const FETHealthViewData& Data, const TCHAR* Reason)
-{
-    if (!HealthStatusText || !HealthValuesText || !HealthBar || !HealthContent)
-    {
-        UE_LOG(LogETHealthHUD, Warning,
-            TEXT("[M1-03B2] Missing required BindWidget Widget=%s"),
-            *GetNameSafe(this));
-        return;
-    }
-
-    if (Data.State == EETHealthViewState::Ready)
-    {
-        HealthStatusText->SetText(LOCTEXT("HealthTitle", "生命值"));
-        HealthContent->SetVisibility(ESlateVisibility::HitTestInvisible);
-        FNumberFormattingOptions NumberOptions;
-        NumberOptions.SetMinimumFractionalDigits(0);
-        NumberOptions.SetMaximumFractionalDigits(0);
-        HealthValuesText->SetText(FText::Format(
-            LOCTEXT("HealthValues", "{0} / {1}"),
-            FText::AsNumber(Data.Health, &NumberOptions),
-            FText::AsNumber(Data.MaxHealth, &NumberOptions)));
-        HealthBar->SetPercent(Data.HealthFraction);
-    }
-    else
-    {
-        HealthContent->SetVisibility(ESlateVisibility::Collapsed);
-        HealthValuesText->SetText(FText::GetEmpty());
-        HealthBar->SetPercent(0.0f);
-        switch (Data.State)
-        {
-        case EETHealthViewState::NoPawn:
-            HealthStatusText->SetText(LOCTEXT("NoPawn", "暂无受控角色"));
-            break;
-        case EETHealthViewState::UnsupportedPawn:
-            HealthStatusText->SetText(LOCTEXT("UnsupportedPawn", "当前角色不提供生命信息"));
-            break;
-        case EETHealthViewState::WaitingForGameplayReady:
-            HealthStatusText->SetText(LOCTEXT("Waiting", "角色准备中"));
-            break;
-        default:
-            HealthStatusText->SetText(LOCTEXT("Unavailable", "生命信息暂不可用"));
-            break;
-        }
-    }
-
-    const FString StateName = StaticEnum<EETHealthViewState>()->GetNameStringByValue(
-        static_cast<int64>(Data.State));
-    UE_LOG(LogETHealthHUD, Display,
-        TEXT("[M1-03B2] View Widget=%s State=%s Health=%.1f MaxHealth=%.1f Fraction=%.3f Reason=%s"),
-        *GetNameSafe(this), *StateName, Data.Health, Data.MaxHealth,
-        Data.HealthFraction, Reason);
-}
-
-#undef LOCTEXT_NAMESPACE
-```
+Ready数值使用私有格式函数；其他状态、日志、比例与解绑时序保持。
 
 数字暂时只显示整数，原始float与比例没有改写，后续产品规则若需要小数再调整展示。`SetPercent` 使用Presenter提供的0–1比例：[UE5.5 API](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/UMG/Components/UProgressBar/SetPercent?application_version=5.5)。只移除本Widget自己的委托，不对Presenter执行Clear或Shutdown。
 

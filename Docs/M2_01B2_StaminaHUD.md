@@ -1,10 +1,20 @@
 # M2-01B2：事件驱动的体力面板
 
-**2026-10-15已验收，手动30 / 等待5分钟，无待补项。**见[B2报告](Reports/M2_01B2_Verification.md)与[M2-01总验收](Reports/M2_01_Verification.md)。下文保留原下发方案，“未写Source / 未Build”表示当时状态；当前实际87Source / 44cpp / 来源49项，无需重做通过项。
+2026-10-18清理同步：本页保留历史布局、接入差异和验收经验，HUD整文件以当前Source链接为准，不按旧步骤覆盖现有工程。当前功能基线已到M2-04B2，正在分批清理；B1冻结指南不改。本次验证和提交见[Cleanup](Cleanup.md)。
 
-生成2026-10-15，固定 **UE 5.5.4**。前置：[B1已验收](Reports/M2_01B1_Verification.md)。**以下是待你手动实施的指南；未写入Source、未创建Widget、未Build或实测。**当前实际83Source / 42cpp / 清单48项。
+**2026-10-15已验收，手动30 / 等待5分钟，无待补项。**见[B2报告](Reports/M2_01B2_Verification.md)与[M2-01总验收](Reports/M2_01_Verification.md)。下文保留原接入方案；当时完成后为87Source / 44cpp / 来源49项。当前规模见[Progress](Progress.md)，无需重做通过项。
+
+原方案日期：2026-10-15，固定UE5.5.4；前置B1已验收。下方操作属于历史接入，不是当前待办。
 
 本批预计手动 **60–100分钟**：代码30–50、资产15–25、相关检查5–15、保存记录约5分钟；构建 / 索引等待另记，不计为实耗。继续方案B，没有新临时Controller函数或按键；复用B1的ke命令和现有死亡 / Retry / 返回菜单。
+
+## 当前显示与验证边界（清理同步）
+
+两个HUD仅共享[私有数值格式函数](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETResourceHUDText.h)：0位小数、随locale取整与分组，仍返回保留本地化历史的FText；调用方提供原LOCTEXT Pattern，不合并生命 / 体力的状态枚举、标题、日志级别或订阅。
+
+四个BindWidget名称 / 类型、DisableNativeTick、Ready=0仍可显示、NoPawn / Waiting折叠数值和进度条、晚订阅快照与重建解绑保持。格式化不改变真实属性，也不重算比例。
+
+新增[原生格式测试](../EmberTrial/Source/EmberTrialUI/Private/Tests/ETResourceHUDTextTests.cpp)覆盖en-US / de-DE / zh-Hans、取整 / 分组、调用方Pattern、FText跨locale重建与完整文化状态恢复。它不等于UMG布局、输入焦点或重绑定的实机验证；正常构建与真实资产结构校验另行记录，未执行不写通过。
 
 ## 1. 结果、职责与覆盖范围
 
@@ -25,7 +35,7 @@
 
 ## 2. 文件与准备
 
-Stop PIE → Save All → 关闭UE，CLion保存。**四新Source / 两旧Source、一个新Widget资产**；不修改Core、B1恢复、UI Build.cs或Editor校验器。完成后预计87Source / 44cpp，当前尚未达到。
+Stop PIE → Save All → 关闭UE，CLion保存。**四新Source / 两旧Source、一个新Widget资产**；不修改Core、B1恢复、UI Build.cs或Editor校验器。原接入完成后为87Source / 44cpp；不是当前清理批次的文件计数。
 
 路径均在 `E:\UE_Project\Demo\EmberTrial\Source\EmberTrialUI`：
 
@@ -388,201 +398,15 @@ void UETStaminaPresenter::PublishSnapshot(const TCHAR* Reason, bool bForce)
 
 ### 4.1 ETStaminaHUDWidget.h
 
-```cpp
-#pragma once
+当前源码：[ETStaminaHUDWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETStaminaHUDWidget.h)。
 
-#include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-#include "Presenters/ETStaminaPresenter.h"
-#include "ETStaminaHUDWidget.generated.h"
-
-class UTextBlock;
-class UProgressBar;
-class UVerticalBox;
-
-UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
-class EMBERTRIALUI_API UETStaminaHUDWidget : public UUserWidget
-{
-    GENERATED_BODY()
-
-public:
-    void StartObserving(UETStaminaPresenter* Presenter);
-    void StopObserving();
-
-protected:
-    virtual void NativeConstruct() override;
-    virtual void NativeDestruct() override;
-
-private:
-    void ApplyViewData(const FETStaminaViewData& Data, const TCHAR* Reason);
-
-    UFUNCTION()
-    void HandleViewDataChanged(const FETStaminaViewData& Data);
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> StaminaStatusText;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> StaminaValuesText;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UProgressBar> StaminaBar;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UVerticalBox> StaminaContent;
-
-    TWeakObjectPtr<UETStaminaPresenter> BoundPresenter;
-    bool bObserving = false;
-};
-```
+四个绑定控件、订阅入口与弱引用保持，具体职责见本页顶部当前边界。
 
 ### 4.2 ETStaminaHUDWidget.cpp
 
-```cpp
-#include "Widgets/ETStaminaHUDWidget.h"
-#include "Components/TextBlock.h"
-#include "Components/ProgressBar.h"
-#include "Components/VerticalBox.h"
-#include "Internationalization/Text.h"
-#include "Logging/LogMacros.h"
-#include "UObject/Class.h"
+当前源码：[ETStaminaHUDWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETStaminaHUDWidget.cpp)。
 
-DEFINE_LOG_CATEGORY_STATIC(LogETStaminaHUD, Log, All);
-#define LOCTEXT_NAMESPACE "ETStaminaHUD"
-
-void UETStaminaHUDWidget::NativeConstruct()
-{
-    Super::NativeConstruct();
-    SetIsFocusable(false);
-    SetVisibility(ESlateVisibility::HitTestInvisible);
-    if (IsDesignTime())
-    {
-        return;
-    }
-
-    // Construct may run more than once; subscription belongs to StartObserving.
-    const UETStaminaPresenter* Presenter = BoundPresenter.Get();
-    ApplyViewData(Presenter ? Presenter->GetSnapshot() : FETStaminaViewData{},
-        TEXT("ConstructSnapshot"));
-}
-
-void UETStaminaHUDWidget::NativeDestruct()
-{
-    StopObserving();
-    Super::NativeDestruct();
-}
-
-void UETStaminaHUDWidget::StartObserving(UETStaminaPresenter* Presenter)
-{
-    StopObserving();
-    if (IsDesignTime())
-    {
-        return;
-    }
-
-    if (!IsValid(Presenter))
-    {
-        ApplyViewData(FETStaminaViewData{}, TEXT("MissingPresenter"));
-        return;
-    }
-
-    BoundPresenter = Presenter;
-    bObserving = true;
-    Presenter->OnViewDataChanged.AddUniqueDynamic(
-        this, &UETStaminaHUDWidget::HandleViewDataChanged);
-
-    UE_LOG(LogETStaminaHUD, Display,
-        TEXT("[M2-01B2] View subscribed Widget=%s Presenter=%s"),
-        *GetNameSafe(this), *GetNameSafe(Presenter));
-
-    // Bind first, then get current data: a late-joining View needs no new effect.
-    ApplyViewData(Presenter->GetSnapshot(), TEXT("SubscribeSnapshot"));
-}
-
-void UETStaminaHUDWidget::StopObserving()
-{
-    const bool bWasObserving = bObserving;
-    bObserving = false;
-    UETStaminaPresenter* Presenter = BoundPresenter.Get();
-    if (Presenter)
-    {
-        Presenter->OnViewDataChanged.RemoveDynamic(
-            this, &UETStaminaHUDWidget::HandleViewDataChanged);
-    }
-    BoundPresenter.Reset();
-
-    if (bWasObserving)
-    {
-        UE_LOG(LogETStaminaHUD, Display,
-            TEXT("[M2-01B2] View unsubscribed Widget=%s"), *GetNameSafe(this));
-    }
-}
-
-void UETStaminaHUDWidget::HandleViewDataChanged(const FETStaminaViewData& Data)
-{
-    if (!bObserving || !BoundPresenter.IsValid())
-    {
-        return;
-    }
-    ApplyViewData(Data, TEXT("ViewDataChanged"));
-}
-
-void UETStaminaHUDWidget::ApplyViewData(
-    const FETStaminaViewData& Data, const TCHAR* Reason)
-{
-    if (!StaminaStatusText || !StaminaValuesText || !StaminaBar || !StaminaContent)
-    {
-        UE_LOG(LogETStaminaHUD, Warning,
-            TEXT("[M2-01B2] Missing required BindWidget Widget=%s"),
-            *GetNameSafe(this));
-        return;
-    }
-
-    if (Data.State == EETStaminaViewState::Ready)
-    {
-        StaminaStatusText->SetText(LOCTEXT("StaminaTitle", "体力值"));
-        StaminaContent->SetVisibility(ESlateVisibility::HitTestInvisible);
-        FNumberFormattingOptions NumberOptions;
-        NumberOptions.SetMinimumFractionalDigits(0);
-        NumberOptions.SetMaximumFractionalDigits(0);
-        StaminaValuesText->SetText(FText::Format(
-            LOCTEXT("StaminaValues", "{0} / {1}"),
-            FText::AsNumber(Data.Stamina, &NumberOptions),
-            FText::AsNumber(Data.MaxStamina, &NumberOptions)));
-        StaminaBar->SetPercent(Data.StaminaFraction);
-    }
-    else
-    {
-        StaminaContent->SetVisibility(ESlateVisibility::Collapsed);
-        StaminaValuesText->SetText(FText::GetEmpty());
-        StaminaBar->SetPercent(0.0f);
-        switch (Data.State)
-        {
-        case EETStaminaViewState::NoPawn:
-            StaminaStatusText->SetText(LOCTEXT("NoPawn", "暂无受控角色"));
-            break;
-        case EETStaminaViewState::UnsupportedPawn:
-            StaminaStatusText->SetText(LOCTEXT("UnsupportedPawn", "当前角色不提供体力信息"));
-            break;
-        case EETStaminaViewState::WaitingForGameplayReady:
-            StaminaStatusText->SetText(LOCTEXT("Waiting", "角色准备中"));
-            break;
-        default:
-            StaminaStatusText->SetText(LOCTEXT("Unavailable", "体力信息暂不可用"));
-            break;
-        }
-    }
-
-    const FString StateName = StaticEnum<EETStaminaViewState>()->GetNameStringByValue(
-        static_cast<int64>(Data.State));
-    UE_LOG(LogETStaminaHUD, Verbose,
-        TEXT("[M2-01B2] View Widget=%s State=%s Stamina=%.1f MaxStamina=%.1f Fraction=%.3f Reason=%s"),
-        *GetNameSafe(this), *StateName, Data.Stamina, Data.MaxStamina,
-        Data.StaminaFraction, Reason);
-}
-
-#undef LOCTEXT_NAMESPACE
-```
+Ready数值使用私有格式函数；其他状态、日志、比例与解绑时序保持。
 
 DisableNativeTick与蓝图Never搭配，沿用生命HUD的已验证设置。View只渲染快照；显示整数只是格式化，进度条仍用真实浮点比例。日常订阅 / 清理日志为Display；连续数值Snapshot / View日志为Verbose，避免恢复期间反复刷Display。常规检查使用可见面板和B1开发读数，不要求收集几十行恢复日志。
 
