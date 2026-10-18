@@ -124,6 +124,36 @@ Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook
 
 收尾检查额度：5小时已用17% / 剩余83%，周已用16% / 剩余84%。未使用重置，不计入用户手动实耗。
 
+## 第9批：体力恢复订阅去重与时序可读性
+
+开工HEAD为97b5b98，第8批已提交、工作区干净；5小时已用19% / 周已用16%。范围为Recovery两文件、通用StaminaDelta Effect两文件和原恢复测试，共五份Source；不改默认值、反射字段、角色或资产。
+
+五项动作Tag从两份重复数组集中为cpp私有函数的只读列表，首次组件使用时构造，此后返回ArrayView；注册与解绑共用原顺序，仍由原组件独占自己的Handle。其余恢复逻辑在展开比对后有效Token保持，三个其他运行文件只改格式 / 注释。保留World Timer、真实GE、延迟 / 采样误差与同步消费修订保护，不引入Tick。
+
+现有StaminaRecovery用例增加受击 / 治疗阻断和五项ASC订阅 / 解绑检查，原断言与流程保留；不是用新简化用例替换。B1指南移除五份重复完整源码，共569行，改为Source入口并修正过期“尚未实现 / 原型2”说明。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，三模块CLion元数据与CMake刷新成功。全部12项EmberTrial自动化Success，0 Fail / 0 NotRun / 0测试警告；日志确认新增四类动作阻断、五项订阅及配对解绑检查实际执行，原场景 / 断言保留。
+
+配置脚本实际PASS，Errors=0 / Warnings=0。108份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改；五份Source格式、LF / 末尾换行、文档链接 / 围栏和Git差异检查通过。Source保持113份 / 60cpp。
+
+收益是减少Tag维护位置与重复临时列表、提高时序 / 所有权可读性并补解绑验证，不宣称帧率提升。本批未重跑交互式实机、DataValidation资产校验或Cook / 打包；第8批Widget Valid是历史结果，不作本批新执行。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+完整快照、差异、进度盘点、构建 / 配置 / 测试JSON位于Raw/Cleanup/2026-10-18_Batch09。收尾额度快照：5小时已用27% / 剩余73%，周已用17% / 剩余83%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第9批后）
+
+截至本批，累计9批涉及43 / 113份Source（文件覆盖率约38%）、25份Markdown；已记录移除6654行重复代码副本，不计其他说明精简。这是改动覆盖统计，**不是整体清理完成率**：AI / 校验器有些文件只做过黑板键归一，测试与新共享头也计入，不能视为整文件审计完成。
+
+| 范围 | 目前状态 | 主要剩余 |
+| --- | --- | --- |
+| 正式能力 / 属性 / 资源 | 攻击、连段、闪避、受击、治疗、生命 / 体力、死亡与恢复主要链路已整理 | Character大类、CombatTrace、其他Effect / Tag / Notify及旧Practice引用审计 |
+| UI | 两HUD、状态Widget、Bootstrap及数值格式已整理 | 两Presenter、LocalPlayer观察、菜单 / 暂停 / 失败流程 |
+| AI | 黑板键统一；行为树与运行回归已有历史证据 | Controller / Service / Task完整职责、取消与失败重试审计 |
+| 工程 / 学习材料 | 相关指南改为Source入口，12项自动化保留并扩展 | Editor校验器、工具脚本、测试夹具复用、剩余架构 / 操作文档 |
+| 最终收尾 | 分批正常构建与对应验证 | 清理完成后的统一实机链路、Cook / 打包和收益汇总 |
+
+目前处于逐模块清理阶段，尚未进入统一收尾。按每批约4–6份Source及同步文档的粒度，后续暂估约10–15批，再做统一实机 / 打包回归；这是工作量估计，不是承诺，审计确认无须改动的文件会保留，复杂依赖也可能增加批次。此前20–35小时是整体有效工作估计，不能从批次数反推剩余精确小时。
+
 ## 后续队列
 
 1. 共享标识符、旧Practice / 诊断入口引用审计，确认后移除无用路径。
@@ -132,22 +162,21 @@ Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-前八批已收口；其余队列未完成，不进入新玩法开发。
+前九批已收口；其余队列未完成，不进入新玩法开发。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第7批已提交，本批基线HEAD为386141e。四份Source、三份指南与Cleanup / Progress共9项，验证已收口；由你在CLion查看Diff、重新Stage最新修改后Commit / Push。
+第8批已提交，本批基线HEAD为97b5b98。五份Source与B1指南 / Cleanup / Progress共8项，验证已收口；由你在CLion查看Diff、重新Stage最新修改后Commit / Push。
 
-- [ETUIBootstrapComponent.h](../EmberTrial/Source/EmberTrialUI/Public/Bootstrap/ETUIBootstrapComponent.h)
-- [ETUIBootstrapComponent.cpp](../EmberTrial/Source/EmberTrialUI/Private/Bootstrap/ETUIBootstrapComponent.cpp)
-- [ETLifecycleStatusWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETLifecycleStatusWidget.h)
-- [ETLifecycleStatusWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETLifecycleStatusWidget.cpp)
-- [M1_02C2_01_WidgetBootstrap.md](M1_02C2_01_WidgetBootstrap.md)
-- [M1_03B2_HealthHUD.md](M1_03B2_HealthHUD.md)
-- [M2_01B2_StaminaHUD.md](M2_01B2_StaminaHUD.md)
+- [ETStaminaRecoveryComponent.h](../EmberTrial/Source/EmberTrial/Public/Resources/ETStaminaRecoveryComponent.h)
+- [ETStaminaRecoveryComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Resources/ETStaminaRecoveryComponent.cpp)
+- [ETStaminaDeltaEffect.h](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETStaminaDeltaEffect.h)
+- [ETStaminaDeltaEffect.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETStaminaDeltaEffect.cpp)
+- [ETStaminaRecoveryTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETStaminaRecoveryTests.cpp)
+- [M2_01B1_StaminaRecovery.md](M2_01B1_StaminaRecovery.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-建议提交说明：Refactor UI bootstrap guards and clarify lifecycle ownership。
+建议提交说明：Refactor stamina recovery subscriptions and verify cleanup guards。
 
-Content / Config / Build.cs / Target未改；Raw日志、快照、报告及生成产物留本地。助手未Stage / Commit / Push。
+Content / Config / Build.cs / Target未改；Raw日志、快照、测试报告与生成文件留本地。助手未Stage / Commit / Push。

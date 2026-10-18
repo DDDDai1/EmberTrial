@@ -1,16 +1,24 @@
 # M2-01B1：体力恢复、阻断与复用检查入口
 
-**2026-10-15已验收，手动40 / 等待5分钟，无待补项。**见[B1报告](Reports/M2_01B1_Verification.md)。下一步[B2体力显示](M2_01B2_StaminaHUD.md)。下文保留原下发说明，“仅文档 / 尚未Build”表示下发时状态，不要求重做通过项；当前实际83Source / 42cpp / 清单48。
+**2026-10-15已验收，手动40 / 等待5分钟，无待补项。**见[B1报告](Reports/M2_01B1_Verification.md)。下一步[B2体力显示](M2_01B2_StaminaHUD.md)。下文保留原下发说明，“仅文档 / 尚未Build”表示下发时状态，不要求重做通过项；当时接入后为83Source / 42cpp / 清单48，当前规模见[Progress](Progress.md)。
 
-生成2026-10-14，文档复核2026-10-15，固定 **UE 5.5.4**。前置：[M2-01A已验收](Reports/M2_01A_Verification.md)，当前实际78Source / 39cpp / 来源48项。**本页代码仅在文档，待你手动实现，尚未编译或实测。**原C++手动约定与方案B继续。
+原方案生成2026-10-14、复核2026-10-15，固定UE5.5.4；前置[M2-01A](Reports/M2_01A_Verification.md)。历史接入已完成，不按旧步骤覆盖现有工程。
 
-M2-01B拆两批：**B1完成恢复规则 / 检查入口，B2接事件驱动的体力观察 / 显示**。本页是B1的完整实施指南；B2沿用LocalPlayer → Presenter → Widget的数据流，在B1通过后下发，不同时扩展两组生命周期。预计手动 **80–130分钟**：代码50–85、装配10–15、检查5–15、保存记录5–10；Build / 索引等待另列。预算不计为实际用时。
+原接入分为B1恢复规则 / 检查入口和B2事件驱动显示，分开验证两组生命周期。原预计手动80–130分钟，构建等待另列；实际手动40 / 等待5分钟见顶部历史验收，不把预算计为实耗。
+
+## 当前恢复契约（2026-10-18清理同步）
+
+恢复组件只观察真实ASC属性和正式动作状态；可调默认值仍为20 / 0.75 / 0.10。五项忙碌Tag在cpp私有只读列表中维护，注册与解绑共用同一顺序，不缓存身体属性，不在头文件引入跨模块状态。
+
+正式攻击、受击、闪避、治疗会停止恢复，死亡由真实Health / Life封口；延迟 / 世界时间积分、暂停不补量、重复观察去重、旧序号拒绝和GE同步重入保护保持。旧Practice未被本批删除；它不持有这些正式Tag，恢复组件不另加对原型播放状态的阻断。
+
+本次在原StaminaRecovery测试上增加受击 / 治疗阻断、重复观察后的五项真实ASC订阅，以及Deactivate / Activate / EndPlay配对检查；原用例保留。测试结果及提交清单统一见[Cleanup](Cleanup.md)。
 
 ## 1. 完成后怎样运行
 
 体力降低后，延迟0.75世界秒；正式动作空闲时，以20点 / 世界秒恢复，默认每0.10秒提交一次真实Instant GE。恢复到上限停止计时器；正式GAS攻击 / 受击时立即停表，结束后按未暂停的时间继续，但不补算被阻断的一整段时间。死亡立即停表，EndPlay解绑与清计时器。
 
-本批没有体力条，先使用一个长期保留的PIE开发命令读数 / 注入一次增量与自动测试检查。无需临时Controller蓝图、临时按键或精确手动掐时间。B2体力条接好后仍能复用这个入口。
+原接入阶段先使用PIE开发命令读数 / 注入增量；当前已接入事件驱动体力HUD，命令仍可复用，不需要临时Controller蓝图或精确手动掐时间。
 
 | 规则 | 本批决定 |
 | --- | --- |
@@ -18,8 +26,8 @@ M2-01B拆两批：**B1完成恢复规则 / 检查入口，B2接事件驱动的�
 | 资源变化 | 原生 `UETStaminaDeltaEffect` 固定Instant、单Stamina AddBase、SetByCaller.StaminaDelta；调用方传实际增量 |
 | 默认配置 | Recovery Rate=20、Recovery Delay=0.75、Recovery Interval=0.10、Auto Activate=True |
 | 延迟重置 | **任何实际体力降低**都重置延迟，包括上限下降导致的压低；不根据请求量推断实际消耗 |
-| 忙碌门控 | 当前正式Attacking / HitReact / Dead的Tag事件直接停 / 开表；最后一个正式忙碌Tag退出后才恢复 |
-| 原型边界 | 按2仍为M0 Practice，没有正式体力成本 / Tag，本批不接管它；其播放期间可按本规则恢复。M2-02迁移正式闪避时加入Dodging门控 |
+| 忙碌门控 | 当前Attacking / HitReact / Dead / Dodging / Healing事件直接停 / 开表；正式动作空闲后才恢复 |
+| 正式动作边界 | 当前2已迁移正式GAS闪避，消费25体力并持有Dodging；恢复还需通过IsFormalActionIdle，原型播放本身不新增正式Tag阻断 |
 | 时间 | 用World.GetTimeSeconds和World TimerManager；世界暂停 / slomo都按世界时间，恢复后不按真实墙钟补量 |
 | 帧率 | 按真实经过的世界时间计算增量，不能每次回调硬加2点；显示 / 生效有一个采样周期的离散误差 |
 | 满体力 / 死亡 | 没有恢复计时器，不开组件Tick；上限增加产生缺额后可重新恢复，增加上限本身不直接补体力 |
@@ -65,428 +73,25 @@ ETGameplayTags.cpp：同一namespace内部、原HealthDelta定义之后加：
 
 只加这一项，原六个Tag保留，不另建namespace、不在.ini重复登记原生Tag。
 
-### 3.2 新 ETStaminaDeltaEffect.h 全文
+### 3.2 ETStaminaDeltaEffect.h 当前源码
 
-```cpp
-#pragma once
+当前源码：[ETStaminaDeltaEffect.h](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETStaminaDeltaEffect.h)。
 
-#include "CoreMinimal.h"
-#include "GameplayEffect.h"
-#include "ETStaminaDeltaEffect.generated.h"
+### 3.3 ETStaminaDeltaEffect.cpp 当前源码
 
-UCLASS()
-class EMBERTRIAL_API UETStaminaDeltaEffect : public UGameplayEffect
-{
-    GENERATED_BODY()
-
-public:
-    UETStaminaDeltaEffect(const FObjectInitializer& ObjectInitializer);
-};
-```
-
-### 3.3 新 ETStaminaDeltaEffect.cpp 全文
-
-```cpp
-#include "Abilities/Effects/ETStaminaDeltaEffect.h"
-#include "Abilities/ETGameplayTags.h"
-#include "Attributes/ETStaminaAttributeSet.h"
-
-UETStaminaDeltaEffect::UETStaminaDeltaEffect(const FObjectInitializer& ObjectInitializer)
-    : Super(ObjectInitializer)
-{
-    DurationPolicy = EGameplayEffectDurationType::Instant;
-    FSetByCallerFloat Magnitude;
-    Magnitude.DataTag = ETGameplayTags::SetByCaller_StaminaDelta;
-
-    FGameplayModifierInfo& Modifier = Modifiers.AddDefaulted_GetRef();
-    Modifier.Attribute = UETStaminaAttributeSet::GetStaminaAttribute();
-    Modifier.ModifierOp = EGameplayModOp::AddBase;
-    Modifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(Magnitude);
-}
-```
+当前源码：[ETStaminaDeltaEffect.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETStaminaDeltaEffect.cpp)。
 
 这是固定的资源数值规则，恢复速率 / 延迟仍可在组件Details配置；不为同一个加减规则创建多个重复资产。后续能力可以构造自己的Spec传不同增量，**是否允许消耗、何时提交与取消事务仍由能力决定**，这个通用GE本身不会替能力校验死亡 / 忙碌或把不足体力消费拒绝掉。
 
-## 4. 恢复组件：两份全文
+## 4. 恢复组件当前源码
 
 ### 4.1 ETStaminaRecoveryComponent.h
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "TimerManager.h"
-#include "ETStaminaRecoveryComponent.generated.h"
-
-class AEmberTrialCharacter;
-class UAbilitySystemComponent;
-struct FOnAttributeChangeData;
-struct FGameplayTag;
-
-UCLASS(ClassGroup = (EmberTrial), meta = (BlueprintSpawnableComponent))
-class EMBERTRIAL_API UETStaminaRecoveryComponent : public UActorComponent
-{
-    GENERATED_BODY()
-
-public:
-    UETStaminaRecoveryComponent();
-    virtual void Activate(bool bReset = false) override;
-    virtual void Deactivate() override;
-    bool IsRecoveryScheduled() const;
-
-protected:
-    virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
-    friend class FETStaminaRecoveryTest;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Stamina Recovery",
-        meta = (ClampMin = "0.01", ClampMax = "1000.0"))
-    float RecoveryRate = 20.0f;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Stamina Recovery",
-        meta = (ClampMin = "0.0", ClampMax = "10.0", Units = "s"))
-    float RecoveryDelay = 0.75f;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Stamina Recovery",
-        meta = (ClampMin = "0.05", ClampMax = "0.5", Units = "s"))
-    float RecoveryInterval = 0.10f;
-
-    void RefreshObservation();
-    void StopObserving();
-    void SyncRecoveryTimer();
-    void ClearRecoveryTimer(const TCHAR* Reason);
-    bool ReadBody(AEmberTrialCharacter*& Body, UAbilitySystemComponent*& ASC,
-        float& Stamina, float& MaxStamina) const;
-    void HandleRecoveryTimer(uint64 Serial);
-
-    UFUNCTION()
-    void HandleGameplayReadyChanged(AEmberTrialCharacter* Body, bool bReady);
-
-    void HandleAttributeChanged(const FOnAttributeChangeData& Change,
-        TWeakObjectPtr<UAbilitySystemComponent> SourceASC, uint64 Serial);
-    void HandleActionTagChanged(const FGameplayTag Tag, int32 NewCount,
-        TWeakObjectPtr<UAbilitySystemComponent> SourceASC, uint64 Serial);
-
-    TWeakObjectPtr<AEmberTrialCharacter> BodyOwner;
-    TWeakObjectPtr<UAbilitySystemComponent> BoundASC;
-    FDelegateHandle StaminaHandle;
-    FDelegateHandle MaxStaminaHandle;
-    TArray<FDelegateHandle> ActionTagHandles;
-    FTimerHandle RecoveryTimer;
-    uint64 ObservationSerial = 0;
-    uint64 DecreaseRevision = 0;
-    double RecoveryNotBefore = 0.0;
-    double LastSampleTime = 0.0;
-    bool bRecovering = false;
-    bool bEndingPlay = false;
-};
-```
+当前源码：[ETStaminaRecoveryComponent.h](../EmberTrial/Source/EmberTrial/Public/Resources/ETStaminaRecoveryComponent.h)。
 
 ### 4.2 ETStaminaRecoveryComponent.cpp
 
-```cpp
-#include "Resources/ETStaminaRecoveryComponent.h"
-#include "Abilities/Effects/ETStaminaDeltaEffect.h"
-#include "Abilities/GameplayAbilityTypes.h"
-#include "Abilities/ETGameplayTags.h"
-#include "Attributes/ETStaminaAttributeSet.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "AbilitySystemComponent.h"
-#include "Engine/World.h"
-#include "GameplayEffectTypes.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETStaminaRecovery, Log, All);
-
-UETStaminaRecoveryComponent::UETStaminaRecoveryComponent()
-{
-    PrimaryComponentTick.bCanEverTick = false;
-    bAutoActivate = true;
-}
-
-void UETStaminaRecoveryComponent::BeginPlay()
-{
-    Super::BeginPlay();
-    bEndingPlay = false;
-    BodyOwner = Cast<AEmberTrialCharacter>(GetOwner());
-    if (AEmberTrialCharacter* Body = BodyOwner.Get())
-    {
-        Body->OnGameplayReadyChanged.AddUniqueDynamic(
-            this, &ThisClass::HandleGameplayReadyChanged);
-    }
-    RefreshObservation();
-}
-
-void UETStaminaRecoveryComponent::Activate(bool bReset)
-{
-    Super::Activate(bReset);
-    if (HasBegunPlay() && !bEndingPlay)
-    {
-        RefreshObservation();
-    }
-}
-
-void UETStaminaRecoveryComponent::Deactivate()
-{
-    Super::Deactivate();
-    StopObserving();
-}
-
-void UETStaminaRecoveryComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    bEndingPlay = true;
-    if (AEmberTrialCharacter* Body = BodyOwner.Get())
-    {
-        Body->OnGameplayReadyChanged.RemoveDynamic(
-            this, &ThisClass::HandleGameplayReadyChanged);
-    }
-    StopObserving();
-    BodyOwner.Reset();
-    Super::EndPlay(EndPlayReason);
-}
-
-bool UETStaminaRecoveryComponent::IsRecoveryScheduled() const
-{
-    const UWorld* World = GetWorld();
-    return World && World->GetTimerManager().TimerExists(RecoveryTimer);
-}
-
-void UETStaminaRecoveryComponent::ClearRecoveryTimer(const TCHAR* Reason)
-{
-    const bool bHadTimer = IsRecoveryScheduled();
-    if (UWorld* World = GetWorld())
-    {
-        World->GetTimerManager().ClearTimer(RecoveryTimer);
-    }
-    RecoveryTimer.Invalidate();
-    if (bHadTimer || bRecovering)
-    {
-        UE_LOG(LogETStaminaRecovery, Display,
-            TEXT("[M2-01B1] Timer stopped Owner=%s Reason=%s"),
-            *GetNameSafe(GetOwner()), Reason);
-    }
-    bRecovering = false;
-}
-
-void UETStaminaRecoveryComponent::StopObserving()
-{
-    ++ObservationSerial;
-    ClearRecoveryTimer(TEXT("Unsubscribe"));
-    if (UAbilitySystemComponent* ASC = BoundASC.Get())
-    {
-        ASC->GetGameplayAttributeValueChangeDelegate(
-            UETStaminaAttributeSet::GetStaminaAttribute()).Remove(StaminaHandle);
-        ASC->GetGameplayAttributeValueChangeDelegate(
-            UETStaminaAttributeSet::GetMaxStaminaAttribute()).Remove(MaxStaminaHandle);
-        const FGameplayTag Tags[] = {ETGameplayTags::State_Attacking,
-            ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead};
-        for (int32 Index = 0; Index < ActionTagHandles.Num(); ++Index)
-        {
-            ASC->RegisterGameplayTagEvent(Tags[Index], EGameplayTagEventType::NewOrRemoved)
-                .Remove(ActionTagHandles[Index]);
-        }
-        UE_LOG(LogETStaminaRecovery, Display,
-            TEXT("[M2-01B1] Observe stopped Owner=%s"), *GetNameSafe(GetOwner()));
-    }
-    StaminaHandle.Reset();
-    MaxStaminaHandle.Reset();
-    ActionTagHandles.Reset();
-    BoundASC.Reset();
-}
-
-bool UETStaminaRecoveryComponent::ReadBody(AEmberTrialCharacter*& Body,
-    UAbilitySystemComponent*& ASC, float& Stamina, float& MaxStamina) const
-{
-    Body = BodyOwner.Get();
-    ASC = BoundASC.Get();
-    return !bEndingPlay && IsActive() && IsValid(Body) && !Body->IsActorBeingDestroyed() &&
-        Body->HasAuthority() && Body->IsGameplayReady() && IsValid(ASC) &&
-        Body->GetAbilitySystemComponent() == ASC && ASC->AbilityActorInfo.IsValid() &&
-        ASC->AbilityActorInfo->OwnerActor.Get() == Body &&
-        ASC->AbilityActorInfo->AvatarActor.Get() == Body &&
-        Body->GetGameplayStaminaSnapshot(Stamina, MaxStamina) &&
-        FMath::IsFinite(Stamina) && FMath::IsFinite(MaxStamina) &&
-        MaxStamina >= 1.0f && Stamina >= 0.0f && Stamina <= MaxStamina;
-}
-
-void UETStaminaRecoveryComponent::RefreshObservation()
-{
-    StopObserving();
-    AEmberTrialCharacter* Body = BodyOwner.Get();
-    if (bEndingPlay || !IsActive() || !IsValid(Body) ||
-        !Body->HasAuthority() || !Body->IsGameplayReady())
-    {
-        return;
-    }
-    TArray<UETStaminaRecoveryComponent*> Components;
-    Body->GetComponents(Components);
-    if (Components.Num() != 1 || !FMath::IsFinite(RecoveryRate) ||
-        RecoveryRate <= 0.0f || RecoveryRate > 1000.0f ||
-        !FMath::IsFinite(RecoveryDelay) || RecoveryDelay < 0.0f || RecoveryDelay > 10.0f ||
-        !FMath::IsFinite(RecoveryInterval) || RecoveryInterval < 0.05f || RecoveryInterval > 0.5f)
-    {
-        UE_LOG(LogETStaminaRecovery, Warning,
-            TEXT("[M2-01B1] Invalid recovery settings Owner=%s Count=%d Rate=%.2f Delay=%.2f Interval=%.2f"),
-            *GetNameSafe(Body), Components.Num(), RecoveryRate, RecoveryDelay, RecoveryInterval);
-        return;
-    }
-    BoundASC = Body->GetAbilitySystemComponent();
-    AEmberTrialCharacter* CheckedBody = nullptr;
-    UAbilitySystemComponent* ASC = nullptr;
-    float Stamina = 0.0f;
-    float MaxStamina = 0.0f;
-    if (!ReadBody(CheckedBody, ASC, Stamina, MaxStamina))
-    {
-        BoundASC.Reset();
-        return;
-    }
-    StaminaHandle = ASC->GetGameplayAttributeValueChangeDelegate(
-        UETStaminaAttributeSet::GetStaminaAttribute()).AddUObject(
-            this, &ThisClass::HandleAttributeChanged, BoundASC, ObservationSerial);
-    MaxStaminaHandle = ASC->GetGameplayAttributeValueChangeDelegate(
-        UETStaminaAttributeSet::GetMaxStaminaAttribute()).AddUObject(
-            this, &ThisClass::HandleAttributeChanged, BoundASC, ObservationSerial);
-    const FGameplayTag Tags[] = {ETGameplayTags::State_Attacking,
-        ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead};
-    for (const FGameplayTag Tag : Tags)
-    {
-        ActionTagHandles.Add(ASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved)
-            .AddUObject(this, &ThisClass::HandleActionTagChanged, BoundASC, ObservationSerial));
-    }
-    LastSampleTime = GetWorld()->GetTimeSeconds();
-    RecoveryNotBefore = LastSampleTime + RecoveryDelay;
-    UE_LOG(LogETStaminaRecovery, Display,
-        TEXT("[M2-01B1] Observe ready Owner=%s Rate=%.1f Delay=%.2f Interval=%.2f Stamina=%.1f/%.1f"),
-        *GetNameSafe(Body), RecoveryRate, RecoveryDelay, RecoveryInterval, Stamina, MaxStamina);
-    SyncRecoveryTimer();
-}
-
-void UETStaminaRecoveryComponent::HandleGameplayReadyChanged(
-    AEmberTrialCharacter* Body, bool bReady)
-{
-    if (bEndingPlay || Body != BodyOwner.Get()) { return; }
-    if (bReady) { RefreshObservation(); }
-    else { StopObserving(); }
-}
-
-void UETStaminaRecoveryComponent::HandleAttributeChanged(const FOnAttributeChangeData& Change,
-    TWeakObjectPtr<UAbilitySystemComponent> SourceASC, uint64 Serial)
-{
-    if (bEndingPlay || Serial != ObservationSerial ||
-        !SourceASC.IsValid() || SourceASC.Get() != BoundASC.Get()) { return; }
-    if (Change.Attribute == UETStaminaAttributeSet::GetStaminaAttribute() &&
-        Change.NewValue < Change.OldValue)
-    {
-        ++DecreaseRevision;
-        LastSampleTime = GetWorld()->GetTimeSeconds();
-        RecoveryNotBefore = LastSampleTime + RecoveryDelay;
-        bRecovering = false;
-        UE_LOG(LogETStaminaRecovery, Display,
-            TEXT("[M2-01B1] Delayed Owner=%s Stamina=%.1f NotBefore=%.3f"),
-            *GetNameSafe(GetOwner()), Change.NewValue, RecoveryNotBefore);
-    }
-    SyncRecoveryTimer();
-}
-
-void UETStaminaRecoveryComponent::HandleActionTagChanged(const FGameplayTag Tag,
-    int32 NewCount, TWeakObjectPtr<UAbilitySystemComponent> SourceASC, uint64 Serial)
-{
-    (void)Tag;
-    (void)NewCount;
-    if (bEndingPlay || Serial != ObservationSerial ||
-        !SourceASC.IsValid() || SourceASC.Get() != BoundASC.Get()) { return; }
-    LastSampleTime = GetWorld()->GetTimeSeconds();
-    SyncRecoveryTimer();
-}
-
-void UETStaminaRecoveryComponent::SyncRecoveryTimer()
-{
-    AEmberTrialCharacter* Body = nullptr;
-    UAbilitySystemComponent* ASC = nullptr;
-    float Stamina = 0.0f;
-    float MaxStamina = 0.0f;
-    if (!ReadBody(Body, ASC, Stamina, MaxStamina))
-    {
-        ClearRecoveryTimer(TEXT("Unavailable"));
-        return;
-    }
-    if (Body->IsCombatDead() || ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dead))
-    {
-        ClearRecoveryTimer(TEXT("Dead"));
-        return;
-    }
-    if (!Body->IsFormalActionIdle())
-    {
-        ClearRecoveryTimer(TEXT("Busy"));
-        return;
-    }
-    if (Stamina >= MaxStamina)
-    {
-        ClearRecoveryTimer(TEXT("Full"));
-        return;
-    }
-    if (!IsRecoveryScheduled())
-    {
-        LastSampleTime = GetWorld()->GetTimeSeconds();
-        GetWorld()->GetTimerManager().SetTimer(RecoveryTimer,
-            FTimerDelegate::CreateUObject(this, &ThisClass::HandleRecoveryTimer, ObservationSerial),
-            RecoveryInterval, true, RecoveryInterval);
-    }
-}
-
-void UETStaminaRecoveryComponent::HandleRecoveryTimer(uint64 Serial)
-{
-    if (Serial != ObservationSerial || bEndingPlay) { return; }
-    AEmberTrialCharacter* Body = nullptr;
-    UAbilitySystemComponent* ASC = nullptr;
-    float Before = 0.0f;
-    float MaxStamina = 0.0f;
-    if (!ReadBody(Body, ASC, Before, MaxStamina) || Body->IsCombatDead() ||
-        !Body->IsFormalActionIdle() || Before >= MaxStamina)
-    {
-        SyncRecoveryTimer();
-        return;
-    }
-    const double Now = GetWorld()->GetTimeSeconds();
-    const double EligibleTime = FMath::Max(0.0, Now - FMath::Max(LastSampleTime, RecoveryNotBefore));
-    const float Amount = FMath::Min(MaxStamina - Before,
-        static_cast<float>(EligibleTime * RecoveryRate));
-    // Keep accumulating time until the float resource can represent the increment.
-    if (Amount <= 0.0f || Before + Amount <= Before) { return; }
-    LastSampleTime = Now;
-    FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(
-        UETStaminaDeltaEffect::StaticClass(), 1.0f, ASC->MakeEffectContext());
-    if (!Spec.IsValid())
-    {
-        ClearRecoveryTimer(TEXT("MissingSpec"));
-        return;
-    }
-    Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_StaminaDelta, Amount);
-    if (!bRecovering)
-    {
-        bRecovering = true;
-        UE_LOG(LogETStaminaRecovery, Display,
-            TEXT("[M2-01B1] Recovery begin Owner=%s Time=%.3f Stamina=%.1f/%.1f"),
-            *GetNameSafe(Body), Now, Before, MaxStamina);
-    }
-    const uint64 Revision = DecreaseRevision;
-    const TWeakObjectPtr<UAbilitySystemComponent> SourceASC = ASC;
-    ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
-    // Applying a GE can synchronously trigger callbacks, shutdown, or a new spend.
-    if (bEndingPlay || Serial != ObservationSerial || Revision != DecreaseRevision ||
-        !SourceASC.IsValid() || SourceASC.Get() != BoundASC.Get()) { return; }
-    float After = 0.0f;
-    if (!ReadBody(Body, ASC, After, MaxStamina)) { return; }
-    if (After <= Before)
-    {
-        ClearRecoveryTimer(TEXT("NoProgress"));
-        return;
-    }
-    SyncRecoveryTimer();
-}
-```
+当前源码：[ETStaminaRecoveryComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Resources/ETStaminaRecoveryComponent.cpp)。
 
 LastSampleTime只用于积分，不是第二份体力；两种序号分别拒绝旧观察回调、拒绝Effect应用期间新消耗导致的旧收尾。局部Tags数组在函数内，不增加Unity合编匿名常量重名。恢复只在缺额且正式空闲时计时；Tag事件处理忙碌边界，World暂停保持世界时间不前进。
 
@@ -640,184 +245,13 @@ Delta=0只读，可在暂停 / 已死亡时读当前身体；非零只允许PIE�
 
 已有反射 / ReadNumber帮助函数与UObject/UnrealType include足够，不加新Editor依赖。必需引用列表已经检查None；末尾段用反射取得同一对象，不重复报告缺失引用。两处修改都在ValidateBody内，其余全部规则保留。
 
-## 6. 新测试 ETStaminaRecoveryTests.cpp：全文
+## 6. 长期保留的恢复测试
 
 长期保留在Tests，使用自己的临时世界 / 原生身体 / 同一个通用GE，不保存资源。自动检查延迟与再次降低重置、暂停 / 忙碌无整段补量、上限增加 / 满值停表、重复观察去重、旧回调拒绝、Deactivate / Activate、非法速率、真实生命归零死亡与EndPlay清理。时序断言留一个采样周期余量，避免依赖某一帧恰好回调。
 
-```cpp
-#if WITH_DEV_AUTOMATION_TESTS
+当前源码：[ETStaminaRecoveryTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETStaminaRecoveryTests.cpp)。
 
-#include "Resources/ETStaminaRecoveryComponent.h"
-#include "Abilities/Effects/ETStaminaDeltaEffect.h"
-#include "Abilities/ETGameplayTags.h"
-#include "Attributes/ETStaminaAttributeSet.h"
-#include "Attributes/ETHealthAttributeSet.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "AbilitySystemComponent.h"
-#include "Engine/World.h"
-#include "GameplayEffectTypes.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PlayerState.h"
-#include "GameFramework/WorldSettings.h"
-#include "Misc/AutomationTest.h"
-#include "Tests/AutomationCommon.h"
-
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETStaminaRecoveryTest,
-    "EmberTrial.M2.Resources.StaminaRecovery",
-    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
-
-bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
-{
-    FTestWorldWrapper TestWorld;
-    if (!TestWorld.CreateTestWorld(EWorldType::Game))
-    {
-        TestWorld.ForwardErrorMessages(this);
-        return false;
-    }
-    UWorld* World = TestWorld.GetTestWorld();
-    AEmberTrialCharacter* Body = World->SpawnActor<AEmberTrialCharacter>();
-    APlayerState* Pauser = World->SpawnActor<APlayerState>();
-    if (!TestNotNull(TEXT("Temporary body"), Body) || !TestNotNull(TEXT("Pauser"), Pauser)) { return false; }
-    if (!TestWorld.BeginPlayInTestWorld())
-    {
-        TestWorld.ForwardErrorMessages(this);
-        return false;
-    }
-    Body->GetCharacterMovement()->SetComponentTickEnabled(false);
-    UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
-    UETStaminaRecoveryComponent* Recovery = Body->FindComponentByClass<UETStaminaRecoveryComponent>();
-    if (!TestNotNull(TEXT("ASC"), ASC) || !TestNotNull(TEXT("Recovery"), Recovery)) { return false; }
-    auto Advance = [&](int32 Steps)
-    {
-        for (int32 Index = 0; Index < Steps; ++Index)
-        {
-            if (!TestWorld.TickTestWorld(0.05f))
-            {
-                TestWorld.ForwardErrorMessages(this);
-                return false;
-            }
-        }
-        return true;
-    };
-    const FGameplayAttribute Attribute = UETStaminaAttributeSet::GetStaminaAttribute();
-    auto Value = [&]() { return ASC->GetNumericAttribute(Attribute); };
-    auto ApplyDelta = [&](float Delta)
-    {
-        FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(
-            UETStaminaDeltaEffect::StaticClass(), 1.0f, ASC->MakeEffectContext());
-        if (!Spec.IsValid()) { AddError(TEXT("Stamina delta spec unavailable")); return; }
-        Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_StaminaDelta, Delta);
-        ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
-    };
-    auto Same = [&](const TCHAR* Label, float Expected)
-    {
-        TestTrue(Label, FMath::IsNearlyEqual(Value(), Expected, 0.001f));
-    };
-    TestFalse(TEXT("Full has no timer"), Recovery->IsRecoveryScheduled());
-    TestFalse(TEXT("No component Tick capability"), Recovery->PrimaryComponentTick.bCanEverTick);
-    TestFalse(TEXT("No registered component Tick"), Recovery->PrimaryComponentTick.IsTickFunctionRegistered());
-    ApplyDelta(-25.0f);
-    Same(TEXT("Real GE consumes 25"), 75.0f);
-    TestTrue(TEXT("Deficit schedules timer"), Recovery->IsRecoveryScheduled());
-    if (!Advance(14)) { return false; } // 0.70 seconds, before delay.
-    Same(TEXT("Delay prevents early recovery"), 75.0f);
-    if (!Advance(4)) { return false; } // 0.90 seconds total, with sampling margin.
-    TestTrue(TEXT("Recovery starts after delay"), Value() > 75.0f && Value() <= 79.0f);
-
-    const float BeforePause = Value();
-    const double TimeBeforePause = World->GetTimeSeconds();
-    World->GetWorldSettings()->SetPauserPlayerState(Pauser);
-    const bool bPausedTicksOK = Advance(20);
-    World->GetWorldSettings()->SetPauserPlayerState(nullptr); // Always restore before exit.
-    if (!bPausedTicksOK) { return false; }
-    Same(TEXT("Pause freezes resource"), BeforePause);
-    TestTrue(TEXT("Pause freezes world clock"), FMath::IsNearlyEqual(
-        World->GetTimeSeconds(), TimeBeforePause, 0.001));
-    if (!Advance(4)) { return false; }
-    TestTrue(TEXT("Resume recovers without paused catch-up"),
-        Value() > BeforePause && Value() <= BeforePause + 6.2f);
-
-    ApplyDelta(-10.0f);
-    if (!Advance(6)) { return false; }
-    ApplyDelta(-5.0f);
-    const float AfterSecondSpend = Value();
-    if (!Advance(14)) { return false; }
-    Same(TEXT("Second spend resets delay"), AfterSecondSpend);
-    if (!Advance(4)) { return false; }
-    TestTrue(TEXT("Recovery resumes after reset delay"), Value() > AfterSecondSpend);
-    ASC->AddLooseGameplayTag(ETGameplayTags::State_Attacking);
-    TestFalse(TEXT("Busy tag stops timer immediately"), Recovery->IsRecoveryScheduled());
-    const float BusyValue = Value();
-    if (!Advance(20)) { return false; }
-    Same(TEXT("Busy freezes recovery"), BusyValue);
-    ASC->RemoveLooseGameplayTag(ETGameplayTags::State_Attacking);
-    if (!Advance(4)) { return false; }
-    TestTrue(TEXT("Busy end does not pay busy duration"), Value() > BusyValue && Value() <= BusyValue + 6.2f);
-    ApplyDelta(1000.0f);
-    Same(TEXT("Recovery / restore caps at maximum"), 100.0f);
-    TestFalse(TEXT("Full stops timer"), Recovery->IsRecoveryScheduled());
-
-    ASC->SetNumericAttributeBase(UETStaminaAttributeSet::GetMaxStaminaAttribute(), 120.0f);
-    Same(TEXT("Maximum increase itself does not refill"), 100.0f);
-    TestTrue(TEXT("New deficit wakes recovery"), Recovery->IsRecoveryScheduled());
-    if (!Advance(4)) { return false; }
-    TestTrue(TEXT("New capacity can recover later"), Value() > 100.0f && Value() <= 106.2f);
-    ApplyDelta(1000.0f);
-    Recovery->RefreshObservation();
-    Recovery->RefreshObservation();
-    const uint64 RevisionBeforeSpend = Recovery->DecreaseRevision;
-    ApplyDelta(-5.0f);
-    TestEqual(TEXT("Reobserve does not duplicate spend callback"),
-        Recovery->DecreaseRevision, RevisionBeforeSpend + 1);
-    const uint64 OldSerial = Recovery->ObservationSerial;
-    Recovery->Deactivate();
-    TestFalse(TEXT("Deactivate clears timer"), Recovery->IsRecoveryScheduled());
-    ApplyDelta(-5.0f);
-    const float DisabledValue = Value();
-    if (!Advance(20)) { return false; }
-    Same(TEXT("Inactive component does not recover"), DisabledValue);
-    Recovery->Activate(true);
-    const double NewDeadline = Recovery->RecoveryNotBefore;
-    FOnAttributeChangeData StaleChange;
-    StaleChange.Attribute = Attribute;
-    StaleChange.OldValue = 100.0f;
-    StaleChange.NewValue = 50.0f;
-    Recovery->HandleAttributeChanged(StaleChange, TWeakObjectPtr<UAbilitySystemComponent>(ASC), OldSerial);
-    TestEqual(TEXT("Old observation cannot reset new deadline"), Recovery->RecoveryNotBefore, NewDeadline);
-
-    Recovery->RecoveryRate = 0.0f;
-    AddExpectedMessagePlain(TEXT("Invalid recovery settings"), ELogVerbosity::Warning,
-        EAutomationExpectedMessageFlags::Contains, 1);
-    Recovery->RefreshObservation();
-    TestFalse(TEXT("Invalid rate leaves no timer"), Recovery->IsRecoveryScheduled());
-    Recovery->RecoveryRate = 20.0f;
-    Recovery->RefreshObservation();
-    if (!Advance(18)) { return false; }
-    TestTrue(TEXT("Valid settings recover again"), Value() > DisabledValue);
-    TestEqual(TEXT("Stamina effect leaves Health alone"),
-        ASC->GetNumericAttribute(UETHealthAttributeSet::GetHealthAttribute()), 100.0f);
-
-    ASC->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(), 0.0f);
-    TestTrue(TEXT("Actual zero Health commits death"), Body->IsCombatDead());
-    TestFalse(TEXT("Death stops timer immediately"), Recovery->IsRecoveryScheduled());
-    const float AtDeath = Value();
-    if (!Advance(20)) { return false; }
-    Same(TEXT("Dead body does not recover"), AtDeath);
-    if (!TestWorld.EndPlayInTestWorld())
-    {
-        TestWorld.ForwardErrorMessages(this);
-        return false;
-    }
-    TestFalse(TEXT("EndPlay leaves no timer"), Recovery->IsRecoveryScheduled());
-    TestFalse(TEXT("EndPlay revokes Ready"), Body->IsGameplayReady());
-    TestWorld.ForwardErrorMessages(this);
-    return !HasAnyErrors();
-}
-
-#endif
-```
-
-忙碌用一个真实ASC Loose Tag模拟状态门控，不能据此说已测试了尚未实现的GA_Dodge；死亡通过现有真实Health / Life提交。暂停前后采用WorldSettings Pauser，与已有位移测试同一临时世界方法；不是用真实睡眠模拟暂停。新测试不替代旧A初始化测试，下一节两项一起跑一次。
+本用例用真实ASC Loose Tag检查恢复门控，不能据此宣称运行了完整GA动画；正式Dodge另有成本 / 位移 / 无敌测试。死亡通过真实Health / Life提交。暂停前后采用WorldSettings Pauser，与已有位移测试同一临时世界方法；不是用真实睡眠模拟暂停。此用例不替代Foundation初始化测试；清理批次运行全部EmberTrial自动化，旧资源两项命令保留供学习。
 
 无Tick的断言同时检查 `bCanEverTick=False` 与未注册Tick。UE 5.5.4的 `IsComponentTickEnabled()` 只查询内部启用标记，不能单独证明Tick已注册或会执行；这里避免把未注册的默认标记误判成组件开了Tick。
 
@@ -885,7 +319,7 @@ Automation RunTests EmberTrial.M2.Resources
 
 在未满体力时Stop，再Play：新身体100 / 100、Timer0、HUD生命100 / 100；旧Observe stopped、原Ready=0 / ActorInfo与UI清理，无Stop后旧Recovery begin。无需精确赶0.75秒，注入-100后Stop即可。
 
-这一轮只做左键一次真实25、E中文 / P一种继续和移动转向跳跃短基线；按2仍是原型且不消费体力，恢复与其没有正式Tag联动符合第1节。保存资产与地图，原设置保持100/100、25/10、slomo1、Debug False。
+原B1短基线为左键一次真实25、E中文 / P一种继续和移动转向跳跃。当前2已是正式闪避，会消费25并阻断恢复，不能沿用原阶段“不消费”的预期。默认值保持100/100、25/10、slomo1、Debug False。
 
 本批真实死亡计时器清理由自动测试的Health归零覆盖，不再手动按4四次重演整个失败页；B2体力显示 / M2正式消耗接入后再根据变更复用相关真实链路。旧Attempt02没有本批实现，不拿它做检查；不要求新Cook或Trace。
 
@@ -908,9 +342,6 @@ Build发第一条真实UHT / C++ / linker错误，日志优先；组件Details�
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-- 五新Source：Effect两文件、Recovery两文件、Tests/ETStaminaRecoveryTests.cpp，按第2节路径；七旧Source：Tag两文件、Character两文件、PlayerController两文件、既有Editor Validator。
-- 三正式身体若Compile / Save产生实际.uasset差异才纳入，走既有LFS；不创建重复Recovery组件或GE资产，48项来源清单仍按实际哈希 / 用途更新。
-- 本指南、M2路线 / Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow / Introduction实际更新；实施完成后的报告与清单再追加。A验收收尾若未提交先纳入独立文档提交，已提交的实现不重复处理。
-- Build.cs / Target / uproject / 共享Config / UI Source本批没有计划改动。生成CMake / IDE文件、Binaries / Intermediate / Saved、Raw / 测试日志、旧包 / Trace留本地，不Force Add。
+历史B1接入涉及Effect / Recovery / 测试及Tag / Character / Controller / Validator。当前清理只提交实际Diff，不重复添加旧实现或重存无变化的资产。
 
-CLion Save All → 刷新Changes → 最新完整实现与合法配置重新Stage → 检查Staged Diff → Commit → Push。检查通过后可用 `feat: add delayed stamina recovery and lifecycle guards`；目前仅下发指南时用 `docs: prepare stamina recovery`。用户操作Git；B1完成才进入B2体力Presenter / HUD，不提前写M2-01B整章完成。
+本次清理的完整8项清单和建议提交说明见[Cleanup末尾](Cleanup.md)。在CLion Save All → 刷新Changes → 重新Stage最新修改 → 检查Staged Diff → Commit → Push。Raw日志、测试报告、生成文件与旧包保留本地，助手不操作Git索引。
