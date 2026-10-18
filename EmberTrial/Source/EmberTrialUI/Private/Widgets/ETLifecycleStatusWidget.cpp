@@ -9,6 +9,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogETLifecycleWidget, Log, All);
 
 #define LOCTEXT_NAMESPACE "ETLifecycleStatusWidget"
 
+// ---- View构建与订阅；Construct可重复进入 ----
+
 void UETLifecycleStatusWidget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -23,9 +25,8 @@ void UETLifecycleStatusWidget::NativeConstruct()
     }
 
     ULocalPlayer* LocalPlayer = GetOwningLocalPlayer();
-    UETUILocalPlayerSubsystem* Subsystem = LocalPlayer
-        ? LocalPlayer->GetSubsystem<UETUILocalPlayerSubsystem>()
-        : nullptr;
+    UETUILocalPlayerSubsystem* Subsystem =
+        LocalPlayer ? LocalPlayer->GetSubsystem<UETUILocalPlayerSubsystem>() : nullptr;
 
     if (Subsystem)
     {
@@ -35,14 +36,13 @@ void UETLifecycleStatusWidget::NativeConstruct()
         bObserving = true;
 
         UE_LOG(LogETLifecycleWidget, Display,
-            TEXT("[M1-02C2] Widget subscribed Widget=%s LocalPlayer=%s"),
-            *GetNameSafe(this), *GetNameSafe(LocalPlayer));
+               TEXT("[M1-02C2] Widget subscribed Widget=%s LocalPlayer=%s"), *GetNameSafe(this),
+               *GetNameSafe(LocalPlayer));
     }
     else
     {
-        UE_LOG(LogETLifecycleWidget, Warning,
-            TEXT("[M1-02C2] Missing local subsystem Widget=%s"),
-            *GetNameSafe(this));
+        UE_LOG(LogETLifecycleWidget, Warning, TEXT("[M1-02C2] Missing local subsystem Widget=%s"),
+               *GetNameSafe(this));
     }
 
     // 订阅后立即读取快照，覆盖 Widget 晚于 Possess 创建的情况。
@@ -55,6 +55,7 @@ void UETLifecycleStatusWidget::NativeDestruct()
     Super::NativeDestruct();
 }
 
+// Bootstrap主动移除与NativeDestruct共用幂等清理，不等待GC。
 void UETLifecycleStatusWidget::StopObserving()
 {
     if (UETUILocalPlayerSubsystem* Subsystem = BoundSubsystem.Get())
@@ -65,17 +66,15 @@ void UETLifecycleStatusWidget::StopObserving()
 
     if (bObserving)
     {
-        UE_LOG(LogETLifecycleWidget, Display,
-            TEXT("[M1-02C2] Widget unsubscribed Widget=%s"),
-            *GetNameSafe(this));
+        UE_LOG(LogETLifecycleWidget, Display, TEXT("[M1-02C2] Widget unsubscribed Widget=%s"),
+               *GetNameSafe(this));
     }
 
     BoundSubsystem.Reset();
     bObserving = false;
 }
 
-void UETLifecycleStatusWidget::HandleObservedPawnChanged(
-    APawn* PreviousPawn, APawn* CurrentPawn)
+void UETLifecycleStatusWidget::HandleObservedPawnChanged(APawn* PreviousPawn, APawn* CurrentPawn)
 {
     (void)PreviousPawn;
     (void)CurrentPawn;
@@ -86,6 +85,8 @@ void UETLifecycleStatusWidget::HandleObservedPawnChanged(
     }
 }
 
+// ---- 当前Pawn身份的事件快照，不读取或修改Gameplay资源 ----
+
 void UETLifecycleStatusWidget::RefreshStatus(const TCHAR* Reason)
 {
     UETUILocalPlayerSubsystem* Subsystem = BoundSubsystem.Get();
@@ -93,25 +94,22 @@ void UETLifecycleStatusWidget::RefreshStatus(const TCHAR* Reason)
 
     if (!StatusText || !PawnText)
     {
-        UE_LOG(LogETLifecycleWidget, Warning,
-            TEXT("[M1-02C2] Missing BindWidget fields Widget=%s"),
-            *GetNameSafe(this));
+        UE_LOG(LogETLifecycleWidget, Warning, TEXT("[M1-02C2] Missing BindWidget fields Widget=%s"),
+               *GetNameSafe(this));
         return;
     }
 
-    const FText Status = !Subsystem
-        ? LOCTEXT("Unavailable", "本地 UI 入口不可用")
-        : (Pawn ? LOCTEXT("Controlled", "控制状态：已观察到 Pawn")
-                : LOCTEXT("NoPawn", "控制状态：暂无 Pawn"));
+    const FText Status = !Subsystem ? LOCTEXT("Unavailable", "本地 UI 入口不可用")
+                                    : (Pawn ? LOCTEXT("Controlled", "控制状态：已观察到 Pawn")
+                                            : LOCTEXT("NoPawn", "控制状态：暂无 Pawn"));
 
     StatusText->SetText(Status);
-    PawnText->SetText(FText::Format(
-        LOCTEXT("PawnFormat", "当前 Pawn：{0}"),
-        FText::FromString(GetNameSafe(Pawn))));
+    PawnText->SetText(FText::Format(LOCTEXT("PawnFormat", "当前 Pawn：{0}"),
+                                    FText::FromString(GetNameSafe(Pawn))));
 
     UE_LOG(LogETLifecycleWidget, Display,
-        TEXT("[M1-02C2] Widget snapshot Widget=%s Pawn=%s Reason=%s"),
-        *GetNameSafe(this), *GetNameSafe(Pawn), Reason);
+           TEXT("[M1-02C2] Widget snapshot Widget=%s Pawn=%s Reason=%s"), *GetNameSafe(this),
+           *GetNameSafe(Pawn), Reason);
 }
 
 #undef LOCTEXT_NAMESPACE

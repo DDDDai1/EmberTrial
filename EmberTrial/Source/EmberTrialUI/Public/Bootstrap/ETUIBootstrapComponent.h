@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "ETUIBootstrapComponent.generated.h"
 
+class APlayerController;
 class UETLifecycleStatusWidget;
 class UETHealthPresenter;
 class UETHealthHUDWidget;
@@ -18,9 +19,11 @@ class EMBERTRIALUI_API UETUIBootstrapComponent : public UActorComponent
 public:
     UETUIBootstrapComponent();
 
+    // 重建只替换View，不重建Presenter，也不初始化玩法属性。
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|UI")
     void RebuildStatusWidget();
 
+    // ---- 生命：Presenter持有数据订阅，Widget持有展示订阅 ----
     UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
     UETHealthPresenter* GetHealthPresenter() const;
 
@@ -33,6 +36,7 @@ public:
     UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
     UETHealthHUDWidget* GetHealthWidget() const;
 
+    // ---- 体力：独立对象与配置，共用相同的本地入口规则 ----
     UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
     UETStaminaPresenter* GetStaminaPresenter() const;
 
@@ -50,10 +54,14 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
+    // 每次查询当前Owner；不缓存Controller / LocalPlayer，也不参与输入模式切换。
+    APlayerController* ResolveLocalUIController() const;
+
     void RemoveStatusWidget();
     void RemoveHealthWidget();
     void RemoveStaminaWidget();
 
+    // ---- 蓝图配置与运行期所有权；Transient对象不写回资产 ----
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI")
     TSubclassOf<UETLifecycleStatusWidget> StatusWidgetClass;
 
@@ -78,5 +86,6 @@ private:
     UPROPERTY(Transient)
     TObjectPtr<UETStaminaHUDWidget> StaminaWidget;
 
+    // EndPlay先封闭入口，再移除View，最后停止Presenter。
     bool bUIShuttingDown = false;
 };

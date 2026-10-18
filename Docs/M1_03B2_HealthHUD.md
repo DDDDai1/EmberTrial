@@ -22,7 +22,7 @@
 
 本批验证Widget晚加入立即快照、重建主动解绑、Presenter重启保留View订阅、无Pawn / Waiting、暂停和结束。真实新身体 / UnsupportedPawn / 旧ASC事件隔离留B3。沿用现有测试GE与引擎UMG控件，无新增付费美术。
 
-另补齐B1源码的一处遗漏：`RebuildStatusWidget()` 同时检查 `bUIShuttingDown`，防止结束过程中重新创建状态面板；第5节完整代码已包含。B1文档不修改。
+另补齐B1源码的一处遗漏：`RebuildStatusWidget()` 同时检查 `bUIShuttingDown`，防止结束过程中重新创建状态面板；当前Source已包含。B1文档不修改。
 
 ## 2. 文件与操作顺序
 
@@ -60,260 +60,19 @@ Ready数值使用私有格式函数；其他状态、日志、比例与解绑时
 
 数字暂时只显示整数，原始float与比例没有改写，后续产品规则若需要小数再调整展示。`SetPercent` 使用Presenter提供的0–1比例：[UE5.5 API](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/UMG/Components/UProgressBar/SetPercent?application_version=5.5)。只移除本Widget自己的委托，不对Presenter执行Clear或Shutdown。
 
-## 5. 完整替换 Bootstrap 两文件
+## 5. Bootstrap 当前实现
 
 ### 5.1 ETUIBootstrapComponent.h
 
-完整替换 `Public/Bootstrap/ETUIBootstrapComponent.h`。原三项蓝图接口和StatusWidgetClass保留；新增两项接口与HealthWidgetClass。
+当前声明保留三类Widget配置及生命 / 体力观察接口，见下方Source。
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "ETUIBootstrapComponent.generated.h"
-
-class UETLifecycleStatusWidget;
-class UETHealthPresenter;
-class UETHealthHUDWidget;
-
-UCLASS(ClassGroup = (EmberTrial), meta = (BlueprintSpawnableComponent))
-class EMBERTRIALUI_API UETUIBootstrapComponent : public UActorComponent
-{
-    GENERATED_BODY()
-
-public:
-    UETUIBootstrapComponent();
-
-    UFUNCTION(BlueprintCallable, Category = "EmberTrial|UI")
-    void RebuildStatusWidget();
-
-    UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
-    UETHealthPresenter* GetHealthPresenter() const;
-
-    UFUNCTION(BlueprintCallable, Category = "EmberTrial|UI")
-    void RestartHealthObservation();
-
-    UFUNCTION(BlueprintCallable, Category = "EmberTrial|UI")
-    void RebuildHealthWidget();
-
-    UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
-    UETHealthHUDWidget* GetHealthWidget() const;
-
-protected:
-    virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
-    void RemoveStatusWidget();
-    void RemoveHealthWidget();
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI")
-    TSubclassOf<UETLifecycleStatusWidget> StatusWidgetClass;
-
-    UPROPERTY(Transient)
-    TObjectPtr<UETLifecycleStatusWidget> StatusWidget;
-
-    UPROPERTY(Transient)
-    TObjectPtr<UETHealthPresenter> HealthPresenter;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI")
-    TSubclassOf<UETHealthHUDWidget> HealthWidgetClass;
-
-    UPROPERTY(Transient)
-    TObjectPtr<UETHealthHUDWidget> HealthWidget;
-
-    bool bUIShuttingDown = false;
-};
-```
+当前源码：[ETUIBootstrapComponent.h](../EmberTrial/Source/EmberTrialUI/Public/Bootstrap/ETUIBootstrapComponent.h)。
 
 ### 5.2 ETUIBootstrapComponent.cpp
 
-完整替换 `Private/Bootstrap/ETUIBootstrapComponent.cpp`。生命HUD层级4，旧状态面板5，原暂停菜单100；生命HUD不抢焦点、不设置输入模式。
+当前实现保留生命HUD层级4、体力3、状态5；层级在Bootstrap内命名，暂停 / 失败流程另有自己的层级。HUD不抢焦点、不设置输入模式。
 
-```cpp
-#include "Bootstrap/ETUIBootstrapComponent.h"
-#include "GameFramework/PlayerController.h"
-#include "Logging/LogMacros.h"
-#include "Widgets/ETLifecycleStatusWidget.h"
-#include "Widgets/ETHealthHUDWidget.h"
-#include "Engine/LocalPlayer.h"
-#include "Lifecycle/ETUILocalPlayerSubsystem.h"
-#include "Presenters/ETHealthPresenter.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETUIBootstrap, Log, All);
-
-UETUIBootstrapComponent::UETUIBootstrapComponent()
-{
-    PrimaryComponentTick.bCanEverTick = false;
-}
-
-void UETUIBootstrapComponent::BeginPlay()
-{
-    bUIShuttingDown = false;
-    Super::BeginPlay();
-    RestartHealthObservation();
-    RebuildStatusWidget();
-    RebuildHealthWidget();
-}
-
-void UETUIBootstrapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    bUIShuttingDown = true;
-    RemoveHealthWidget();
-    RemoveStatusWidget();
-    if (HealthPresenter)
-    {
-        HealthPresenter->Shutdown();
-        HealthPresenter = nullptr;
-    }
-    Super::EndPlay(EndPlayReason);
-}
-
-void UETUIBootstrapComponent::RebuildStatusWidget()
-{
-    if (!HasBegunPlay() || bUIShuttingDown)
-    {
-        return;
-    }
-    RemoveStatusWidget();
-    APlayerController* Controller = Cast<APlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController()
-        || !Controller->GetLocalPlayer())
-    {
-        return;
-    }
-    if (!StatusWidgetClass)
-    {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-02C2] Missing StatusWidgetClass Owner=%s"),
-            *GetNameSafe(Controller));
-        return;
-    }
-    StatusWidget = CreateWidget<UETLifecycleStatusWidget>(Controller, StatusWidgetClass);
-    if (!StatusWidget)
-    {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-02C2] Widget creation failed Owner=%s"),
-            *GetNameSafe(Controller));
-        return;
-    }
-    if (!StatusWidget->AddToPlayerScreen(5))
-    {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-02C2] AddToPlayerScreen failed Owner=%s"),
-            *GetNameSafe(Controller));
-        RemoveStatusWidget();
-        return;
-    }
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-02C2] Widget created Owner=%s Widget=%s"),
-        *GetNameSafe(Controller), *GetNameSafe(StatusWidget.Get()));
-}
-
-void UETUIBootstrapComponent::RemoveStatusWidget()
-{
-    if (!StatusWidget)
-    {
-        return;
-    }
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-02C2] Widget removed Owner=%s Widget=%s"),
-        *GetNameSafe(GetOwner()), *GetNameSafe(StatusWidget.Get()));
-    StatusWidget->StopObserving();
-    StatusWidget->RemoveFromParent();
-    StatusWidget = nullptr;
-}
-
-UETHealthPresenter* UETUIBootstrapComponent::GetHealthPresenter() const
-{
-    return HealthPresenter.Get();
-}
-
-void UETUIBootstrapComponent::RestartHealthObservation()
-{
-    if (!HasBegunPlay() || bUIShuttingDown)
-    {
-        return;
-    }
-    APlayerController* Controller = Cast<APlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController() || !Controller->GetLocalPlayer())
-    {
-        if (HealthPresenter)
-        {
-            HealthPresenter->Shutdown();
-        }
-        return;
-    }
-    if (!HealthPresenter)
-    {
-        HealthPresenter = NewObject<UETHealthPresenter>(this);
-    }
-    HealthPresenter->StartObserving(
-        Controller->GetLocalPlayer()->GetSubsystem<UETUILocalPlayerSubsystem>());
-}
-
-UETHealthHUDWidget* UETUIBootstrapComponent::GetHealthWidget() const
-{
-    return HealthWidget.Get();
-}
-
-void UETUIBootstrapComponent::RebuildHealthWidget()
-{
-    if (!HasBegunPlay() || bUIShuttingDown)
-    {
-        return;
-    }
-    RemoveHealthWidget();
-    APlayerController* Controller = Cast<APlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController()
-        || !Controller->GetLocalPlayer())
-    {
-        return;
-    }
-    if (!HealthWidgetClass || !IsValid(HealthPresenter.Get()))
-    {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-03B2] Missing HealthWidgetClass or Presenter Owner=%s"),
-            *GetNameSafe(Controller));
-        return;
-    }
-    HealthWidget = CreateWidget<UETHealthHUDWidget>(Controller, HealthWidgetClass);
-    if (!HealthWidget)
-    {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-03B2] Health widget creation failed Owner=%s"),
-            *GetNameSafe(Controller));
-        return;
-    }
-    if (!HealthWidget->AddToPlayerScreen(4))
-    {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-03B2] Health AddToPlayerScreen failed Owner=%s"),
-            *GetNameSafe(Controller));
-        RemoveHealthWidget();
-        return;
-    }
-    HealthWidget->StartObserving(HealthPresenter.Get());
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-03B2] Health widget created Owner=%s Widget=%s"),
-        *GetNameSafe(Controller), *GetNameSafe(HealthWidget.Get()));
-}
-
-void UETUIBootstrapComponent::RemoveHealthWidget()
-{
-    if (!HealthWidget)
-    {
-        return;
-    }
-    HealthWidget->StopObserving();
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-03B2] Health widget removed Owner=%s Widget=%s"),
-        *GetNameSafe(GetOwner()), *GetNameSafe(HealthWidget.Get()));
-    HealthWidget->RemoveFromParent();
-    HealthWidget = nullptr;
-}
-```
+当前源码：[ETUIBootstrapComponent.cpp](../EmberTrial/Source/EmberTrialUI/Private/Bootstrap/ETUIBootstrapComponent.cpp)。
 
 移除顺序为“View主动解绑 → RemoveFromParent → Bootstrap释放引用”；即使临时变量保留旧Widget，它也不应收到后续数据。EndPlay先解绑View，再停止Presenter数据观察；NativeDestruct是幂等兜底。Presenter重启没有创建新Presenter / Widget，也没有重置生命值。
 

@@ -106,6 +106,24 @@ Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook
 
 收尾额度快照：5小时已用10% / 剩余90%，周已用15% / 剩余85%。未使用重置，不计入用户手动实耗。
 
+## 第8批：UI装配入口去重与状态面板整理
+
+开工HEAD为386141e，第7批已提交、工作区干净；5小时已用11% / 周已用15%。本批整理UIBootstrap与LifecycleStatusWidget四份Source，不改Presenter / 属性 / 玩法 / 反射字段或蓝图资产。
+
+将五处相同的Controller / LocalPlayer身份检查集中到私有ResolveLocalUIController，每次读取当前Owner，不缓存身份；调用方的HasBegunPlay / 关闭标记、旧View移除、失败清理顺序保持。HUD的3 / 4 / 5层级改为内部命名常量，实际值与蓝图Class配置不变，不混入暂停 / 失败的职责。补充所有权、重建与观察的区别、主动解绑和结束清理分区。
+
+静态展开对比已确认提取后的原五处判断等价，其余Bootstrap逻辑与状态Widget有效Token保持。三份历史指南移除13处重复实现 / 完整接入片段，共655行代码，改为Source入口；保留布局、复盘和验证经验，修正“尚未编译 / 需要补标记”等过期表述。文件数量保持113份Source / 60cpp。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，三模块CLion元数据与CMake刷新成功。现有12项EmberTrial自动化全部Success，0 Fail / 0 NotRun / 0测试警告；原测试与断言未改，没有为代码提取新建镜像测试。
+
+实际DataValidation按WidgetBlueprint类型执行，状态面板、生命HUD、体力HUD均有本项目Valid标记；本次共7个Widget项目Valid，命令汇总0 Error / 0 Warning。此检查验证资产结构，不等于重新操作焦点 / 暂停 / 重建实机矩阵。
+
+109份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改。四份Source格式检查、三种层级值 / 五处条件静态展开、文档链接 / 围栏与Git差异检查通过。收尾按现有.gitattributes统一本批文本LF与文件末尾换行，只改变行结束，不改变有效Token。
+
+收益是减少本地入口条件维护位置、提高装配 / 生命周期可读性；数值和性能行为保持，不宣称帧率提升。本批没有重新交互式实机或Cook / 打包。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。完整差异、快照、构建 / 校验 / 测试JSON位于Raw/Cleanup/2026-10-18_Batch08。
+
+收尾检查额度：5小时已用17% / 剩余83%，周已用16% / 剩余84%。未使用重置，不计入用户手动实耗。
+
 ## 后续队列
 
 1. 共享标识符、旧Practice / 诊断入口引用审计，确认后移除无用路径。
@@ -114,23 +132,22 @@ Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-前七批均已收口；其余队列未完成，不进入新玩法开发。额度数据为批次时点快照，后续开工仍需复查。
+前八批已收口；其余队列未完成，不进入新玩法开发。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第6批已提交，开工HEAD为ec1bd9d。本批验证已完成，共10项；由你在CLion查看Diff、重新Stage最新修改后Commit / Push。
+第7批已提交，本批基线HEAD为386141e。四份Source、三份指南与Cleanup / Progress共9项，验证已收口；由你在CLion查看Diff、重新Stage最新修改后Commit / Push。
 
-- [ETHealthHUDWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETHealthHUDWidget.h)
-- [ETHealthHUDWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETHealthHUDWidget.cpp)
-- [ETStaminaHUDWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETStaminaHUDWidget.h)
-- [ETStaminaHUDWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETStaminaHUDWidget.cpp)
-- [ETResourceHUDText.h](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETResourceHUDText.h)
-- [ETResourceHUDTextTests.cpp](../EmberTrial/Source/EmberTrialUI/Private/Tests/ETResourceHUDTextTests.cpp)
+- [ETUIBootstrapComponent.h](../EmberTrial/Source/EmberTrialUI/Public/Bootstrap/ETUIBootstrapComponent.h)
+- [ETUIBootstrapComponent.cpp](../EmberTrial/Source/EmberTrialUI/Private/Bootstrap/ETUIBootstrapComponent.cpp)
+- [ETLifecycleStatusWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETLifecycleStatusWidget.h)
+- [ETLifecycleStatusWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETLifecycleStatusWidget.cpp)
+- [M1_02C2_01_WidgetBootstrap.md](M1_02C2_01_WidgetBootstrap.md)
 - [M1_03B2_HealthHUD.md](M1_03B2_HealthHUD.md)
 - [M2_01B2_StaminaHUD.md](M2_01B2_StaminaHUD.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-建议提交说明：Share resource HUD text formatting and verify localization。
+建议提交说明：Refactor UI bootstrap guards and clarify lifecycle ownership。
 
-Content / Config / Build.cs / Target未改；Raw / 日志 / 测试报告、CMake生成元数据与构建产物留本地。助手未Stage / Commit / Push。
+Content / Config / Build.cs / Target未改；Raw日志、快照、报告及生成产物留本地。助手未Stage / Commit / Push。

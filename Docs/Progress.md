@@ -13,9 +13,9 @@
 
 ## 当前交接
 
-2026-10-18用户授权分批直接清理。前七批已完成，第7批共享生命 / 体力HUD数值格式函数、整理四份Widget并补三种locale测试，两份指南移除376行重复代码。正常Editor / Game Build、三模块CLion刷新、全部12项自动化均通过；真实HealthHUD / StaminaHUD资产有本项目Valid标记，校验0 Error / 0 Warning。未重新实机或Cook / 打包。详见[清理记录](Cleanup.md)。
+2026-10-18用户授权分批直接清理。前八批已完成，本批基线HEAD为386141e。第8批整理UIBootstrap与状态Widget：共享五处本地控制器检查、命名HUD层级并补所有权 / 清理说明，三份指南移除655行重复代码。未进入新功能。
 
-本批基线HEAD为ec1bd9d，共10项待用户提交；Git提交与推送仍由用户操作。收尾额度：5小时已用10% / 周已用15%，未使用重置。107份其他Source与290项保护文件未改，冻结B1指南保持。历史细节见[报告目录](Reports/)与各章指南。
+正常Editor / Game Build、三模块CLion刷新、全部12项自动化均通过；状态 / 生命 / 体力Widget有本项目Valid标记，Widget校验0 Error / 0 Warning。109份其他Source与290项保护文件未改，冻结B1指南保持。未重新实机或Cook / 打包。收尾检查额度5小时已用17% / 周已用16%，未使用重置。详见[清理记录](Cleanup.md)。
 
 ## 资源与工期校准
 
@@ -39,4 +39,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-第7批六份Source与四份同步文档，共10项；具体清单见Cleanup末尾。Content / Config未改；Raw / 日志 / 测试报告及生成文件留本地，助手未操作Git索引。
+第8批四份Source与五份同步文档，共9项；具体清单见Cleanup末尾。Content / Config未改；Raw / 日志 / 测试报告及生成文件留本地，助手未操作Git索引。

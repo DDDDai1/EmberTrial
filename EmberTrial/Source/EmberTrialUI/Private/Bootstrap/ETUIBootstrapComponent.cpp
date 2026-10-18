@@ -11,6 +11,16 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogETUIBootstrap, Log, All);
 
+namespace
+{
+// HUD内部相对层级属于装配契约；保持原值，不改变Pause / Failure的独立层级。
+constexpr int32 StatusWidgetZOrder = 5;
+constexpr int32 HealthWidgetZOrder = 4;
+constexpr int32 StaminaWidgetZOrder = 3;
+} // namespace
+
+// ---- Controller组件生命周期 ----
+
 UETUIBootstrapComponent::UETUIBootstrapComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
@@ -29,6 +39,7 @@ void UETUIBootstrapComponent::BeginPlay()
 
 void UETUIBootstrapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    // 先拒绝重入；让仍被外部引用的旧View立即停止接收事件。
     bUIShuttingDown = true;
     RemoveStaminaWidget();
     RemoveHealthWidget();
@@ -46,6 +57,18 @@ void UETUIBootstrapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     Super::EndPlay(EndPlayReason);
 }
 
+APlayerController* UETUIBootstrapComponent::ResolveLocalUIController() const
+{
+    APlayerController* Controller = Cast<APlayerController>(GetOwner());
+    if (!IsValid(Controller) || !Controller->IsLocalController() || !Controller->GetLocalPlayer())
+    {
+        return nullptr;
+    }
+    return Controller;
+}
+
+// ---- 开发状态面板：保留独立的订阅与日志时序 ----
+
 void UETUIBootstrapComponent::RebuildStatusWidget()
 {
     if (!HasBegunPlay() || bUIShuttingDown)
@@ -53,38 +76,33 @@ void UETUIBootstrapComponent::RebuildStatusWidget()
         return;
     }
     RemoveStatusWidget();
-    APlayerController* Controller = Cast<APlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController()
-        || !Controller->GetLocalPlayer())
+    APlayerController* Controller = ResolveLocalUIController();
+    if (!Controller)
     {
         return;
     }
     if (!StatusWidgetClass)
     {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-02C2] Missing StatusWidgetClass Owner=%s"),
-            *GetNameSafe(Controller));
+        UE_LOG(LogETUIBootstrap, Warning, TEXT("[M1-02C2] Missing StatusWidgetClass Owner=%s"),
+               *GetNameSafe(Controller));
         return;
     }
     StatusWidget = CreateWidget<UETLifecycleStatusWidget>(Controller, StatusWidgetClass);
     if (!StatusWidget)
     {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-02C2] Widget creation failed Owner=%s"),
-            *GetNameSafe(Controller));
+        UE_LOG(LogETUIBootstrap, Warning, TEXT("[M1-02C2] Widget creation failed Owner=%s"),
+               *GetNameSafe(Controller));
         return;
     }
-    if (!StatusWidget->AddToPlayerScreen(5))
+    if (!StatusWidget->AddToPlayerScreen(StatusWidgetZOrder))
     {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-02C2] AddToPlayerScreen failed Owner=%s"),
-            *GetNameSafe(Controller));
+        UE_LOG(LogETUIBootstrap, Warning, TEXT("[M1-02C2] AddToPlayerScreen failed Owner=%s"),
+               *GetNameSafe(Controller));
         RemoveStatusWidget();
         return;
     }
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-02C2] Widget created Owner=%s Widget=%s"),
-        *GetNameSafe(Controller), *GetNameSafe(StatusWidget.Get()));
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M1-02C2] Widget created Owner=%s Widget=%s"),
+           *GetNameSafe(Controller), *GetNameSafe(StatusWidget.Get()));
 }
 
 void UETUIBootstrapComponent::RemoveStatusWidget()
@@ -93,13 +111,14 @@ void UETUIBootstrapComponent::RemoveStatusWidget()
     {
         return;
     }
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-02C2] Widget removed Owner=%s Widget=%s"),
-        *GetNameSafe(GetOwner()), *GetNameSafe(StatusWidget.Get()));
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M1-02C2] Widget removed Owner=%s Widget=%s"),
+           *GetNameSafe(GetOwner()), *GetNameSafe(StatusWidget.Get()));
     StatusWidget->StopObserving();
     StatusWidget->RemoveFromParent();
     StatusWidget = nullptr;
 }
+
+// ---- 生命HUD：重启数据观察与重建View是两个独立操作 ----
 
 UETHealthPresenter* UETUIBootstrapComponent::GetHealthPresenter() const
 {
@@ -112,8 +131,8 @@ void UETUIBootstrapComponent::RestartHealthObservation()
     {
         return;
     }
-    APlayerController* Controller = Cast<APlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController() || !Controller->GetLocalPlayer())
+    APlayerController* Controller = ResolveLocalUIController();
+    if (!Controller)
     {
         if (HealthPresenter)
         {
@@ -140,40 +159,38 @@ void UETUIBootstrapComponent::RebuildHealthWidget()
     {
         return;
     }
+    // 保持先移除旧View再校验创建条件的顺序，避免失败后遗留旧展示。
     RemoveHealthWidget();
-    APlayerController* Controller = Cast<APlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController()
-        || !Controller->GetLocalPlayer())
+    APlayerController* Controller = ResolveLocalUIController();
+    if (!Controller)
     {
         return;
     }
     if (!HealthWidgetClass || !IsValid(HealthPresenter.Get()))
     {
         UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-03B2] Missing HealthWidgetClass or Presenter Owner=%s"),
-            *GetNameSafe(Controller));
+               TEXT("[M1-03B2] Missing HealthWidgetClass or Presenter Owner=%s"),
+               *GetNameSafe(Controller));
         return;
     }
     HealthWidget = CreateWidget<UETHealthHUDWidget>(Controller, HealthWidgetClass);
     if (!HealthWidget)
     {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-03B2] Health widget creation failed Owner=%s"),
-            *GetNameSafe(Controller));
+        UE_LOG(LogETUIBootstrap, Warning, TEXT("[M1-03B2] Health widget creation failed Owner=%s"),
+               *GetNameSafe(Controller));
         return;
     }
-    if (!HealthWidget->AddToPlayerScreen(4))
+    if (!HealthWidget->AddToPlayerScreen(HealthWidgetZOrder))
     {
         UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-03B2] Health AddToPlayerScreen failed Owner=%s"),
-            *GetNameSafe(Controller));
+               TEXT("[M1-03B2] Health AddToPlayerScreen failed Owner=%s"),
+               *GetNameSafe(Controller));
         RemoveHealthWidget();
         return;
     }
     HealthWidget->StartObserving(HealthPresenter.Get());
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-03B2] Health widget created Owner=%s Widget=%s"),
-        *GetNameSafe(Controller), *GetNameSafe(HealthWidget.Get()));
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M1-03B2] Health widget created Owner=%s Widget=%s"),
+           *GetNameSafe(Controller), *GetNameSafe(HealthWidget.Get()));
 }
 
 void UETUIBootstrapComponent::RemoveHealthWidget()
@@ -183,12 +200,13 @@ void UETUIBootstrapComponent::RemoveHealthWidget()
         return;
     }
     HealthWidget->StopObserving();
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-03B2] Health widget removed Owner=%s Widget=%s"),
-        *GetNameSafe(GetOwner()), *GetNameSafe(HealthWidget.Get()));
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M1-03B2] Health widget removed Owner=%s Widget=%s"),
+           *GetNameSafe(GetOwner()), *GetNameSafe(HealthWidget.Get()));
     HealthWidget->RemoveFromParent();
     HealthWidget = nullptr;
 }
+
+// ---- 体力HUD：保留自己的Presenter / Widget和失败清理路径 ----
 
 UETStaminaPresenter* UETUIBootstrapComponent::GetStaminaPresenter() const
 {
@@ -201,8 +219,8 @@ void UETUIBootstrapComponent::RestartStaminaObservation()
     {
         return;
     }
-    APlayerController* Controller = Cast<APlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController() || !Controller->GetLocalPlayer())
+    APlayerController* Controller = ResolveLocalUIController();
+    if (!Controller)
     {
         if (StaminaPresenter)
         {
@@ -229,40 +247,38 @@ void UETUIBootstrapComponent::RebuildStaminaWidget()
     {
         return;
     }
+    // 重建失败时也不保留旧View；Presenter及资源数值仍由原对象持有。
     RemoveStaminaWidget();
-    APlayerController* Controller = Cast<APlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController()
-        || !Controller->GetLocalPlayer())
+    APlayerController* Controller = ResolveLocalUIController();
+    if (!Controller)
     {
         return;
     }
     if (!StaminaWidgetClass || !IsValid(StaminaPresenter.Get()))
     {
         UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M2-01B2] Missing StaminaWidgetClass or Presenter Owner=%s"),
-            *GetNameSafe(Controller));
+               TEXT("[M2-01B2] Missing StaminaWidgetClass or Presenter Owner=%s"),
+               *GetNameSafe(Controller));
         return;
     }
     StaminaWidget = CreateWidget<UETStaminaHUDWidget>(Controller, StaminaWidgetClass);
     if (!StaminaWidget)
     {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M2-01B2] Stamina widget creation failed Owner=%s"),
-            *GetNameSafe(Controller));
+        UE_LOG(LogETUIBootstrap, Warning, TEXT("[M2-01B2] Stamina widget creation failed Owner=%s"),
+               *GetNameSafe(Controller));
         return;
     }
-    if (!StaminaWidget->AddToPlayerScreen(3))
+    if (!StaminaWidget->AddToPlayerScreen(StaminaWidgetZOrder))
     {
         UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M2-01B2] Stamina AddToPlayerScreen failed Owner=%s"),
-            *GetNameSafe(Controller));
+               TEXT("[M2-01B2] Stamina AddToPlayerScreen failed Owner=%s"),
+               *GetNameSafe(Controller));
         RemoveStaminaWidget();
         return;
     }
     StaminaWidget->StartObserving(StaminaPresenter.Get());
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M2-01B2] Stamina widget created Owner=%s Widget=%s"),
-        *GetNameSafe(Controller), *GetNameSafe(StaminaWidget.Get()));
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M2-01B2] Stamina widget created Owner=%s Widget=%s"),
+           *GetNameSafe(Controller), *GetNameSafe(StaminaWidget.Get()));
 }
 
 void UETUIBootstrapComponent::RemoveStaminaWidget()
@@ -272,9 +288,8 @@ void UETUIBootstrapComponent::RemoveStaminaWidget()
         return;
     }
     StaminaWidget->StopObserving();
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M2-01B2] Stamina widget removed Owner=%s Widget=%s"),
-        *GetNameSafe(GetOwner()), *GetNameSafe(StaminaWidget.Get()));
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M2-01B2] Stamina widget removed Owner=%s Widget=%s"),
+           *GetNameSafe(GetOwner()), *GetNameSafe(StaminaWidget.Get()));
     StaminaWidget->RemoveFromParent();
     StaminaWidget = nullptr;
 }

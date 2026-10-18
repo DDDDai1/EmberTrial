@@ -1,5 +1,7 @@
 # M1-02C2-01：生命周期状态 Widget 与 UI Bootstrap
 
+2026-10-18清理同步：这是已完成的历史接入指南；四份实现以当前Source为准，不按旧步骤覆盖现有工程。当前装配规则与本批验证见[Cleanup](Cleanup.md)，原布局 / 验收经验保留。
+
 生成日期：2026-10-03；验收更新：2026-10-03。前置：[M1-02C1 已验收](Reports/M1_02C1_Verification.md)。**C2-01 已通过，用户约 19:02 完成；手动 40 分钟、构建 / 索引等待 5 分钟。** DisableNativeTick 已手动补上，正常双目标 Build / Widget Compile 警告消失，完整实机矩阵通过。证据见 [验收报告](Reports/M1_02C2_01_Verification.md)；下一批按 [C2-02 新 Pawn 替换验证](M1_02C2_02_PawnReplacement.md) 执行。下文实现 / 补修步骤保留供复查，无需重做已通过项。
 
 ## 1. 本批目标
@@ -76,324 +78,45 @@ public class EmberTrialUI : ModuleRules
 
 公开 Widget 头文件继承 UUserWidget，所以 UMG 是 Public 依赖。本批只用 UMG 包装类，不直接写 Slate 类型；不额外加入 Slate / SlateCore，也不在核心 Build.cs 加入 UI / UMG。
 
-## 4. Widget 完整代码
+## 4. Widget 当前源码
 
 ### 4.1 ETLifecycleStatusWidget.h
 
 路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialUI\Public\Widgets\ETLifecycleStatusWidget.h`。
 
-~~~cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
-#include "ETLifecycleStatusWidget.generated.h"
-
-class APawn;
-class UTextBlock;
-class UETUILocalPlayerSubsystem;
-
-UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
-class EMBERTRIALUI_API UETLifecycleStatusWidget : public UUserWidget
-{
-    GENERATED_BODY()
-
-public:
-    // 主动解绑，不等待 Slate 销毁或 GC。
-    void StopObserving();
-
-protected:
-    virtual void NativeConstruct() override;
-    virtual void NativeDestruct() override;
-
-private:
-    void RefreshStatus(const TCHAR* Reason);
-
-    UFUNCTION()
-    void HandleObservedPawnChanged(APawn* PreviousPawn, APawn* CurrentPawn);
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> StatusText;
-
-    UPROPERTY(meta = (BindWidget))
-    TObjectPtr<UTextBlock> PawnText;
-
-    TWeakObjectPtr<UETUILocalPlayerSubsystem> BoundSubsystem;
-    bool bObserving = false;
-};
-~~~
+当前源码：[ETLifecycleStatusWidget.h](../EmberTrial/Source/EmberTrialUI/Public/Widgets/ETLifecycleStatusWidget.h)。
 
 两个 BindWidget 字段要求 Blueprint 中存在**同名、同类型**控件。它们由 UHT / UMG 装配，不用在 C++ 创建 TextBlock。
 
-DisableNativeTick 告诉 UE 这个原生 Widget 不需要 NativeTick；本类仅在 Construct 与 Pawn 事件发生时更新，不实现 NativeTick。原稿遗漏此标记，已于 2026-10-03 补正；已有源码需按第 7.2.1 节手动补上。
+DisableNativeTick 告诉 UE 这个原生 Widget 不需要 NativeTick；本类仅在 Construct 与 Pawn 事件发生时更新，不实现 NativeTick。原稿遗漏此标记，已于 2026-10-03 补正；当前Source已包含，第7.2.1节仅保留为排障经验。
 
 ### 4.2 ETLifecycleStatusWidget.cpp
 
 路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialUI\Private\Widgets\ETLifecycleStatusWidget.cpp`。
 
-~~~cpp
-#include "Widgets/ETLifecycleStatusWidget.h"
-#include "Components/TextBlock.h"
-#include "Engine/LocalPlayer.h"
-#include "GameFramework/Pawn.h"
-#include "Lifecycle/ETUILocalPlayerSubsystem.h"
-#include "Logging/LogMacros.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETLifecycleWidget, Log, All);
-
-#define LOCTEXT_NAMESPACE "ETLifecycleStatusWidget"
-
-void UETLifecycleStatusWidget::NativeConstruct()
-{
-    Super::NativeConstruct();
-
-    SetIsFocusable(false);
-    SetVisibility(ESlateVisibility::HitTestInvisible);
-    StopObserving();
-
-    if (IsDesignTime())
-    {
-        return;
-    }
-
-    ULocalPlayer* LocalPlayer = GetOwningLocalPlayer();
-    UETUILocalPlayerSubsystem* Subsystem = LocalPlayer
-        ? LocalPlayer->GetSubsystem<UETUILocalPlayerSubsystem>()
-        : nullptr;
-
-    if (Subsystem)
-    {
-        BoundSubsystem = Subsystem;
-        Subsystem->OnObservedPawnChanged.AddUniqueDynamic(
-            this, &UETLifecycleStatusWidget::HandleObservedPawnChanged);
-        bObserving = true;
-
-        UE_LOG(LogETLifecycleWidget, Display,
-            TEXT("[M1-02C2] Widget subscribed Widget=%s LocalPlayer=%s"),
-            *GetNameSafe(this), *GetNameSafe(LocalPlayer));
-    }
-    else
-    {
-        UE_LOG(LogETLifecycleWidget, Warning,
-            TEXT("[M1-02C2] Missing local subsystem Widget=%s"),
-            *GetNameSafe(this));
-    }
-
-    // 订阅后立即读取快照，覆盖 Widget 晚于 Possess 创建的情况。
-    RefreshStatus(TEXT("ConstructSnapshot"));
-}
-
-void UETLifecycleStatusWidget::NativeDestruct()
-{
-    StopObserving();
-    Super::NativeDestruct();
-}
-
-void UETLifecycleStatusWidget::StopObserving()
-{
-    if (UETUILocalPlayerSubsystem* Subsystem = BoundSubsystem.Get())
-    {
-        Subsystem->OnObservedPawnChanged.RemoveDynamic(
-            this, &UETLifecycleStatusWidget::HandleObservedPawnChanged);
-    }
-
-    if (bObserving)
-    {
-        UE_LOG(LogETLifecycleWidget, Display,
-            TEXT("[M1-02C2] Widget unsubscribed Widget=%s"),
-            *GetNameSafe(this));
-    }
-
-    BoundSubsystem.Reset();
-    bObserving = false;
-}
-
-void UETLifecycleStatusWidget::HandleObservedPawnChanged(
-    APawn* PreviousPawn, APawn* CurrentPawn)
-{
-    (void)PreviousPawn;
-    (void)CurrentPawn;
-
-    if (bObserving)
-    {
-        RefreshStatus(TEXT("PawnEvent"));
-    }
-}
-
-void UETLifecycleStatusWidget::RefreshStatus(const TCHAR* Reason)
-{
-    UETUILocalPlayerSubsystem* Subsystem = BoundSubsystem.Get();
-    APawn* Pawn = Subsystem ? Subsystem->GetObservedPawn() : nullptr;
-
-    if (!StatusText || !PawnText)
-    {
-        UE_LOG(LogETLifecycleWidget, Warning,
-            TEXT("[M1-02C2] Missing BindWidget fields Widget=%s"),
-            *GetNameSafe(this));
-        return;
-    }
-
-    const FText Status = !Subsystem
-        ? LOCTEXT("Unavailable", "本地 UI 入口不可用")
-        : (Pawn ? LOCTEXT("Controlled", "控制状态：已观察到 Pawn")
-                : LOCTEXT("NoPawn", "控制状态：暂无 Pawn"));
-
-    StatusText->SetText(Status);
-    PawnText->SetText(FText::Format(
-        LOCTEXT("PawnFormat", "当前 Pawn：{0}"),
-        FText::FromString(GetNameSafe(Pawn))));
-
-    UE_LOG(LogETLifecycleWidget, Display,
-        TEXT("[M1-02C2] Widget snapshot Widget=%s Pawn=%s Reason=%s"),
-        *GetNameSafe(this), *GetNameSafe(Pawn), Reason);
-}
-
-#undef LOCTEXT_NAMESPACE
-~~~
+当前源码：[ETLifecycleStatusWidget.cpp](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETLifecycleStatusWidget.cpp)。
 
 “暂无 Pawn”是合法显示状态，不是错误。Widget 不缓存 Pawn，也不向角色添加第二份控制状态。NativeConstruct 可以多次发生，所以每次先解绑，再注册一次；NativeDestruct 也做幂等清理。
 
-## 5. Bootstrap 完整代码
+## 5. Bootstrap 当前源码
 
 ### 5.1 ETUIBootstrapComponent.h
 
 路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialUI\Public\Bootstrap\ETUIBootstrapComponent.h`。
 
-~~~cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "ETUIBootstrapComponent.generated.h"
-
-class UETLifecycleStatusWidget;
-
-UCLASS(ClassGroup = (EmberTrial), meta = (BlueprintSpawnableComponent))
-class EMBERTRIALUI_API UETUIBootstrapComponent : public UActorComponent
-{
-    GENERATED_BODY()
-
-public:
-    UETUIBootstrapComponent();
-
-    UFUNCTION(BlueprintCallable, Category = "EmberTrial|UI")
-    void RebuildStatusWidget();
-
-protected:
-    virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
-    void RemoveStatusWidget();
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI")
-    TSubclassOf<UETLifecycleStatusWidget> StatusWidgetClass;
-
-    UPROPERTY(Transient)
-    TObjectPtr<UETLifecycleStatusWidget> StatusWidget;
-};
-~~~
+当前源码：[ETUIBootstrapComponent.h](../EmberTrial/Source/EmberTrialUI/Public/Bootstrap/ETUIBootstrapComponent.h)。
 
 ### 5.2 ETUIBootstrapComponent.cpp
 
 路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialUI\Private\Bootstrap\ETUIBootstrapComponent.cpp`。
 
-~~~cpp
-#include "Bootstrap/ETUIBootstrapComponent.h"
-#include "GameFramework/PlayerController.h"
-#include "Logging/LogMacros.h"
-#include "Widgets/ETLifecycleStatusWidget.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETUIBootstrap, Log, All);
-
-UETUIBootstrapComponent::UETUIBootstrapComponent()
-{
-    PrimaryComponentTick.bCanEverTick = false;
-}
-
-void UETUIBootstrapComponent::BeginPlay()
-{
-    Super::BeginPlay();
-    RebuildStatusWidget();
-}
-
-void UETUIBootstrapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    RemoveStatusWidget();
-    Super::EndPlay(EndPlayReason);
-}
-
-void UETUIBootstrapComponent::RebuildStatusWidget()
-{
-    if (!HasBegunPlay())
-    {
-        return;
-    }
-
-    RemoveStatusWidget();
-
-    APlayerController* Controller = Cast<APlayerController>(GetOwner());
-    if (!IsValid(Controller) || !Controller->IsLocalController()
-        || !Controller->GetLocalPlayer())
-    {
-        return;
-    }
-
-    if (!StatusWidgetClass)
-    {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-02C2] Missing StatusWidgetClass Owner=%s"),
-            *GetNameSafe(Controller));
-        return;
-    }
-
-    StatusWidget = CreateWidget<UETLifecycleStatusWidget>(
-        Controller, StatusWidgetClass);
-
-    if (!StatusWidget)
-    {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-02C2] Widget creation failed Owner=%s"),
-            *GetNameSafe(Controller));
-        return;
-    }
-
-    if (!StatusWidget->AddToPlayerScreen(5))
-    {
-        UE_LOG(LogETUIBootstrap, Warning,
-            TEXT("[M1-02C2] AddToPlayerScreen failed Owner=%s"),
-            *GetNameSafe(Controller));
-        RemoveStatusWidget();
-        return;
-    }
-
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-02C2] Widget created Owner=%s Widget=%s"),
-        *GetNameSafe(Controller), *GetNameSafe(StatusWidget.Get()));
-}
-
-void UETUIBootstrapComponent::RemoveStatusWidget()
-{
-    if (!StatusWidget)
-    {
-        return;
-    }
-
-    UE_LOG(LogETUIBootstrap, Display,
-        TEXT("[M1-02C2] Widget removed Owner=%s Widget=%s"),
-        *GetNameSafe(GetOwner()), *GetNameSafe(StatusWidget.Get()));
-
-    StatusWidget->StopObserving();
-    StatusWidget->RemoveFromParent();
-    StatusWidget = nullptr;
-}
-~~~
+当前源码：[ETUIBootstrapComponent.cpp](../EmberTrial/Source/EmberTrialUI/Private/Bootstrap/ETUIBootstrapComponent.cpp)。
 
 先 StopObserving，再 RemoveFromParent，避免被移除但还未 GC 的旧 Widget 继续响应 Pawn 事件。重建时始终先清旧实例。TObjectPtr + UPROPERTY 保存 Widget；World Actor 仍由 C1 的弱引用观察。这里的强引用只负责面板存活，EndPlay 必须主动释放。
 
 本批采用 APlayerController 作为通用宿主，不要求核心 Controller 引用任何 UI 类型；通过 BP_ETPlayerController 添加组件完成装配。
 
-本机接口已核对：[CreateWidget / UUserWidget](D:/UE5/UE_5.5/Engine/Source/Runtime/UMG/Public/Blueprint/UserWidget.h:1703)、[NativeConstruct / NativeDestruct](D:/UE5/UE_5.5/Engine/Source/Runtime/UMG/Private/UserWidget.cpp:1767)、[AddToPlayerScreen](D:/UE5/UE_5.5/Engine/Source/Runtime/UMG/Private/UserWidget.cpp:1283)。[Epic API 说明](https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/UMG/UUserWidget/AddToPlayerScreen?lang=en-US)解释它按所属本地玩家加入屏幕；具体版本以本机 UE 5.5.4 源码为准。代码尚未编译，API 核对不等于 Build 通过。
+本机接口已核对：[CreateWidget / UUserWidget](D:/UE5/UE_5.5/Engine/Source/Runtime/UMG/Public/Blueprint/UserWidget.h:1703)、[NativeConstruct / NativeDestruct](D:/UE5/UE_5.5/Engine/Source/Runtime/UMG/Private/UserWidget.cpp:1767)、[AddToPlayerScreen](D:/UE5/UE_5.5/Engine/Source/Runtime/UMG/Private/UserWidget.cpp:1283)。[Epic API 说明](https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/UMG/UUserWidget/AddToPlayerScreen?lang=en-US)解释它按所属本地玩家加入屏幕；具体版本以本机 UE 5.5.4 源码为准。这些是历史API核对记录；当前构建结果与清理验证见Cleanup，不把API核对当作Build。
 
 ## 6. 正常构建与索引
 
