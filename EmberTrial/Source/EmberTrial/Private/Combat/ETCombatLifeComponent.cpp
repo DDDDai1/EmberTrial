@@ -12,9 +12,11 @@
 #include "Combat/ETCombatTraceComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "../../ETPracticeActionComponent.h"
+#include "ETPracticeActionComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETCombatLife, Log, All);
+
+// ---- 身体生命周期与Ready观察 ----
 
 UETCombatLifeComponent::UETCombatLifeComponent()
 {
@@ -29,14 +31,12 @@ void UETCombatLifeComponent::BeginPlay()
     CharacterOwner = Cast<AEmberTrialCharacter>(GetOwner());
     if (AEmberTrialCharacter* Character = CharacterOwner.Get())
     {
-        Character->OnGameplayReadyChanged.AddUniqueDynamic(
-            this, &ThisClass::HandleReadyChanged);
+        Character->OnGameplayReadyChanged.AddUniqueDynamic(this, &ThisClass::HandleReadyChanged);
         StartObserving();
     }
 }
 
-void UETCombatLifeComponent::HandleReadyChanged(
-    AEmberTrialCharacter* Character, bool bReady)
+void UETCombatLifeComponent::HandleReadyChanged(AEmberTrialCharacter* Character, bool bReady)
 {
     if (Character != CharacterOwner.Get() || bEndingPlay)
     {
@@ -71,23 +71,23 @@ void UETCombatLifeComponent::StartObserving()
     {
         return;
     }
+    // 先订阅再取快照，覆盖组件晚于初始化绑定以及出生即零血的情况。
     StopObserving();
     BoundASC = ASC;
-    HealthHandle = ASC->GetGameplayAttributeValueChangeDelegate(
-        UETHealthAttributeSet::GetHealthAttribute()).AddUObject(
-            this, &ThisClass::HandleHealthChanged);
+    HealthHandle =
+        ASC->GetGameplayAttributeValueChangeDelegate(UETHealthAttributeSet::GetHealthAttribute())
+            .AddUObject(this, &ThisClass::HandleHealthChanged);
 
     float Health = 0.0f;
     float MaxHealth = 0.0f;
-    if (Character->GetGameplayHealthSnapshot(Health, MaxHealth) &&
-        FMath::IsFinite(Health) && Health <= 0.0f)
+    if (Character->GetGameplayHealthSnapshot(Health, MaxHealth) && FMath::IsFinite(Health) &&
+        Health <= 0.0f)
     {
         CommitDeath(TEXT("ReadySnapshot"));
     }
     Character = CharacterOwner.Get();
     ASC = BoundASC.Get();
-    if (bEndingPlay || !IsValid(Character) || !IsValid(ASC) ||
-        !Character->IsGameplayReady())
+    if (bEndingPlay || !IsValid(Character) || !IsValid(ASC) || !Character->IsGameplayReady())
     {
         return;
     }
@@ -98,9 +98,9 @@ void UETCombatLifeComponent::StartObserving()
         HitReactHandle = ASC->GiveAbility(Spec);
     }
     UE_LOG(LogETCombatLife, Display,
-        TEXT("[M1-04C1] Life observing Character=%s ASC=%s HitClass=%s Granted=%d"),
-        *GetNameSafe(Character), *GetNameSafe(ASC),
-        *GetNameSafe(HitReactAbilityClass.Get()), HitReactHandle.IsValid() ? 1 : 0);
+           TEXT("[M1-04C1] Life observing Character=%s ASC=%s HitClass=%s Granted=%d"),
+           *GetNameSafe(Character), *GetNameSafe(ASC), *GetNameSafe(HitReactAbilityClass.Get()),
+           HitReactHandle.IsValid() ? 1 : 0);
 }
 
 void UETCombatLifeComponent::StopObserving()
@@ -108,23 +108,26 @@ void UETCombatLifeComponent::StopObserving()
     UAbilitySystemComponent* ASC = BoundASC.Get();
     const FDelegateHandle OldHealthHandle = HealthHandle;
     const FGameplayAbilitySpecHandle OldHitHandle = HitReactHandle;
+    // 取消能力可能重入；先撤销成员归属，再释放旧ASC上的句柄。
     BoundASC.Reset();
     HealthHandle.Reset();
     HitReactHandle = FGameplayAbilitySpecHandle();
 
     if (IsValid(ASC))
     {
-        ASC->GetGameplayAttributeValueChangeDelegate(
-            UETHealthAttributeSet::GetHealthAttribute()).Remove(OldHealthHandle);
+        ASC->GetGameplayAttributeValueChangeDelegate(UETHealthAttributeSet::GetHealthAttribute())
+            .Remove(OldHealthHandle);
         if (OldHitHandle.IsValid())
         {
             ASC->CancelAbilityHandle(OldHitHandle);
             ASC->ClearAbility(OldHitHandle);
         }
-        UE_LOG(LogETCombatLife, Display,
-            TEXT("[M1-04C1] Life stopped Character=%s"), *GetNameSafe(GetOwner()));
+        UE_LOG(LogETCombatLife, Display, TEXT("[M1-04C1] Life stopped Character=%s"),
+               *GetNameSafe(GetOwner()));
     }
 }
+
+// ---- 受击请求与真实生命变化分类 ----
 
 bool UETCombatLifeComponent::RequestHitReact()
 {
@@ -139,9 +142,8 @@ bool UETCombatLifeComponent::RequestHitReactInternal(const TCHAR* Reason)
     float MaxHealth = 0.0f;
     if (bEndingPlay || bDead || !IsValid(Character) || !IsValid(ASC) ||
         Character->GetAbilitySystemComponent() != ASC ||
-        !Character->GetGameplayHealthSnapshot(Health, MaxHealth) ||
-        !FMath::IsFinite(Health) || Health <= 0.0f ||
-        UGameplayStatics::IsGamePaused(Character) || !HitReactHandle.IsValid())
+        !Character->GetGameplayHealthSnapshot(Health, MaxHealth) || !FMath::IsFinite(Health) ||
+        Health <= 0.0f || UGameplayStatics::IsGamePaused(Character) || !HitReactHandle.IsValid())
     {
         return false;
     }
@@ -149,15 +151,15 @@ bool UETCombatLifeComponent::RequestHitReactInternal(const TCHAR* Reason)
     if (!Spec || Spec->IsActive())
     {
         UE_LOG(LogETCombatLife, Display,
-            TEXT("[M1-04C1] Hit request Character=%s Reason=%s Accepted=0 BusyOrMissing=1"),
-            *GetNameSafe(Character), Reason);
+               TEXT("[M1-04C1] Hit request Character=%s Reason=%s Accepted=0 BusyOrMissing=1"),
+               *GetNameSafe(Character), Reason);
         return false;
     }
     const FString CharacterName = GetNameSafe(Character);
     const bool bAccepted = ASC->TryActivateAbility(HitReactHandle, false);
     UE_LOG(LogETCombatLife, Display,
-        TEXT("[M1-04C1] Hit request Character=%s Reason=%s Accepted=%d"),
-        *CharacterName, Reason, bAccepted ? 1 : 0);
+           TEXT("[M1-04C1] Hit request Character=%s Reason=%s Accepted=%d"), *CharacterName, Reason,
+           bAccepted ? 1 : 0);
     return bAccepted;
 }
 
@@ -165,9 +167,8 @@ void UETCombatLifeComponent::HandleHealthChanged(const FOnAttributeChangeData& C
 {
     AEmberTrialCharacter* Character = CharacterOwner.Get();
     UAbilitySystemComponent* ASC = BoundASC.Get();
-    if (bEndingPlay || bDead || !IsValid(Character) ||
-        !Character->IsGameplayReady() || !IsValid(ASC) ||
-        Character->GetAbilitySystemComponent() != ASC ||
+    if (bEndingPlay || bDead || !IsValid(Character) || !Character->IsGameplayReady() ||
+        !IsValid(ASC) || Character->GetAbilitySystemComponent() != ASC ||
         Change.Attribute != UETHealthAttributeSet::GetHealthAttribute() ||
         !FMath::IsFinite(Change.NewValue))
     {
@@ -178,11 +179,12 @@ void UETCombatLifeComponent::HandleHealthChanged(const FOnAttributeChangeData& C
         CommitDeath(TEXT("HealthZero"));
         return;
     }
-    if (!FMath::IsFinite(Change.OldValue) ||
-        Change.OldValue <= Change.NewValue || !Change.GEModData)
+    if (!FMath::IsFinite(Change.OldValue) || Change.OldValue <= Change.NewValue ||
+        !Change.GEModData)
     {
         return;
     }
+    // 只有真实负值AddBase生命GE触发受击；上限夹限、治疗和直接写值不冒充命中。
     const FGameplayEffectModCallbackData& Mod = *Change.GEModData;
     if (&Mod.Target != ASC ||
         Mod.EvaluatedData.Attribute != UETHealthAttributeSet::GetHealthAttribute() ||
@@ -192,49 +194,49 @@ void UETCombatLifeComponent::HandleHealthChanged(const FOnAttributeChangeData& C
         return;
     }
     UE_LOG(LogETCombatLife, Display,
-        TEXT("[M1-04C1] Health damage Character=%s Before=%.1f After=%.1f Actual=%.1f"),
-        *GetNameSafe(Character), Change.OldValue, Change.NewValue,
-        Change.OldValue - Change.NewValue);
+           TEXT("[M1-04C1] Health damage Character=%s Before=%.1f After=%.1f Actual=%.1f"),
+           *GetNameSafe(Character), Change.OldValue, Change.NewValue,
+           Change.OldValue - Change.NewValue);
     RequestHitReactInternal(TEXT("HealthLoss"));
 }
+
+// ---- 一次死亡：先锁状态与命中窗口，再取消动作并封锁身体 ----
 
 void UETCombatLifeComponent::CommitDeath(const TCHAR* Reason)
 {
     AEmberTrialCharacter* Character = CharacterOwner.Get();
     UAbilitySystemComponent* ASC = BoundASC.Get();
-    if (bEndingPlay || bDead || !IsValid(Character) ||
-        !Character->HasAuthority() || !Character->IsGameplayReady() ||
-        !IsValid(ASC) || Character->GetAbilitySystemComponent() != ASC)
+    if (bEndingPlay || bDead || !IsValid(Character) || !Character->HasAuthority() ||
+        !Character->IsGameplayReady() || !IsValid(ASC) ||
+        Character->GetAbilitySystemComponent() != ASC)
     {
         return;
     }
     float Health = 0.0f;
     float MaxHealth = 0.0f;
-    if (!Character->GetGameplayHealthSnapshot(Health, MaxHealth) ||
-        !FMath::IsFinite(Health) || Health > 0.0f)
+    if (!Character->GetGameplayHealthSnapshot(Health, MaxHealth) || !FMath::IsFinite(Health) ||
+        Health > 0.0f)
     {
         return;
     }
 
+    // 加Tag与取消动作都可能同步调用外部监听；先置锁，防同一身体重复提交。
     bDead = true;
     DeadTagASC = ASC;
     bOwnsDeadTag = true;
     ASC->AddLooseGameplayTag(ETGameplayTags::State_Dead);
     Character = CharacterOwner.Get();
     ASC = DeadTagASC.Get();
-    if (bEndingPlay || !IsValid(Character) || !IsValid(ASC) ||
-        !Character->IsGameplayReady())
+    if (bEndingPlay || !IsValid(Character) || !IsValid(ASC) || !Character->IsGameplayReady())
     {
         return;
     }
     const FString CharacterName = GetNameSafe(Character);
     UE_LOG(LogETCombatLife, Display,
-        TEXT("[M1-04C2] Death committed Character=%s Reason=%s Health=%.1f DeadTag=%d"),
-        *CharacterName, Reason, Health,
-        ASC->GetTagCount(ETGameplayTags::State_Dead));
+           TEXT("[M1-04C2] Death committed Character=%s Reason=%s Health=%.1f DeadTag=%d"),
+           *CharacterName, Reason, Health, ASC->GetTagCount(ETGameplayTags::State_Dead));
 
-    UETCombatTraceComponent* Trace =
-        Character->FindComponentByClass<UETCombatTraceComponent>();
+    UETCombatTraceComponent* Trace = Character->FindComponentByClass<UETCombatTraceComponent>();
     if (IsValid(Trace))
     {
         Trace->CancelActiveAttack();
@@ -292,15 +294,18 @@ void UETCombatLifeComponent::CommitDeath(const TCHAR* Reason)
     Movement = Character->GetCharacterMovement();
     Mesh = Character->GetMesh();
     UE_LOG(LogETCombatLife, Display,
-        TEXT("[M1-04C2] Death sealed Character=%s TraceTick=%d PracticeIdle=%d MoveMode=%d AnimPaused=%d"),
-        *CharacterName,
-        IsValid(Trace) && Trace->IsComponentTickEnabled() ? 1 : 0,
-        !IsValid(Practice) || Practice->IsPracticeActionIdle() ? 1 : 0,
-        IsValid(Movement) ? static_cast<int32>(Movement->MovementMode) : -1,
-        IsValid(Mesh) && Mesh->bPauseAnims ? 1 : 0);
+           TEXT("[M1-04C2] Death sealed Character=%s TraceTick=%d PracticeIdle=%d MoveMode=%d "
+                "AnimPaused=%d"),
+           *CharacterName, IsValid(Trace) && Trace->IsComponentTickEnabled() ? 1 : 0,
+           !IsValid(Practice) || Practice->IsPracticeActionIdle() ? 1 : 0,
+           IsValid(Movement) ? static_cast<int32>(Movement->MovementMode) : -1,
+           IsValid(Mesh) && Mesh->bPauseAnims ? 1 : 0);
 
+    // 广播可能触发换图或销毁，此后不再访问本组件 / 身体状态。
     OnDeathSealed.Broadcast(this);
 }
+
+// ---- EndPlay资源释放；保留其他来源的State.Dead计数 ----
 
 void UETCombatLifeComponent::ClearOwnedDeadTag()
 {
@@ -315,8 +320,8 @@ void UETCombatLifeComponent::ClearOwnedDeadTag()
             ASC->RemoveLooseGameplayTag(ETGameplayTags::State_Dead);
         }
         UE_LOG(LogETCombatLife, Display,
-            TEXT("[M1-04C2] Death tag released Character=%s Remaining=%d"),
-            *GetNameSafe(GetOwner()), ASC->GetTagCount(ETGameplayTags::State_Dead));
+               TEXT("[M1-04C2] Death tag released Character=%s Remaining=%d"),
+               *GetNameSafe(GetOwner()), ASC->GetTagCount(ETGameplayTags::State_Dead));
     }
 }
 
@@ -326,8 +331,7 @@ void UETCombatLifeComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     OnDeathSealed.Clear();
     if (AEmberTrialCharacter* Character = CharacterOwner.Get())
     {
-        Character->OnGameplayReadyChanged.RemoveDynamic(
-            this, &ThisClass::HandleReadyChanged);
+        Character->OnGameplayReadyChanged.RemoveDynamic(this, &ThisClass::HandleReadyChanged);
     }
     StopObserving();
     ClearOwnedDeadTag();

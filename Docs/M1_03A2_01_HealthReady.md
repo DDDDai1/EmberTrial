@@ -1,8 +1,10 @@
 # M1-03A2-01：生命属性与 GameplayReady
 
-**2026-10-03已验收通过，实际手动30 / 等待5 min，A2-02也已通过。** 本页保留当时操作方案；实施结果见 [01验收](Reports/M1_03A2_01_Verification.md) / [A2总验收](Reports/M1_03A2_Verification.md)，当前执行 [B3数据源重绑](M1_03B3_DataSourceRebinding.md)。下文“尚未编码”等表述属于交接时状态。
+2026-10-18清理同步：本页保留历史规则、接入差异、资产配置和验收经验，重复整文件 / 完整方法改为当前Source链接；不要将旧阶段代码覆盖到现有M2-04B2工程。本次清理范围、验证与提交清单见[Cleanup](Cleanup.md)。
 
-生成日期：2026-10-03。前置：[A1 已验收](Reports/M1_03A1_Verification.md)。**全部代码由你手动输入，预计手动 90–120 分钟，构建 / 索引等待另计。** 本页尚未编码 / 构建 / 实测；接口按本机 UE 5.5.4 核对。
+**2026-10-03已验收通过，实际手动30 / 等待5 min，A2-02也已通过。** 本页保留当时操作方案；实施结果见 [01验收](Reports/M1_03A2_01_Verification.md) / [A2总验收](Reports/M1_03A2_Verification.md)，当前功能基线已到M2-04B2，正在分批清理，状态见[Progress](Progress.md)。下文“尚未编码”等表述属于交接时状态。
+
+原方案日期：2026-10-03，前置：[A1已验收](Reports/M1_03A1_Verification.md)。本页历史方案的原手动预算为90–120分钟，实际结果见上方报告；接口以工程固定的UE5.5.4为准。
 
 ## 1. 本批范围与规则
 
@@ -38,101 +40,17 @@ UE Save All / 退出 PIE / 关闭编辑器；CLion 保存所有文件。
 
 ### 3.1 ETHealthAttributeSet.h 全文
 
-~~~cpp
-#pragma once
+当前源码：[ETHealthAttributeSet.h](../EmberTrial/Source/EmberTrial/Public/Attributes/ETHealthAttributeSet.h)。
 
-#include "CoreMinimal.h"
-#include "AttributeSet.h"
-#include "ETHealthAttributeSet.generated.h"
-
-UCLASS()
-class EMBERTRIAL_API UETHealthAttributeSet : public UAttributeSet
-{
-    GENERATED_BODY()
-
-public:
-    UETHealthAttributeSet(const FObjectInitializer& ObjectInitializer);
-
-    GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UETHealthAttributeSet, Health)
-    GAMEPLAYATTRIBUTE_VALUE_GETTER(Health)
-    GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UETHealthAttributeSet, MaxHealth)
-    GAMEPLAYATTRIBUTE_VALUE_GETTER(MaxHealth)
-
-    virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
-    virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
-    virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
-
-private:
-    UPROPERTY(BlueprintReadOnly, Category = "EmberTrial|Health", meta = (AllowPrivateAccess = "true"))
-    FGameplayAttributeData Health;
-
-    UPROPERTY(BlueprintReadOnly, Category = "EmberTrial|Health", meta = (AllowPrivateAccess = "true"))
-    FGameplayAttributeData MaxHealth;
-
-    GAMEPLAYATTRIBUTE_VALUE_INITTER(Health)
-    GAMEPLAYATTRIBUTE_VALUE_INITTER(MaxHealth)
-
-    void ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const;
-};
-~~~
+仅公开属性 / 数值查询，初始化宏保持私有；运行修改仍经ASC / GE。
 
 初始化宏留在 private，仅构造函数使用；没有公开任意写值的 Blueprint setter。属性不是普通 float，不能通过 Set 变量绕过 ASC。generated.h 必须是最后一条 include。
 
 ### 3.2 ETHealthAttributeSet.cpp 全文
 
-~~~cpp
-#include "Attributes/ETHealthAttributeSet.h"
-#include "AbilitySystemComponent.h"
+当前源码：[ETHealthAttributeSet.cpp](../EmberTrial/Source/EmberTrial/Private/Attributes/ETHealthAttributeSet.cpp)。
 
-UETHealthAttributeSet::UETHealthAttributeSet(const FObjectInitializer& ObjectInitializer)
-    : Super(ObjectInitializer)
-{
-    InitMaxHealth(100.0f);
-    InitHealth(0.0f);
-}
-
-void UETHealthAttributeSet::ClampAttribute(const FGameplayAttribute& Attribute, float& NewValue) const
-{
-    if (Attribute == GetMaxHealthAttribute())
-    {
-        NewValue = FMath::IsFinite(NewValue)
-            ? FMath::Max(1.0f, NewValue)
-            : FMath::Max(1.0f, GetMaxHealth());
-    }
-    else if (Attribute == GetHealthAttribute())
-    {
-        const float UpperBound = FMath::Max(1.0f, GetMaxHealth());
-        NewValue = FMath::IsFinite(NewValue)
-            ? FMath::Clamp(NewValue, 0.0f, UpperBound)
-            : FMath::Clamp(GetHealth(), 0.0f, UpperBound);
-    }
-}
-
-void UETHealthAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
-{
-    Super::PreAttributeBaseChange(Attribute, NewValue);
-    ClampAttribute(Attribute, NewValue);
-}
-
-void UETHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
-{
-    Super::PreAttributeChange(Attribute, NewValue);
-    ClampAttribute(Attribute, NewValue);
-}
-
-void UETHealthAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
-{
-    Super::PostAttributeChange(Attribute, OldValue, NewValue);
-
-    if (Attribute == GetMaxHealthAttribute() && GetHealth() > NewValue)
-    {
-        if (UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent())
-        {
-            ASC->SetNumericAttributeBase(GetHealthAttribute(), NewValue);
-        }
-    }
-}
-~~~
+Base / Current共用夹限，死亡Tag阻止回填生命，上限上升不自动治疗。
 
 构造时 0/100 是尚未完成启动初始化的安全值，不是玩家初始生命。PreAttributeBaseChange 管基础值，PreAttributeChange 管当前值；最大生命下降后经 ASC 调整生命。这里不触发死亡或播放动画。
 

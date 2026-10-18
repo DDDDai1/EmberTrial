@@ -1,5 +1,7 @@
 # M1-04C2：一次死亡与行动封锁
 
+2026-10-18清理同步：本页保留历史规则、接入差异、资产配置和验收经验，重复整文件 / 完整方法改为当前Source链接；不要将旧阶段代码覆盖到现有M2-04B2工程。本次清理范围、验证与提交清单见[Cleanup](Cleanup.md)。
+
 实施日期：2026-10-06；收尾：2026-10-07；UE5.5.4。前置：[C1正式受击已验收](Reports/M1_04C1_Verification.md)。**状态：C2已验收完成；助手经授权实测窗口内死亡并恢复配置，第13节无需再操作。**见[C2核查](Reports/M1_04C2_Verification.md)及[D阶段汇总](M1_04D_CombatReview.md)。下方保留原实施步骤、预算与历史复验办法。收尾未修改C++或执行Build，仅通过GUI恢复玩家100/100与Debug False、Compile→Save及短PIE。
 
 ## 1. 本批结果与投入
@@ -35,6 +37,14 @@ flowchart TD
     Health --> HUD[已有Presenter / HUD]
     Zero -->|否且有效伤害| Hit[已有正式受击]
 ```
+
+## 当前所有权与数值规则（清理同步）
+
+- Ready撤销只解除观察与本组件授予的受击能力；bDead是同一身体的终态，不在StopObserving中重置。
+- DeadTagASC与BoundASC分开：观察解除后仍要找到自己添加的一份State.Dead；EndPlay只移除这份计数，不清其他来源。
+- 添加Tag、取消GA、停止Montage都可能同步调用外部监听，各段重新获取弱引用不是冗余。OnDeathSealed在Trace / 动作 / 移动 / 动画封锁之后广播，广播后不再访问身体。
+- [生命属性](../EmberTrial/Source/EmberTrial/Private/Attributes/ETHealthAttributeSet.cpp)负责数值夹限与死亡后禁止回填；[体力属性](../EmberTrial/Source/EmberTrial/Private/Attributes/ETStaminaAttributeSet.cpp)保留自己的非有限值回退和Base / Current同步，不能只因结构相似就合并行为。
+- 构造中的Max=100 / Current=0是原生基线；正式初值由Character配置、校验后经ASC写入并发布Ready。上下限0 / 1是数值契约，不变成额外运行时配置。
 
 ## 3. 保存、关闭与修改清单
 
@@ -100,32 +110,9 @@ EndAttack原来的序号校验、弱引用 / SeenTargets清理都保留。第二
 
 **只替换ClampAttribute整个函数**为下面版本；构造、PreAttributeBaseChange、PreAttributeChange、PostAttributeChange原样保留，它们仍调用这个函数：
 
-```cpp
-void UETHealthAttributeSet::ClampAttribute(
-    const FGameplayAttribute& Attribute, float& NewValue) const
-{
-    if (Attribute == GetMaxHealthAttribute())
-    {
-        NewValue = FMath::IsFinite(NewValue)
-            ? FMath::Max(1.0f, NewValue)
-            : FMath::Max(1.0f, GetMaxHealth());
-    }
-    else if (Attribute == GetHealthAttribute())
-    {
-        const UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
-        if (IsValid(ASC) &&
-            ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dead))
-        {
-            NewValue = 0.0f;
-            return;
-        }
-        const float UpperBound = FMath::Max(1.0f, GetMaxHealth());
-        NewValue = FMath::IsFinite(NewValue)
-            ? FMath::Clamp(NewValue, 0.0f, UpperBound)
-            : FMath::Clamp(GetHealth(), 0.0f, UpperBound);
-    }
-}
-```
+当前源码：[ETHealthAttributeSet.cpp](../EmberTrial/Source/EmberTrial/Private/Attributes/ETHealthAttributeSet.cpp)。
+
+ClampAttribute保留死亡Tag门控；本段历史新增原因仍保留，当前代码以Source为准。
 
 AttributeSet只查询公开Tag，不能Include CombatLife / Character或操作Widget。两种Pre钩子都需要保留：只夹Current而放过Base会产生隐藏生命值。旧“从0治疗”样例属于尚无死亡规则时的基线；**接入本批后，已死亡身体的治疗保持0是新的预期**，不为恢复旧预期而删除死亡保护。存活身体原治疗 / 最大值规则保留。
 
@@ -135,59 +122,9 @@ AttributeSet只查询公开Tag，不能Include CombatLife / Character或操作Wi
 
 **替换ETCombatLifeComponent.h全文**。HitReactAbilityClass名字 / 类型 / Category保持相同，原蓝图配置应保留，后续仍要核对：
 
-```cpp
-#pragma once
+当前源码：[ETCombatLifeComponent.h](../EmberTrial/Source/EmberTrial/Public/Combat/ETCombatLifeComponent.h)。
 
-#include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "GameplayAbilitySpecHandle.h"
-#include "ETCombatLifeComponent.generated.h"
-
-class AEmberTrialCharacter;
-class UAbilitySystemComponent;
-class UETGA_HitReact;
-struct FOnAttributeChangeData;
-
-UCLASS(ClassGroup = (EmberTrial), meta = (BlueprintSpawnableComponent))
-class EMBERTRIAL_API UETCombatLifeComponent : public UActorComponent
-{
-    GENERATED_BODY()
-
-public:
-    UETCombatLifeComponent();
-
-    bool RequestHitReact();
-    bool IsDead() const { return bDead; }
-
-protected:
-    virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Combat Life")
-    TSubclassOf<UETGA_HitReact> HitReactAbilityClass;
-
-    TWeakObjectPtr<AEmberTrialCharacter> CharacterOwner;
-    TWeakObjectPtr<UAbilitySystemComponent> BoundASC;
-    FDelegateHandle HealthHandle;
-    FGameplayAbilitySpecHandle HitReactHandle;
-    bool bEndingPlay = false;
-
-    bool bDead = false;
-    bool bOwnsDeadTag = false;
-    TWeakObjectPtr<UAbilitySystemComponent> DeadTagASC;
-
-    UFUNCTION()
-    void HandleReadyChanged(AEmberTrialCharacter* Character, bool bReady);
-
-    void StartObserving();
-    void StopObserving();
-    void HandleHealthChanged(const FOnAttributeChangeData& Change);
-    bool RequestHitReactInternal(const TCHAR* Reason);
-    void CommitDeath(const TCHAR* Reason);
-    void ClearOwnedDeadTag();
-};
-```
+声明区分观察归属、一次死亡锁、自己持有的Tag计数与最终封口事件。
 
 bDead不是可配置初值，也不放到Blueprint变量中。StopObserving只清观察和自己授予的能力，不重置死亡锁。DeadTagASC单独保存，是因为Ready撤销时BoundASC已清空，EndPlay仍要找到自己持有的Tag。
 
@@ -215,58 +152,9 @@ bDead不是可配置初值，也不放到Blueprint变量中。StopObserving只�
 
 **替换StartObserving整个函数**。绑定后读快照；出生0先死亡，不授予受击。已经死亡的身体不会因重新观察再获受击能力。
 
-```cpp
-void UETCombatLifeComponent::StartObserving()
-{
-    AEmberTrialCharacter* Character = CharacterOwner.Get();
-    if (bEndingPlay || !IsValid(Character) || !Character->IsGameplayReady())
-    {
-        return;
-    }
-    UAbilitySystemComponent* ASC = Character->GetAbilitySystemComponent();
-    if (!IsValid(ASC) || !ASC->AbilityActorInfo.IsValid() ||
-        ASC->AbilityActorInfo->OwnerActor.Get() != Character ||
-        ASC->AbilityActorInfo->AvatarActor.Get() != Character ||
-        !ASC->HasAttributeSetForAttribute(UETHealthAttributeSet::GetHealthAttribute()))
-    {
-        return;
-    }
-    if (BoundASC.Get() == ASC && HealthHandle.IsValid())
-    {
-        return;
-    }
-    StopObserving();
-    BoundASC = ASC;
-    HealthHandle = ASC->GetGameplayAttributeValueChangeDelegate(
-        UETHealthAttributeSet::GetHealthAttribute()).AddUObject(
-            this, &ThisClass::HandleHealthChanged);
+当前源码：[ETCombatLifeComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatLifeComponent.cpp)。
 
-    float Health = 0.0f;
-    float MaxHealth = 0.0f;
-    if (Character->GetGameplayHealthSnapshot(Health, MaxHealth) &&
-        FMath::IsFinite(Health) && Health <= 0.0f)
-    {
-        CommitDeath(TEXT("ReadySnapshot"));
-    }
-    Character = CharacterOwner.Get();
-    ASC = BoundASC.Get();
-    if (bEndingPlay || !IsValid(Character) || !IsValid(ASC) ||
-        !Character->IsGameplayReady())
-    {
-        return;
-    }
-    if (!bDead && Character->HasAuthority() && HitReactAbilityClass &&
-        !HitReactAbilityClass->HasAnyClassFlags(CLASS_Abstract))
-    {
-        const FGameplayAbilitySpec Spec(HitReactAbilityClass.Get(), 1, INDEX_NONE, this);
-        HitReactHandle = ASC->GiveAbility(Spec);
-    }
-    UE_LOG(LogETCombatLife, Display,
-        TEXT("[M1-04C1] Life observing Character=%s ASC=%s HitClass=%s Granted=%d"),
-        *GetNameSafe(Character), *GetNameSafe(ASC),
-        *GetNameSafe(HitReactAbilityClass.Get()), HitReactHandle.IsValid() ? 1 : 0);
-}
-```
+StartObserving先订阅再读快照，覆盖出生零血；同步回调后重新获取弱引用，再决定是否授予受击能力。
 
 ### 5.4 受击请求入口追加一项保护
 
@@ -288,44 +176,9 @@ if (bEndingPlay || bDead || !IsValid(Character) || !IsValid(ASC) ||
 
 **替换HandleHealthChanged整个函数**。先检查当前身体与有限新值，再处理零血；只有存活的非致命下降才继续C1直接伤害判定。
 
-```cpp
-void UETCombatLifeComponent::HandleHealthChanged(const FOnAttributeChangeData& Change)
-{
-    AEmberTrialCharacter* Character = CharacterOwner.Get();
-    UAbilitySystemComponent* ASC = BoundASC.Get();
-    if (bEndingPlay || bDead || !IsValid(Character) ||
-        !Character->IsGameplayReady() || !IsValid(ASC) ||
-        Character->GetAbilitySystemComponent() != ASC ||
-        Change.Attribute != UETHealthAttributeSet::GetHealthAttribute() ||
-        !FMath::IsFinite(Change.NewValue))
-    {
-        return;
-    }
-    if (Change.NewValue <= 0.0f)
-    {
-        CommitDeath(TEXT("HealthZero"));
-        return;
-    }
-    if (!FMath::IsFinite(Change.OldValue) ||
-        Change.OldValue <= Change.NewValue || !Change.GEModData)
-    {
-        return;
-    }
-    const FGameplayEffectModCallbackData& Mod = *Change.GEModData;
-    if (&Mod.Target != ASC ||
-        Mod.EvaluatedData.Attribute != UETHealthAttributeSet::GetHealthAttribute() ||
-        Mod.EvaluatedData.ModifierOp != EGameplayModOp::AddBase ||
-        !FMath::IsFinite(Mod.EvaluatedData.Magnitude) || Mod.EvaluatedData.Magnitude >= 0.0f)
-    {
-        return;
-    }
-    UE_LOG(LogETCombatLife, Display,
-        TEXT("[M1-04C1] Health damage Character=%s Before=%.1f After=%.1f Actual=%.1f"),
-        *GetNameSafe(Character), Change.OldValue, Change.NewValue,
-        Change.OldValue - Change.NewValue);
-    RequestHitReactInternal(TEXT("HealthLoss"));
-}
-```
+当前源码：[ETCombatLifeComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatLifeComponent.cpp)。
+
+HandleHealthChanged优先提交零血死亡；只将真实负值生命GE识别为受击，不把治疗或上限夹限当命中。
 
 致命伤害不再输出DeathPendingC2，也不先启动一个新的HitReact。已有受击会由死亡取消。这里仍不保存GEModData。
 
@@ -333,127 +186,9 @@ void UETCombatLifeComponent::HandleHealthChanged(const FOnAttributeChangeData& C
 
 将下面两个**完整新函数**放在HandleHealthChanged后、EndPlay之前。先锁bDead / Tag，立即关Trace，再取消能力。这样即使能力EndAbility因ScopeLock稍后执行，窗口已经失效，新的输入也已拒绝。
 
-```cpp
-void UETCombatLifeComponent::CommitDeath(const TCHAR* Reason)
-{
-    AEmberTrialCharacter* Character = CharacterOwner.Get();
-    UAbilitySystemComponent* ASC = BoundASC.Get();
-    if (bEndingPlay || bDead || !IsValid(Character) ||
-        !Character->HasAuthority() || !Character->IsGameplayReady() ||
-        !IsValid(ASC) || Character->GetAbilitySystemComponent() != ASC)
-    {
-        return;
-    }
-    float Health = 0.0f;
-    float MaxHealth = 0.0f;
-    if (!Character->GetGameplayHealthSnapshot(Health, MaxHealth) ||
-        !FMath::IsFinite(Health) || Health > 0.0f)
-    {
-        return;
-    }
+当前源码：[ETCombatLifeComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatLifeComponent.cpp)。
 
-    bDead = true;
-    DeadTagASC = ASC;
-    bOwnsDeadTag = true;
-    ASC->AddLooseGameplayTag(ETGameplayTags::State_Dead);
-    Character = CharacterOwner.Get();
-    ASC = DeadTagASC.Get();
-    if (bEndingPlay || !IsValid(Character) || !IsValid(ASC) ||
-        !Character->IsGameplayReady())
-    {
-        return;
-    }
-    const FString CharacterName = GetNameSafe(Character);
-    UE_LOG(LogETCombatLife, Display,
-        TEXT("[M1-04C2] Death committed Character=%s Reason=%s Health=%.1f DeadTag=%d"),
-        *CharacterName, Reason, Health,
-        ASC->GetTagCount(ETGameplayTags::State_Dead));
-
-    UETCombatTraceComponent* Trace =
-        Character->FindComponentByClass<UETCombatTraceComponent>();
-    if (IsValid(Trace))
-    {
-        Trace->CancelActiveAttack();
-    }
-    ASC->CancelAllAbilities();
-    // Ability cancellation can invoke other callbacks; reacquire the weak owner.
-    Character = CharacterOwner.Get();
-    if (bEndingPlay || !IsValid(Character) || !Character->IsGameplayReady())
-    {
-        return;
-    }
-    UETPracticeActionComponent* Practice =
-        Character->FindComponentByClass<UETPracticeActionComponent>();
-    if (IsValid(Practice))
-    {
-        Practice->CancelPracticeAction();
-    }
-    Character = CharacterOwner.Get();
-    if (bEndingPlay || !IsValid(Character) || !Character->IsGameplayReady())
-    {
-        return;
-    }
-    Character->StopJumping();
-    Character->ConsumeMovementInputVector();
-    UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
-    if (IsValid(Movement))
-    {
-        Movement->StopMovementImmediately();
-        Movement->DisableMovement();
-    }
-    USkeletalMeshComponent* Mesh = Character->GetMesh();
-    if (IsValid(Mesh))
-    {
-        if (UAnimInstance* Anim = Mesh->GetAnimInstance())
-        {
-            Anim->StopAllMontages(0.0f);
-        }
-        if (bEndingPlay || !CharacterOwner.IsValid())
-        {
-            return;
-        }
-        Mesh = CharacterOwner->GetMesh();
-        if (IsValid(Mesh))
-        {
-            Mesh->bPauseAnims = true;
-        }
-    }
-    Character = CharacterOwner.Get();
-    if (bEndingPlay || !IsValid(Character))
-    {
-        return;
-    }
-    Trace = Character->FindComponentByClass<UETCombatTraceComponent>();
-    Practice = Character->FindComponentByClass<UETPracticeActionComponent>();
-    Movement = Character->GetCharacterMovement();
-    Mesh = Character->GetMesh();
-    UE_LOG(LogETCombatLife, Display,
-        TEXT("[M1-04C2] Death sealed Character=%s TraceTick=%d PracticeIdle=%d MoveMode=%d AnimPaused=%d"),
-        *CharacterName,
-        IsValid(Trace) && Trace->IsComponentTickEnabled() ? 1 : 0,
-        !IsValid(Practice) || Practice->IsPracticeActionIdle() ? 1 : 0,
-        IsValid(Movement) ? static_cast<int32>(Movement->MovementMode) : -1,
-        IsValid(Mesh) && Mesh->bPauseAnims ? 1 : 0);
-}
-
-void UETCombatLifeComponent::ClearOwnedDeadTag()
-{
-    UAbilitySystemComponent* ASC = DeadTagASC.Get();
-    const bool bRemoveOwnCount = bOwnsDeadTag;
-    bOwnsDeadTag = false;
-    DeadTagASC.Reset();
-    if (bRemoveOwnCount && IsValid(ASC))
-    {
-        if (ASC->GetTagCount(ETGameplayTags::State_Dead) > 0)
-        {
-            ASC->RemoveLooseGameplayTag(ETGameplayTags::State_Dead);
-        }
-        UE_LOG(LogETCombatLife, Display,
-            TEXT("[M1-04C2] Death tag released Character=%s Remaining=%d"),
-            *GetNameSafe(GetOwner()), ASC->GetTagCount(ETGameplayTags::State_Dead));
-    }
-}
-```
+CommitDeath先置死亡锁 / Tag并关闭Trace，再取消动作、停止移动和冻结动画，最后广播OnDeathSealed；ClearOwnedDeadTag只移除自己的一份计数。
 
 CancelAllAbilities只取消当前身体ASC上的活动能力，不清掉其他对象的Spec。Practice取消先移除自己的Root Motion Source，不能仅用StopMovementImmediately代替。AnimPaused只作用在这个死亡Mesh实例；不要在Blueprint默认值或AnimBP中永久设置。
 
@@ -461,21 +196,9 @@ CancelAllAbilities只取消当前身体ASC上的活动能力，不清掉其他�
 
 **替换组件EndPlay整个函数**；Character自己的EndPlay保持原顺序。bDead不在清理阶段重置为false；移除Tag是释放所有权，不是复活。
 
-```cpp
-void UETCombatLifeComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    bEndingPlay = true;
-    if (AEmberTrialCharacter* Character = CharacterOwner.Get())
-    {
-        Character->OnGameplayReadyChanged.RemoveDynamic(
-            this, &ThisClass::HandleReadyChanged);
-    }
-    StopObserving();
-    ClearOwnedDeadTag();
-    CharacterOwner.Reset();
-    Super::EndPlay(EndPlayReason);
-}
-```
+当前源码：[ETCombatLifeComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatLifeComponent.cpp)。
+
+EndPlay先封锁回调并清空死亡事件监听，再解除Ready / 属性 / 能力绑定并释放自己持有的Tag。
 
 构造、BeginPlay、HandleReadyChanged、StopObserving、RequestHitReact保留C1实现；它们不能重复出现两份。StopObserving中不要增加ClearOwnedDeadTag或`bDead=false`。清理时若ASC的Tag容器已经被结束流程清空，不再重复减计数；组件仍释放自己的持有标记。
 

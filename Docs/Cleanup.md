@@ -64,6 +64,20 @@ LightAttack两个玩家请求共用18项身份条件，提取为私有FindPlayer
 
 本批未交互式实机、重新DataValidation或Cook / 打包。完整快照、差异、日志与测试JSON位于Raw/Cleanup/2026-10-18_Batch04。额度快照：开工5小时已用59% / 周已用9%，收尾检查67% / 11%；未使用重置，不把助手时间计入用户手动实耗。
 
+## 第5批：生命观察、死亡封口与属性规则
+
+整理CombatLife、HealthAttributeSet、StaminaAttributeSet共六文件的格式 / 注释，说明Ready撤销与死亡锁的区别、Tag计数所有权、真实伤害分类、同步回调后的弱引用重取、Base / Current夹限与上限调整。保留生命与体力各自语义，不引入通用基类；同步回调保护不删。
+
+Life对旧Practice头的跨目录相对include改为模块内规范包含名；既有Build.cs已提供ModuleDirectory私有包含路径，无需修改依赖或移动类。除此之外，有效Token在等值相邻字符串拼接归一化后保持，数值、字段、API和日志文字不变。
+
+四份指南合并13处属性 / 生命组件整文件、完整方法及旧Foundation测试副本，共移除912行代码，改为Source入口；保留历史接入、资产配置、排障与验收经验。死亡指南补当前所有权规则，HealthReady删除过期的尚未编码描述。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，CLion三模块元数据刷新成功。全部11项现有EmberTrial自动化Success，0 Fail / 0 NotRun；原测试未改，继续覆盖属性初始化 / 夹限、真实伤害、受击 / 死亡取消、闪避 / 治疗 / 连段及结束清理。没有为纯排版新建镜像测试或要求用户重建蓝图验收入口。
+
+六文件在规范include与相邻字符串拼接归一化后有效Token / 预处理指令保持，clang-format检查通过。105份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希一致，冻结B1指南未改；文档链接 / 围栏与Git差异检查通过。收益是可读性、所有权 / 时序解释与降低包含路径耦合，不宣称帧率提升。
+
+Source仍111份 / 59cpp。本批未重新交互式实机、DataValidation或Cook / 打包，不能把旧失败页实机结果写成本批新验收。完整快照 / 差异 / 日志 / 测试JSON位于Raw/Cleanup/2026-10-18_Batch05。额度快照：开工5小时已用69% / 周已用11%，收尾检查75% / 12%；未使用重置，不计入用户手动实耗。
+
 ## 后续队列
 
 1. 共享标识符、旧Practice / 诊断入口引用审计，确认后移除无用路径。
@@ -72,25 +86,25 @@ LightAttack两个玩家请求共用18项身份条件，提取为私有FindPlayer
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-前四批已收口，其余队列未完成。后续按独立职责继续清理，不重建临时Controller验收图，不进入新玩法开发。
+前五批已收口，其余队列未完成。不重建临时Controller验收图，不进入新玩法开发；额度接近约定边界时只做可独立收尾的小批次。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第3批已提交，开工HEAD为f4c3353。本批共12项，按CLion实际Diff由用户Stage / Commit / Push：
+第4批已提交，开工HEAD为3b5c02c。本批共12项，按CLion实际Diff由用户Stage / Commit / Push：
 
-- EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_LightAttack.h
-- EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_LightAttack.cpp
-- EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_HitReact.h
-- EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_HitReact.cpp
-- EmberTrial/Source/EmberTrial/Tests/ETLightComboFlowTests.cpp
-- Docs/M1_04A_LightAttackAbility.md
+- EmberTrial/Source/EmberTrial/Public/Combat/ETCombatLifeComponent.h
+- EmberTrial/Source/EmberTrial/Private/Combat/ETCombatLifeComponent.cpp
+- EmberTrial/Source/EmberTrial/Public/Attributes/ETHealthAttributeSet.h
+- EmberTrial/Source/EmberTrial/Private/Attributes/ETHealthAttributeSet.cpp
+- EmberTrial/Source/EmberTrial/Public/Attributes/ETStaminaAttributeSet.h
+- EmberTrial/Source/EmberTrial/Private/Attributes/ETStaminaAttributeSet.cpp
+- Docs/M1_03A2_01_HealthReady.md
 - Docs/M1_04C1_HitReaction.md
-- Docs/M2_03B_LightCombo.md
-- Docs/M2_03C_RecoveryDodgeCancel.md
-- Docs/M2_03_LightComboRoadmap.md
+- Docs/M1_04C2_DeathState.md
+- Docs/M2_01A_StaminaFoundation.md
 - Docs/Cleanup.md
 - Docs/Progress.md
 
-可用提交说明：Deduplicate player attack context and clarify combat lifecycle。
+可用提交说明：Clarify life-state ownership and attribute invariants。
 
-Content / Config不因清理重存；Raw证据、日志 / 测试报告、生成索引和构建产物留本地。助手不Stage / Commit / Push。
+Content / Config不因清理重存；Raw证据、日志 / 测试报告、生成索引与构建产物本地。助手不Stage / Commit / Push。
