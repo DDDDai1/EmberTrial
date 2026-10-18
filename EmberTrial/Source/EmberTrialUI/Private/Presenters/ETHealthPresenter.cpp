@@ -1,4 +1,5 @@
 #include "Presenters/ETHealthPresenter.h"
+#include "Presenters/ETResourceViewMath.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayEffectTypes.h"
 #include "Attributes/ETHealthAttributeSet.h"
@@ -9,6 +10,8 @@
 #include "UObject/Class.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETHealthPresenter, Log, All);
+
+// ---- 观察生命周期与GC兜底 ----
 
 void UETHealthPresenter::StartObserving(UETUILocalPlayerSubsystem* Subsystem)
 {
@@ -58,8 +61,8 @@ void UETHealthPresenter::StopObservingInternal(bool bNotify)
 
     if (bWasObserving)
     {
-        UE_LOG(LogETHealthPresenter, Display,
-            TEXT("[M1-03B1] Stopped Presenter=%s"), *GetNameSafe(this));
+        UE_LOG(LogETHealthPresenter, Display, TEXT("[M1-03B1] Stopped Presenter=%s"),
+               *GetNameSafe(this));
     }
     if (bNotify)
     {
@@ -71,14 +74,16 @@ void UETHealthPresenter::StopObservingInternal(bool bNotify)
     }
 }
 
+// ---- 属性 / 身体身份重绑；旧数据源不能影响当前View ----
+
 void UETHealthPresenter::ClearAttributeBindings()
 {
     if (UAbilitySystemComponent* ASC = BoundASC.Get())
     {
-        ASC->GetGameplayAttributeValueChangeDelegate(
-            UETHealthAttributeSet::GetHealthAttribute()).Remove(HealthHandle);
-        ASC->GetGameplayAttributeValueChangeDelegate(
-            UETHealthAttributeSet::GetMaxHealthAttribute()).Remove(MaxHealthHandle);
+        ASC->GetGameplayAttributeValueChangeDelegate(UETHealthAttributeSet::GetHealthAttribute())
+            .Remove(HealthHandle);
+        ASC->GetGameplayAttributeValueChangeDelegate(UETHealthAttributeSet::GetMaxHealthAttribute())
+            .Remove(MaxHealthHandle);
     }
     HealthHandle.Reset();
     MaxHealthHandle.Reset();
@@ -100,8 +105,8 @@ void UETHealthPresenter::RebindObservedPawn(const TCHAR* Reason)
 {
     ClearPawnBindings();
     UETUILocalPlayerSubsystem* Subsystem = BoundSubsystem.Get();
-    AEmberTrialCharacter* Character = Subsystem
-        ? Cast<AEmberTrialCharacter>(Subsystem->GetObservedPawn()) : nullptr;
+    AEmberTrialCharacter* Character =
+        Subsystem ? Cast<AEmberTrialCharacter>(Subsystem->GetObservedPawn()) : nullptr;
     if (IsValid(Character))
     {
         BoundCharacter = Character;
@@ -116,7 +121,8 @@ void UETHealthPresenter::RefreshReadyBinding(const TCHAR* Reason)
 {
     AEmberTrialCharacter* Character = BoundCharacter.Get();
     UAbilitySystemComponent* ASC = Character && Character->IsGameplayReady()
-        ? Character->GetAbilitySystemComponent() : nullptr;
+                                       ? Character->GetAbilitySystemComponent()
+                                       : nullptr;
 
     if (!IsValid(ASC))
     {
@@ -128,14 +134,17 @@ void UETHealthPresenter::RefreshReadyBinding(const TCHAR* Reason)
         BoundASC = ASC;
         // Payload也是弱引用，用于拒绝旧ASC回调。
         HealthHandle = ASC->GetGameplayAttributeValueChangeDelegate(
-            UETHealthAttributeSet::GetHealthAttribute()).AddUObject(
-                this, &UETHealthPresenter::HandleAttributeChanged, BoundASC);
-        MaxHealthHandle = ASC->GetGameplayAttributeValueChangeDelegate(
-            UETHealthAttributeSet::GetMaxHealthAttribute()).AddUObject(
-                this, &UETHealthPresenter::HandleAttributeChanged, BoundASC);
+                              UETHealthAttributeSet::GetHealthAttribute())
+                           .AddUObject(this, &UETHealthPresenter::HandleAttributeChanged, BoundASC);
+        MaxHealthHandle =
+            ASC->GetGameplayAttributeValueChangeDelegate(
+                   UETHealthAttributeSet::GetMaxHealthAttribute())
+                .AddUObject(this, &UETHealthPresenter::HandleAttributeChanged, BoundASC);
     }
     PublishSnapshot(Reason);
 }
+
+// ---- 事件驱动刷新，不做Timer / Tick轮询 ----
 
 void UETHealthPresenter::HandleObservedPawnChanged(APawn* PreviousPawn, APawn* CurrentPawn)
 {
@@ -163,15 +172,18 @@ void UETHealthPresenter::HandleGameplayReadyChanged(AEmberTrialCharacter* Charac
 }
 
 void UETHealthPresenter::HandleAttributeChanged(const FOnAttributeChangeData& Change,
-    TWeakObjectPtr<UAbilitySystemComponent> SourceASC)
+                                                TWeakObjectPtr<UAbilitySystemComponent> SourceASC)
 {
     if (!bObserving || !SourceASC.IsValid() || SourceASC.Get() != BoundASC.Get())
     {
         return;
     }
     PublishSnapshot(Change.Attribute == UETHealthAttributeSet::GetHealthAttribute()
-        ? TEXT("HealthChanged") : TEXT("MaxHealthChanged"));
+                        ? TEXT("HealthChanged")
+                        : TEXT("MaxHealthChanged"));
 }
+
+// ---- 当前快照、合法区间与去重发布；共享数值检查，不合并两种资源状态 ----
 
 FETHealthViewData UETHealthPresenter::BuildSnapshot() const
 {
@@ -205,8 +217,7 @@ FETHealthViewData UETHealthPresenter::BuildSnapshot() const
     if (Character != BoundCharacter.Get() || !BoundASC.IsValid() ||
         Character->GetAbilitySystemComponent() != BoundASC.Get() ||
         !Character->GetGameplayHealthSnapshot(Health, MaxHealth) ||
-        !FMath::IsFinite(Health) || !FMath::IsFinite(MaxHealth) ||
-        MaxHealth <= 0.0f || Health < 0.0f || Health > MaxHealth)
+        !ETResourceViewMath::IsValidRange(Health, MaxHealth))
     {
         return Data;
     }
@@ -221,17 +232,20 @@ void UETHealthPresenter::PublishSnapshot(const TCHAR* Reason, bool bForce)
 {
     const FETHealthViewData NewData = BuildSnapshot();
     const bool bSame = Snapshot.State == NewData.State && Snapshot.PawnName == NewData.PawnName &&
-        Snapshot.Health == NewData.Health && Snapshot.MaxHealth == NewData.MaxHealth &&
-        Snapshot.HealthFraction == NewData.HealthFraction;
+                       Snapshot.Health == NewData.Health &&
+                       Snapshot.MaxHealth == NewData.MaxHealth &&
+                       Snapshot.HealthFraction == NewData.HealthFraction;
     if (bSame && !bForce)
     {
         return;
     }
     Snapshot = NewData;
-    UE_LOG(LogETHealthPresenter, Display,
-        TEXT("[M1-03B1] Snapshot Presenter=%s State=%s Pawn=%s Health=%.1f MaxHealth=%.1f Fraction=%.3f Reason=%s"),
-        *GetNameSafe(this), *StaticEnum<EETHealthViewState>()->GetNameStringByValue(
-            static_cast<int64>(Snapshot.State)), *Snapshot.PawnName,
-        Snapshot.Health, Snapshot.MaxHealth, Snapshot.HealthFraction, Reason);
+    UE_LOG(
+        LogETHealthPresenter, Display,
+        TEXT("[M1-03B1] Snapshot Presenter=%s State=%s Pawn=%s Health=%.1f MaxHealth=%.1f "
+             "Fraction=%.3f Reason=%s"),
+        *GetNameSafe(this),
+        *StaticEnum<EETHealthViewState>()->GetNameStringByValue(static_cast<int64>(Snapshot.State)),
+        *Snapshot.PawnName, Snapshot.Health, Snapshot.MaxHealth, Snapshot.HealthFraction, Reason);
     OnViewDataChanged.Broadcast(Snapshot);
 }

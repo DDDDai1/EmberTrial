@@ -156,16 +156,32 @@ Trace的扫掠采样留在TickComponent，候选去重 / 广播 / 阻挡处理�
 
 证据位于Raw/Cleanup/2026-10-18_Batch10。收尾额度快照：5小时已用36% / 剩余64%，周已用19% / 剩余81%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第10批后）
+## 第11批：资源Presenter数值约束去重与生命周期说明
 
-截至本批，累计10批涉及49 / 113份Source（文件覆盖率约43%）、25份Markdown；已记录移除7121行重复代码副本，不计其他说明精简。这是改动覆盖统计，**不是整体清理完成率**：AI / 校验器有些文件只做过黑板键归一，测试与新共享头也计入，不能视为整文件审计完成。
+开工HEAD为e596d53，第10批已提交、工作区干净；5小时已用38% / 周已用19%。四份Presenter整理格式 / 职责注释，五项重复数值合法性检查集中到UI私有无状态IsValidRange；保留Actor / ASC / Ready门控、日志级别、体力观察Serial与广播副本等差异，不引入通用UObject框架。
+
+两份头文件有效Token保持，两个cpp在展开共享检查 / 归一化相邻字符串后其余有效Token保持。新测试明确列出17项边界，包括0资源有效、小数正上限与非有限值拒绝；原12项测试保留，不把数值单元测试等同于重绑实机。
+
+体力指南移除两份旧Presenter全文共330行，两个HUD指南补当前Source / 所有权 / 验证边界，修正原型2 / 死亡待开发等过期预期。M1-03B1冻结文档不改。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，三模块CLion元数据与CMake刷新成功；新私有头和测试已进入UI CodeModel。全部13项EmberTrial自动化Success，0 Fail / 0 NotRun / 0测试警告，原12项测试未改；新增Range测试日志确认17个用例实际执行。
+
+配置脚本PASS，Errors=0 / Warnings=0。109份其他原有Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改。六份Source格式、LF / 末尾换行、文档链接 / 围栏和Git差异检查通过。新增一私有头 / 一测试，Source为115份 / 61cpp。
+
+收益为数值约束维护位置减少、数据观察职责可读性和边界可验证性，不宣称帧率提升。没有重新进行换Pawn / View重建 / 焦点的交互式实机、DataValidation或Cook / 打包，不能把数值测试当成完整Presenter生命周期回归。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+证据位于Raw/Cleanup/2026-10-18_Batch11。收尾额度快照：5小时已用44% / 剩余56%，周已用20% / 剩余80%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第11批后）
+
+截至本批，累计11批涉及55 / 115份Source（文件覆盖率约48%）、25份Markdown；已记录移除7451行重复代码副本，不计其他说明精简。这是改动覆盖统计，**不是整体清理完成率**：AI / 校验器有些文件只做过黑板键归一，测试与新共享头也计入，不能视为整文件审计完成。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
 | 正式能力 / 属性 / 资源 | 攻击、连段、闪避、受击、治疗、资源、死亡、Trace与原生Tag / 治疗Notify已整理 | Character大类、其他Effect及旧Practice引用审计 |
-| UI | 两HUD、状态Widget、Bootstrap及数值格式已整理 | 两Presenter、LocalPlayer观察、菜单 / 暂停 / 失败流程 |
+| UI | 两HUD、状态Widget、Bootstrap、两Presenter与数值约束已整理 | LocalPlayer观察、菜单 / 暂停 / 失败流程 |
 | AI | 黑板键统一；行为树与运行回归已有历史证据 | Controller / Service / Task完整职责、取消与失败重试审计 |
-| 工程 / 学习材料 | 相关指南改为Source入口，12项自动化保留并扩展 | Editor校验器、工具脚本、测试夹具复用、剩余架构 / 操作文档 |
+| 工程 / 学习材料 | 相关指南改为Source入口，13项自动化保留 / 扩展 | Editor校验器、工具脚本、测试夹具复用、剩余架构 / 操作文档 |
 | 最终收尾 | 分批正常构建与对应验证 | 清理完成后的统一实机链路、Cook / 打包和收益汇总 |
 
 目前处于逐模块清理阶段，尚未进入统一收尾。按每批约4–6份Source及同步文档的粒度，后续暂估约10–15批，再做统一实机 / 打包回归；这是工作量估计，不是承诺，审计确认无须改动的文件会保留，复杂依赖也可能增加批次。此前20–35小时是整体有效工作估计，不能从批次数反推剩余精确小时。
@@ -178,23 +194,23 @@ Trace的扫掠采样留在TickComponent，候选去重 / 广播 / 阻挡处理�
 4. 架构 / 工具 / 使用文档精简，保留有学习 / 面试价值的复盘。
 5. 统一构建 / 自动化、链路与包短查，再汇总收益。
 
-前十批已收口；其余队列未完成，不进入新玩法开发。
+前十一批已收口；其余队列未完成，不进入新玩法开发。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第9批已提交，本批基线HEAD为bf4b1d3。六份Source与两份指南 / Cleanup / Progress共10项，验证已收口；由你在CLion查看Diff、重新Stage最新修改后Commit / Push。
+第10批已提交，本批基线HEAD为e596d53。六份Source与两个HUD指南 / Cleanup / Progress共10项，验证已收口；由你在CLion查看Diff、重新Stage最新修改后Commit / Push，记得包含两个新文件。
 
-- [ETCombatTraceComponent.h](../EmberTrial/Source/EmberTrial/Public/Combat/ETCombatTraceComponent.h)
-- [ETCombatTraceComponent.cpp](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatTraceComponent.cpp)
-- [ETGameplayTags.h](../EmberTrial/Source/EmberTrial/Public/Abilities/ETGameplayTags.h)
-- [ETGameplayTags.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGameplayTags.cpp)
-- [ETAN_HealCommit.h](../EmberTrial/Source/EmberTrial/Public/Animation/ETAN_HealCommit.h)
-- [ETAN_HealCommit.cpp](../EmberTrial/Source/EmberTrial/Private/Animation/ETAN_HealCommit.cpp)
-- [M1_04B1_AttackTrace.md](M1_04B1_AttackTrace.md)
-- [M2_04B2_HealingAbility.md](M2_04B2_HealingAbility.md)
+- [ETHealthPresenter.h](../EmberTrial/Source/EmberTrialUI/Public/Presenters/ETHealthPresenter.h)
+- [ETHealthPresenter.cpp](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETHealthPresenter.cpp)
+- [ETStaminaPresenter.h](../EmberTrial/Source/EmberTrialUI/Public/Presenters/ETStaminaPresenter.h)
+- [ETStaminaPresenter.cpp](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETStaminaPresenter.cpp)
+- [ETResourceViewMath.h](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETResourceViewMath.h)
+- [ETResourceViewMathTests.cpp](../EmberTrial/Source/EmberTrialUI/Private/Tests/ETResourceViewMathTests.cpp)
+- [M1_03B2_HealthHUD.md](M1_03B2_HealthHUD.md)
+- [M2_01B2_StaminaHUD.md](M2_01B2_StaminaHUD.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-建议提交说明：Separate combat trace dispatch and clarify native event contracts。
+建议提交说明：Share resource presenter validation and test numeric edge cases。
 
 Content / Config / Build.cs / Target未改；Raw日志、快照、测试报告与生成文件留本地。助手未Stage / Commit / Push。

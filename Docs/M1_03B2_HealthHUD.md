@@ -6,6 +6,14 @@
 
 原方案日期：2026-10-04，原预计手动 **120–180分钟**，构建 / 索引等待另计。可分“代码与面板”“临时蓝图与验收”两次完成。
 
+## 当前Presenter边界（第11批清理同步）
+
+生命Presenter当前[声明](../EmberTrial/Source/EmberTrialUI/Public/Presenters/ETHealthPresenter.h) / [实现](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETHealthPresenter.cpp)与体力Presenter当前[声明](../EmberTrial/Source/EmberTrialUI/Public/Presenters/ETStaminaPresenter.h) / [实现](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETStaminaPresenter.cpp)各自管理订阅、状态、日志和发布。共享的[数值范围函数](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETResourceViewMath.h)只接受有限、0≤Current≤Maximum且Maximum>0的数据，不读取Actor / ASC，不替代Pawn / Ready身份门控。
+
+0资源仍是有效Ready，不能为避免除零把死亡或耗尽隐藏成Unavailable；比例仍由各自Presenter按原公式计算。生命保留弱ASC过滤，体力保留观察Serial与局部广播快照；本次不为了对称而增加字段、删除保护或合并生命周期。StartObserving保留View订阅，Shutdown / GC沿原规则释放数据源订阅。
+
+[1项范围测试（17个用例）](../EmberTrial/Source/EmberTrialUI/Private/Tests/ETResourceViewMathTests.cpp)覆盖零值、负值、超上限、正的小数上限、有限极值和NaN / Infinity；这是纯数值契约测试，不等于重新完成换Pawn、Widget重建或焦点实机矩阵。冻结的M1-03B1指南按历史材料保留，本页补当前Source入口与验证边界。
+
 ## 当前显示与验证边界（清理同步）
 
 两个HUD仅共享[私有数值格式函数](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETResourceHUDText.h)：0位小数、随locale取整与分组，仍返回保留本地化历史的FText；调用方提供原LOCTEXT Pattern，不合并生命 / 体力的状态枚举、标题、日志级别或订阅。
@@ -16,7 +24,7 @@
 
 ## 1. 本批目标与边界
 
-左上角新增一个生命值面板，显示“生命值 / 100 / 100 / 血条”；右上角保留原状态面板。生命值变化由Presenter事件推动，无UMG Text / Percent Binding，无Tick、轮询或Delay。无Pawn / 未就绪时隐藏数值与血条，显示原因；Ready且0生命值仍显示0/100和空条，死亡系统后续开发。
+左上角新增一个生命值面板，显示“生命值 / 100 / 100 / 血条”；右上角保留原状态面板。生命值变化由Presenter事件推动，无UMG Text / Percent Binding，无Tick、轮询或Delay。无Pawn / 未就绪时隐藏数值与血条，显示原因；Ready且0生命值仍显示0/100和空条。原B2阶段尚未实现死亡，当前已接入死亡与失败流程，原配置步骤仅作历史参考。
 
 数据路线：`Character ASC → Health Presenter → Health HUD Widget`。Bootstrap持有唯一Presenter和当前Widget；Widget只弱引用Presenter，不获取ASC，不写角色属性，不重算属性规则。蓝图负责布局、Class配置和可删除的验证入口；C++负责订阅、快照、渲染与清理。
 

@@ -8,6 +8,14 @@
 
 本批预计手动 **60–100分钟**：代码30–50、资产15–25、相关检查5–15、保存记录约5分钟；构建 / 索引等待另记，不计为实耗。继续方案B，没有新临时Controller函数或按键；复用B1的ke命令和现有死亡 / Retry / 返回菜单。
 
+## 当前Presenter边界（第11批清理同步）
+
+生命Presenter当前[声明](../EmberTrial/Source/EmberTrialUI/Public/Presenters/ETHealthPresenter.h) / [实现](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETHealthPresenter.cpp)与体力Presenter当前[声明](../EmberTrial/Source/EmberTrialUI/Public/Presenters/ETStaminaPresenter.h) / [实现](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETStaminaPresenter.cpp)各自管理订阅、状态、日志和发布。共享的[数值范围函数](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETResourceViewMath.h)只接受有限、0≤Current≤Maximum且Maximum>0的数据，不读取Actor / ASC，不替代Pawn / Ready身份门控。
+
+0资源仍是有效Ready，不能为避免除零把死亡或耗尽隐藏成Unavailable；比例仍由各自Presenter按原公式计算。生命保留弱ASC过滤，体力保留观察Serial与局部广播快照；本次不为了对称而增加字段、删除保护或合并生命周期。StartObserving保留View订阅，Shutdown / GC沿原规则释放数据源订阅。
+
+[1项范围测试（17个用例）](../EmberTrial/Source/EmberTrialUI/Private/Tests/ETResourceViewMathTests.cpp)覆盖零值、负值、超上限、正的小数上限、有限极值和NaN / Infinity；这是纯数值契约测试，不等于重新完成换Pawn、Widget重建或焦点实机矩阵。冻结的M1-03B1指南按历史材料保留，本页补当前Source入口与验证边界。
+
 ## 当前显示与验证边界（清理同步）
 
 两个HUD仅共享[私有数值格式函数](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETResourceHUDText.h)：0位小数、随locale取整与分组，仍返回保留本地化历史的FText；调用方提供原LOCTEXT Pattern，不合并生命 / 体力的状态枚举、标题、日志级别或订阅。
@@ -18,7 +26,7 @@
 
 ## 1. 结果、职责与覆盖范围
 
-左上方生命面板下新增“体力值 / 100 / 100 / 绿色进度条”。开发-25后显示75并随B1真实GE恢复，生命仍100；满值无UI轮询。按2仍是原型，不消费体力；正式成本、闪避免伤 / Dodging留M2-02。
+左上方生命面板下新增“体力值 / 100 / 100 / 绿色进度条”。开发-25后显示75并随B1真实GE恢复，生命仍100；满值无UI轮询。原B2阶段按2尚是原型；当前2已是正式闪避，消费25体力并持有Dodging / 短无敌，按当前规则回归。
 
 数据单向流动：`当前LocalPlayer的Pawn → Character ASC事件 → StaminaPresenter快照 → StaminaHUD`。Bootstrap持有一个新Presenter与当前体力Widget，两个都是每个游戏Controller的对象；保持既有生命Presenter / Widget独立，不在Core反向引用UI。恢复组件不接触UMG，View不写属性、不自行计时补体力。
 
@@ -48,353 +56,21 @@ Stop PIE → Save All → 关闭UE，CLion保存。**四新Source / 两旧Source
 | 修改 | `Public/Bootstrap/ETUIBootstrapComponent.h` |
 | 修改 | `Private/Bootstrap/ETUIBootstrapComponent.cpp` |
 
-复制下面全文，不覆盖原Health四文件。已有UMG / Core / GAS依赖足够；generated.h必须最后include。新枚举 / 结构 / 类名均为Stamina，不能与Health重复。
+当前四份实现以Source为准，不再复制旧全文；UMG / Core / GAS依赖足够，generated.h仍须最后include。Stamina与Health保持独立枚举 / 结构 / 类名，不引入通用反射基类。
 
-## 3. 新Presenter两文件：完整代码
+## 3. Presenter当前源码
 
 ### 3.1 ETStaminaPresenter.h
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "UObject/Object.h"
-#include "ETStaminaPresenter.generated.h"
-
-class APawn;
-class AEmberTrialCharacter;
-class UAbilitySystemComponent;
-class UETUILocalPlayerSubsystem;
-struct FOnAttributeChangeData;
-
-UENUM(BlueprintType)
-enum class EETStaminaViewState : uint8
-{
-    Unavailable,
-    NoPawn,
-    UnsupportedPawn,
-    WaitingForGameplayReady,
-    Ready
-};
-
-USTRUCT(BlueprintType)
-struct EMBERTRIALUI_API FETStaminaViewData
-{
-    GENERATED_BODY()
-
-    UPROPERTY(BlueprintReadOnly, Category = "EmberTrial|UI")
-    EETStaminaViewState State = EETStaminaViewState::Unavailable;
-
-    UPROPERTY(BlueprintReadOnly, Category = "EmberTrial|UI")
-    FString PawnName;
-
-    UPROPERTY(BlueprintReadOnly, Category = "EmberTrial|UI")
-    float Stamina = 0.0f;
-
-    UPROPERTY(BlueprintReadOnly, Category = "EmberTrial|UI")
-    float MaxStamina = 0.0f;
-
-    UPROPERTY(BlueprintReadOnly, Category = "EmberTrial|UI")
-    float StaminaFraction = 0.0f;
-};
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
-    FETStaminaViewChanged, const FETStaminaViewData&, Data);
-
-UCLASS(BlueprintType)
-class EMBERTRIALUI_API UETStaminaPresenter : public UObject
-{
-    GENERATED_BODY()
-
-public:
-    void StartObserving(UETUILocalPlayerSubsystem* Subsystem);
-    void Shutdown();
-
-    UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
-    FETStaminaViewData GetSnapshot() const;
-
-    UPROPERTY(BlueprintAssignable, Category = "EmberTrial|UI")
-    FETStaminaViewChanged OnViewDataChanged;
-
-protected:
-    virtual void BeginDestroy() override;
-
-private:
-    void StopObservingInternal(bool bNotify);
-    void ClearPawnBindings();
-    void ClearAttributeBindings();
-    void RebindObservedPawn(const TCHAR* Reason);
-    void RefreshReadyBinding(const TCHAR* Reason);
-    FETStaminaViewData BuildSnapshot() const;
-    void PublishSnapshot(const TCHAR* Reason, bool bForce = false);
-
-    UFUNCTION()
-    void HandleObservedPawnChanged(APawn* PreviousPawn, APawn* CurrentPawn);
-
-    UFUNCTION()
-    void HandleGameplayReadyChanged(AEmberTrialCharacter* Character, bool bReady);
-
-    void HandleAttributeChanged(const FOnAttributeChangeData& Change,
-        TWeakObjectPtr<UAbilitySystemComponent> SourceASC, uint64 Serial);
-
-    TWeakObjectPtr<UETUILocalPlayerSubsystem> BoundSubsystem;
-    TWeakObjectPtr<AEmberTrialCharacter> BoundCharacter;
-    TWeakObjectPtr<UAbilitySystemComponent> BoundASC;
-    FDelegateHandle StaminaHandle;
-    FDelegateHandle MaxStaminaHandle;
-    FETStaminaViewData Snapshot;
-    uint64 ObservationSerial = 0;
-    bool bObserving = false;
-};
-```
+当前源码：[ETStaminaPresenter.h](../EmberTrial/Source/EmberTrialUI/Public/Presenters/ETStaminaPresenter.h)。
 
 ### 3.2 ETStaminaPresenter.cpp
 
-```cpp
-#include "Presenters/ETStaminaPresenter.h"
-#include "AbilitySystemComponent.h"
-#include "GameplayEffectTypes.h"
-#include "Attributes/ETStaminaAttributeSet.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "GameFramework/Pawn.h"
-#include "Lifecycle/ETUILocalPlayerSubsystem.h"
-#include "Logging/LogMacros.h"
-#include "UObject/Class.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETStaminaPresenter, Log, All);
-
-void UETStaminaPresenter::StartObserving(UETUILocalPlayerSubsystem* Subsystem)
-{
-    // 保留View订阅；只清理本Presenter对数据源的订阅。
-    StopObservingInternal(false);
-    if (!IsValid(Subsystem))
-    {
-        PublishSnapshot(TEXT("MissingSubsystem"), true);
-        return;
-    }
-
-    BoundSubsystem = Subsystem;
-    bObserving = true;
-    Subsystem->OnObservedPawnChanged.AddUniqueDynamic(
-        this, &UETStaminaPresenter::HandleObservedPawnChanged);
-    RebindObservedPawn(TEXT("StartSnapshot"));
-}
-
-void UETStaminaPresenter::Shutdown()
-{
-    StopObservingInternal(true);
-}
-
-void UETStaminaPresenter::BeginDestroy()
-{
-    // GC兜底不广播给View，正常清理由Bootstrap的EndPlay负责。
-    StopObservingInternal(false);
-    Super::BeginDestroy();
-}
-
-FETStaminaViewData UETStaminaPresenter::GetSnapshot() const
-{
-    return Snapshot;
-}
-
-void UETStaminaPresenter::StopObservingInternal(bool bNotify)
-{
-    const bool bWasObserving = bObserving;
-    bObserving = false;
-    if (UETUILocalPlayerSubsystem* Subsystem = BoundSubsystem.Get())
-    {
-        Subsystem->OnObservedPawnChanged.RemoveDynamic(
-            this, &UETStaminaPresenter::HandleObservedPawnChanged);
-    }
-    ClearPawnBindings();
-    BoundSubsystem.Reset();
-
-    if (bWasObserving)
-    {
-        UE_LOG(LogETStaminaPresenter, Display,
-            TEXT("[M2-01B2] Stopped Presenter=%s"), *GetNameSafe(this));
-    }
-    if (bNotify)
-    {
-        PublishSnapshot(TEXT("Shutdown"));
-    }
-    else
-    {
-        Snapshot = FETStaminaViewData{};
-    }
-}
-
-void UETStaminaPresenter::ClearAttributeBindings()
-{
-    ++ObservationSerial;
-    if (UAbilitySystemComponent* ASC = BoundASC.Get())
-    {
-        ASC->GetGameplayAttributeValueChangeDelegate(
-            UETStaminaAttributeSet::GetStaminaAttribute()).Remove(StaminaHandle);
-        ASC->GetGameplayAttributeValueChangeDelegate(
-            UETStaminaAttributeSet::GetMaxStaminaAttribute()).Remove(MaxStaminaHandle);
-    }
-    StaminaHandle.Reset();
-    MaxStaminaHandle.Reset();
-    BoundASC.Reset();
-}
-
-void UETStaminaPresenter::ClearPawnBindings()
-{
-    ClearAttributeBindings();
-    if (AEmberTrialCharacter* Character = BoundCharacter.Get())
-    {
-        Character->OnGameplayReadyChanged.RemoveDynamic(
-            this, &UETStaminaPresenter::HandleGameplayReadyChanged);
-    }
-    BoundCharacter.Reset();
-}
-
-void UETStaminaPresenter::RebindObservedPawn(const TCHAR* Reason)
-{
-    ClearPawnBindings();
-    UETUILocalPlayerSubsystem* Subsystem = BoundSubsystem.Get();
-    AEmberTrialCharacter* Character = Subsystem
-        ? Cast<AEmberTrialCharacter>(Subsystem->GetObservedPawn()) : nullptr;
-    if (IsValid(Character))
-    {
-        BoundCharacter = Character;
-        // 先订阅，再查询，兼容就绪通知早于Presenter创建。
-        Character->OnGameplayReadyChanged.AddUniqueDynamic(
-            this, &UETStaminaPresenter::HandleGameplayReadyChanged);
-    }
-    RefreshReadyBinding(Reason);
-}
-
-void UETStaminaPresenter::RefreshReadyBinding(const TCHAR* Reason)
-{
-    AEmberTrialCharacter* Character = BoundCharacter.Get();
-    UAbilitySystemComponent* ASC = Character && Character->IsGameplayReady()
-        ? Character->GetAbilitySystemComponent() : nullptr;
-
-    if (!IsValid(ASC))
-    {
-        ClearAttributeBindings();
-    }
-    else if (BoundASC.Get() != ASC || !StaminaHandle.IsValid() || !MaxStaminaHandle.IsValid())
-    {
-        ClearAttributeBindings();
-        BoundASC = ASC;
-        // Payload也是弱引用，用于拒绝旧ASC回调。
-        StaminaHandle = ASC->GetGameplayAttributeValueChangeDelegate(
-            UETStaminaAttributeSet::GetStaminaAttribute()).AddUObject(
-                this, &UETStaminaPresenter::HandleAttributeChanged, BoundASC, ObservationSerial);
-        MaxStaminaHandle = ASC->GetGameplayAttributeValueChangeDelegate(
-            UETStaminaAttributeSet::GetMaxStaminaAttribute()).AddUObject(
-                this, &UETStaminaPresenter::HandleAttributeChanged, BoundASC, ObservationSerial);
-    }
-    PublishSnapshot(Reason);
-}
-
-void UETStaminaPresenter::HandleObservedPawnChanged(APawn* PreviousPawn, APawn* CurrentPawn)
-{
-    (void)PreviousPawn;
-    (void)CurrentPawn;
-    if (bObserving)
-    {
-        RebindObservedPawn(TEXT("PawnChanged"));
-    }
-}
-
-void UETStaminaPresenter::HandleGameplayReadyChanged(AEmberTrialCharacter* Character, bool bReady)
-{
-    if (!bObserving || Character != BoundCharacter.Get())
-    {
-        return;
-    }
-    if (!bReady)
-    {
-        ClearAttributeBindings();
-        PublishSnapshot(TEXT("ReadyFalse"));
-        return;
-    }
-    RefreshReadyBinding(TEXT("ReadyTrue"));
-}
-
-void UETStaminaPresenter::HandleAttributeChanged(const FOnAttributeChangeData& Change,
-    TWeakObjectPtr<UAbilitySystemComponent> SourceASC, uint64 Serial)
-{
-    if (Serial != ObservationSerial || !bObserving || !SourceASC.IsValid() || SourceASC.Get() != BoundASC.Get())
-    {
-        return;
-    }
-    PublishSnapshot(Change.Attribute == UETStaminaAttributeSet::GetStaminaAttribute()
-        ? TEXT("StaminaChanged") : TEXT("MaxStaminaChanged"));
-}
-
-FETStaminaViewData UETStaminaPresenter::BuildSnapshot() const
-{
-    FETStaminaViewData Data;
-    UETUILocalPlayerSubsystem* Subsystem = BoundSubsystem.Get();
-    if (!bObserving || !IsValid(Subsystem))
-    {
-        return Data;
-    }
-    APawn* Pawn = Subsystem->GetObservedPawn();
-    if (!IsValid(Pawn))
-    {
-        Data.State = EETStaminaViewState::NoPawn;
-        return Data;
-    }
-    Data.PawnName = Pawn->GetName();
-    AEmberTrialCharacter* Character = Cast<AEmberTrialCharacter>(Pawn);
-    if (!IsValid(Character))
-    {
-        Data.State = EETStaminaViewState::UnsupportedPawn;
-        return Data;
-    }
-    if (!Character->IsGameplayReady())
-    {
-        Data.State = EETStaminaViewState::WaitingForGameplayReady;
-        return Data;
-    }
-
-    float Stamina = 0.0f;
-    float MaxStamina = 0.0f;
-    if (Character != BoundCharacter.Get() || !BoundASC.IsValid() ||
-        Character->GetAbilitySystemComponent() != BoundASC.Get() ||
-        !Character->GetGameplayStaminaSnapshot(Stamina, MaxStamina) ||
-        !FMath::IsFinite(Stamina) || !FMath::IsFinite(MaxStamina) ||
-        MaxStamina <= 0.0f || Stamina < 0.0f || Stamina > MaxStamina)
-    {
-        return Data;
-    }
-    Data.State = EETStaminaViewState::Ready;
-    Data.Stamina = Stamina;
-    Data.MaxStamina = MaxStamina;
-    Data.StaminaFraction = FMath::Clamp(Stamina / MaxStamina, 0.0f, 1.0f);
-    return Data;
-}
-
-void UETStaminaPresenter::PublishSnapshot(const TCHAR* Reason, bool bForce)
-{
-    const FETStaminaViewData NewData = BuildSnapshot();
-    const bool bSame = Snapshot.State == NewData.State && Snapshot.PawnName == NewData.PawnName &&
-        Snapshot.Stamina == NewData.Stamina && Snapshot.MaxStamina == NewData.MaxStamina &&
-        Snapshot.StaminaFraction == NewData.StaminaFraction;
-    if (bSame && !bForce)
-    {
-        return;
-    }
-    Snapshot = NewData;
-    UE_LOG(LogETStaminaPresenter, Verbose,
-        TEXT("[M2-01B2] Snapshot Presenter=%s State=%s Pawn=%s Stamina=%.1f MaxStamina=%.1f Fraction=%.3f Reason=%s"),
-        *GetNameSafe(this), *StaticEnum<EETStaminaViewState>()->GetNameStringByValue(
-            static_cast<int64>(Snapshot.State)), *Snapshot.PawnName,
-        Snapshot.Stamina, Snapshot.MaxStamina, Snapshot.StaminaFraction, Reason);
-    const FETStaminaViewData Published = Snapshot;
-    OnViewDataChanged.Broadcast(Published);
-}
-```
+当前源码：[ETStaminaPresenter.cpp](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETStaminaPresenter.cpp)。
 
 观察序号在清除属性订阅时递增，避免同一ASC重新订阅后接受旧一轮回调。快照按状态、Pawn身份和精确数值去重，不用显示整数反推实际资源；恢复可能每0.10秒更新，Presenter没有Tick / Timer。广播局部快照副本，避免订阅者同步回调修改成员快照时改变正在广播的数据。
 
-## 4. 新Widget两文件：完整代码
+## 4. Widget当前源码
 
 ### 4.1 ETStaminaHUDWidget.h
 
@@ -518,7 +194,7 @@ Compile → 确认没有required widget binding或Native Tick警告 → Save。�
    ```
 
 3. 观察体力立即下降后逐步回满，生命仍100。命令日志应Before100 / After75 / Max100；显示可因切窗口耗时已开始恢复，不要求你截到恰好75。约0.75世界秒延迟及速率不重做掐秒测试，以B1已有时序证据为准。
-4. 再用原命令 `ke BP_ETPlayerController_C ET_Stamina 0` 查询，满值After100 / Timer0。按2仍不消费体力是当前预期。
+4. 再用原命令 `ke BP_ETPlayerController_C ET_Stamina 0` 查询，满值After100 / Timer0。这是历史满值检查；当前按2会消费25，不能沿用原型“不消费”的旧预期。
 
 本批Core / 恢复源码未改，**不重复跑两项资源自动测试或旧M0测试**；若你实际修改过它们或此步失败，再按差异运行相关测试。
 
@@ -548,7 +224,7 @@ M2-01B2 完成 / 卡在第__节第__步
 出生单生命 / 体力100，开发-25真实下降 / 逐步回满 / 生命隔离：
 Pause冻结 / 恢复；真实死亡Retry新100 / 返回菜单Continue单面板：
 未满Stop / 新一轮100 / View与Presenter结束清理：
-左键25 / 原2不耗体力 / E / P与移动转向跳跃短基线：
+左键25 / 正式2耗体力并恢复 / E / P与移动转向跳跃短基线：
 Source / 资产Save All；失败或特别说明（无则填无）：
 完成时分（如21:18）/ 手动用时 / 构建等待：
 ```
