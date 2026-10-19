@@ -1,6 +1,6 @@
 # 当前开发状态
 
-更新2026-10-19。功能开发停在[M2-04B2已验收](Reports/M2_04B2_Verification.md)，当前进行[代码与文档清理](Cleanup.md)，不进入M2-04C。
+更新2026-10-19。功能开发停在[M2-04B2已验收](Reports/M2_04B2_Verification.md)，本轮[代码与文档清理](Cleanup.md)实施与软件侧验证已收尾，保留物理输入窄复验，不进入M2-04C。
 
 ## 当前阶段
 
@@ -9,19 +9,19 @@
 - 116份Source / 61cpp，来源63项；M0、M1、M2-01 / 02 / 03及M2-04A / B1 / B2已验收。
 - 功能：生命 / 体力HUD、三段攻击、方向闪避 / 成本 / 短无敌、Q治疗、近战AI、菜单 / 暂停 / 重试 / 会话检查点。
 - 次数HUD与M2-04整章未完成；Continue重建世界，持久存档未实现。
-- 独立包仍M1 C3 Attempt02，不包含M2功能；Editor验收不等于新版包验收。
+- 当前验证包：Artifacts/Builds/Cleanup/Attempt01/Windows/EmberTrial.exe；真实包流程及限制见第32批，旧M1包保留历史。
 
 ## 当前交接
 
-第24–26批已由用户一起提交；本轮基线HEAD为6cdd065。继续第27–29批，全部记录在Cleanup.md的独立章节，最终一起Commit / Push；当前完成至第29批。
+第27–29批已由用户提交至5e20cec；本轮第30–32批分别记录在Cleanup.md独立章节，三批工作已收尾，一起Commit / Push；整轮验收保留第32批末尾2–3分钟物理输入确认。
 
-- [第27批：工程脚本与可复现输出](Cleanup.md#cleanup-batch-27)：验证和边界见对应章节。
-- [第28批：模块边界与资产引用审计](Cleanup.md#cleanup-batch-28)：验证和边界见对应章节。
-- [第29批：项目入口、架构与验收文档收口](Cleanup.md#cleanup-batch-29)：验证和边界见对应章节。
+- [第30批：未Cook实机、输入与UI回归](Cleanup.md#cleanup-batch-30)。
+- [第31批：当前M2 Development打包](Cleanup.md#cleanup-batch-31)。
+- [第32批：独立包主流程与清理交接](Cleanup.md#cleanup-batch-32)。
 
-累计29批涉及114 / 116份Source（覆盖率不是完成率）、52份现存Markdown与3个工具；移除重复副本累计15764行。资产 / 配置与冻结B1保持；未进行集中实机或新版Cook / 打包，最终验收仍待完成。
+累计32批涉及114 / 116份Source、52份现存Markdown与3个工具，移除重复副本15764行；两个未修改的极简Core文件审计合格。各项实际执行、沿用与未覆盖边界以本轮记录为准，不用文件覆盖率声称零缺陷。
 
-最近额度快照：5小时已用43%、周已用46%，未使用重置。
+最近额度：5小时已用81% / 周已用52%；未使用重置。
 
 ## 资源与工期校准
 
@@ -45,4 +45,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-第27–29批一起提交，完整清单及建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Raw / 日志 / 索引 / 构建产物留本地，助手未操作Git索引。
+第30–32批一起提交，完整清单和建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Raw / Runtime / 包体 / 生成文件留本地；助手未操作Git索引。

@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前功能基线为M2-04B2，正在清理代码与文档，尚未达到最终投递版本。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前功能基线为M2-04B2，代码与文档已完成一轮清理及软件侧验证，物理输入窄复验范围见Cleanup，尚未达到最终投递版本。
 
 ## 已实现的体验
 
@@ -24,7 +24,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 
 Refresh-CLion会正常构建Editor目标并生成三个模块各自的索引信息。随后打开[EmberTrial.uproject](EmberTrial/EmberTrial.uproject)；正式试玩从`/Game/EmberTrial/Maps/L_ET_MainMenu`开始，编辑器开发地图为`L_ET_VerticalSlice`。
 
-Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说明见[IDE配置 / 切换说明](Docs/CodeEditor_CLion_VS2022.md)与[源码创建 / 索引刷新](Docs/CLion_UEClassCreation.md)。这是源码工程入口，仓库未提供当前M2可下载试玩包；本地旧M1包不代表最新功能。
+Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说明见[IDE配置 / 切换说明](Docs/CodeEditor_CLion_VS2022.md)与[源码创建 / 索引刷新](Docs/CLion_UEClassCreation.md)。这是源码工程入口，仓库未提供可下载Release。本地已生成当前M2验证包，入口为`Artifacts/Builds/Cleanup/Attempt01/Windows/EmberTrial.exe`；通过主菜单、治疗 / 闪避正式接口、AI致死、A点Retry / Continue及新进程清空检查，输入注入与未覆盖范围见[Cleanup](Docs/Cleanup.md)。完整Windows目录留本地，旧M1包只代表历史版本。
 
 ## 默认操作
 

@@ -530,45 +530,75 @@ Architecture从306行整理为117行，按模块、所有者、Ready / 结束、
 
 证据 / 原始日志 / 快照见Raw/Cleanup/2026-10-19_Batch29；源码自动化证据对应第28批。额度开工5小时已用37% / 周45%，收尾快照43% / 46%；未使用重置，不计用户手动工时。
 
-## 整体进度快照（第29批后）
+<a id="cleanup-batch-30"></a>
 
-累计29批涉及114 / 116份Source、52份现存Markdown，另整理3个工程脚本；累计移除15764行重复实现 / 配置副本。文件覆盖率不等于整体完成率；已审计合格文件无需强行改动。
+## 第30批：未Cook实机、输入与UI回归
+
+2026-10-19，用户已将第27–29批合并提交为5e20cec，开工工作区干净。此前两次启动分别在未输入前 / 用户中断期间关闭，不作为功能验收；恢复后使用UE5.5.4 -game未Cook Standalone真实D3D12窗口，不是PIE或打包版。未改Source / 资产，无需为此重跑未变的13项自动化。
+
+Computer Use实际确认新进程Continue禁用、鼠标开始后单份生命 / 体力100与当前Pawn、左键进入正式攻击、4真实损伤100→75、P暂停与Enter继续、暂停返回菜单Continue可用、菜单正常退出及旧UI / 观察 / Session结束。原生日志与画面相互核对，本轮无玩法Warning / Error / Accessed None。
+
+工具短按2 / Q / Space没有获得可判定的Enhanced Input样本；4 / P正常，不能据此判项目键位损坏。先用现有RequestDodge正式接口隔离，随后按本机EnhancedInputModule源码使用UE自带Input.+key Two / Q持续输入，沿现有键映射得到正式闪避一次25成本、150.05cm / SourceTime .3001、短无敌和Tag清理；Q在约.5秒通知点75→100且次数3→2，长按不重复。Q随后Input.-key释放；剩余Two注入仅该LocalPlayer / 进程有效，正常退出后清除。未改键位、加测试蓝图或放宽断言，也不把注入记成物理按键通过。
+
+本批是相关实机样本，不声称三段精确连按、活动动作中途暂停 / 打断、墙坡矩阵或检查点 / AI完整流程已在本轮复测；前者沿用第28批13项测试及历史实机，后两项主要流程第32批在新包补查。290项保护文件、116 Source与冻结B1保持，退出与快照证据留Raw/Cleanup/2026-10-19_Batch30。
+
+额度初次开工5小时已用44% / 周46%，恢复时49% / 47%，收尾59% / 49%；未使用重置，不计用户手动工时。本批只更新Cleanup / Progress，收益为补齐运行证据与区分工具限制，不虚构性能改进。
+
+<a id="cleanup-batch-31"></a>
+
+## 第31批：当前M2 Development打包
+
+2026-10-19，未改Source / 资产 / Config，UE与游戏关闭后正常执行Win64 Development BuildCookRun。新目录为Artifacts/Builds/Cleanup/Attempt01，不覆盖M1旧Attempt。UAT实际84秒，Build、完整非迭代Cook、Stage、Pak / IoStore与Archive全部完成，最终ExitCode0；Cook汇总0 Error / 0 Warning。启动时另有UTS Trace Server环境警告0x00006005，保留日志，不掩盖也不当成玩法故障。
+
+包入口为E:/UE_Project/Demo/Artifacts/Builds/Cleanup/Attempt01/Windows/EmberTrial.exe，实际游戏二进制位于Windows/EmberTrial/Binaries/Win64/EmberTrial.exe。入口 / 实际exe与五个容器的SHA / 大小已记录，游戏二进制与当前Build输出一致，包内没有EmberTrialEditor模块文件；M2治疗GA / Montage、Dodge、体力HUD与IMC等真实Cooked资产存在。原生模块目标 / 源码保持，不将成功打包冒充独立包Gameplay通过。
+
+Run-StageBuild.ps1仅给EvidenceStage白名单追加Cleanup并澄清注释，原默认值 / 参数、CVar、WhatIf前置、元数据和启动逻辑保持；限定差异对比及PowerShell解析通过。对旧包与新包分别WhatIf，输出指向Cleanup证据目录且没有创建Runtime目录或启动游戏。旧M1性能采集口径保持；无需新增框架或重复C++测试。第32批将实际使用新阶段启动，运行证据存Artifacts/Cleanup/Runtime。
+
+290项保护文件、116份Source与冻结B1保持；Git未操作。快照 / UAT全文 / 包指纹 / 脚本比较见Raw/Cleanup/2026-10-19_Batch31。本批只改启动工具与Cleanup / Progress，收益是新包可验证及与历史证据分离，不宣称性能改善。额度开工5小时已用59% / 周49%，收尾63% / 49%；未使用重置，不计用户手动工时。
+
+<a id="cleanup-batch-32"></a>
+
+## 第32批：独立包主流程与清理交接
+
+2026-10-19，使用第31批真实新包，UE编辑器关闭；Run01 / Run02及JSON均存Artifacts/Cleanup/Runtime，包SHA保持。Computer Use通过游戏窗口操作，没有操作外部日志控制台、修改资产或Git。完整原始日志 / 关键提取见Raw/Cleanup/2026-10-19_Batch32。
+
+Run01确认首屏中文 / Continue禁用、Enter开始与Entry、单生命 / 体力HUD。通过开发定位到检查点：BugItGo会开启Ghost，未把这时的无激活当代码失败；恢复walk真实碰撞后得到Checkpoint activated / ACTIVE。包内4真实损伤75，现有正式RequestHeal入口约.5秒通知提交一次40、3→2；RequestDodge一次25、150.05cm / .3001与无敌 / Tag清理。后用现有K2_TeleportTo仅定位玩家到感知范围，未注入AI目标或伤害；原生追击 / 攻击自主运行，真实十次10伤害100→0、受击 / HUD / 一次Failure。Enter Retry与Pause→菜单→Continue均记录Requested=Actual=Checkpoint_A，产生不同新身体、双100 / 3次。P与鼠标继续恢复同一世界，返回菜单及真正退出清理正常。第二个新进程Continue禁用并正常退出；本轮Run02只查菜单清空，没有再次进入关卡。
+
+两轮Runtime均无Warning / Error / Accessed None；UAT独立的UTS环境警告见31批，不写成运行零警告掩盖历史。本轮仍逐项保持290保护文件、116份Source和冻结B1，未改断言。13项自动化沿用第28批最终同一源码，22项结构校验沿用第29批同一资产；没有为文档收尾重复跑测试，也不把历史结果写成32批新执行。
+
+范围限制：本轮未完成物理WASD / 镜头 / Space / 2 / Q的连续输入证明；E只观察到中文提示，按键时玩家已死亡，不能记激活通过；左键触发 / 三段时序与打断分别有30批样本和已有自动化，未在本包重复完整矩阵。包内能力用现有接口触发、位置用开发命令，均不冒充全程物理键鼠试玩。占位检查点文字从背面观察呈镜像、诊断面板中的长Pawn名换行，记录为后续表现整理项，本批不动地图 / Widget。
+
+**最后仅需一次人工窄复验（约2–3分钟，不搭测试蓝图）：**
+1. 打开Artifacts/Builds/Cleanup/Attempt01/Windows/EmberTrial.exe，开始新试炼；实际按住 / 松开WASD、移动鼠标并Space，确认正常、松键停步。
+2. 左键三段连按；实际2闪避一次扣25，按住不重复。按4扣25后实际Q，约.5秒一次治疗；E靠近A / B真实激活，离开隐藏。
+3. 运动或动作中P，菜单内松键，鼠标 / Enter继续后无卡键、补跳或补播；正常退出。仅反馈失败项，日志由助手读取，不重做旧属性 / 变体矩阵。
+
+本轮三批工作已收尾，**整轮清理验收仍保留上述物理输入确认，不标全部功能零回归**。README / Architecture / Backlog / 验收方案与Progress同步新包和边界，Cleanup保留30 / 31 / 32独立章节，末尾合并7项提交。代码清理主要实施结束，不为覆盖率再增加批次；未进入次数HUD或后续玩法。额度32批开工5小时已用63% / 周49%，收尾快照81% / 52%，按余量接近15–20%收口；未使用重置，不计用户手动工时。
+
+## 整体进度快照（第32批后）
+
+累计32批涉及114 / 116份Source、52份现存Markdown与3个工程脚本；重复实现 / 配置副本累计移除15764行。两个极简Core入口已审计合格无需强改，文件覆盖率不等于最终验收完成率。
 
 ## 后续队列
 
-1. 集中实机检查：菜单、焦点 / 暂停、检查点 / Retry、真实战斗与动作取消，并核对仍保留的蓝图执行入口。
-2. 新版M2 Development包Build / Cook / Stage / Package、独立启动与相关短查。
-3. 汇总已有自动化 / 结构 / 实机 / 包证据，只补缺口后关闭整轮清理；不为覆盖率强行增加排版批次。
+本轮结果与尚未覆盖的边界见第32批，不为文件覆盖率继续增加排版批次。后续功能仍停在M2-04B2，次数HUD等需用户另行授权；最终美术、性能目标与投递作品尚未完成。
 
-功能开发仍停在M2-04B2；旧独立包为M1 Attempt02，不能将源码自动化通过写成新版包验收。额度紧的一项余量接近15–20%先收口，不使用重置。
+额度紧的一项余量接近15–20%先收口，不使用重置。用户手动工时未新增；Git由用户操作。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第27–29批按用户安排一起Stage / Commit / Push；共20项实际变化，以下为本轮最终合并清单。
+第30–32批按用户安排一起提交；当前7项实际变化，以本节最终清单为准。第27–29批已进入5e20cec，无需重复Stage。
 
 ```text
-refactor: tidy project tooling and consolidate architecture docs
+chore: verify cleanup build and packaged gameplay
 ```
 
-- [Refresh-CLion.ps1](../Tools/Refresh-CLion.ps1)
-- [Run-StageBuild.ps1](../Tools/Run-StageBuild.ps1)
-- [Validate-ProjectConfig.ps1](../Tools/Validate-ProjectConfig.ps1)
-- [CLion_UEClassCreation.md](CLion_UEClassCreation.md)
-- [M1_07C2_GameplayValidation.md](M1_07C2_GameplayValidation.md)
-- [M1_07C3_UpdatedPackage.md](M1_07C3_UpdatedPackage.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
-- [EmberTrial.Target.cs](../EmberTrial/Source/EmberTrial.Target.cs)
-- [EmberTrialEditor.Target.cs](../EmberTrial/Source/EmberTrialEditor.Target.cs)
-- [EmberTrial.Build.cs](../EmberTrial/Source/EmberTrial/EmberTrial.Build.cs)
-- [EmberTrialUI.Build.cs](../EmberTrial/Source/EmberTrialUI/EmberTrialUI.Build.cs)
-- [EmberTrialEditor.Build.cs](../EmberTrial/Source/EmberTrialEditor/EmberTrialEditor.Build.cs)
-- [EmberTrialUIModule.cpp](../EmberTrial/Source/EmberTrialUI/Private/EmberTrialUIModule.cpp)
-- [EmberTrialEditorModule.cpp](../EmberTrial/Source/EmberTrialEditor/Private/EmberTrialEditorModule.cpp)
-- [M1_02A_RuntimeModules.md](M1_02A_RuntimeModules.md)
+- [Run-StageBuild.ps1](../Tools/Run-StageBuild.ps1)
 - [README.md](../README.md)
 - [Architecture.md](Architecture.md)
-- [AcceptanceWorkflow_Options.md](AcceptanceWorkflow_Options.md)
 - [Backlog.md](Backlog.md)
+- [AcceptanceWorkflow_Options.md](AcceptanceWorkflow_Options.md)
 
-CLion刷新Changes → 重新Stage清单中的最新修改 → 检查Staged Diff → 一次Commit → Push。Raw / 日志 / 生成文件 / 构建产物留本地；助手未Stage / Commit / Push。
+CLion刷新Changes → 重新Stage最新修改 → 检查Staged Diff → 一次Commit / Push。完整Windows包、Runtime日志、Raw / 快照及生成文件留本地；不上传大型包到源码仓库。助手未操作Git索引或提交。

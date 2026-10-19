@@ -110,8 +110,8 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 现有13项自动化覆盖Practice两项、资源两项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-清理最终仍需集中实机与当前M2新Cook / 包短查。旧M1 Attempt02不含M2；次数HUD、后续破势 / 锁定 / 构筑、持久存档及最终美术仍按[完整计划](../Introduction.md)逐批实现。当前不进入下一功能章。
+第30–32批已补未Cook实机样本、当前M2新Cook与两轮包内短查；物理键鼠连续输入仍需窄复验，不把控制台定位 / 正式接口调用写成物理操作通过，具体清单见Cleanup。新包为Cleanup/Attempt01，旧M1 Attempt02不含M2；次数HUD、后续破势 / 锁定 / 构筑、持久存档及最终美术仍按[完整计划](../Introduction.md)逐批实现。当前不进入下一功能章。
 
 ## 23. 本批 Commit / Push（固定放在最后）
 
-第27–29批一起提交，完整清单及建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Raw / 日志 / 生成文件 / 构建产物留本地，助手不操作Git索引。
+第30–32批一起提交，完整清单及建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Raw / Runtime / 包体 / 生成文件留本地，助手不操作Git索引。
