@@ -484,50 +484,91 @@ Foundation指南更新当前源码入口与覆盖表，说明原生身体 / 资�
 
 额度快照：开工5小时已用11% / 周已用41%；收尾已用14% / 42%。未使用重置。
 
-## 整体进度快照（第26批后）
+<a id="cleanup-batch-27"></a>
 
-累计26批涉及107 / 116份Source（约92%文件覆盖率）、47份现存Markdown，已记录移除15608行重复实现 / 配置副本。覆盖率不是整体完成率；不为达到100%而修改已审计可用的模块 / 构建文件。原三份独立批次文档已归入上面三个章节并移除，历史原始快照保留。
+## 第27批：工程脚本与可复现输出
+
+2026-10-19，基线HEAD为6cdd065，开工工作区干净。整理Refresh-CLion、Run-StageBuild、Validate-ProjectConfig三个PowerShell脚本，统一职责分区、长表达式 / 分支格式与注释；参数默认值、规则ID / 诊断、性能CVar、退出码与真正启动前置保持。
+
+CLion的单引号模块模板移到循环外只构造一次。Golden检查发现脚本CRLF会进入here-string输出；新增最终CMake LF归一化后，生成文件与原基线逐字节一致。保留每模块独立rsp / Definitions、原排序去重及全部校验通过才写最终文件的顺序，不修改真实UE构建目标。
+
+PowerShell解析 / Token核对通过（显式模板移动与LF归一化之外保持）；CMake旧新SHA一致，三模块CodeModel 43 / 15 / 3，实际Reload通过。七个隔离配置用例覆盖正常、默认图错、Cook条目缺失、地图文件缺失、Cue缺失仅Warning、Cue越界与Array操作符；旧新输出及退出码完全一致。夹具空umap只验证文件存在，不冒充真实资源。
+
+对真实M1 Attempt02执行WhatIf，确认没有创建Runtime证据、没有启动游戏；没有实际运行包。首次子进程因沙箱不允许读取执行策略注册表而失败，正常权限重跑通过，未修改系统执行策略。未重跑C++自动化 / DataValidation，因为本批未改Source / 资产；集中检查留第29批。
+
+116份Source、290项资产 / 配置保护哈希与冻结B1保持；三个脚本CRLF / UTF8 BOM，文档LF与末尾换行、链接 / 围栏、Git差异检查通过。收益为可读性、模板去重及输出行尾稳定，不宣称游戏FPS提升。脚本验证、旧新输出、快照 / 差异见Raw/Cleanup/2026-10-19_Batch27。
+
+额度快照：开工5小时已用19% / 周已用42%；收尾已用30% / 44%。未使用重置，不计用户手动工时。
+
+<a id="cleanup-batch-28"></a>
+
+## 第28批：模块边界与资产引用审计
+
+2026-10-19，保持上一批未提交修改，整理两个Target、三个Build.cs及UI / Editor模块入口，共七份Source；补充Runtime / Editor边界、Public / Private依赖与模块级生命周期说明，统一缩进 / 分区，移除两个未使用的C# using。依赖数组、模块 / 原生类身份、加载日志和版本约定保持；Token对比通过，两个极简Core入口只读审计合格，不为覆盖率强行改动。
+
+M1-02A指南删除三处过时完整实现副本共156行，改为当前源码 / 工具链接；保留历史操作背景，标明当前三个CodeModel与依赖以Source为准。收益为模块职责和指南可读性，不宣称运行帧率提升。
+
+正常Editor / Game Build、三模块CLion刷新与CMake Reload通过；配置PASS（Errors0 / Warnings0），最终Source后的13项自动化全部Success、无Warning / Fail / 未运行。未减少原断言，未进行实机PIE或新版Cook / 打包。
+
+只读AssetRegistry扫描281项磁盘资产，从两张正式地图沿包级硬 / 软引用得到176个可达包；正式闭包无EmberTrialEditor脚本引用，玩家 / 敌人 / 训练目标 / 两个GameMode原生父类核对通过。发现正式地图仍引用Tests下的BP_ETCombatTrainingTarget，玩家仍引用GE_ET_Test_Damage25，二者保留；其他未被该闭包引用的Probe也不据此直接删除。该图不能证明蓝图执行线、未连接节点或实际运行可达性，不能据此把整个Tests排除Cook。Python插件仅命令行启用，未写uproject或保存资产。
+
+其余109份Source、290项资产 / 配置保护哈希及冻结B1不变；换行、链接 / 围栏、Git差异 / 索引 / HEAD检查通过。证据与快照见Raw/Cleanup/2026-10-19_Batch28，包括ModuleBoundaryChecks、AssetReferenceAudit、RuntimeChecks及13项原始报告。
+
+额度：开工5小时已用30% / 周44%，本批收尾37% / 45%；未使用重置，不计用户手动工时。
+
+<a id="cleanup-batch-29"></a>
+
+## 第29批：项目入口、架构与验收文档收口
+
+2026-10-19，只整理六份Markdown（含Cleanup / Progress），无Source或资产修改。新增根README，提供工程 / LFS获取、UE5.5.4正常构建、操作、模块源码、资产来源及验证入口，明确当前作品尚未完成、旧M1包不含M2、Continue不保存Actor状态，不宣称最终成果或录用概率。
+
+Architecture从306行整理为117行，按模块、所有者、Ready / 结束、战斗、AI、UI、会话与验证组织；保留关键生命周期 / 同步重入、先失效再释放、类 / 子对象身份、Practice及诊断入口保留原因。AcceptanceWorkflow从278到178行，保留A / B / C估时与遗漏风险比较、用户原方案B / 选择日期 / 合作边界，移除重复阶段流水、纠正“工具尚未建设”与整目录Tests隔离的过期描述，集中当前复用入口和触发范围。Backlog从213到126行，保留任务状态与未实现项，移除重复下发 / 提交流水并修正旧实时规模；原报告 / 历史证据未删。三页净减376行重复 / 过期叙述，README新增52行，不把叙述行计入源码副本移除统计。
+
+当次依次执行Blueprint、BehaviorTree、InputMappingContext三个DataValidation commandlet，均正常退出且汇总0 Error / 0 Warning。项目Gameplay规则13项、Project规则9项，共22项不同资产Valid；不把其他NotValidated资产算入已检查。全部116份Source与第28批最终测试版本一致，因此沿用刚完成的正常Editor / Game构建、三索引 / CMake和13项Success，不为文档修改重复启动同一组测试。未执行集中交互实机或新版Cook / 包运行。
+
+290项资产 / 配置、冻结B1与前两批专属文件保持；检查修改文档的链接、围栏、换行、Git差异 / HEAD / 索引。两个Core极简入口审计合格但未改，累计Source整理114 / 116不作为整体完成率。第27 / 28 / 29批独立保存在本文件，不新建单独批次文档；末尾提供一次合并提交清单，Git仍由用户操作。收益为阅读入口、当前契约清晰与降低文档漂移，无未测性能收益。
+
+证据 / 原始日志 / 快照见Raw/Cleanup/2026-10-19_Batch29；源码自动化证据对应第28批。额度开工5小时已用37% / 周45%，收尾快照43% / 46%；未使用重置，不计用户手动工时。
+
+## 整体进度快照（第29批后）
+
+累计29批涉及114 / 116份Source、52份现存Markdown，另整理3个工程脚本；累计移除15764行重复实现 / 配置副本。文件覆盖率不等于整体完成率；已审计合格文件无需强行改动。
 
 ## 后续队列
 
-1. 工具脚本、模块边界与跨模块 / 蓝图引用审计。
-2. 余下材料与过程文档收口。
-3. 统一自动化、关键实机、Cook / 新包短查及收益汇总。
+1. 集中实机检查：菜单、焦点 / 暂停、检查点 / Retry、真实战斗与动作取消，并核对仍保留的蓝图执行入口。
+2. 新版M2 Development包Build / Cook / Stage / Package、独立启动与相关短查。
+3. 汇总已有自动化 / 结构 / 实机 / 包证据，只补缺口后关闭整轮清理；不为覆盖率强行增加排版批次。
 
-功能开发停在M2-04B2，独立包仍M1 Attempt02；当前构建不等同新版包验收。额度紧的一项余量接近15–20%先收口，不使用重置。
+功能开发仍停在M2-04B2；旧独立包为M1 Attempt02，不能将源码自动化通过写成新版包验收。额度紧的一项余量接近15–20%先收口，不使用重置。
 
 ## 本批 Commit / Push（固定放在最后）
 
-第24–26批一起Stage、Commit、Push，共18个现有文件：8份测试源码、8份同步指南、Cleanup与Progress。三批开发 / 验证仍分别记录在本页第24、25、26批章节，Raw原始证据保留；不再保留单独的批次Markdown。
-
-建议Commit信息：
+第27–29批按用户安排一起Stage / Commit / Push；共20项实际变化，以下为本轮最终合并清单。
 
 ```text
-refactor: clarify gameplay regression tests and cleanup docs
+refactor: tidy project tooling and consolidate architecture docs
 ```
 
-### 测试源码（8项）
-
-- [ETDodgeCostTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETDodgeCostTests.cpp)
-- [ETDodgeMovementTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETDodgeMovementTests.cpp)
-- [ETDodgeInvulnerabilityTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETDodgeInvulnerabilityTests.cpp)
-- [ETHealingResourceTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETHealingResourceTests.cpp)
-- [ETHealAbilityTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETHealAbilityTests.cpp)
-- [ETPracticeActionTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETPracticeActionTests.cpp)
-- [ETPracticeDodgeMovementTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETPracticeDodgeMovementTests.cpp)
-- [ETLightComboCancelTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETLightComboCancelTests.cpp)
-
-### 文档（10项）
-
-- [M2_02A_DodgeAction.md](M2_02A_DodgeAction.md)
-- [M2_02B_DirectionalDodge.md](M2_02B_DirectionalDodge.md)
-- [M2_02C_Invulnerability.md](M2_02C_Invulnerability.md)
-- [M2_04A_HealingResource.md](M2_04A_HealingResource.md)
-- [M2_04B2_HealingAbility.md](M2_04B2_HealingAbility.md)
-- [M0_05C2_02_ActionLifecycle.md](M0_05C2_02_ActionLifecycle.md)
-- [M0_05C2_03C_DodgeAutomation.md](M0_05C2_03C_DodgeAutomation.md)
-- [M2_03C_RecoveryDodgeCancel.md](M2_03C_RecoveryDodgeCancel.md)
+- [Refresh-CLion.ps1](../Tools/Refresh-CLion.ps1)
+- [Run-StageBuild.ps1](../Tools/Run-StageBuild.ps1)
+- [Validate-ProjectConfig.ps1](../Tools/Validate-ProjectConfig.ps1)
+- [CLion_UEClassCreation.md](CLion_UEClassCreation.md)
+- [M1_07C2_GameplayValidation.md](M1_07C2_GameplayValidation.md)
+- [M1_07C3_UpdatedPackage.md](M1_07C3_UpdatedPackage.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
+- [EmberTrial.Target.cs](../EmberTrial/Source/EmberTrial.Target.cs)
+- [EmberTrialEditor.Target.cs](../EmberTrial/Source/EmberTrialEditor.Target.cs)
+- [EmberTrial.Build.cs](../EmberTrial/Source/EmberTrial/EmberTrial.Build.cs)
+- [EmberTrialUI.Build.cs](../EmberTrial/Source/EmberTrialUI/EmberTrialUI.Build.cs)
+- [EmberTrialEditor.Build.cs](../EmberTrial/Source/EmberTrialEditor/EmberTrialEditor.Build.cs)
+- [EmberTrialUIModule.cpp](../EmberTrial/Source/EmberTrialUI/Private/EmberTrialUIModule.cpp)
+- [EmberTrialEditorModule.cpp](../EmberTrial/Source/EmberTrialEditor/Private/EmberTrialEditorModule.cpp)
+- [M1_02A_RuntimeModules.md](M1_02A_RuntimeModules.md)
+- [README.md](../README.md)
+- [Architecture.md](Architecture.md)
+- [AcceptanceWorkflow_Options.md](AcceptanceWorkflow_Options.md)
+- [Backlog.md](Backlog.md)
 
-CLion Save All → 刷新Changes → 将以上18项的最新修改重新Stage → 检查Staged Diff → 一次Commit → Push。原三份独立文档尚未跟踪，移除后无需提交其删除记录。源码的三轮双构建 / 13项自动化已通过；本次只调整Markdown归档和链接，未重跑UE构建。Raw / 日志 / 构建产物继续留本地；助手未Stage / Commit / Push。
+CLion刷新Changes → 重新Stage清单中的最新修改 → 检查Staged Diff → 一次Commit → Push。Raw / 日志 / 生成文件 / 构建产物留本地；助手未Stage / Commit / Push。

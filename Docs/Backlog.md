@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-18。功能基线M2-04B2已验收，当前执行[代码 / 文档清理](Cleanup.md)；共享AI黑板契约见[专页](AI_BlackboardContract.md)。实时规模与验证状态只在[Progress](Progress.md)维护，历史阶段记录保留，不进入下一功能章。
+更新2026-10-19。功能基线M2-04B2已验收，当前执行[代码 / 文档清理](Cleanup.md)；共享AI黑板契约见[专页](AI_BlackboardContract.md)。实时规模与验证状态只在[Progress](Progress.md)维护，历史阶段记录保留，不进入下一功能章。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -10,7 +10,7 @@
 | M0-01A | 创建第三人称 C++ 工程 | 你 | 完成 | 实际以 5.4.4 创建，路径与 Source 已核实；用户同意切换 5.5.4，无需重建工程 |
 | M0-01B | 编辑器关闭状态构建 | 你执行，我复核 / 排障 | 完成 | 5.5.4 / Development Editor / Win64 构建成功，MSVC 14.38.33145 / SDK 10.0.22621.0 |
 | M0-01C | 模板运行验收 | 你操作，我检查日志 | 完成 | 用户确认 5.5.4 复验正常；最新日志确认版本、D3D12 独显与 ThirdPersonMap PIE 启停 |
-| M0-02 | Git / LFS 与基础目录 | 我配置，你了解规则 | 完成 | 仓库与规则已建立，迁移前检查点 3562f61，212 个 LFS 资产通过完整性检查；无远端 |
+| M0-02 | Git / LFS 与基础目录 | 我配置，你了解规则 | 完成 | 仓库与规则已建立，迁移前检查点 3562f61，212 个 LFS 资产通过完整性检查；当时无远端，后续已由用户推送GitHub |
 | M0-03 | 基础 C++ Actor 与蓝图子类练习 | 你实现，我说明 / 审查 | 完成 | 源码与日志已核对，实例独立输出；A 改为 Target_Changed 无需重编译；实际约 15 分钟 |
 | M0-04 | 最小交互与 UMG 原型（总任务） | 你完成基础节点，我处理复杂部分 | 完成 | A / B / C 全部由用户实机验收通过；手动用时合计约 190 分钟，协助排障另计 |
 | M0-04A | 事件驱动范围提示与候选切换 | 你实现，我说明 / 审查 / 排障 | 完成 | 用户确认初始重叠补修及相关回归通过；日志 / 资产保存已核对；手动用时约 60 + 10 分钟，协助排障另计 |
@@ -80,7 +80,7 @@
 | M1-07C2 | [战斗引用与共享配置](M1_07C2_GameplayValidation.md) | 你手动实施，我核查 | 完成 | 75 / 37 / 48、九Valid / GA失败恢复 / 两Success / 配置0/0；20 / 5，无待补 |
 | M1-07C3 | [Attempt02与M1阶段收口](M1_07C3_UpdatedPackage.md) | 你打包 / 实机，我核查 / 复盘 | 完成 | [报告](Reports/M1_07C3_Verification.md)：UAT ExitCode0、两次Move90 / 二十次敌人10伤害、A点Retry / Continue、新进程Entry；手动10 / 等待10 |
 | M1 | 最小纵向闭环与阶段复盘 | 共同 | 完成 | [总验收](Reports/M1_Verification.md)与[复盘](M1_Review.md)，手动1338分钟；当前灰盒范围与最终作品差距明确 |
-| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 基础65h，缓冲从全局预留；01资源基础完成，下一02正式闪避 |
+| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03及04A / B1 / B2完成，当前清理，次数HUD尚未实现 |
 | M2-01 | [资源基础总验收](Reports/M2_01_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | A / B1 / B2全部通过，87 / 44 / 49；130 / 15分钟，治疗次数已定契约、实现留04 |
 | M2-01A | [体力属性、一次初始化与Ready](M2_01A_StaminaFoundation.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_01A_Verification.md)：78 / 39 / 48，三身体Valid / 测试Success / 两轮PIE，IsCombatDead补项关闭；60 / 5 |
 | M2-01B | 体力恢复与必要变化观察 / 显示 | 你手动实现，我设计 / 审查 | 完成 | B1恢复与B2体力HUD通过；70 / 10分钟，无正式成本 / 无敌 |
@@ -99,115 +99,28 @@
 | M2-04B1 | [治疗动画素材](M2_04B1_HealingAnimation.md) | 你手动制作，我核对 | 完成 | [验收](Reports/M2_04B1_Verification.md)：三新素材已保存，预览按用户确认；实际105 / 56 / 来源61，15 / 1，无待补 |
 | M2-04B2 | [正式治疗能力 / 单次Notify / Q](M2_04B2_HealingAbility.md) | 你手动实现，我设计 / 核对 | 完成 | [验收](Reports/M2_04B2_Verification.md)：110 / 59 / 来源63，双Build / 四Success / 七Valid、正式治疗与取消 / 重建；40 / 5，无待补，本次不进入C |
 
-历史说明：下方保留各批当时记录，顶部任务表为当前状态。**当前110Source / 59cpp / 来源63，独立包仍M1 C3 Attempt02。**A / B1 / B2已验收，本次等待用户其他安排，C未下发；原3 / 4诊断入口保留，最终作品尚未交付。
+表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。旧包仍为M1 C3 Attempt02，不能代表最新M2源码。
 
 ## 暂缓到中后期
 
 - Blender 接入、关键武器 / 祭坛 / 角色模型的设计制作；先确定规格并完成一个模型试做再估量。
 - GAS四类能力深化、完整构筑UI、持久化与最终表现：按M2及后续阶段分批完成；当前Core / UI / Editor模块、玩家三段与恢复闪避取消已成立。
 
-## 各批历史基线与实施记录
+## 当前清理与剩余验收
 
-- 计划：Introduction v1.4（30 h / 周、百元总预算、键鼠交付；所有 C++ 默认手动；正式身体复用 AEmberTrialCharacter，避免重复实现）。
-- 工程代码：第三人称 C++ 模板 + 用户实现的 ETPracticeActor / GetPracticeLabel；交互接口、提示 Widget 和角色 / 物体蓝图主体已实现。
-- 已通过的验证：5.5.4 C++ 构建、用户基础运行、日志 / receipt / 配置核对、LFS 基线完整性、M0-03 源码与实例输出验收。
-- M0-04A：初次实现约 60 分钟、初始同步补修约 10 分钟；用户实机反馈验收通过，详细证据见 Docs/Reports/M0_04A_Verification.md。
-- M0-04B：用户手动约 40 分钟，全部验收通过，详细证据见 Docs/Reports/M0_04B_Verification.md；A / B 已报告手动用时合计约 110 分钟，协助排障另计。
-- M0-04C：约 80 分钟，全部验收通过，详细证据见 Docs/Reports/M0_04C_Verification.md；M0-04 已报告手动用时合计约 190 分钟。
-- 动画路线：零成本模板 / Control Rig、原地 AS / Montage 与 CharacterMovement 位移已通过 M0-05 验证，可继续采用；正式战斗资源 / 命中 / 体力等后续实现。
-- M0-05A：约 80 分钟，用户验收与只读资产核对完成，见 Docs/Reports/M0_05A_Verification.md；AS_M0_Attack_01 及其 Sequence / 地图已落盘。
-- M0-05B：首轮制作 80 分钟，补修已报告 20 分钟；AS_M0_Dodge_01 / AS_M0_HitResult_01 为 0.700 / 0.633 秒，受击实际源为 LS_M0_HitResult_01，旧 _02 指向它。9/27 最终复核差异归零，详见 Docs/Reports/M0_05B_Verification.md。
-- M0-05C1：输入映射、AM 引用、Slot 开关与修复后的速度连线已复核；用户约 80 分钟完成全部实机验收，资产已保存。详见 Docs/Reports/M0_05C1_Verification.md。
-- M0-05C2-01：用户约 40 分钟完成，验收通过；原始基础组件与角色资产已保存到 92a2c63。
-- M0-05C2-02：正常 Build 20.92 秒，生命周期综合自动测试 1 成功 / 0 失败；用户约 15 分钟完成全部实机验收。证据及覆盖范围见 Docs/Reports/M0_05C2_Verification.md。
-- M0-05C2-03A：用户约 10 分钟验收通过，新增两组属性准确；详见 Docs/Reports/M0_05C2_03_Verification.md。
-- M0-05C2-03B：用户约 50 + 30 分钟完成，补修后 Build / Lifecycle / 实机通过，日志证据已核对。
-- M0-05C2-03C：用户约 30 分钟完成，Build / 新旧测试通过，源码和日志核实；C2-03 / C2 总任务完成。
-- M0-05C3：用户约 3 分钟，组合视频已解码并按时间线 / 动作窗口抽帧，画面和工程日志一致；M0-05 完成，见 Docs/Reports/M0_05C3_Verification.md。
-- M0-06：Development Game 包成功，Cook 摘要 0 errors / 0 warnings、UAT ExitCode=0，BuildCookRun 约 18 min；59 文件 / 约 0.98 GiB。用户完整功能与两次启动通过，一轮运行日志直接核对，见 Docs/Reports/M0_06_Verification.md。
-- M0-07：投入 / 预算 / 范围确认，当时资产来源清单 15 项，剩余保守预算 490–530 h，见 Docs/Reports/M0_07_Calibration.md。M0 手动 673 min，报告等待 26 min 另计。
-- M1-01：手动 20 min、用户全项通过，地图文件 / 一次新地图 PIE 已核对，见 Docs/Reports/M1_01_Verification.md。资产清单增至 16 项，已登记手动总计 693 min。
-- M1-02A：全项通过，手动 30 / 等待 5 min；receipt / Game 编译 UI / 索引与一轮 PIE 已核对，导航光标调整后恢复，见 Docs/Reports/M1_02A_Verification.md。
-- M1-02B：全项通过，手动 50 / 等待 15 min；19 项 Game 构建、正式类 / 解绑 / EndPlay、旧地图和资产保存核对，见 Docs/Reports/M1_02B_Verification.md。
-- M1-02C1：全项通过，手动 30 / 等待 4 min；三份文件与指南一致、6 项 Game 构建 / 34.64 s、四轮初始化 / 清理，完整反馈与日志范围见 [验收记录](Reports/M1_02C1_Verification.md)。当时累计手动 803 min / 等待 50 min、资产清单 18 项。
-- M1-02C2-01：全项通过，手动 40 / 等待 5 min，Native Tick 标记修好；五份实施文件一致、双 receipt、13 个 cpp 索引与三轮 PIE / Widget 清理已核对，详见 [验收记录](Reports/M1_02C2_01_Verification.md)。当前累计手动 843 min / 等待 55 min、资产清单 19 项。
-- M1-02C2-02：全项通过，手动 30 min、无新增 Build 等待；27 份源码不变，真实新对象 / 销毁隔离 / None 恢复与三次 PIE 核对，见 [C2-02 / M1-02 总验收](Reports/M1_02_Verification.md)。当前累计手动 873 min / 等待 55 min、资产清单 20 项；上条累计保留当时数据。
-- M1-03A1：全项通过，手动45 / 等待3 min；仅核心依赖 / 角色改动，双目标receipt / GAS索引、五次控制恢复与结束保护核对，见 [A1验收](Reports/M1_03A1_Verification.md)。当前累计手动918 min / 等待58 min、资产清单20项，Controller / 既有玩家 Blueprint 记录已更新。
-- M1-03A2-01：全项通过，手动30 / 等待5 min；属性集 / 角色、双目标receipt / 索引、就绪初始化与清理已核对。日志实际非法配置80/40与用户100/60同为生命超上限拒绝，恢复后的三轮按用户反馈登记，见 [验收](Reports/M1_03A2_01_Verification.md)。当前累计手动948 min / 等待63 min，清单仍20项；五个测试GE尚未创建。
-- M1-03A2-02：全项通过，手动50 min；五个测试GE落盘、29份源码不变、43份Current / Base一致快照、幂等 / 边界 / 精确非法100/60拒绝已核对，见 [A2总验收](Reports/M1_03A2_Verification.md)。当前累计手动998 min / 等待63 min，清单25项；正式Presenter / HUD待实现。
-- M1-03B1：功能通过，手动60 / 等待5 min；31份源码、双receipt / 索引、Waiting→Ready / 重订阅 / 属性与控制恢复已核对，见 [验收](Reports/M1_03B1_Verification.md)。漏写的旧状态面板结束保护明确留B2。当前累计手动1058 min / 等待68 min，清单25项；B2新WBP尚未创建，不能加入已完成资产。
-- M1-03B2：全项通过，手动60 / 等待5 min；33份源码 / 四文件一致性、双receipt / 16个cpp、41组View订阅清理 / 十次重建 / 晚加入 / 结束核对，见 [验收](Reports/M1_03B2_Verification.md)。20:16:56补查Controller清理后正常保存；B1结束保护补项关闭。当前累计手动1118 min / 等待73 min，清单26项；B3测试Character尚未创建。
-- M1-03B3：手动70 min，主要路径通过 / Waiting差异局部待补查，见[本批记录](Reports/M1_03B3_Verification.md)。33份Source未变，两个新测试Character落盘，Controller21:39:17正常保存；五轮PIE / 10组View清理、旧源隔离与新实例 / 状态 / 快照核对。当前累计手动1188 min / 等待73 min，清单28项。未将依赖Error当成预期非法参数Warning。
-- 验收流程决定（2026-10-05）：用户选择[B分层验收＋复用测试入口](AcceptanceWorkflow_Options.md)。先精简重复范围、工具按需求分批4–8 h，普通检查目标5–15 min，相关高风险专项按修改触发；C++手动约定保留。决定已记录，工具尚未创建，本次不推进下一节。
-- M1-03B3最终收尾：22:17报告通过，手动10 min，累计B3 80 min；精确非法100/60 Warning与合法40/80 Ready / Fraction0.500、两轮清理核对，无依赖Error；Source / Controller不变，新Rebuilt样例纳入清单。Waiting补项关闭，B阶段完成。当前累计手动1198 min / 等待73 min，资产29项；C仍待开始。
-- M1-03C：用户授权继续后，按方案B复用已接受A / B证据，读取当前源码 / 清单资产并确认33 / 29项不变；C章节与总验收完成，无新增手动操作、构建或Gameplay测试。当前累计仍1198 / 73 min，清单29项；M1-04尚未实施。
-- M1-04A下发（2026-10-06）：四新源码 / 三个核心接入文件 / Practice单处活动Montage条件，原生Tag与正式Ability、蓝图资源 / 左键 / 1迁移 / 2与E门控 / 3过渡取消，相关实机约10–15分钟及旧Lifecycle一次。代码仅在文档，Source / 资产未变，工时累计不变；完成反馈后再登记新能力 / Input Action。
-- M1-04A完成（2026-10-06约15:38）：手动50min（代码15 / 资产30 / 检查5）、等待2min，全项通过；源码新增四 / 修改四、四新文件与指南一致，双receipt / 18cpp索引、两轮授予 / 13组开始结束 / 标签清理 / Lifecycle Success核对，见[A结果](Reports/M1_04A_Verification.md)。实际新资产GA / IA两份，并补登模板共享IMC，清单32项；累计手动1248 / 等待75min。
-- M1-04B1下发：完整代码仅在文档，四新 / 五既有文件，原生实例通知 / 窗口内Tick / 骨骼后扫掠 / 去重 / 阻挡关闭与保留训练目标，预计手动90–150min（含相关检查15–25）。未代写Source / UE资产或执行Build / PIE，没有新增实际用户工时；B2复用入口接真实伤害。
-- M1-04B1完成（2026-10-06约17:25）：手动40min（代码15 / 资产20 / 检查5）、等待5min，全项反馈通过。41份源码 / 双receipt / 20cpp索引、19组检测登记清理、去重 / 取消 / 遮挡样本核对；双目标 / 限帧 / 窗口内暂停的完整过程按用户反馈登记，见[B1结果](Reports/M1_04B1_Verification.md)。清单33项，累计1288 / 80min。
-- M1-04B2下发：仅四现有Tag / Ability文件和一份GE配置，原生SetByCaller健康增量、来源 / 目标 / GE契约校验，Instant真实伤害与安全日志；指南40–70min手动、相关检查10–15，不新搭Controller测试图。源码 / 资产未改、未Build / PIE；待用户实施，不提前登记新GE或工时。
-- M1-04B2完成：用户全项反馈通过，代码10 / 资产20 / 检查5、等待5min；完成时间字段40未给完整时刻，按最新19:51–19:59日志读取。四文件9片段与指南一致，其余37份不变；双receipt / 20cpp、10条成功伤害 / 3条拒绝 / 2条配置Warning、23组检测清理及窗口内暂停核对。新GE清单34项，累计1323 / 85min，见[B2结果](Reports/M1_04B2_Verification.md)。
-- M1-04C1下发：C拆受击 / 死亡两批，生命观察与正式HitReact、3路线迁移、同目标Quinn装配、简单4键真实损伤入口供C2复用。四新 / 五现有文件代码仅在文档，Source仍41、资产仍34，未Build / PIE，C1新GA未创建 / 登记；预算70–120min手动，相关检查10–15。
-- M1-04C1完成：全项反馈通过，手动25 / 等待5min；13段代码匹配、四新 / 五修改范围与36份未改基线核对，45份Source / 22cpp / 双receipt；六轮两身体观察清理、17组受击与真实损伤 / 中断样本，历史中途编译错误归档。新GA登记后35项，累计1348 / 90min，见[C1结果](Reports/M1_04C1_Verification.md)。
-- M1-04C2下发：死亡锁与State.Dead先于取消，Trace立即失效、原能力 / 闪避位移清理、门控、Health Base / Current保持0、快照归零与结束Tag释放；代码仅在文档，未改Source / 资产或Build / PIE。冻结姿势是占位，最终死亡动画仍待完善。
-- M1-04C2反馈核查：全项报告完成，手动25 / 等待5min，累计1373 / 95min。11份修改与24个新片段一致，其他34份Source不变；九轮 / 七组死亡清理，四次TargetDead、13组Trace与0.283秒闪避取消证据，玩家21:56:49保存且下一轮100/100。现存攻击死亡比NotifyEnd关窗晚33ms，只补一次开窗状态死亡，不误称代码失败或要求旧矩阵重做；35项资产 / 当前实施基线已保存。
+第27–29批分别整理工程脚本、模块 / 资产引用及项目文档入口，详细修改与检查保存在[Cleanup](Cleanup.md)各批独立章节。任务表保留完成状态，删除这里重复的下发 / 编译 / 提交流水；逐项原证据仍在各批Reports，不据删文重新判定历史功能未完成。
 
-- M1-05C1完成（2026-10-09 21:06）：手动35（10 / 10 / 15）及等待5；三份既有Source / 八个新片段、48份未改、双receipt / 25cpp核对。日志五PIE / 11组Begin-End、真实敌人10伤害及HUD / 受击、同方Candidate后拒绝、取消与结束清理通过；第二次90→80和玩家→敌人25依据用户反馈。新GA登记后40资产，无待补项，累计1486 / 115分钟；[验收结果](Reports/M1_05C1_Verification.md)落盘，C2待下发。
+| 待办 | 当前边界 / 完成条件 |
+| --- | --- |
+| 清理后的集中实机 | 菜单、暂停 / 焦点、检查点 / Retry、真实战斗与动作取消；尚未执行 |
+| 当前M2新Development包 | 实际Build / Cook / Stage / Package与独立启动短查；旧Attempt02不替代 |
+| 清理结果汇总 | 汇总已有构建 / 测试 / 配置 / 引用证据，只补缺口；实机 / 包通过后才能关闭整轮 |
+| 后续M2开发 | 用户授权再进入治疗次数HUD及后续能力 / 锁定，不因清理完成自动开新章 |
 
-2026-10-10 C2完成：用户15:20全项通过；手动35（10 / 10 / 15）、等待5，累计1521 / 120。源码 / 双receipt / 实际26cpp索引与运行核对，目录补修关闭，C总任务完成；[报告](Reports/M1_05C2_Verification.md)与[最终基线](Reports/Raw/M1_05C2_Baseline.json)无待补。当前仅追加验收文档 / 清单与待提交个人设置删除，D未下发。
+有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
-2026-10-10 D完成：复用C2全链路与A / B证据，整理[M1-05总验收](Reports/M1_05_Verification.md)和[D复盘](M1_05D_EnemyCombatReview.md)；当前文件逐份匹配C2、无新增缺口，未重跑旧矩阵或新增Build / PIE。整章关闭；可选视频尚未录制、用户工时不变。下一开发章M1-06待开始，C2 / D文档收尾按最后清单合并上传。
-
-2026-10-10 M1-06A下发：主菜单代码 / 逐项布局与四资产装配、项目地图配置、三组8–12分钟相关检查和Push清单已保存；没有修改工程Source / UE资产或运行Build / PIE。当前53 / 26 / 40与M1-05D一致，工时不变；A待用户完成反馈。
-
-2026-10-10 M1-06A验收：用户21:13全项通过，手动45 / 等待5；59Source / 29cpp / 清单44，原51Source与40资产不变。三次进入 / 新HUD和五轮菜单清理、None负例 / PIE退出核对，具体输入与最终配置按反馈；[报告](Reports/M1_06A_Verification.md)功能无待补。后续清理菜单默认AHUD空类Spawn Warning，不为此重跑矩阵。六个AM新文件需重新Stage完整代码；本轮仅更新文档 / 清单 / 本地证据，未接管Source或进入B。
-
-2026-10-11 B下发：用户授权进入本批；A已提交d5eb9aa，59Source / 44资产哈希不变，B代码仅指南。给出RunSession、FailureWidget / Flow完整新文件与七旧文件修改、逐项Designer / 一个旧P Branch、三组正式入口检查 / 末尾Push清单。未替用户写Source、建资产 / 测试图、执行Build / PIE或计预计工时；当前累计1566 / 125，C / D未下发。
-
-2026-10-11 B验收：用户15:05全项完成，手动80（40 / 30 / 10）、等待5；六新 / 七旧Source、双receipt晚于源码、32cpp实索引，原52Source不变。真实死亡 / 新页 / Retry / 返回菜单 / None预检恢复与清理有日志，具体输入和失败页中Stop按明确反馈；一次Class缺失后恢复、早期Designer提示已记录，菜单空HUD Warning关闭。三资产保存 / 清单45、其他42资产不变；[报告](Reports/M1_06B_Verification.md)无待补，累计1646 / 130。当时HEAD仍A，六个AM新Source待重新Stage；后续已进入4b83b66，本段保留当时验收记录。
-
-2026-10-11 C下发：按用户授权生成十个完整源码块与逐项资产配置，实际工程仍65Source / 32cpp / 清单45。代码只在指南，实施后预计67 / 33 / 46；未修改Source / UE资产或运行Build / PIE。四组10–15分钟沿用正式流程与一个可复用PIE开发命令，检查点重试、继续 / 开始重置、失效ID回退 / 快照修正及短基线，不搭新蓝图测试函数。C预计80–130分钟未计入累计1646 / 130；B漏跟踪报告纳入C末尾清单，D未下发。
-
-2026-10-12 C验收：用户00:30全项完成，手动85（45 / 30 / 10）/ 等待5。67Source / 33cpp、十全文块 / 双receipt / 实索引核对，57旧Source不变；三Retry / 两Continue / 三NewRun / 三MainMenu到达、一次激活去重、失效ID回退后Entry修正与清理有日志，具体输入 / Designer / 退出按反馈。新BP / 地图 / Widget正常保存、来源清单46且43旧资产不变，[报告](Reports/M1_06C_Verification.md)无待补。主体与B报告已提交3351b53，当前追加C收尾文档，累计1731 / 等待135，本章210 / 15；未代改工程、Build / PIE或进入D。
-
-2026-10-12 D下发：[指南](M1_06D_PauseFlow.md)已生成，现有FailureFlow在计划中扩为Controller暂停 / 失败协调器，保留原生类 / BP配置；两个新Pause Widget文件、六旧源码全文与四旧资产步骤、末尾Push清单完整。预算80–140 / 检查10–15；代码只在文档，实际67 / 33 / 46与累计1731 / 等待135不变。三组检查复用P、正式按钮、既有4与Checkpoint_A，无新Controller测试图；死亡时已暂停的接管仅静态设计，不冒充实测。D执行 / 章末报告待反馈，当前未进入M1-07。
-
-2026-10-13 M1-07A验收：实际30（10 / 10 / 10）/ 等待25，累计1866 / 165；当前包真实Game / 容器指纹、UAT / receipt、三Runtime核对，无功能待补。主Run01激活A后真实Retry / Continue都确认A，新Run02首屏Continue0 / NewRunEntry。本批无新资产来源，清单46不变；本地HEAD193eb4e。B采样指南 / Profile与Region通道下发，Parser / WhatIf通过，未启动游戏或预写性能分析；GameplayCue非阻断扫描Warning登记给C。
-
-2026-10-13 B核查：原采集55分钟、累计1921 / 165；69Source / 46资产 / 包指纹保持A。CPU / GPU稳定窗口与Retry分析见[B报告](Reports/M1_07B_Verification.md)。用户确认Combat01无敌人追击 / 挥击，缺真实交战负载；仅B指南8.1 Combat02待补，其他区间不重跑，C不提前下发。环境不清楚按未知记录。
-
-2026-10-13 Combat02有效、无需重采，额外5分钟、累计1926 / 165。唯一当前补修是Source构造顺序清键造成Move150 / Controller90；B指南8.2手动执行，C未下发。旧Attempt01保留已测历史版本，新包后续统一生成；[报告](Reports/M1_07B_Verification.md)区分交战性能、发现的功能回归与尚未实施修复。
-
-23:50绑定补修实际10分钟，累计1936 / 已明确165，新增等待未单列。站定自动攻击仍失败，保留B待诊断，不进入C；只需8.3一条现有日志增强，不重做旧验收图。
-
-2026-10-14新到达快照当次通过，手动5分钟、累计1941 / 已明确165；只读快照不修改玩法，不伪造残余唯一根因。8.3短函数直接覆盖原指南，当前Source仍长版，待手动落地；原素材 / Trace不重采，旧矩阵不重复。
-
-2026-10-14最终反馈关闭B分析 / Editor收尾：短函数已落地，Editor四步成功；用户确认功能正常。Game / include补项明确转入C1，最终新包转C3，不再要求B复测全套。C1指南已保存，四新文件仅文档，Source仍69 / cpp34 / 清单46，实耗累计不变。
-
-C1于2026-10-14 13:24反馈完成并核查通过；实际40 / 5、累计1981 / 170，B两项构建 / include补项关闭。C2已下发手动代码与复用检查，无新Gameplay实现或C2验收结果；旧Attempt01保持历史测量包，C3任务保留。
-
-C2已验收无待补，新增合法GA Probe48项，累计2001 /175。C3不加C++，合并新Cook和相关包内短流程；Attempt01保持历史Radius150 / 旧性能基线，新包尚未生成，不将已过工具检查当作包已验收。
-
-2026-10-14 C3与M1完成：Attempt02 UAT成功，真实Move90 / 敌人伤害与A点Retry / Continue、新进程Entry均核对；手动10 / 等待10，累计2011 / 185。75Source / 37cpp / 清单48保持，DefaultGame保存格式变化已核对；[C3报告](Reports/M1_07C3_Verification.md)、[M1总报告](Reports/M1_Verification.md)及[M1复盘](M1_Review.md)落盘。M2按原四能力范围与65h基础预算分批推进，M2-01资源基础待下发实施指南。
-
-2026-10-14 M2-01A完成：60 / 等待5，累计2071 / 190；78Source / 39cpp / 48资产，三新 / 三旧Source实现匹配、IsCombatDead补修 / 双构建 / 实际三索引通过。三身体Valid、StaminaFoundation一次Success、两轮初始化 / 清理与短基线核对，无待补项；[报告](Reports/M2_01A_Verification.md)完成。现有资产字节不变、旧包不更新，后续恢复 / 资源观察待分批下发；实现本地4fedf14，本轮补提交验收文字。
-
-2026-10-16 M2-03B指南下发：现有LightAttack扩展为玩家单能力三段、单槽.25世界秒缓冲；1 / 2段.60–.80连段窗，延后Timer调度切段、激活 / 段代次及Montage实例身份隔离，每段独立Trace Serial，敌人保持旧单段10。新建独立AM_ET_Light_01复用旧AS，避免污染敌人 / Practice / Dodge测试共用Montage。三新 / 六旧候选、精确替换锚点、代码块 / 本机5.5.4 API与旧生命 / 阵营 / 无敌路径已静态核对；已结束Task正常EndTask后撤销其旧Ability指针，迟到原生回调与停止时重入各有防护。新增Flow计划真实Montage / Notify / Sweep / GE、过期 / 一槽 / 取消 / Pause / 死亡 / EndPlay与旧Task负向回调，仅复用旧Dodge.Invulnerability，不重跑未变资源 / Practice / 墙坡矩阵。预算120–210手动 / 相关检查10–15，未计实耗。工程仍96 / 50 / 57，Source / 资产 / Config / uproject与A验收哈希保持，没有B编译 / Success / 验收或新Cook。[从第2节开始](M2_03B_LightCombo.md#2-准备与文件清单)。只读Git确认HEAD / 缓存origin/main均2202e74，旧C实现与A素材已纳入提交，远端本轮未联网核验；当前仅提交新指南与状态文档，用户操作Stage / Commit / Push。
-
-2026-10-16 M2-03B验收 / C下发：用户13:26全项通过，手动50 / 等待5；九份候选与实物一致（两文件仅缩进），其余90旧Source保持A。实际99 / 52 / 清单58；Editor12:52:20 / Game12:59:58、索引36+13+3；13:14:11 Flow与13:14:37 Invulnerability均Success。正式PIE目标三段独立Serial、100→75→50→25、受击取消 / P / 敌人单段10与HUD / Stop清理有直接记录，具体输入和最终配置按用户反馈。旧共用AM重存SHA改变，但与本地旧LFS对象的导出数据逐字节相同，差异在头 / 缩略图区，无连段Notify名称，不是待补验问题；四旧资产真实SHA更新。[B报告](Reports/M2_03B_Verification.md)通过，无玩法Error；用户已提交9a0cf14、缓存origin一致，本轮未联网核验或操作Git索引。累计2351 / 明确230，M2为340 / 45，03为100 / 15。[C指南](M2_03C_RecoveryDodgeCancel.md)一新 / 七旧、13个精确锚点：读取当前命中结束到淡出前的恢复区间，Dodge先完整预检再由GAS取消Ability.Attack.Light；非法 / 不足拒绝保留原攻击，旧Trace / 输入 / 待切段清除，复用原成本 / RMS / 保护。新RecoveryDodge驱动三段交接 / 失败保留 / Pause / 受击 / 死亡 / EndPlay，仅复用Flow和Invulnerability。C预算90–150 / 检查10–15，未计实耗，候选锚点 / 本机5.5.4 API / 清理语义已静态检查，未写Source或运行新测试，无C Success / 新Cook。
-
-2026-10-16 M2-03C / 整章收口：用户14:15全项完成，手动40 / 等待5；一新 / 七旧与最终候选一致（两份仅排版），92旧Source保持B。实际100 / 53 / 来源58，Editor14:04:25 / Game14:06:08覆盖最终Source，CodeModel37+13+3。14:09:01.866 Flow、14:09:02.384 RecoveryDodge、14:09:25.623 Invulnerability三Success，C2666 / C2065补项关闭，未删断言。实机三段恢复先Attack取消再Dodge、一次25、150.05cm / SourceTime .3001、P与受击 / 保护清理、死亡后14:15:10.986 Retry新双100与Stop清理有直接记录；具体输入 / 画面、敌人10和项目Valid按反馈，当前日志无玩法Error / Accessed None。58资产 / Config / uproject / 冻结B1保持B哈希，清单仅更新Dodge来源说明，不强制重存资产。[C报告](Reports/M2_03C_Verification.md)与[整章报告](Reports/M2_03_Verification.md)无待补；累计2391 / 明确235，M2为380 / 50，03为140 / 20分钟。初查测试暂存骨架随后由用户在核对期间完成efaae3e提交，最终完整测试与工作区一致、Source无差异，缓存origin同哈希；未联网核验或代操作Git。当前仅最新报告 / 清单 / 状态收尾待Stage / Commit / Push，下一M2-04按治疗次数 / 生效点再分批下发；没有助手UE Build / 测试、工程修改、新Cook或新章空类。
-
-2026-10-17 M2-04路线 / A指南下发：A身体离散3/3、固定原生Health GE成功扣数 / 重入保护、事件快照 / 失活保留与EndPlay解绑、仅PIE ET_Healing复用入口、玩家ET-HEAL-001与一项Healing.Resource长期自动化。五新 / 五旧候选与十个精确替换锚点、本机5.5.4 Instant成功句柄 / 应用查询 / Pauser / 默认子对象与既有Ready语义静态核对；A指南含完整代码、三身体逐项配置、5–10分钟短查与末尾Push清单，不建临时Controller验收图、不重跑未变Combo / Dodge矩阵。预计A105 / 56 / 58；当前工程仍100 / 53 / 58，未写Source / UE资产、执行Build / 新测试 / Cook或计预计工时。累计2391 / 明确235，M2为380 / 50保持；B1动画 / B2正式能力与Q / C次数HUD待后续下发。
-
-2026-10-17 M2-04A验收：用户19:17全项通过，手动60 / 等待5。十份实现与候选C++ Token一致（九份仅排版 / 末尾换行），其余95旧Source保持C；实际105 / 56 / 来源58。Editor18:19:24 / Game18:20:47覆盖最终Source，CodeModel40+13+3；19:13三正式身体项目Valid / Issues0，19:13:57.118 Healing.Resource实际Success。正式75→100 / 2次、满血拒绝、P内75与2次保持 / Applied0、耗尽0拒绝、19:16:29 Retry新100 / 3次与原HUD / Stop清理有日志；具体输入画面 / Stop再开按用户反馈，不补造第二轮PIE。58资产 / Config / uproject / 冻结B1保持，清单只更新三个身体的来源说明 / 验收阶段。累计2451 / 明确240、M2为440 / 55，04当前60 / 5，独立检查未拆；未重跑未变旧矩阵或新Cook。[A报告](Reports/M2_04A_Verification.md)无待补，B1动画素材待下发，正式Q / GA与次数HUD仍未完成。初查十Source已Stage完整内容，核对期间用户完成685a0f3，最终HEAD / 缓存origin一致、Source无差异；当前只提交最新文档收尾，助手未代改工程 / Git索引或执行UE测试。
-
-2026-10-17 B1指南下发：[治疗动画完整步骤](M2_04B1_HealingAnimation.md)与[数值JSON](Data/M2_04B1_HealPoseValues.json)已保存。空白LS_ET_Heal_01 → AS_ET_Heal_01 → AM_ET_Heal_01；五帧0 / 8 / 18 / 22 / 30、七控制器完整L/R/S，8–18相同停留，B2生效预留15帧 / .5秒。旋转向量来自旧M0 / Combo，新的组合 / 时序尚未在UE求值 / 蒙皮预览，用户先查0 / 8再补余帧；未伪造视觉通过。30fps / 排他End31、DefaultSlot / Loop1 / Blend .10与.10 / AutoBlendOut，Notifies保持空，不改Skeleton；B2再添加原生生效Notify。预算45–75手动 / 检查5–10未计实耗，无新C++ / Build / 旧测试 / Cook或Controller测试图。工程仍105 / 56 / 清单58，与A验收基线保持；预计三新素材后来源61。当前累计2451 / 明确240不变；完成并保存报告且无待补项时，按用户新增约定同轮下发B2。
-
-2026-10-17 M2-04B1验收 / B2下发：用户19:48全项完成，无占位动作问题，手动15 / 等待1。三素材保存时间19:44:27 / 19:45:18 / 19:46:58；Source105 / 56、58旧资产、Config / uproject / 冻结B1哈希保持，来源新增三行至61。名称扫描只支持引用线索，未独立Rig求值或读取采样数字；具体姿势 / 配置 / 预览与短基线按用户确认，反馈未填实际采样数值的限制已在[B1报告](Reports/M2_04B1_Verification.md)说明，不虚构测量或追加旧矩阵。累计2466 / 明确241，M2为455 / 56，04当前75 / 6。用户已提交fd94aad，缓存origin同哈希，Source无差异，未联网核验。报告无待补，按新增约定同轮下发[B2](M2_04B2_HealingAbility.md)：五新 / 十一旧、31个替换操作（恢复Tag片段两处）与两处追加；原生Started绑定Q，点Notify核对当前Montage实例与代次后至多提交一次，A资源成功才扣数；Healing互斥 / Recovery / 受击取消 / 清理同步扩展。预算120–180手动 / 10–15分钟相关检查，未计实耗。新Healing.Ability使用真实保存Montage / Notify / GE，计划十三场景；复用Resource / StaminaRecovery / RecoveryDodge，不搭临时Controller测试图。候选仅静态核对本机5.5.4 API、替换锚点与生命周期；未写Source / UE资产、执行Build / 测试 / Cook或Git变更，B2尚无Success或验收。
-
-2026-10-17 M2-04B2验收：用户21:07全项完成、无问题，手动40 / 等待5。实际110Source / 59cpp，16份中15份与最终候选Token一致、Validator仅移除非必需显式include，94旧Source保持B1；测试实际文件ETHealAbilityTests.cpp，类 / 路径不变。C2280两处授权补修已落地，Editor20:50:48 / Game20:51:48覆盖最终20:48:49源码，CodeModel43+13+3。21:03:34.141 Healing.Ability、.299 Resource、21:03:50.181 StaminaRecovery、21:04:09.767 RecoveryDodge均Success，七正式资产Valid / Issues0。正式Q晚提交40 / 一次扣数、真实HUD、耗尽 / 前取消、Retry新身体、Dodge与敌人10 / P / Stop有日志；具体输入、活动治疗暂停、Continue与再开等按用户确认，精确时序由自动化支持，不补造PIE样本或追加旧矩阵。两新GA / IA与三旧玩家 / IMC / AM真实变化，来源63，58旧资产 / Config / uproject / 冻结指南保持；四旧GA继承原生新策略，不强制重存。累计2506 / 明确246，M2为495 / 61，04为115 / 11。[B2报告](Reports/M2_04B2_Verification.md)无待补；本轮不改工程 / Git、不代Build / 测试 / Cook。用户明确本次验收后先不进入下一章，故不生成C或新类，等待其安排；这只覆盖本次衔接，不永久取消通用自动衔接约定。
+历史阶段入口：[M0校准](Reports/M0_07_Calibration.md)、[M1总验收](Reports/M1_Verification.md)、[M2路线](M2_Roadmap.md)、[当前B2验收](Reports/M2_04B2_Verification.md)。当前架构见[Architecture](Architecture.md)，验收按[方案B](AcceptanceWorkflow_Options.md)，不在本页再次维护全部流水。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-核对期间用户已将B2十六份完整Source与五份实际变动LFS资产提交至a6c5ab8，HEAD / 缓存origin/main一致；Source工作区无差异，五份HEAD资产LFS OID与本地SHA匹配，本轮未联网核验远端或LFS服务器。无需重复Stage已提交源码 / 资产。当前只Stage新增[B2报告](Reports/M2_04B2_Verification.md)、B2指南 / 来源63项 / Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction及其他已明确未提交文档的最新差异，检查Staged Diff后由用户Commit / Push，可用`docs: verify formal healing ability milestone`。Raw / 日志 / 生成文件 / 历史包本地；助手未操作Git索引。本次没有下一章新增内容。
+第27–29批一起提交，完整清单及建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Raw / 日志 / 生成文件 / 构建产物留本地，助手不操作Git索引。

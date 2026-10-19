@@ -2,6 +2,11 @@
 
 生成 / 验收日期：2026-10-02。前置：[M1-01 已验收](Reports/M1_01_Verification.md)。**本批已通过**，手动 30 min / 等待 5 min；导航在光标移入文件名后恢复。源码 / 配置、构建与索引 / 加载证据见 [验收报告](Reports/M1_02A_Verification.md)。下方原步骤保留供复查，无需重做。下一批：[M1-02B](M1_02B_FrameworkObjects.md)。所有文件由你手动创建或修改，我负责方案、代码说明和后续审查。
 
+## 当前维护说明（第28批）
+
+第28批统一Target格式、移除两条未用using并补充模块依赖 / 生命周期注释；Runtime仍Core / UI，Editor目标额外包含Editor模块。所有依赖列表、宏、类身份和日志保持，两个极简Core模块文件只读审计不改。过期Build.cs / 模块入口 / Refresh脚本全文已换成当前源码链接；构建与引用审计见[Cleanup第28批](Cleanup.md#cleanup-batch-28)。
+
+
 ## 1. 本批目标
 
 建立第二个运行时模块 **EmberTrialUI**，保持 Gameplay → UI 的事件出口清晰，并让 CLion 分别使用两个模块的真实编译上下文。预计手动 **35–55 分钟**，UBT 构建 / IDE 索引等待另计。
@@ -51,52 +56,15 @@ Source/
 
 新文件：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialUI\EmberTrialUI.Build.cs`。完整内容：
 
-~~~csharp
-using UnrealBuildTool;
+[EmberTrialUI.Build.cs 当前源码](../EmberTrial/Source/EmberTrialUI/EmberTrialUI.Build.cs)。当前内容以Source / Tools为准，不再维护第二份完整副本。
 
-public class EmberTrialUI : ModuleRules
-{
-    public EmberTrialUI(ReadOnlyTargetRules Target) : base(Target)
-    {
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-        PrivateDependencyModuleNames.AddRange(new string[]
-        {
-            "Core",
-            "EmberTrial"
-        });
-    }
-}
-~~~
-
-这里先只有模块入口，没有 UObject / Widget。Core 提供模块与日志 API；EmberTrial 是未来公开玩法契约的依赖。首次添加 Widget 基类时再加入所需 CoreUObject / Engine / UMG / Slate 依赖，并按 Public 头文件实际暴露的类型区分 Public / Private 依赖。不要把 UnrealEd 或 EmberTrialUI 加入核心模块的 Build.cs。
+原M1-02A阶段仅建立模块入口；当前UI公开头继承UMG类型，Build.cs已具备对应Public / Private依赖。不要用早期只有Core / EmberTrial的列表覆盖当前配置。Core保持不依赖UI / UnrealEd，具体依赖以链接源码和当前架构为准。
 
 ### 3.2 EmberTrialUIModule.cpp
 
 新文件：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialUI\Private\EmberTrialUIModule.cpp`。完整内容：
 
-~~~cpp
-#include "Modules/ModuleManager.h"
-#include "Logging/LogMacros.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETUIModule, Log, All);
-
-class FEmberTrialUIModule final : public IModuleInterface
-{
-public:
-    virtual void StartupModule() override
-    {
-        UE_LOG(LogETUIModule, Display, TEXT("[M1-02A] EmberTrialUI module ready"));
-    }
-
-    virtual void ShutdownModule() override
-    {
-        UE_LOG(LogETUIModule, Display, TEXT("[M1-02A] EmberTrialUI module shutdown"));
-    }
-};
-
-IMPLEMENT_MODULE(FEmberTrialUIModule, EmberTrialUI)
-~~~
+[EmberTrialUIModule.cpp 当前源码](../EmberTrial/Source/EmberTrialUI/Private/EmberTrialUIModule.cpp)。当前内容以Source / Tools为准，不再维护第二份完整副本。
 
 `IMPLEMENT_MODULE` 注册普通模块。原 EmberTrial 的 `IMPLEMENT_PRIMARY_GAME_MODULE` 保持不动，项目仍只有一个主游戏模块。
 
@@ -173,129 +141,7 @@ Target 列出两模块，表示该目标要构建它们；这不会让 EmberTria
 
 旧脚本只读取 EmberTrial 的编译信息。新脚本从 .uproject 取得模块名，分别读取每个模块的 Shared.rsp / Definitions 头文件，生成各自的 CodeModel，避免把两模块不同的导入 / 导出宏混到一起。真实构建和现有运行配置名称保持一致。
 
-~~~powershell
-[CmdletBinding()]
-param(
-    [string]$EngineRoot = 'D:\UE5\UE_5.5',
-    [switch]$SkipBuild
-)
-
-$ErrorActionPreference = 'Stop'
-$repoRoot = Split-Path $PSScriptRoot -Parent
-$projectRoot = Join-Path $repoRoot 'EmberTrial'
-$projectFile = Join-Path $projectRoot 'EmberTrial.uproject'
-$buildScript = Join-Path $EngineRoot 'Engine\Build\BatchFiles\Build.bat'
-$engineSource = Join-Path $EngineRoot 'Engine\Source'
-$editorBuildRoot = Join-Path $projectRoot 'Intermediate\Build\Win64\x64\UnrealEditor\Development'
-
-if (!(Test-Path -LiteralPath $buildScript)) {
-    throw "UE Build.bat not found: $buildScript"
-}
-
-if (!$SkipBuild) {
-    if (Get-Process -Name UnrealEditor -ErrorAction SilentlyContinue) {
-        throw 'Save and close Unreal Editor before refreshing the CLion build metadata.'
-    }
-    & $buildScript EmberTrialEditor Win64 Development "-Project=$projectFile" -WaitMutex -NoHotReloadFromIDE
-    if ($LASTEXITCODE -ne 0) {
-        throw "UBT failed with exit code $LASTEXITCODE"
-    }
-}
-
-function Quote-CMake([string]$Value) {
-    '"' + $Value.Replace('\', '/').Replace('"', '\"').Replace(';', '\;') + '"'
-}
-
-$projectDescriptor = Get-Content -LiteralPath $projectFile -Raw | ConvertFrom-Json
-$moduleNames = @($projectDescriptor.Modules | ForEach-Object { $_.Name } | Select-Object -Unique)
-if ($moduleNames.Count -eq 0) {
-    throw 'No project modules found in the .uproject file.'
-}
-
-$moduleBlocks = [System.Collections.Generic.List[string]]::new()
-foreach ($moduleName in $moduleNames) {
-    if ($moduleName -notmatch '^[A-Za-z_][A-Za-z0-9_]*$') {
-        throw "Unsupported module name: $moduleName"
-    }
-    $moduleRules = Join-Path $projectRoot "Source\$moduleName\$moduleName.Build.cs"
-    $moduleBuild = Join-Path $editorBuildRoot $moduleName
-    $sharedResponse = Join-Path $moduleBuild "$moduleName.Shared.rsp"
-    $definitions = Join-Path $moduleBuild "Definitions.$moduleName.h"
-
-    if (!(Test-Path -LiteralPath $moduleRules)) {
-        throw "Module rules file is missing: $moduleRules"
-    }
-    if (!(Test-Path -LiteralPath $sharedResponse) -or !(Test-Path -LiteralPath $definitions)) {
-        throw "Build metadata is missing for $moduleName. Run this script without -SkipBuild first."
-    }
-
-    $includePaths = [System.Collections.Generic.List[string]]::new()
-    $compileDefinitions = [System.Collections.Generic.List[string]]::new()
-    foreach ($line in Get-Content -LiteralPath $sharedResponse) {
-        if ($line -match '^/(?:external:)?I\s*"([^"]+)"') {
-            $includePath = $Matches[1]
-            if (![IO.Path]::IsPathRooted($includePath)) {
-                $includePath = Join-Path $engineSource $includePath
-            }
-            $includePaths.Add([IO.Path]::GetFullPath($includePath))
-        } elseif ($line -match '^/D(.+)$') {
-            $compileDefinitions.Add($Matches[1].Trim('"'))
-        }
-    }
-    if ($includePaths.Count -eq 0) {
-        throw "No include paths parsed from $sharedResponse"
-    }
-    $includeLines = ($includePaths | Sort-Object -Unique | ForEach-Object { '    ' + (Quote-CMake $_) }) -join "`n"
-    $defineLines = ($compileDefinitions | Sort-Object -Unique | ForEach-Object { '    ' + (Quote-CMake $_) }) -join "`n"
-    $forceInclude = Quote-CMake ('/FI' + $definitions)
-
-    $moduleTemplate = @'
-file(GLOB_RECURSE @MODULE@_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source/@MODULE@/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source/@MODULE@/*.h")
-add_library(@MODULE@CodeModel OBJECT EXCLUDE_FROM_ALL ${@MODULE@_SOURCES})
-target_include_directories(@MODULE@CodeModel PRIVATE
-@INCLUDES@
-)
-target_compile_definitions(@MODULE@CodeModel PRIVATE
-@DEFINITIONS@
-)
-target_compile_options(@MODULE@CodeModel PRIVATE @FORCE_INCLUDE@ /Zc:__cplusplus /Zc:preprocessor /utf-8)
-'@
-    $block = $moduleTemplate.Replace('@MODULE@', $moduleName).Replace('@INCLUDES@', $includeLines).Replace('@DEFINITIONS@', $defineLines).Replace('@FORCE_INCLUDE@', $forceInclude)
-    $moduleBlocks.Add($block)
-    Write-Host "Index metadata: $moduleName; includes: $($includePaths.Count)"
-}
-
-$header = @'
-# Local CLion integration. Recreate with Tools/Refresh-CLion.ps1.
-# All real UE builds go through UBT, including UnrealHeaderTool.
-cmake_minimum_required(VERSION 3.20)
-project(EmberTrial LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-'@
-
-$footerTemplate = @'
-add_custom_target(EmberTrialEditor ALL
-    COMMAND @BUILD@ EmberTrialEditor Win64 Development @PROJECT@ -WaitMutex -NoHotReloadFromIDE
-    USES_TERMINAL VERBATIM)
-add_custom_target(EmberTrialEditor_DebugGame
-    COMMAND @BUILD@ EmberTrialEditor Win64 DebugGame @PROJECT@ -WaitMutex -NoHotReloadFromIDE
-    USES_TERMINAL VERBATIM)
-# Refresh only the code model after a normal UBT build; avoid recursive builds.
-add_custom_target(Refresh_CLion_Model
-    COMMAND powershell.exe -NoProfile -File "${CMAKE_CURRENT_SOURCE_DIR}/../Tools/Refresh-CLion.ps1" -EngineRoot @ENGINE@ -SkipBuild
-    USES_TERMINAL VERBATIM)
-'@
-$footer = $footerTemplate.Replace('@BUILD@', (Quote-CMake $buildScript)).Replace('@PROJECT@', (Quote-CMake ('-Project=' + $projectFile))).Replace('@ENGINE@', (Quote-CMake $EngineRoot))
-$cmake = $header + "`n" + ($moduleBlocks -join "`n") + "`n" + $footer + "`n"
-$cmakePath = Join-Path $projectRoot 'CMakeLists.txt'
-[IO.File]::WriteAllText($cmakePath, $cmake, [Text.UTF8Encoding]::new($false))
-Write-Host "CLion model refreshed: $cmakePath"
-Write-Host "Modules: $($moduleNames -join ', '); real build target: EmberTrialEditor (Win64 Development)."
-~~~
+[Refresh-CLion.ps1 当前源码](../Tools/Refresh-CLion.ps1)。当前内容以Source / Tools为准，不再维护第二份完整副本。
 
 不要自己手动维护生成的 CMakeLists.txt。新增 .cpp / .h 后 Reload CMake 通常可重新扫描文件；新增模块、模块依赖或反射头文件后，先正常 UBT Build，再刷新脚本和 Reload。不需要清理 Binaries、Intermediate、Saved 或 .idea。
 
@@ -366,3 +212,7 @@ CLion 两个 CodeModel / 新文件可见 / 头文件导航：通过
 本批已通过，现交接 [M1-02B 正式对象 / 公开边界](M1_02B_FrameworkObjects.md)，随后处理 UI 的 Pawn 重绑 / 清理；**A 通过不等于整个 M1-02 完成**。
 
 下发前检查：本机引擎头文件路径、文档 JSON / PowerShell 语法通过；引用脚本使用现有 EmberTrial 元数据成功生成隔离的索引文件（302 条 include）。没有写入实际脚本 / CMake，没有执行新 UBT Build；第二模块的实际元数据与加载由本批手动验收确认。
+
+## 本次清理 Commit / Push（固定放在最后）
+
+第27–29批一起提交；完整清单和建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Raw / 日志 / 生成文件留本地，助手不操作Git索引。

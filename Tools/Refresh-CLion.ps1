@@ -1,10 +1,11 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$EngineRoot = 'D:\UE5\UE_5.5',
     [switch]$SkipBuild
 )
 
 $ErrorActionPreference = 'Stop'
+## 路径与正常UBT构建：SkipBuild仅复用已存在元数据，不替代编译。
 $repoRoot = Split-Path $PSScriptRoot -Parent
 $projectRoot = Join-Path $repoRoot 'EmberTrial'
 $projectFile = Join-Path $projectRoot 'EmberTrial.uproject'
@@ -26,6 +27,7 @@ if (!$SkipBuild) {
     }
 }
 
+## 统一转义CMake路径；保留排序 / 去重规则，避免每个模块各写一套引用方式。
 function Quote-CMake([string]$Value) {
     '"' + $Value.Replace('\', '/').Replace('"', '\"').Replace(';', '\;') + '"'
 }
@@ -36,7 +38,23 @@ if ($moduleNames.Count -eq 0) {
     throw 'No project modules found in the .uproject file.'
 }
 
+## 单引号here-string保留CMake变量字面量；模板与当前模块无关，只构造一次。
+$moduleTemplate = @'
+file(GLOB_RECURSE @MODULE@_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/@MODULE@/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/@MODULE@/*.h")
+add_library(@MODULE@CodeModel OBJECT EXCLUDE_FROM_ALL ${@MODULE@_SOURCES})
+target_include_directories(@MODULE@CodeModel PRIVATE
+@INCLUDES@
+)
+target_compile_definitions(@MODULE@CodeModel PRIVATE
+@DEFINITIONS@
+)
+target_compile_options(@MODULE@CodeModel PRIVATE @FORCE_INCLUDE@ /Zc:__cplusplus /Zc:preprocessor /utf-8)
+'@
+
 $moduleBlocks = [System.Collections.Generic.List[string]]::new()
+## 每个模块使用自己的rsp与强制Definitions头，禁止混用Core / UI / Editor导出宏。
 foreach ($moduleName in $moduleNames) {
     if ($moduleName -notmatch '^[A-Za-z_][A-Za-z0-9_]*$') {
         throw "Unsupported module name: $moduleName"
@@ -55,6 +73,7 @@ foreach ($moduleName in $moduleNames) {
 
     $includePaths = [System.Collections.Generic.List[string]]::new()
     $compileDefinitions = [System.Collections.Generic.List[string]]::new()
+    # 相对include基于Engine/Source解析；/D沿用UBT实际定义，不自行猜测宏。
     foreach ($line in Get-Content -LiteralPath $sharedResponse) {
         if ($line -match '^/(?:external:)?I\s*"([^"]+)"') {
             $includePath = $Matches[1]
@@ -73,24 +92,20 @@ foreach ($moduleName in $moduleNames) {
     $defineLines = ($compileDefinitions | Sort-Object -Unique | ForEach-Object { '    ' + (Quote-CMake $_) }) -join "`n"
     $forceInclude = Quote-CMake ('/FI' + $definitions)
 
-    $moduleTemplate = @'
-file(GLOB_RECURSE @MODULE@_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source/@MODULE@/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Source/@MODULE@/*.h")
-add_library(@MODULE@CodeModel OBJECT EXCLUDE_FROM_ALL ${@MODULE@_SOURCES})
-target_include_directories(@MODULE@CodeModel PRIVATE
-@INCLUDES@
-)
-target_compile_definitions(@MODULE@CodeModel PRIVATE
-@DEFINITIONS@
-)
-target_compile_options(@MODULE@CodeModel PRIVATE @FORCE_INCLUDE@ /Zc:__cplusplus /Zc:preprocessor /utf-8)
-'@
-    $block = $moduleTemplate.Replace('@MODULE@', $moduleName).Replace('@INCLUDES@', $includeLines).Replace('@DEFINITIONS@', $defineLines).Replace('@FORCE_INCLUDE@', $forceInclude)
+    $block = $moduleTemplate.Replace(
+        '@MODULE@', $moduleName
+    ).Replace(
+        '@INCLUDES@', $includeLines
+    ).Replace(
+        '@DEFINITIONS@', $defineLines
+    ).Replace(
+        '@FORCE_INCLUDE@', $forceInclude
+    )
     $moduleBlocks.Add($block)
     Write-Host "Index metadata: $moduleName; includes: $($includePaths.Count)"
 }
 
+## 只有全部模块元数据验证通过才写最终文件；本脚本不驱动CodeModel目标编译游戏。
 $header = @'
 # Local CLion integration. Recreate with Tools/Refresh-CLion.ps1.
 # All real UE builds go through UBT, including UnrealHeaderTool.
@@ -115,6 +130,8 @@ add_custom_target(Refresh_CLion_Model
 '@
 $footer = $footerTemplate.Replace('@BUILD@', (Quote-CMake $buildScript)).Replace('@PROJECT@', (Quote-CMake ('-Project=' + $projectFile))).Replace('@ENGINE@', (Quote-CMake $EngineRoot))
 $cmake = $header + "`n" + ($moduleBlocks -join "`n") + "`n" + $footer + "`n"
+# 输出统一LF，使here-string不受PowerShell脚本本身行尾格式影响。
+$cmake = $cmake.Replace("`r`n", "`n")
 $cmakePath = Join-Path $projectRoot 'CMakeLists.txt'
 [IO.File]::WriteAllText($cmakePath, $cmake, [Text.UTF8Encoding]::new($false))
 Write-Host "CLion model refreshed: $cmakePath"

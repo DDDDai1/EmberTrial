@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([string]$ProjectDirectory = '')
 
 $ErrorActionPreference = 'Stop'
@@ -9,22 +9,31 @@ $configProject = [IO.Path]::GetFullPath($ProjectDirectory)
 $configIssues = [System.Collections.Generic.List[string]]::new()
 $configWarnings = [System.Collections.Generic.List[string]]::new()
 
+## 仅解析共享Default.ini；不合并平台 / Saved覆写，不加载umap或修改项目。
 function Get-SectionLines([string]$Path, [string]$Section) {
-    if (!(Test-Path -LiteralPath $Path -PathType Leaf)) { throw "Config file missing: $Path" }
+    if (!(Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw "Config file missing: $Path"
+    }
     $selectedSection = ''
     foreach ($configLine in Get-Content -LiteralPath $Path) {
         $configTrimmed = $configLine.Trim()
-        if ($configTrimmed -match '^\[(.+)\]$') { $selectedSection = $Matches[1]; continue }
+        if ($configTrimmed -match '^\[(.+)\]$') {
+            $selectedSection = $Matches[1]
+            continue
+        }
         if ($selectedSection -eq $Section -and $configTrimmed -and !$configTrimmed.StartsWith(';')) {
             $configTrimmed
         }
     }
 }
 
+## Scalar保留最后一次赋值；Array保留当前显式操作符语义，不扩展为完整UE配置系统。
 function Get-Scalar([string[]]$Lines, [string]$Key) {
     $configValue = ''
     foreach ($configLine in $Lines) {
-        if ($configLine -match ('^' + [regex]::Escape($Key) + '=(.*)$')) { $configValue = $Matches[1].Trim().Trim('"') }
+        if ($configLine -match ('^' + [regex]::Escape($Key) + '=(.*)$')) {
+            $configValue = $Matches[1].Trim().Trim('"')
+        }
     }
     $configValue
 }
@@ -36,17 +45,31 @@ function Get-Array([string[]]$Lines, [string]$Key) {
             $configOperator = $Matches[1]
             $configElement = $Matches[2].Trim()
             switch ($configOperator) {
-                '!' { $configValues.Clear() }
-                '-' { [void]$configValues.Remove($configElement) }
-                '+' { if (!$configValues.Contains($configElement)) { $configValues.Add($configElement) } }
-                '.' { $configValues.Add($configElement) }
-                default { $configValues.Clear(); $configValues.Add($configElement) }
+                '!' {
+                    $configValues.Clear()
+                }
+                '-' {
+                    [void]$configValues.Remove($configElement)
+                }
+                '+' {
+                    if (!$configValues.Contains($configElement)) {
+                        $configValues.Add($configElement)
+                    }
+                }
+                '.' {
+                    $configValues.Add($configElement)
+                }
+                default {
+                    $configValues.Clear()
+                    $configValues.Add($configElement)
+                }
             }
         }
     }
     $configValues.ToArray()
 }
 
+## 项目约定的正式地图与Cue范围：它们是校验配置的预期值，不从待校验值推导。
 $configEngineFile = Join-Path $configProject 'Config\DefaultEngine.ini'
 $configGameFile = Join-Path $configProject 'Config\DefaultGame.ini'
 $configMapLines = @(Get-SectionLines $configEngineFile '/Script/EngineSettings.GameMapsSettings')
@@ -93,8 +116,13 @@ if ($configCuePaths.Count -eq 0) {
         }
     }
 }
-foreach ($configMessage in $configWarnings) { Write-Warning $configMessage }
-foreach ($configMessage in $configIssues) { Write-Host $configMessage -ForegroundColor Red }
+foreach ($configMessage in $configWarnings) {
+    Write-Warning $configMessage
+}
+foreach ($configMessage in $configIssues) {
+    Write-Host $configMessage -ForegroundColor Red
+}
+## 保留错误退出1、仅Warning退出0与原规则ID，便于现有终端 / 自动脚本复用。
 if ($configIssues.Count -gt 0) {
     Write-Host "[M1-07C2] Config FAILED Errors=$($configIssues.Count) Warnings=$($configWarnings.Count)"
     exit 1

@@ -1,4 +1,4 @@
-[CmdletBinding(SupportsShouldProcess)]
+﻿[CmdletBinding(SupportsShouldProcess)]
 param(
     [string]$BuildDirectory = '',
     [ValidatePattern('^[A-Za-z0-9_-]{1,48}$')]
@@ -14,6 +14,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+## 包目录与正式启动前置：保留M1默认包；检查新版必须显式传BuildDirectory / EvidenceStage。
 $stageRepo = Split-Path $PSScriptRoot -Parent
 if ([string]::IsNullOrWhiteSpace($BuildDirectory)) {
     $BuildDirectory = Join-Path $stageRepo 'Artifacts\Builds\M1_07A\Attempt01'
@@ -26,7 +27,9 @@ if (!(Test-Path -LiteralPath $stageExe -PathType Leaf)) {
 if (!$WhatIfPreference -and (Get-Process -Name UnrealEditor -ErrorAction SilentlyContinue)) {
     throw 'Save and close Unreal Editor before checking the standalone package.'
 }
-$stageEvidenceStage = if ($PerformanceBaseline) { 'M1_07B' } else { $EvidenceStage }
+## 日志 / Trace / 元数据按同一唯一前缀关联；记录不是Gameplay验收结果。
+$stageEvidenceStage = ## 固定性能采集CVar与顺序属于可复现基线，本批不改采样口径。
+if ($PerformanceBaseline) { 'M1_07B' } else { $EvidenceStage }
 $stageOutput = Join-Path $stageRepo ("Artifacts\$stageEvidenceStage\Runtime")
 $stageStamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
 $stageBase = "${RunName}_${stageStamp}"
@@ -44,8 +47,13 @@ if ($Trace) {
 }
 Write-Host "Executable: $stageExe"
 Write-Host "Log: $stageLog"
-if ($PerformanceBaseline) { Write-Host "Runtime profiling commands: $stageProfileCommands" }
-if ($Trace) { Write-Host "Trace: $stageTrace" }
+if ($PerformanceBaseline) {
+    Write-Host "Runtime profiling commands: $stageProfileCommands"
+}
+if ($Trace) {
+    Write-Host "Trace: $stageTrace"
+}
+## WhatIf必须在任何目录 / 证据写入和进程启动之前退出。
 if (!$PSCmdlet.ShouldProcess($stageExe, 'Start packaged EmberTrial with a distinct runtime log')) {
     return
 }
@@ -53,6 +61,7 @@ New-Item -ItemType Directory -Path $stageOutput -Force | Out-Null
 if ((Test-Path -LiteralPath $stageLog) -or (Test-Path -LiteralPath $stageMeta)) {
     throw 'The generated evidence filename already exists; run again to get a fresh timestamp.'
 }
+## 这是供用户操作的游戏窗口；不隐藏它，也不把启动成功记成玩法通过。
 $stageProcess = Start-Process -FilePath $stageExe -WorkingDirectory (Split-Path $stageExe -Parent) -ArgumentList $stageArguments -PassThru
 [ordered]@{
     RunName = $RunName

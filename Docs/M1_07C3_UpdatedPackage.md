@@ -2,6 +2,11 @@
 
 更新2026-10-14，固定 UE **5.5.4**。**[C3验收](Reports/M1_07C3_Verification.md)已通过**：Attempt02打包成功，两轮Runtime完整；实际手动10 / 等待10分钟。[M1-07总验收](Reports/M1_07_Verification.md)、[M1总验收](Reports/M1_Verification.md)、[阶段复盘](M1_Review.md)与[M2路线](M2_Roadmap.md)已完成。本指南保留实施步骤供以后复查，本轮无需重复操作。
 
+## 当前维护说明（第27批）
+
+Run-StageBuild脚本补充路径 / 性能口径 / ShouldProcess说明；WhatIf仍在创建目录、写证据、启动游戏之前返回。本批对现有Attempt02运行WhatIf，确认无新证据 / 游戏进程；没有实际启动包或重做C3验收。旧包只代表M1，最新源码含M2，记录见[第27批](Cleanup.md#cleanup-batch-27)。
+
+
 ## 1. 本批目的、时间与输出
 
 将B的MoveRadius90绑定修复、最终短日志与C2 Cue配置实际带进新包，并确认两Editor校验器不作为Runtime模块加载。原Attempt01与B Insights保留历史测量，不拿旧exe验证新Source / Config，也不重新采Trace证明尚未测得的优化收益。
@@ -131,10 +136,4 @@ Build / Cook失败发首个实际错误与日志路径；包内异常发发生�
 
 ## 9. 本批需要 Commit / Push（固定放在文档最后）
 
-- 修改 `Tools/Run-StageBuild.ps1`：可选EvidenceStage、C3独立输出目录，WhatIf不要求关闭UE但真正启动仍检查。A / B默认行为保留，脚本不自动判定Gameplay通过。
-- 新增本指南与 `Docs/Reports/M1_07C2_Verification.md`；AssetManifest第48项、C2收尾和Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow_Options / Introduction / M1-07路线实际更新。
-- C2尚未提交的两新Source / Editor Build.cs、DefaultGame.ini的Cue路径、合法GA Probe及工具 / 指南按C2清单纳入。C3本身无新C++ / UE资产，已有资产无差异不人为重存 / Stage。
-- 新增 `Docs/Reports/M1_07C3_Verification.md`、`M1_07_Verification.md`、`M1_Verification.md`，以及 `Docs/M1_Review.md`、`Docs/M2_Roadmap.md`；同步Introduction与状态文字。DefaultGame.ini本次额外保存差异仅空白格式，保留C2已配置的Cue路径，按实际Diff提交。
-- `Artifacts/Builds/M1_07C3`包、`Artifacts/M1_07C3/Runtime`的Log / JSON、Raw、生成索引 / Saved / Binaries继续留本地，不Force Add。真正分享试玩包留后续发布阶段，不自动上传Github大包。
-
-CLion Save All → 刷新Changes → 将最新收尾和完整实现重新Stage → Staged Diff → Commit → Push。本轮收尾可用 `docs: close M1 packaged baseline and review`；C2实现若尚未提交，先按其清单形成实现提交。Git由用户操作。
+第27–29批一起提交，完整文件清单和建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。本页原实施已完成，不重复Stage历史配置 / 资产；Raw / 日志 / 生成文件留本地，助手不操作Git索引。

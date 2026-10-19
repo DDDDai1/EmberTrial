@@ -2,6 +2,11 @@
 
 更新2026-10-19，UE **5.5.4**。[C2原验收](Reports/M1_07C2_Verification.md)记录14:09、手动20 / 等待5及九正式资产。规则已随M2功能扩展，第21批整理源码与本页；首次创建步骤为历史记录，当前实现以Source为准。功能开发暂停在M2-04B2。
 
+## 当前维护说明（第27批）
+
+Validate-ProjectConfig脚本仍只读共享Default.ini：保留Scalar最后赋值、Array各操作符和ET-CONFIG-001–004规则 / 退出码。七个隔离配置用例的旧新输出一致；夹具空umap只测文件存在，不证明资源可加载。当前项目配置保持，记录见[第27批](Cleanup.md#cleanup-batch-27)。
+
+
 ## 1. 成果、时间与范围
 
 新增独立 `UETGameplayAssetValidator`，继续使用 Asset Actions → Validate Assets。它读取设计时 Class Default Object（CDO），不生成角色、不授予能力、不运行 BeginPlay / 初始化生命值。少量反射集中在两个读取函数，用于检查现有类的私有配置，不增加Runtime公开Getter或编辑器依赖。
@@ -175,4 +180,4 @@ GA Probe None→ET-GA-001，恢复→Valid；已保存且未授予正式身体�
 
 ## 10. 本批需要 Commit / Push（固定放在文档最后）
 
-第21批清理的四份Validator Source与五份同步Markdown，共9项，逐文件清单见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。模块入口 / Build.cs / 两Target / uproject与资产未改，不重复提交原C1 / C2实现。CLion刷新Changes → 重新Stage最新差异 → 检查Staged Diff → Commit → Push；由用户操作Git。Raw / 日志 / 生成文件留本地。
+第27–29批一起提交，完整文件清单和建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。本页原实施已完成，不重复Stage历史配置 / 资产；Raw / 日志 / 生成文件留本地，助手不操作Git索引。
