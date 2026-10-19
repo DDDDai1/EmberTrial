@@ -1,6 +1,6 @@
 # M2-01A：体力属性、一次初始化与 Ready
 
-2026-10-19第18批清理同步：Character门控、Ready / ActorInfo与结束流程以当前Source为准，勿用早期完整函数覆盖已有连段、闪避或治疗。本轮清理由助手按授权直接执行；普通功能开发保留手动实践约定。当前检查与提交清单见[Cleanup](Cleanup.md)。
+2026-10-19第23批清理同步：体力初始化测试的全部场景 / 断言保留，统一排版、职责分区与快照容差命名；第18批Character门控、Ready / ActorInfo与结束流程仍以当前Source为准，勿用早期完整函数覆盖已有连段、闪避或治疗。本轮清理由助手按授权直接执行；普通功能开发保留手动实践约定。当前检查与提交清单见[Cleanup](Cleanup.md)。
 
 **2026-10-14已验收通过，实际手动60 / 等待5分钟。**当时78Source / 39cpp，StaminaFoundation一次Success、三个正式身体Valid、两轮PIE与短基线通过，IsCombatDead链接补项已关闭；见[本批验收](Reports/M2_01A_Verification.md)。下文保留当时手动实施步骤和预算，“尚未编译”等表述属于下发时状态；本轮无需重复执行。
 
@@ -207,17 +207,24 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint,
 }
 ```
 
-## 6. 可复用运行规则测试：新文件全文
+## 6. 可复用运行规则测试与断言边界
 
-创建 `Source/EmberTrial/Tests/ETStaminaFoundationTests.cpp`。这是长期保留的自动测试，不是每轮删除的临时玩法代码；原Lifecycle / DodgeMovement文件保持原样。
+[ETStaminaFoundationTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETStaminaFoundationTests.cpp)是已存在的长期自动测试，无需新建或每轮删除。测试建立临时世界，使用真实原生Character / ASC / 瞬时GE；不读取正式玩家蓝图，也不保存资产。
 
-测试建立自己的临时世界，用真实原生Character / ASC / Instant GE；覆盖40/80、0/80、非法100/60、非有限初值、拒绝时生命不被部分初始化、修正后初始化、上下限、过量恢复后扣除、重复Ensure、两Controller换控与EndPlay。它不证明正式玩家蓝图装配、未来GA成本或体力UI；第8节用三正式身体与一条短基线补这部分。
+| 分区 | 保留的验证内容 |
+| --- | --- |
+| 启动 | BeginPlay前拒绝初始化；40/80与0/80可Ready，非法100/60及NaN拒绝；拒绝不得部分写入生命 |
+| 快照 | 同时验证公开Current / Max快照及ASC两项Base；读取失败与EndPlay后输出清零 |
+| 修正与修改 | 首次失败后修正可成功；真实Instant GE加减、上下限变化、过量后的无隐藏越界、重复Ensure不重置 |
+| 非有限值 | 运行中NaN / Infinity写入保留安全值；体力Effect与生命隔离 |
+| 换控 | 同一身体的两个Controller依次Possess，资源保留；不等同于新身体重生 |
+| 结束 | Ready撤销，不能重新初始化，不可用快照清空；原错误转发与早退路径保持 |
 
-当前源码：[ETStaminaFoundationTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETStaminaFoundationTests.cpp)。
+第23批把四处相同0.001f绝对容差命名为函数局部SnapshotTolerance，仍为float，不扩大容差。所有期望值、断言文字、调用次序、测试路径、WITH_DEV_AUTOMATION_TESTS与EditorContext标记保持；用例数字独立于生产默认值，不通过读取实现来生成期望结果。
 
-现有真实GE / 初始化 / Base与Current规则断言保持，不在指南维护第二份测试代码。
+Instant GE执行后不常驻，可能没有有效的持续Effect Handle；测试以真实属性变化为据。两个非法启动Warning继续用AddExpectedMessagePlain精确登记次数，不屏蔽意外Error / Warning。friend名字必须为FETStaminaFoundationTest，与IMPLEMENT里的类名一致。
 
-Instant GE可能不返回有效的持续Effect Handle，因为它即时执行后不会常驻；测试以属性变化与断言为据。两个非法启动Warning用AddExpectedMessagePlain精确登记次数，不把意外Error或其他Warning屏蔽。friend名字必须是 `FETStaminaFoundationTest`，与IMPLEMENT里的测试类名一致。
+本测试不证明正式玩家蓝图装配、恢复计时、GA成本、体力UI或实机帧率；对应检查由各独立测试和实机短查承担，不因排版重新设计临时蓝图入口。当前批次实际执行结果见[Cleanup](Cleanup.md)，历史M2-01A验收仍见原报告。
 
 ## 7. 正常 Build与CLion索引
 
@@ -300,4 +307,4 @@ StaminaFoundation一次：Success / Failure
 
 ## 10. 本批需要 Commit / Push（固定放在最后）
 
-本页历史功能已完成，不重做旧步骤。第18批为Character两份Source与八份Markdown，共十项；最新差异、检查结果与逐文件清单见[Cleanup末尾](Cleanup.md)。用户重新Stage后Commit / Push，Raw / 索引 / 日志留本地；助手不操作Git索引。
+当前第23批只修改一份StaminaFoundation测试源码及本指南、Cleanup、Progress，共4项；逐文件见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。原功能与资产已提交，不重复Stage。用户在CLion刷新Changes、重新Stage最新差异并检查Staged Diff后Commit / Push；Raw / 索引 / 日志留本地，助手不操作Git索引。

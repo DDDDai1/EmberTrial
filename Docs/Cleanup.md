@@ -376,40 +376,51 @@ Editor / Game的Target、模块 / 插件类型、三个Build.cs依赖与原生�
 
 本批未重跑DataValidation、菜单输入 / 切图 / 旧图出生、PIE或Cook / 打包。既有自动化不覆盖这些完整GameMode流程，静态等价与构建不写成动态验收。完整快照、差异、等价 / 格式、双构建、配置与自动化JSON保存在Raw/Cleanup/2026-10-19_Batch22。收尾额度快照：5小时已用75% / 剩余25%，周已用38% / 剩余62%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第22批后）
+## 第23批：体力初始化测试的可读性与精度契约
 
-累计22批涉及98 / 116份Source（约84%文件覆盖率）、47份Markdown，已记录移除15608行重复实现 / 配置副本。覆盖率不是整体完成率；18份尚未触及Source不等于18份都必须修改，已触及文件也可能还有局部审计。
+2026-10-19第22批已提交，工作区干净，基线HEAD为29d3501。开工额度接口两次返回不可读，不将旧快照当作当前用量；上一批记录5小时剩余25% / 周剩余62%，因此保守只选一份Source：ETStaminaFoundationTests.cpp。
+
+统一测试排版、长条件与职责分区，补临时世界 / 四种启动配置、BeginPlay前赋值、非法初始化原子拒绝、真实Instant GE、Current / Base双重核对、非有限值、换控与结束说明。四处0.001f集中为函数局部constexpr float SnapshotTolerance，保持原精度 / 数值 / 参数位置，不放宽误差。
+
+测试注册、WITH_DEV_AUTOMATION_TESTS / EditorContext、期望数字 / 文字、全部断言、两个预期Warning及执行顺序保持。按容差命名归一化后其余Token保持，不增加镜像测试、不从生产默认值反推期望，不删除失败路径或把真实GE改成伪造快照。
+
+Foundation指南更新当前源码入口与覆盖表，说明原生身体 / 资源测试不等于正式蓝图装配、恢复计时、能力成本、UI或实机帧率；历史实施记录与验收入口保留。未删除整文件副本，本批重复实现移除计数为0；收益为测试可读性、精度意图明确及文档一致性，不宣称运行性能提高。
+
+正常UE5.5.4 Editor / Game Development Build、三模块CLion元数据 / CMake刷新通过，测试cpp已在Core CodeModel，三模块cpp仍43 / 15 / 3。既有13项自动化全部Success，0 Fail / 0 NotRun / 0测试警告，包含本次整理的StaminaFoundation；配置PASS Errors=0 / Warnings=0。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+115份其他Source、290项Content / Config / uproject / 来源清单保护哈希保持，冻结B1未改；等价、clang-format、LF / 末尾换行、文档链接 / 围栏、CodeModel及Git差异检查通过。Source仍116份 / 61cpp。未重跑DataValidation、交互式PIE或Cook / 打包，不把原生测试等同完整产品流程验证。
+
+完整快照、差异、等价 / 格式、双构建、配置与自动化JSON保存在Raw/Cleanup/2026-10-19_Batch23。收尾时额度接口恢复：5小时已用80% / 剩余20%，周已用39% / 剩余61%。已到约定收尾区间，本批完成后不再开启额外源码改动；后续先确认额度再继续。未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第23批后）
+
+累计23批涉及99 / 116份Source（约85%文件覆盖率）、47份Markdown，已记录移除15608行重复实现 / 配置副本。覆盖率不是整体完成率；17份尚未触及Source不等于17份都必须修改，已触及文件也可能还有局部审计。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
 | 正式玩法与兼容 | GA / 资源 / 战斗、Character / Practice已整理 | 跨模块规则、蓝图引用与最终实机 |
 | UI与AI | 主要观察 / 呈现 / 输入、感知 / 追击 / 近战已整理 | 焦点 / 切图、取消 / 重试 / 交战实机 |
 | 会话与规则 | Session / Checkpoint及三种GameMode已整理 | 统一流程 / 故障 / 兼容出生验证 |
-| 工程与材料 | Editor校验器已整理，构建依赖 / Target边界已审计 | 工具 / 测试夹具、余下材料与跨模块复核 |
-| 最终交付 | 分批构建、13项自动化和对应资源检查 | 统一实机、Cook / 打包与收益汇总 |
+| 测试与工程 | 13项断言保留，Foundation已整理；Editor / 构建边界已审计 | 其他测试夹具、工具、材料与引用审计 |
+| 最终交付 | 分批构建、自动化和对应资源检查 | 统一实机、Cook / 打包与收益汇总 |
 
 此前约10–15批及20–35小时是初估，按实际复杂度校准，不由文件覆盖率推算精确工期。
 
 ## 后续队列
 
-1. 原测试夹具与跨模块 / 蓝图引用审计。
+1. 其他原测试夹具与跨模块 / 蓝图引用审计。
 2. 工具、剩余架构材料与过程文档收口。
 3. 统一自动化、实机与包短查，汇总收益。
 
-前二十二批已收口，其余范围未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
+前二十三批已收口，其余范围未完成，不进入新玩法开发。余量已到20%，后续先复查额度，不在本批追加改动。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批四份Source与五份Markdown，共9项；用户在CLion刷新差异，重新Stage最新修改后Commit / Push。建议Commit信息：refactor: clarify menu and legacy game mode boundaries。
+本批一份测试Source与三份Markdown，共4项；用户在CLion刷新差异，重新Stage最新修改后Commit / Push。建议Commit信息：refactor: clarify stamina foundation test contracts。
 
-- [ETMenuGameMode.h](../EmberTrial/Source/EmberTrial/Public/Framework/ETMenuGameMode.h)
-- [ETMenuGameMode.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETMenuGameMode.cpp)
-- [EmberTrialGameMode.h](../EmberTrial/Source/EmberTrial/EmberTrialGameMode.h)
-- [EmberTrialGameMode.cpp](../EmberTrial/Source/EmberTrial/EmberTrialGameMode.cpp)
-- [M1_06A_MainMenu.md](M1_06A_MainMenu.md)
-- [M1_02B_FrameworkObjects.md](M1_02B_FrameworkObjects.md)
-- [Architecture.md](Architecture.md)
+- [ETStaminaFoundationTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETStaminaFoundationTests.cpp)
+- [M2_01A_StaminaFoundation.md](M2_01A_StaminaFoundation.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-Content / Config、Build.cs / Target / uproject与测试Source保持；Raw快照、日志、报告和生成文件留本地。助手不Stage / Commit / Push。
+正式Gameplay、其他测试与资产 / 配置不改；Raw快照、日志、报告及生成文件留本地。助手不Stage / Commit / Push。

@@ -11,11 +11,16 @@
 #include <limits>
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETStaminaFoundationTest,
-    "EmberTrial.M2.Resources.StaminaFoundation",
-    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+                                 "EmberTrial.M2.Resources.StaminaFoundation",
+                                 EAutomationTestFlags::EditorContext |
+                                     EAutomationTestFlags::EngineFilter)
 
 bool FETStaminaFoundationTest::RunTest(const FString& Parameters)
 {
+    // 快照的Current / Base共用原有绝对容差；保留float精度，不放宽任何断言。
+    constexpr float SnapshotTolerance = 0.001f;
+
+    // ---- 临时世界与四种启动配置；在BeginPlay前完成赋值 ----
     FTestWorldWrapper TestWorld;
     if (!TestWorld.CreateTestWorld(EWorldType::Game))
     {
@@ -23,21 +28,22 @@ bool FETStaminaFoundationTest::RunTest(const FString& Parameters)
         return false;
     }
     UWorld* World = TestWorld.GetTestWorld();
+    // 固定AlwaysSpawn，避免同原点的测试身体因碰撞生成失败而干扰资源规则。
     FActorSpawnParameters Spawn;
     Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     auto MakeBody = [&]()
     {
-        return World->SpawnActor<AEmberTrialCharacter>(
-            FVector::ZeroVector, FRotator::ZeroRotator, Spawn);
+        return World->SpawnActor<AEmberTrialCharacter>(FVector::ZeroVector, FRotator::ZeroRotator,
+                                                       Spawn);
     };
     AEmberTrialCharacter* Body = MakeBody();
     AEmberTrialCharacter* ZeroBody = MakeBody();
     AEmberTrialCharacter* InvalidBody = MakeBody();
     AEmberTrialCharacter* NonFiniteBody = MakeBody();
-    if (!TestNotNull(TEXT("Main body"), Body)
-        || !TestNotNull(TEXT("Zero stamina body"), ZeroBody)
-        || !TestNotNull(TEXT("Invalid configuration body"), InvalidBody)
-        || !TestNotNull(TEXT("Non-finite configuration body"), NonFiniteBody))
+    if (!TestNotNull(TEXT("Main body"), Body) ||
+        !TestNotNull(TEXT("Zero stamina body"), ZeroBody) ||
+        !TestNotNull(TEXT("Invalid configuration body"), InvalidBody) ||
+        !TestNotNull(TEXT("Non-finite configuration body"), NonFiniteBody))
     {
         return false;
     }
@@ -52,10 +58,11 @@ bool FETStaminaFoundationTest::RunTest(const FString& Parameters)
     InvalidBody->InitialMaxStamina = 60.0f;
     NonFiniteBody->InitialStamina = std::numeric_limits<float>::quiet_NaN();
 
+    // ---- 初始化边界：未开局拒绝、非法配置原子拒绝，不部分写入生命 ----
     TestFalse(TEXT("Before BeginPlay is not Ready"), Body->IsGameplayReady());
     TestFalse(TEXT("Before BeginPlay cannot initialize"), Body->EnsureGameplayInitialized());
     AddExpectedMessagePlain(TEXT("Invalid startup stamina"), ELogVerbosity::Warning,
-        EAutomationExpectedMessageFlags::Contains, 2);
+                            EAutomationExpectedMessageFlags::Contains, 2);
     if (!TestWorld.BeginPlayInTestWorld())
     {
         TestWorld.ForwardErrorMessages(this);
@@ -63,62 +70,71 @@ bool FETStaminaFoundationTest::RunTest(const FString& Parameters)
     }
     UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
     UAbilitySystemComponent* InvalidASC = InvalidBody->GetAbilitySystemComponent();
-    if (!TestNotNull(TEXT("Main ASC"), ASC)
-        || !TestNotNull(TEXT("Invalid body's ASC"), InvalidASC)
-        || !TestNotNull(TEXT("Registered stamina set"), ASC->GetSet<UETStaminaAttributeSet>()))
+    if (!TestNotNull(TEXT("Main ASC"), ASC) ||
+        !TestNotNull(TEXT("Invalid body's ASC"), InvalidASC) ||
+        !TestNotNull(TEXT("Registered stamina set"), ASC->GetSet<UETStaminaAttributeSet>()))
     {
         return false;
     }
     TestTrue(TEXT("Registered set is the owned default subobject"),
-        ASC->GetSet<UETStaminaAttributeSet>() == Body->StaminaAttributes.Get());
+             ASC->GetSet<UETStaminaAttributeSet>() == Body->StaminaAttributes.Get());
 
-    auto ExpectSnapshot = [&](AEmberTrialCharacter* Subject,
-        const TCHAR* Label, float ExpectedStamina, float ExpectedMax)
+    // 同时核对公开快照与ASC Base，防止显示值正确但Base藏着越界值。
+    auto ExpectSnapshot = [&](AEmberTrialCharacter* Subject, const TCHAR* Label,
+                              float ExpectedStamina, float ExpectedMax)
     {
         float Stamina = -1.0f;
         float MaxStamina = -1.0f;
         TestTrue(FString::Printf(TEXT("%s available"), Label),
-            Subject->GetGameplayStaminaSnapshot(Stamina, MaxStamina));
+                 Subject->GetGameplayStaminaSnapshot(Stamina, MaxStamina));
         TestTrue(FString::Printf(TEXT("%s current"), Label),
-            FMath::IsNearlyEqual(Stamina, ExpectedStamina, 0.001f));
+                 FMath::IsNearlyEqual(Stamina, ExpectedStamina, SnapshotTolerance));
         TestTrue(FString::Printf(TEXT("%s maximum"), Label),
-            FMath::IsNearlyEqual(MaxStamina, ExpectedMax, 0.001f));
+                 FMath::IsNearlyEqual(MaxStamina, ExpectedMax, SnapshotTolerance));
         const UAbilitySystemComponent* SubjectASC = Subject->GetAbilitySystemComponent();
-        TestTrue(FString::Printf(TEXT("%s base"), Label), FMath::IsNearlyEqual(
-            SubjectASC->GetNumericAttributeBase(UETStaminaAttributeSet::GetStaminaAttribute()),
-            ExpectedStamina, 0.001f));
-        TestTrue(FString::Printf(TEXT("%s maximum base"), Label), FMath::IsNearlyEqual(
-            SubjectASC->GetNumericAttributeBase(UETStaminaAttributeSet::GetMaxStaminaAttribute()),
-            ExpectedMax, 0.001f));
+        TestTrue(FString::Printf(TEXT("%s base"), Label),
+                 FMath::IsNearlyEqual(SubjectASC->GetNumericAttributeBase(
+                                          UETStaminaAttributeSet::GetStaminaAttribute()),
+                                      ExpectedStamina, SnapshotTolerance));
+        TestTrue(FString::Printf(TEXT("%s maximum base"), Label),
+                 FMath::IsNearlyEqual(SubjectASC->GetNumericAttributeBase(
+                                          UETStaminaAttributeSet::GetMaxStaminaAttribute()),
+                                      ExpectedMax, SnapshotTolerance));
     };
+    // 期望值独立写明，不从生产默认配置反推，避免实现与测试一同漂移。
     ExpectSnapshot(Body, TEXT("Initial"), 40.0f, 80.0f);
     ExpectSnapshot(ZeroBody, TEXT("Zero is valid"), 0.0f, 80.0f);
     TestTrue(TEXT("Zero stamina does not mean dead"), !ZeroBody->IsCombatDead());
     TestFalse(TEXT("Invalid stamina remains Waiting"), InvalidBody->IsGameplayReady());
     TestFalse(TEXT("NaN startup remains Waiting"), NonFiniteBody->IsGameplayReady());
     TestFalse(TEXT("Rejected initialization is not committed"),
-        InvalidBody->bStartupAttributesInitialized);
+              InvalidBody->bStartupAttributesInitialized);
     TestEqual(TEXT("Rejected stamina did not partially set Health"),
-        InvalidASC->GetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute()), 0.0f);
+              InvalidASC->GetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute()),
+              0.0f);
     TestEqual(TEXT("Rejected stamina did not partially set MaxHealth"),
-        InvalidASC->GetNumericAttributeBase(UETHealthAttributeSet::GetMaxHealthAttribute()), 100.0f);
+              InvalidASC->GetNumericAttributeBase(UETHealthAttributeSet::GetMaxHealthAttribute()),
+              100.0f);
     float UnavailableStamina = -1.0f;
     float UnavailableMax = -1.0f;
     TestFalse(TEXT("Waiting snapshot unavailable"),
-        InvalidBody->GetGameplayStaminaSnapshot(UnavailableStamina, UnavailableMax));
+              InvalidBody->GetGameplayStaminaSnapshot(UnavailableStamina, UnavailableMax));
     TestEqual(TEXT("Unavailable stamina cleared"), UnavailableStamina, 0.0f);
     TestEqual(TEXT("Unavailable maximum cleared"), UnavailableMax, 0.0f);
 
+    // ---- 拒绝后修正配置，仍允许首次成功初始化 ----
     InvalidBody->InitialStamina = 30.0f;
     TestTrue(TEXT("Correcting before first successful initialization works"),
-        InvalidBody->EnsureGameplayInitialized());
+             InvalidBody->EnsureGameplayInitialized());
     ExpectSnapshot(InvalidBody, TEXT("Recovered configuration"), 30.0f, 60.0f);
     TestEqual(TEXT("Recovered Health initialized once"),
-        InvalidASC->GetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute()), 40.0f);
+              InvalidASC->GetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute()),
+              40.0f);
 
-    // Transient real Instant effects; these do not create or save project assets.
-    auto ApplyInstant = [&](const FGameplayAttribute& Attribute,
-        EGameplayModOp::Type Operation, float Magnitude)
+    // ---- 真实瞬时GE与夹限：只创建Transient对象，不保存项目资产 ----
+    // Instant效果不常驻；断言读取真实属性变化，不以持续Effect Handle判断成败。
+    auto ApplyInstant =
+        [&](const FGameplayAttribute& Attribute, EGameplayModOp::Type Operation, float Magnitude)
     {
         UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage());
         Effect->DurationPolicy = EGameplayEffectDurationType::Instant;
@@ -157,16 +173,18 @@ bool FETStaminaFoundationTest::RunTest(const FString& Parameters)
     ApplyInstant(StaminaAttribute, EGameplayModOp::AddBase, 39.0f);
     ExpectSnapshot(Body, TEXT("Restored test values"), 40.0f, 80.0f);
 
+    // ---- 非有限运行写入应保留安全值，体力Effect不得改变生命 ----
     ASC->SetNumericAttributeBase(StaminaAttribute, std::numeric_limits<float>::quiet_NaN());
     ASC->SetNumericAttributeBase(MaxAttribute, std::numeric_limits<float>::infinity());
     ExpectSnapshot(Body, TEXT("Non-finite writes preserve safe values"), 40.0f, 80.0f);
     TestEqual(TEXT("Stamina effects leave Health isolated"),
-        ASC->GetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute()), 100.0f);
+              ASC->GetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute()), 100.0f);
 
+    // ---- 同一身体换控不重置资源；两个Controller仅验证Possess生命周期 ----
     AAIController* FirstController = World->SpawnActor<AAIController>();
     AAIController* SecondController = World->SpawnActor<AAIController>();
-    if (!TestNotNull(TEXT("First controller"), FirstController)
-        || !TestNotNull(TEXT("Second controller"), SecondController))
+    if (!TestNotNull(TEXT("First controller"), FirstController) ||
+        !TestNotNull(TEXT("Second controller"), SecondController))
     {
         return false;
     }
@@ -179,6 +197,7 @@ bool FETStaminaFoundationTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Ensure after possession succeeds"), Body->EnsureGameplayInitialized());
     ExpectSnapshot(Body, TEXT("New controller preserves resource"), 40.0f, 80.0f);
 
+    // ---- 正常结束必须撤销Ready、拒绝重初始化，并清空不可用快照输出 ----
     if (!TestWorld.EndPlayInTestWorld())
     {
         TestWorld.ForwardErrorMessages(this);
@@ -187,7 +206,7 @@ bool FETStaminaFoundationTest::RunTest(const FString& Parameters)
     TestFalse(TEXT("EndPlay revokes Ready"), Body->IsGameplayReady());
     TestFalse(TEXT("EndPlay cannot reinitialize"), Body->EnsureGameplayInitialized());
     TestFalse(TEXT("EndPlay snapshot unavailable"),
-        Body->GetGameplayStaminaSnapshot(UnavailableStamina, UnavailableMax));
+              Body->GetGameplayStaminaSnapshot(UnavailableStamina, UnavailableMax));
     TestEqual(TEXT("EndPlay snapshot clears stamina"), UnavailableStamina, 0.0f);
     TestEqual(TEXT("EndPlay snapshot clears maximum"), UnavailableMax, 0.0f);
     TestWorld.ForwardErrorMessages(this);
