@@ -1,5 +1,7 @@
 # M0-05C2-02：动作状态、输入限制与受击打断
 
+2026-10-19第19批清理同步：以下配置、接入及验收属于M0历史，当前左键 / 1、2、Q已走正式GAS；Practice只保留兼容及原回归入口。完整代码以Source链接为准，本轮按用户授权由助手直接清理；实际新检查和提交清单见[Cleanup](Cleanup.md)。
+
 > 2026-09-28 验收更新：用户已完成本批全部实机测试并保存，实际约 **15 分钟**，C2-02 验收通过。下文保留实现和复现步骤，不需重做。现在执行 [C2-03A 手动新增闪避配置](M0_05C2_03A_DodgeConfiguration.md)。
 
 原交接估时：手动 35–55 分钟；实际约 15 分钟。引擎：UE 5.5.4。正常 Build、1 项综合自动测试及用户蓝图 / PIE 验收已通过，覆盖范围见 [本批检查记录](Reports/M0_05C2_Verification.md)。以下操作保留供复现。
@@ -25,6 +27,14 @@
 | 空中 / 暂停 | 拒绝 | 拒绝 | 拒绝 |
 
 本轮没有取消窗口、输入缓存、受击伤害或无敌帧；3 仍是调试输入。
+
+### 当前兼容层的清理边界
+
+[声明](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.h) / [实现](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)保留同一组反射入口和单一CurrentState。Ended与BlendingOut共用私有IsCurrentActionCallback，按结束标记 → Serial → Montage → 非Idle核对；旧回调不能关闭新动作。
+
+ReleaseAction先推进Serial，再释放自有RMS、清动作状态 / 引用 / Tick；按精确动画实例解绑自身委托后才Stop。位移到期不提前开放输入，动画结束才回Idle。取消淡出0.05秒与RMS优先级500仅在cpp内部命名，数值保持。
+
+这不是正式GAS的第二份状态：新能力继续拥有自己的Tag / Task，Practice只参与既有Idle / Cancel兼容。以下数字键接线描述是当时开发步骤，当前工程不回接旧动作输入。
 
 ## 2. C++ 已承担的工作
 
@@ -192,3 +202,7 @@ TryInteractWithCurrentTarget 已加入 Idle 检查：是 / 实际结果
 ```
 
 编译 / 运行报错发完整文字；接线问题发截图，包含 IA 到组件、组件 Details 或交互函数入口；打断 / 暂停异常发按键顺序及 5–10 秒视频。若只看到旧 `[M0-05C1] Play`，先反馈输入链截图，不重做动画。
+
+## 本次清理 Commit / Push（固定放在最后）
+
+第19批四份Source与十份Markdown，共14项；当前检查、最新差异和逐文件清单见[Cleanup末尾](Cleanup.md)。历史资产 / 测试未改，不重复制造差异。用户重新Stage后Commit / Push；Raw、报告、索引留本地，助手不操作Git索引。

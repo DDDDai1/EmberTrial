@@ -1,5 +1,7 @@
 # M0-03：手动创建 C++ Actor 与蓝图子类
 
+2026-10-19第19批清理同步：以下配置、接入及验收属于M0历史，当前左键 / 1、2、Q已走正式GAS；Practice只保留兼容及原回归入口。完整代码以Source链接为准，本轮按用户授权由助手直接清理；实际新检查和提交清单见[Cleanup](Cleanup.md)。
+
 日期：2026-09-19。引擎：UE 5.5.4。状态：已完成并验收，用户实际用时约 15 分钟。证据见 [验收记录](Reports/M0_03_Verification.md)。
 
 原估计 45–90 分钟，实际约 15 分钟。你负责创建类、实现基础代码、配置蓝图和场景；我负责审查与排错。下方保留原任务参考代码；工程中的实现和蓝图由你完成。
@@ -44,6 +46,8 @@ E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\ETPracticeActor.cpp
 
 若创建类后出现报错，保留生成文件和错误原文，交给我检查，不需要删除类重建。
 
+当前[Actor声明](../EmberTrial/Source/EmberTrial/ETPracticeActor.h)和[实现](../EmberTrial/Source/EmberTrial/ETPracticeActor.cpp)保留SceneRoot / Mesh默认子对象、PrintPracticeInfo与GetPracticeLabel反射入口。原生网格默认无碰撞 / 无Tick，交互触发由已有子蓝图装配；FText本地化Namespace / Key和实例可配置Label保持。不能因为只搜到少量C++调用就删除蓝图入口。
+
 ## 3. 你实现的 C++ 设计契约
 
 | 成员 | 类型 / 要求 | 用途 |
@@ -60,72 +64,13 @@ E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\ETPracticeActor.cpp
 
 ### 3.1 ETPracticeActor.h
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "ETPracticeActor.generated.h"
-
-class USceneComponent;
-class UStaticMeshComponent;
-
-UCLASS(Blueprintable)
-class EMBERTRIAL_API AETPracticeActor : public AActor
-{
-    GENERATED_BODY()
-
-public:
-    AETPracticeActor();
-
-    UFUNCTION(BlueprintCallable, Category = "Practice")
-    void PrintPracticeInfo();
-
-private:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Practice",
-        meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<USceneComponent> SceneRoot;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Practice",
-        meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<UStaticMeshComponent> Mesh;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Practice",
-        meta = (AllowPrivateAccess = "true"))
-    FText PracticeLabel;
-};
-```
+当前源码入口：[ETPracticeActor.h](../EmberTrial/Source/EmberTrial/ETPracticeActor.h)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 `.generated.h` 必须是最后一个 `#include`。`EMBERTRIAL_API` 对应当前模块名；类名、构造函数名与 cpp 定义必须一致。
 
 ### 3.2 ETPracticeActor.cpp
 
-```cpp
-#include "ETPracticeActor.h"
-
-#include "Components/SceneComponent.h"
-#include "Components/StaticMeshComponent.h"
-
-AETPracticeActor::AETPracticeActor()
-{
-    PrimaryActorTick.bCanEverTick = false;
-
-    SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
-    SetRootComponent(SceneRoot.Get());
-
-    Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-    Mesh->SetupAttachment(SceneRoot.Get());
-    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-    PracticeLabel = NSLOCTEXT("EmberTrial", "PracticeLabel_Default", "Practice Actor");
-}
-
-void AETPracticeActor::PrintPracticeInfo()
-{
-    UE_LOG(LogTemp, Display, TEXT("[M0-03] Actor=%s Label=%s"),
-        *GetName(), *PracticeLabel.ToString());
-}
-```
+当前源码入口：[ETPracticeActor.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActor.cpp)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 本轮用 LogTemp 和固定前缀便于检索；正式系统会按模块建立日志类别。现有 EmberTrial.Build.cs 已依赖 Engine，此类不需要新增模块依赖。
 
@@ -226,3 +171,7 @@ Build：成功 / 具体错误
 ```
 
 本步已通过，下一批见 [M0-04A：靠近显示交互提示](M0_04A_InteractionPrompt.md)。以下流程与回复格式保留供复查，不需要重复执行 M0-03。
+
+## 本次清理 Commit / Push（固定放在最后）
+
+第19批四份Source与十份Markdown，共14项；当前检查、最新差异和逐文件清单见[Cleanup末尾](Cleanup.md)。历史资产 / 测试未改，不重复制造差异。用户重新Stage后Commit / Push；Raw、报告、索引留本地，助手不操作Git索引。

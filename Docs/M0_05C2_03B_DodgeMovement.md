@@ -1,10 +1,12 @@
 # M0-05C2-03B：手动接入 CharacterMovement 闪避位移
 
+2026-10-19第19批清理同步：以下配置、接入及验收属于M0历史，当前左键 / 1、2、Q已走正式GAS；Practice只保留兼容及原回归入口。完整代码以Source链接为准，本轮按用户授权由助手直接清理；实际新检查和提交清单见[Cleanup](Cleanup.md)。
+
 > 2026-09-29 最终验收：首次实现 **50 分钟**、[保护补修](M0_05C2_03B_GuardCorrection.md) **30 分钟**；源码、Lifecycle、新计时日志及约 119 FPS 样本均已核对，正常场景按用户实机结果通过。**C2-03B 已完成，不用重做本页。** 下一步执行 [C2-03C 位移专项自动回归](M0_05C2_03C_DodgeAutomation.md)。
 
 日期：2026-09-28。引擎：UE 5.5.4。预计手动 **45–75 分钟**，包括代码、正常 Build 和分组测试；以实际反馈为准。
 
-**遵循最新约定：所有 C++ 代码由你手动写入，我只提供文档、审查和排障建议，直到你明确要求我直接修改。** 本页代码下发时已按当前工程和本机 5.5.4 API 静态核对，当时尚未写入工程、编译或运行；当前实现及验收状态见页首更新。C2-02 的旧自动测试通过不能证明新增位移通过。
+原开发按手动实践完成，本轮清理按最新授权由助手直接执行。历史代码已移除副本，当前实现 / 检查以Source和Cleanup为准。
 
 C2-03A 已验收，实际约 10 分钟。你添加的 `DodgeDistance=150`、`DodgeDuration=0.30` 保留。此批不创建新类，不改蓝图输入，不改 Character / AnimBP / AS。
 
@@ -21,7 +23,7 @@ C2-03A 已验收，实际约 10 分钟。你添加的 `DodgeDistance=150`、`Dod
 | 中途离开地面 | 结束本次水平闪避位移，保留下落速度；不强制拉回地面，Montage 仍正常收尾 |
 | 取消 / 动画实例失效 / EndPlay | 清理本组件拥有的位移源和回调，不留持续推动 |
 
-当前是侧闪占位验证，没有无敌帧、伤害或正式方向闪避。原动画双脚没有步伐，世界位移会呈现滑步占位效果；此批验收功能与碰撞，正式步伐以后打磨。
+本页描述的是旧M0侧闪占位，不含无敌帧或成本；当前正式2已由M2方向闪避接管。原动画双脚没有步伐，世界位移会呈现滑步占位效果；此批验收功能与碰撞，正式步伐以后打磨。
 
 位移源的 `Force` 在本实现中提供目标速度向量：150 / 0.30 = **500 cm/s**；不是给刚体施加冲量。动画 Enable Root Motion 保持 False，不叠加根骨提取位移。
 
@@ -112,112 +114,7 @@ struct FRootMotionSource;
 
 以下保留 C2-02 的规则，增加参数校验、已有位移源检查、淡出回调和启动位移。
 
-```cpp
-bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState RequestedState)
-{
-    if (bEndingPlay || !HasBegunPlay() || !IsActive() || !CharacterOwner.IsValid())
-    {
-        return RejectRequest(RequestedState, TEXT("NotReady"));
-    }
-    if (UGameplayStatics::IsGamePaused(this))
-    {
-        return RejectRequest(RequestedState, TEXT("Paused"));
-    }
-    if (RequestedState != EETPracticeActionState::Attacking
-        && RequestedState != EETPracticeActionState::Dodging
-        && RequestedState != EETPracticeActionState::HitReact)
-    {
-        return RejectRequest(RequestedState, TEXT("InvalidAction"));
-    }
-    const bool bCanInterrupt = RequestedState == EETPracticeActionState::HitReact
-        && (CurrentState == EETPracticeActionState::Attacking
-            || CurrentState == EETPracticeActionState::Dodging);
-    if (!IsPracticeActionIdle() && !bCanInterrupt)
-    {
-        return RejectRequest(RequestedState, TEXT("Busy"));
-    }
-
-    ACharacter* Character = CharacterOwner.Get();
-    UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
-    if (!IsValid(Movement) || !Movement->IsMovingOnGround())
-    {
-        return RejectRequest(RequestedState, TEXT("NotGrounded"));
-    }
-    if (RequestedState == EETPracticeActionState::Attacking
-        && Character->GetVelocity().SizeSquared2D()
-            > FMath::Square(FMath::Max(0.0f, AttackMaxHorizontalSpeed)))
-    {
-        return RejectRequest(RequestedState, TEXT("Moving"));
-    }
-    UAnimMontage* Montage = ResolveMontage(RequestedState);
-    if (!IsValid(Montage))
-    {
-        return RejectRequest(RequestedState, TEXT("MissingMontage"));
-    }
-    USkeletalMeshComponent* Mesh = Character->GetMesh();
-    UAnimInstance* AnimInstance = IsValid(Mesh) ? Mesh->GetAnimInstance() : nullptr;
-    if (!IsValid(AnimInstance))
-    {
-        return RejectRequest(RequestedState, TEXT("MissingAnimInstance"));
-    }
-    if (IsPracticeActionIdle() && AnimInstance->IsAnyMontagePlaying())
-    {
-        return RejectRequest(RequestedState, TEXT("ExternalMontage"));
-    }
-    if (RequestedState == EETPracticeActionState::Dodging)
-    {
-        if (!FMath::IsFinite(DodgeDistance) || DodgeDistance < 1.0f || DodgeDistance > 300.0f
-            || !FMath::IsFinite(DodgeDuration) || DodgeDuration < 0.05f || DodgeDuration > 0.50f)
-        {
-            return RejectRequest(RequestedState, TEXT("InvalidDodgeConfig"));
-        }
-        if (Movement->HasRootMotionSources())
-        {
-            return RejectRequest(RequestedState, TEXT("ExternalRootMotion"));
-        }
-    }
-
-    // Retire the old serial before stopping: its end callback may already be queued.
-    if (bCanInterrupt)
-    {
-        ReleaseAction(true, TEXT("HitInterrupt"));
-    }
-    const uint32 ThisSerial = ++ActionSerial;
-    CurrentState = RequestedState;
-    ActiveAnimInstance = AnimInstance;
-    ActiveMontage = Montage;
-    const float PlayedLength = AnimInstance->Montage_Play(Montage, 1.0f,
-        EMontagePlayReturnType::MontageLength, 0.0f, false);
-    if (PlayedLength <= 0.0f)
-    {
-        ReleaseAction(false, TEXT("PlaybackFailed"));
-        return RejectRequest(RequestedState, TEXT("PlaybackFailed"));
-    }
-    FAnimMontageInstance* Instance = AnimInstance->GetActiveInstanceForMontage(Montage);
-    if (!Instance)
-    {
-        ReleaseAction(false, TEXT("MissingMontageInstance"));
-        return RejectRequest(RequestedState, TEXT("MissingMontageInstance"));
-    }
-    ActiveMontageInstanceID = Instance->GetInstanceID();
-    Instance->OnMontageEnded.BindUObject(this, &ThisClass::HandleMontageEnded, ThisSerial);
-    Instance->OnMontageBlendingOutStarted.BindUObject(
-        this, &ThisClass::HandleMontageBlendingOut, ThisSerial);
-    Character->StopJumping();
-    Character->ConsumeMovementInputVector();
-    Movement->StopMovementImmediately();
-    if (RequestedState == EETPracticeActionState::Dodging
-        && !StartDodgeMovement(Character, Movement))
-    {
-        ReleaseAction(true, TEXT("DodgeMovementFailed"));
-        return RejectRequest(RequestedState, TEXT("DodgeMovementFailed"));
-    }
-    SetComponentTickEnabled(true);
-    UE_LOG(LogETPracticeAction, Display, TEXT("[M0-05C2] Begin %s Montage=%s Serial=%u"),
-        *UEnum::GetValueAsString(CurrentState), *GetNameSafe(Montage), ThisSerial);
-    return true;
-}
-```
+当前源码入口：[ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 只有请求成功播放动画后才创建位移源；创建失败会停止本次动画并释放状态。`ExternalRootMotion` 是保守的 M0 规则：已经有位移源时不叠加新闪避；没有为后续多技能系统制定优先级矩阵。
 
@@ -225,68 +122,13 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
 
 正常结束、受击打断、取消、Deactivate、EndPlay 已经都经过这里。统一在此清理位移，避免每条退出路径各写一套。
 
-```cpp
-void UETPracticeActionComponent::ReleaseAction(bool bStopMontage, const TCHAR* Reason)
-{
-    const EETPracticeActionState PreviousState = CurrentState;
-    UAnimInstance* AnimInstance = ActiveAnimInstance.Get();
-    FAnimMontageInstance* Instance = AnimInstance
-        ? AnimInstance->GetMontageInstanceForID(ActiveMontageInstanceID) : nullptr;
-    ++ActionSerial;
-    StopDodgeMovement(Reason);
-    CurrentState = EETPracticeActionState::Idle;
-    ActiveMontage = nullptr;
-    ActiveAnimInstance.Reset();
-    ActiveMontageInstanceID = INDEX_NONE;
-    SetComponentTickEnabled(false);
-    if (Instance)
-    {
-        if (Instance->OnMontageEnded.IsBoundToObject(this))
-        {
-            Instance->OnMontageEnded.Unbind();
-        }
-        if (Instance->OnMontageBlendingOutStarted.IsBoundToObject(this))
-        {
-            Instance->OnMontageBlendingOutStarted.Unbind();
-        }
-        if (bStopMontage)
-        {
-            Instance->Stop(FAlphaBlend(0.05f), true);
-        }
-    }
-    if (PreviousState != EETPracticeActionState::Idle)
-    {
-        UE_LOG(LogETPracticeAction, Display, TEXT("[M0-05C2] End %s -> Idle Reason=%s"),
-            *UEnum::GetValueAsString(PreviousState), Reason);
-    }
-}
-```
+当前源码入口：[ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 原来的 `HandleMontageEnded` / `CancelPracticeAction` / `Activate` / `Deactivate` / `EndPlay` 保留。不要新增角色蓝图 EndPlay 节点或 Delay 解锁。
 
 ## 7. 替换 TickComponent 整个函数
 
-```cpp
-void UETPracticeActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-    FActorComponentTickFunction* ThisTickFunction)
-{
-    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    ACharacter* Character = CharacterOwner.Get();
-    UAnimInstance* AnimInstance = ActiveAnimInstance.Get();
-    if (!Character || !AnimInstance || !Character->GetMesh()
-        || Character->GetMesh()->GetAnimInstance() != AnimInstance)
-    {
-        ReleaseAction(true, TEXT("AnimInstanceChanged"));
-        return;
-    }
-    if (!AnimInstance->GetMontageInstanceForID(ActiveMontageInstanceID))
-    {
-        ReleaseAction(false, TEXT("MontageInstanceLost"));
-        return;
-    }
-    UpdateDodgeMovement();
-}
-```
+当前源码入口：[ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 这里只检查生命周期，没有每帧 SetActorLocation。真正位移由 CharacterMovement 更新。
 
@@ -296,86 +138,13 @@ void UETPracticeActionComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 ### 8.1 创建位移源
 
-```cpp
-bool UETPracticeActionComponent::StartDodgeMovement(
-    ACharacter* Character, UCharacterMovementComponent* Movement)
-{
-    const FVector Direction = Character->GetActorRightVector().GetSafeNormal2D();
-    if (Direction.IsNearlyZero())
-    {
-        return false;
-    }
-
-    TSharedPtr<FRootMotionSource_ConstantForce> Source =
-        MakeShared<FRootMotionSource_ConstantForce>();
-    Source->InstanceName = FName(TEXT("ETPracticeDodge"));
-    Source->Priority = 500;
-    Source->AccumulateMode = ERootMotionAccumulateMode::Override;
-    Source->bInLocalSpace = false;
-    Source->Force = Direction * (DodgeDistance / DodgeDuration);
-    Source->Duration = DodgeDuration;
-    // Scale the last partial frame instead of overshooting the requested duration.
-    Source->Settings.UnSetFlag(ERootMotionSourceSettingsFlags::DisablePartialEndTick);
-    Source->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
-    Source->FinishVelocityParams.Mode = ERootMotionFinishVelocityMode::ClampVelocity;
-    Source->FinishVelocityParams.ClampVelocity = 0.0f;
-
-    const uint16 SourceID = Movement->ApplyRootMotionSource(Source);
-    if (SourceID == static_cast<uint16>(ERootMotionSourceID::Invalid))
-    {
-        return false;
-    }
-    DodgeMovement = Movement;
-    DodgeSource = Source;
-    DodgeStartLocation = Character->GetActorLocation();
-    DodgeStartWorldTime = GetWorld()->GetTimeSeconds();
-    UE_LOG(LogETPracticeAction, Display,
-        TEXT("[M0-05C2] DodgeMove Begin ID=%u Distance=%.1f Duration=%.3f Direction=%s"),
-        SourceID, DodgeDistance, DodgeDuration, *Direction.ToCompactString());
-    return true;
-}
-```
+当前源码入口：[ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 方向用世界坐标保存，因此中途转镜头不会改变轨迹。`IgnoreZAccumulate` 使这份水平位移不覆盖垂直速度；结束参数 Clamp=0 会清掉水平动量、保留下落的负 Z。清除 `DisablePartialEndTick` 是为了处理结束时不足一整帧的情况，实际距离仍需 30 / 60 / 120 FPS 验证。
 
 ### 8.2 幂等清理与记录距离
 
-```cpp
-void UETPracticeActionComponent::StopDodgeMovement(const TCHAR* Reason)
-{
-    if (!DodgeSource.IsValid())
-    {
-        return;
-    }
-    UCharacterMovementComponent* Movement = DodgeMovement.Get();
-    ACharacter* Character = Movement ? Movement->GetCharacterOwner() : CharacterOwner.Get();
-    const float Travel2D = IsValid(Character)
-        ? FVector::Dist2D(DodgeStartLocation, Character->GetActorLocation()) : 0.0f;
-    const float Elapsed = GetWorld()
-        ? GetWorld()->GetTimeSeconds() - DodgeStartWorldTime : 0.0f;
-    const float SourceTime = DodgeSource->GetTime();
-    if (Movement)
-    {
-        const bool bStillOwned =
-            Movement->GetRootMotionSourceByID(DodgeSource->LocalID) == DodgeSource;
-        if (bStillOwned)
-        {
-            Movement->RemoveRootMotionSourceByID(DodgeSource->LocalID);
-        }
-        // Clear our horizontal momentum; never zero the character's falling speed.
-        if (bStillOwned || !Movement->HasRootMotionSources())
-        {
-            Movement->Velocity.X = 0.0f;
-            Movement->Velocity.Y = 0.0f;
-        }
-    }
-    DodgeSource.Reset();
-    DodgeMovement.Reset();
-    UE_LOG(LogETPracticeAction, Display,
-        TEXT("[M0-05C2] DodgeMove End Reason=%s Travel2D=%.1f Elapsed=%.3f SourceTime=%.3f"),
-        Reason, Travel2D, Elapsed, SourceTime);
-}
-```
+当前源码入口：[ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 重复调用会立即返回。用 ID 加共享指针身份确认自己拥有的源，不清空 CharacterMovement 的全部 Root Motion。引擎移除源是先标记、在移动更新中清理；这里也清除当前水平速度，避免取消后沿用本次闪避速度。`Travel2D` 是起终点的水平直线距离，不是沿墙转弯的路径长度；碰撞时小于 150 属于可能的正常结果。
 
@@ -383,59 +152,13 @@ void UETPracticeActionComponent::StopDodgeMovement(const TCHAR* Reason)
 
 ### 8.3 检查位移结束 / 离地
 
-```cpp
-void UETPracticeActionComponent::UpdateDodgeMovement()
-{
-    if (!DodgeSource.IsValid())
-    {
-        return;
-    }
-    UCharacterMovementComponent* Movement = DodgeMovement.Get();
-    if (!Movement)
-    {
-        StopDodgeMovement(TEXT("MovementLost"));
-        return;
-    }
-    if (!Movement->IsMovingOnGround())
-    {
-        StopDodgeMovement(TEXT("LeftGround"));
-        return;
-    }
-    if (Movement->GetRootMotionSourceByID(DodgeSource->LocalID) != DodgeSource)
-    {
-        StopDodgeMovement(TEXT("SourceRemoved"));
-        return;
-    }
-    if (DodgeSource->Status.HasFlag(ERootMotionSourceStatusFlags::Finished))
-    {
-        StopDodgeMovement(TEXT("DistanceWindowEnded"));
-    }
-    else if (DodgeSource->Status.HasFlag(ERootMotionSourceStatusFlags::MarkedForRemoval))
-    {
-        StopDodgeMovement(TEXT("SourceRemoved"));
-    }
-}
-```
+当前源码入口：[ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 这里不把 CurrentState 改回 Idle。位移窗口先结束，Montage 生命周期继续管理动作限制。
 
 ### 8.4 外部动画打断时及时停位移
 
-```cpp
-void UETPracticeActionComponent::HandleMontageBlendingOut(
-    UAnimMontage* Montage, bool bInterrupted, uint32 Serial)
-{
-    if (bEndingPlay || Serial != ActionSerial || Montage != ActiveMontage
-        || IsPracticeActionIdle())
-    {
-        return;
-    }
-    if (bInterrupted)
-    {
-        StopDodgeMovement(TEXT("MontageInterrupted"));
-    }
-}
-```
+当前源码入口：[ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 结束回调保留动作解锁职责；淡出回调只在被打断时提前停止位移，避免较长淡出期间还在闪避。仍检查动作序号，旧回调不影响新动作。
 
@@ -542,3 +265,7 @@ Lifecycle 自动回归：Success / 错误原文
 官方入口：[UE 5.5 FRootMotionSource_ConstantForce](https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/GameFramework/FRootMotionSource_ConstantForce?application_version=5.5)。源码核对不等于构建或运行通过。
 
 复盘时应能解释：为何用 CharacterMovement；为何位移时长与动作状态时长分开；为什么只移除自己的位移源；为什么取消时处理水平速度却保留下落；为何同时需要结束和淡出回调；如何用帧率 / 墙壁 / 暂停测试证明实现，而不是只看一次空地播放。
+
+## 本次清理 Commit / Push（固定放在最后）
+
+第19批四份Source与十份Markdown，共14项；当前检查、最新差异和逐文件清单见[Cleanup末尾](Cleanup.md)。历史资产 / 测试未改，不重复制造差异。用户重新Stage后Commit / Push；Raw、报告、索引留本地，助手不操作Git索引。

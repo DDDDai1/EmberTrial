@@ -1,5 +1,7 @@
 # M0-05C2-01：创建并挂载动作组件
 
+2026-10-19第19批清理同步：以下配置、接入及验收属于M0历史，当前左键 / 1、2、Q已走正式GAS；Practice只保留兼容及原回归入口。完整代码以Source链接为准，本轮按用户授权由助手直接清理；实际新检查和提交清单见[Cleanup](Cleanup.md)。
+
 > 2026-09-28 状态更新：本批已验收通过，用户实际约 40 分钟。以下步骤与代码保留作历史学习材料；工作区已升级到 C2-02 实现，**不要重新创建组件或用下方旧代码覆盖当前源码**。现在执行 [C2-02 状态与打断指南](M0_05C2_02_ActionLifecycle.md)，证据见 [C2 检查记录](Reports/M0_05C2_Verification.md)。
 
 日期：2026-09-27。引擎：UE 5.5.4。预计手动 **25–40 分钟**，含一次关闭编辑器后的 C++ Build 和基础回归。
@@ -73,90 +75,13 @@ E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\ETPracticeActionComponent.cpp
 
 ### 4.1 ETPracticeActionComponent.h
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "ETPracticeActionComponent.generated.h"
-
-UENUM(BlueprintType)
-enum class EETPracticeActionState : uint8
-{
-    Idle,
-    Attacking,
-    Dodging,
-    HitReact
-};
-
-UCLASS(ClassGroup = (EmberTrial), meta = (BlueprintSpawnableComponent))
-class EMBERTRIAL_API UETPracticeActionComponent : public UActorComponent
-{
-    GENERATED_BODY()
-
-public:
-    UETPracticeActionComponent();
-
-    UFUNCTION(BlueprintPure, Category = "M0|Practice Action")
-    EETPracticeActionState GetPracticeActionState() const;
-
-    UFUNCTION(BlueprintPure, Category = "M0|Practice Action")
-    bool IsPracticeActionIdle() const;
-
-protected:
-    virtual void BeginPlay() override;
-
-private:
-    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient,
-        Category = "M0|Practice Action", meta = (AllowPrivateAccess = "true"))
-    EETPracticeActionState CurrentState = EETPracticeActionState::Idle;
-};
-```
+当前源码入口：[ETPracticeActionComponent.h](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.h)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 注意 `ETPracticeActionComponent.generated.h` 必须是本头文件最后一个 include。不要再创建一个同名 Blueprint Enum；蓝图将直接使用这个 C++ 枚举。
 
 ### 4.2 ETPracticeActionComponent.cpp
 
-```cpp
-#include "ETPracticeActionComponent.h"
-
-#include "GameFramework/Character.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETPracticeAction, Log, All);
-
-UETPracticeActionComponent::UETPracticeActionComponent()
-{
-    PrimaryComponentTick.bCanEverTick = false;
-}
-
-void UETPracticeActionComponent::BeginPlay()
-{
-    Super::BeginPlay();
-
-    const ACharacter* CharacterOwner = Cast<ACharacter>(GetOwner());
-    if (!IsValid(CharacterOwner))
-    {
-        UE_LOG(LogETPracticeAction, Error,
-            TEXT("[M0-05C2] Component requires an ACharacter owner: %s"),
-            *GetNameSafe(GetOwner()));
-        return;
-    }
-
-    UE_LOG(LogETPracticeAction, Display,
-        TEXT("[M0-05C2] Component ready Owner=%s State=Idle"),
-        *GetNameSafe(CharacterOwner));
-}
-
-EETPracticeActionState UETPracticeActionComponent::GetPracticeActionState() const
-{
-    return CurrentState;
-}
-
-bool UETPracticeActionComponent::IsPracticeActionIdle() const
-{
-    return CurrentState == EETPracticeActionState::Idle;
-}
-```
+当前源码入口：[ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)。保留下面的职责 / 验收说明，不用历史全文覆盖已完成工程。
 
 ### 4.3 这几处代码的作用
 
@@ -256,3 +181,7 @@ C1 边界回归：全部通过 / 未通过的具体项目
 基础步骤卡住约 15–20 分钟就反馈，不必反复删类重建。我会直接检查本地代码和日志；跨系统问题由我处理。
 
 完成本批后把结果发来，我会接手 C2-02 的内部实现，再给你具体的资源赋值与输入改线步骤。
+
+## 本次清理 Commit / Push（固定放在最后）
+
+第19批四份Source与十份Markdown，共14项；当前检查、最新差异和逐文件清单见[Cleanup末尾](Cleanup.md)。历史资产 / 测试未改，不重复制造差异。用户重新Stage后Commit / Push；Raw、报告、索引留本地，助手不操作Git索引。
