@@ -240,39 +240,63 @@ WidgetBlueprint类型DataValidation实际执行，暂停、失败和其余5个Wi
 
 收尾额度快照：5小时已用83% / 剩余17%，周已用26% / 剩余74%；未使用重置，不计入用户手动实耗。已进入约定15–20%余量区间，本批完成后停止开启新改动；额度回升后先复查，再继续Character / AI等队列。
 
-## 整体进度快照（第15批后）
+## 第16批：AI感知 / 决策与原生追击职责整理
 
-累计15批涉及73 / 115份Source（约63.5%文件覆盖率）、32份Markdown，已记录移除10350行代码副本。这不是整体清理完成率，部分文件仍只是局部审计 / 引用归一。
+2026-10-19复查额度已恢复，开工5小时已用3% / 周已用27%；第15批已提交，工作区干净，基线HEAD为94000a0。六份Source为AI Controller、追击Service和Move Task，统一格式与分区，补当前身份、ASC订阅、状态先提交、迟滞、强制停树 / 清理的注释。
+
+两个相同黑板Bool写入块提取为Controller私有UpdateBlackboardDecision，保留bBlackboardReady、当前Board读取、相同值去重和同步观察者顺序。四份Service / Move文件有效Token保持；Controller头去除新私有声明、cpp展开两个调用后，其余有效Token保持。90 / 100 / 100、0.5秒、感知 / Service默认值、反射、日志与行为树资源均不改。
+
+五份指南移除19处旧整文件 / 完整方法共1871行，链接当前Source；C2过时局部键追加改为共享键入口，黑板契约同步职责与回调边界。保留Designer / BT配置、排障、Insights学习与历史验收，不用早期“150 / 200、暂不攻击”覆盖现状；修正旧手动实施 / 包待收尾叙述。原13项测试未改，不为机械提取新增镜像测试。
+
+本批UE5.5.4正常Editor / Game Development Build均通过，三模块CLion元数据与CMake刷新成功，六份Source均在CodeModel。现有13项EmberTrial自动化全部Success，0 Fail / 0 NotRun / 0测试警告；原断言与场景保留。
+
+BehaviorTree类型DataValidation实际执行，正式BT_ETMeleeEnemy与隔离BT_ETValidation_Probe均有本项目Valid标记，命令汇总0 Error / 0 Warning。配置脚本PASS，Errors=0 / Warnings=0。资产Valid只验证结构 / 黑板与节点契约，不等同于运行追击 / 交战矩阵。
+
+109份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改。六份Source格式、私有写入块展开等价、LF / 末尾换行、文档链接 / 围栏及Git差异检查通过。Source仍115份 / 61cpp。
+
+收益为黑板决策写入维护位置减少、时序 / 订阅可读性与文档一致性，不宣称帧率提升。本批未重新操作感知、无路径、受击停走、交战 / 死亡的交互式AI实机矩阵，未Cook / 打包；既有13项自动化不能替代完整AI运行回归。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+完整快照、差异、展开等价 / 格式、CodeModel、构建、配置 / 行为树校验与自动化JSON位于Raw/Cleanup/2026-10-19_Batch16。收尾额度快照：5小时已用12% / 剩余88%，周已用28% / 剩余72%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第16批后）
+
+累计16批涉及77 / 115份Source（约67%文件覆盖率）、37份Markdown，已记录移除12221行重复代码副本。覆盖率不是整体完成率，AI近战Task等文件仍有局部审计与最终实机待办。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
-| 正式能力 / 属性 / 资源 | 主要GA、属性 / 资源、三个原生Effect、死亡、Trace与Tag / Notify已整理 | Character大类、旧Practice引用与剩余规则审计 |
+| 正式能力 / 属性 / 资源 | 主要GA、属性 / 资源、原生Effect、死亡、Trace、Tag / Notify已整理 | Character大类、旧Practice引用与剩余规则审计 |
 | UI | HUD / Presenter / 观察、主菜单及暂停 / 失败已整理 | 统一焦点 / 切图实机与跨模块复核 |
-| AI | 黑板键统一，有历史回归证据 | Controller / Service / Task完整职责与取消 / 重试审计 |
-| 工程 / 学习材料 | 相关指南改为Source入口，现有13项自动化保留 / 扩展 | Editor校验器、工具、测试夹具及剩余架构 / 操作文档 |
-| 最终收尾 | 分批构建与检查 | 统一实机、Cook / 打包与收益汇总 |
+| AI | 共享键、Controller / Service / Move职责已整理 | 近战Task完整审计、统一取消 / 重试与交战实机 |
+| 工程 / 学习材料 | 相关指南改为Source入口，13项自动化保留 / 扩展 | Editor校验器、工具、测试夹具与剩余架构 / 操作文档 |
+| 最终收尾 | 分批构建与对应检查 | 统一实机、Cook / 打包与收益汇总 |
 
-仍处于逐模块清理，后续暂估约10–15批及统一实机 / 打包，按复杂度校准；不是精确工期。整体20–35小时是初估，不从文件覆盖率反推剩余小时。
+仍处于逐模块清理，后续按复杂度校准；此前约10–15批与整体20–35小时均是工作量初估，不从文件覆盖率推算精确工期。
 
 ## 后续队列
 
-1. Character与旧Practice / 诊断引用，确认后再整理。
-2. AI职责、取消 / 重试与世界生命周期。
-3. Editor校验器、工具、测试夹具与架构材料。
+1. AI近战Task、Character与旧Practice / 诊断引用审计。
+2. GameSession / Checkpoint等剩余生命周期规则。
+3. Editor校验器、工具、测试夹具和架构材料。
 4. 统一自动化、实机与包短查，再汇总收益。
 
-前十五批已收口；其余队列未完成，不进入新玩法开发。当前5小时余量17%，按约定停止开启新改动，额度回升后复查再继续。
+前十六批已收口；其余队列未完成，不进入新玩法开发。额度恢复后已复查，继续遵守余量接近15–20%先收尾的边界。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批四份Source与两份指南 / Cleanup / Progress，共8项，验证已收口；由用户重新Stage最新Diff并Commit / Push。建议Commit信息：style: clarify native healing and invulnerability effect contracts。
+本批六份Source与五份指南 / 黑板契约 / Cleanup / Progress，共14项，验证已收口；由用户重新Stage最新Diff并Commit / Push。建议Commit信息：refactor: centralize AI blackboard decisions and clarify pursuit lifecycle。
 
-- [ETHealingEffect.h](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETHealingEffect.h)
-- [ETHealingEffect.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETHealingEffect.cpp)
-- [ETDodgeInvulnerabilityEffect.h](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETDodgeInvulnerabilityEffect.h)
-- [ETDodgeInvulnerabilityEffect.cpp](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETDodgeInvulnerabilityEffect.cpp)
-- [M2_04A_HealingResource.md](M2_04A_HealingResource.md)
-- [M2_02C_Invulnerability.md](M2_02C_Invulnerability.md)
+- [ETAIController.h](../EmberTrial/Source/EmberTrial/Public/AI/ETAIController.h)
+- [ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)
+- [ETBTService_Pursuit.h](../EmberTrial/Source/EmberTrial/Public/AI/ETBTService_Pursuit.h)
+- [ETBTService_Pursuit.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETBTService_Pursuit.cpp)
+- [ETBTTask_PursuitMove.h](../EmberTrial/Source/EmberTrial/Public/AI/ETBTTask_PursuitMove.h)
+- [ETBTTask_PursuitMove.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETBTTask_PursuitMove.cpp)
+- [M1_05A_EnemyFoundation.md](M1_05A_EnemyFoundation.md)
+- [M1_05B1_PerceptionTarget.md](M1_05B1_PerceptionTarget.md)
+- [M1_05B2_BehaviorTreePursuit.md](M1_05B2_BehaviorTreePursuit.md)
+- [M1_05C2_BehaviorTreeMeleeAttack.md](M1_05C2_BehaviorTreeMeleeAttack.md)
+- [M1_07B_InsightsBaseline.md](M1_07B_InsightsBaseline.md)
+- [AI_BlackboardContract.md](AI_BlackboardContract.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 

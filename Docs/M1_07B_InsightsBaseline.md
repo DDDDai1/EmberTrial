@@ -1,6 +1,8 @@
 # M1-07B：独立包Insights性能基线
 
-下发2026-10-13；更新2026-10-14。**B分析 / 最终函数Editor收尾完成，下一步[C1编辑器配置校验](M1_07C1_EditorValidation.md)。**短函数已由用户替换、Editor成功，功能正常按最新反馈登记；Game正常构建与include清理已在[C1验收](Reports/M1_07C1_Verification.md)完成。原Trace / Combat02有效，不再采样；旧Attempt01不自动更新，C3统一Attempt02。历史排障步骤保留，当前结论见[报告7.6](Reports/M1_07B_Verification.md)。
+2026-10-19清理同步：保留历史接入、资产配置、排障和验收经验；完整类 / 旧完整方法改为当前Source入口，不按旧片段覆盖已完成工程。当前敌人已能感知、追击、转向并真实攻击；90 / 100 / 100厘米与0.5秒是现有配置，150 / 200属于早期阶段。普通功能开发保留手动实践约定，本轮清理按用户授权由助手直接修改；验证和本批提交清单见[Cleanup](Cleanup.md)。
+
+原B于2026-10-14完成分析和函数收尾；Game构建及include整理随后在[C1验收](Reports/M1_07C1_Verification.md)完成，C3的Attempt02也已完成。原Trace / Combat02作为历史性能证据保留，本轮没有重新采样或更新包；当前Source / 独立包状态见[Progress](Progress.md)，原性能结论见[报告7.6](Reports/M1_07B_Verification.md)。
 
 你负责启动、按明确步骤采集一次、确认Insights能打开；我负责读取Trace / 导出数据、定位线程与尖峰并生成分析报告。**不要求你精确掐按键时间**：区间标记记录真实开始 / 结束，重试结合原生日志定位。预算45–75分钟，主要是首次熟悉工具；实际采样流程约5–10分钟。
 
@@ -587,30 +589,8 @@ Editor Build与索引刷新成功后，再执行Game Development：
 
 构造函数正确的“常量在前 / SetKey在后”和ExecuteTask不动，.h不改。将当前长函数整体替换为：
 
-```cpp
-void UETBTTask_PursuitMove::OnTaskFinished(UBehaviorTreeComponent& OwnerComp,
-    uint8* NodeMemory, EBTNodeResult::Type TaskResult)
-{
-    const AAIController* Controller = OwnerComp.GetAIOwner();
-    const APawn* Body = IsValid(Controller) ? Controller->GetPawn() : nullptr;
-    const UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
-    const AActor* Goal = IsValid(Blackboard)
-        ? Cast<AActor>(Blackboard->GetValueAsObject(BlackboardKey.SelectedKeyName))
-        : nullptr;
+当前源码：[ETBTTask_PursuitMove.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETBTTask_PursuitMove.cpp)。
 
-    const FString ControllerName = GetNameSafe(Controller);
-    const FString GoalName = GetNameSafe(Goal);
-    const double Distance2D = IsValid(Body) && IsValid(Goal)
-        ? FVector::Dist2D(Body->GetActorLocation(), Goal->GetActorLocation()) : -1.0;
-    const float Radius = IsValid(Blackboard) ? AcceptableRadius.GetValue(OwnerComp) : -1.0f;
-
-    // Snapshot before cleanup; always retain native move task cleanup.
-    Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
-    UE_LOG(LogETPursuitMove, Display,
-        TEXT("[M1-05B2] Move finished Controller=%s Result=%s Goal=%s Distance2D=%.1f Radius=%.1f"),
-        *ControllerName, DescribeMoveResult(TaskResult), *GoalName, Distance2D, Radius);
-}
-```
 
 **保留与删除的理由：**
 

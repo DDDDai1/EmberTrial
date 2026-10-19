@@ -1,6 +1,8 @@
 # M1-05A：敌人身体、AI控制权与导航基础
 
-日期：2026-10-07；复核2026-10-08；固定UE **5.5.4**。前置：[M1-04已验收](Reports/M1_04_Verification.md)。**状态：用户已完成，A验收通过。**手动30 / 等待5分钟；47份Source / 23cpp、双receipt / 索引与两轮初始化 / 四次伤害 / 受击死亡 / 结束清理已核对，见[A结果](Reports/M1_05A_Verification.md)。首次UHT命名错误已改正并构建通过；第5.1节保留排障记录，无需重复执行。继续[B1感知与有效目标](M1_05B1_PerceptionTarget.md)。以下为原操作步骤，助手未修改工程Source / UE资产，也未代Build / PIE。
+2026-10-19清理同步：保留历史接入、资产配置、排障和验收经验；完整类 / 旧完整方法改为当前Source入口，不按旧片段覆盖已完成工程。当前敌人已能感知、追击、转向并真实攻击；90 / 100 / 100厘米与0.5秒是现有配置，150 / 200属于早期阶段。普通功能开发保留手动实践约定，本轮清理按用户授权由助手直接修改；验证和本批提交清单见[Cleanup](Cleanup.md)。
+
+日期：2026-10-07；复核2026-10-08；固定UE **5.5.4**。前置：[M1-04已验收](Reports/M1_04_Verification.md)。**状态：用户已完成，A验收通过。**手动30 / 等待5分钟；47份Source / 23cpp、双receipt / 索引与两轮初始化 / 四次伤害 / 受击死亡 / 结束清理已核对，见[A结果](Reports/M1_05A_Verification.md)。首次UHT命名错误已改正并构建通过；第5.1节保留排障记录，无需重复执行。继续[B1感知与有效目标](M1_05B1_PerceptionTarget.md)。以下为原A操作记录，当时助手未代改Source / 资产或Build / PIE；当前清理按顶部授权与验证说明执行。
 
 ## 1. 本批成果、时间与检查范围
 
@@ -60,160 +62,13 @@ public class EmberTrial : ModuleRules
 
 ### 4.1 ETAIController.h
 
-```cpp
-#pragma once
+当前源码：[ETAIController.h](../EmberTrial/Source/EmberTrial/Public/AI/ETAIController.h)。
 
-#include "CoreMinimal.h"
-#include "AIController.h"
-#include "ETAIController.generated.h"
-
-class AEmberTrialCharacter;
-
-UCLASS()
-class EMBERTRIAL_API AETAIController : public AAIController
-{
-    GENERATED_BODY()
-
-public:
-    AETAIController(const FObjectInitializer& ObjectInitializer =
-        FObjectInitializer::Get());
-
-protected:
-    virtual void OnPossess(APawn* InPawn) override;
-    virtual void OnUnPossess() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
-    TWeakObjectPtr<AEmberTrialCharacter> ObservedBody;
-    bool bEndingPlay = false;
-
-    UFUNCTION()
-    void HandleBodyReadyChanged(AEmberTrialCharacter* BodyCharacter, bool bReady);
-
-    void StopObservingBody();
-    void LogBodySnapshot(const TCHAR* Reason) const;
-};
-```
 
 ### 4.2 ETAIController.cpp
 
-```cpp
-#include "AI/ETAIController.h"
-#include "Characters/EmberTrialCharacter.h"
+当前源码：[ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)。
 
-DEFINE_LOG_CATEGORY_STATIC(LogETAIController, Log, All);
-
-AETAIController::AETAIController(const FObjectInitializer& ObjectInitializer)
-    : Super(ObjectInitializer)
-{
-    // M1-05B starts a configured Behavior Tree only after the body is ready.
-    bStartAILogicOnPossess = false;
-    bStopAILogicOnUnposses = true;
-}
-
-void AETAIController::OnPossess(APawn* InPawn)
-{
-    Super::OnPossess(InPawn);
-    StopObservingBody();
-
-    if (bEndingPlay)
-    {
-        return;
-    }
-
-    AEmberTrialCharacter* BodyCharacter = Cast<AEmberTrialCharacter>(GetPawn());
-    if (!IsValid(BodyCharacter) || GetPawn() != InPawn)
-    {
-        UE_LOG(LogETAIController, Warning,
-            TEXT("[M1-05A] Unsupported body Controller=%s Pawn=%s"),
-            *GetNameSafe(this), *GetNameSafe(GetPawn()));
-        return;
-    }
-
-    ObservedBody = BodyCharacter;
-    BodyCharacter->OnGameplayReadyChanged.AddUniqueDynamic(
-        this, &ThisClass::HandleBodyReadyChanged);
-
-    UE_LOG(LogETAIController, Display,
-        TEXT("[M1-05A] Possessed Controller=%s Body=%s Authority=%d"),
-        *GetNameSafe(this), *GetNameSafe(BodyCharacter), HasAuthority() ? 1 : 0);
-    // Possession may precede Character.BeginPlay, or observe an already-ready body.
-    LogBodySnapshot(TEXT("PossessSnapshot"));
-}
-
-void AETAIController::HandleBodyReadyChanged(
-    AEmberTrialCharacter* BodyCharacter, bool bReady)
-{
-    if (bEndingPlay || !IsValid(BodyCharacter) ||
-        ObservedBody.Get() != BodyCharacter || GetPawn() != BodyCharacter)
-    {
-        return;
-    }
-
-    if (!bReady)
-    {
-        StopMovement();
-    }
-    LogBodySnapshot(TEXT("ReadyChanged"));
-}
-
-void AETAIController::LogBodySnapshot(const TCHAR* Reason) const
-{
-    const AEmberTrialCharacter* BodyCharacter = ObservedBody.Get();
-    if (bEndingPlay || !IsValid(BodyCharacter) || GetPawn() != BodyCharacter)
-    {
-        return;
-    }
-
-    float Health = 0.0f;
-    float MaxHealth = 0.0f;
-    const bool bSnapshotValid = BodyCharacter->GetGameplayHealthSnapshot(
-        Health, MaxHealth);
-
-    UE_LOG(LogETAIController, Display,
-        TEXT("[M1-05A] Body snapshot Controller=%s Body=%s Reason=%s Ready=%d Snapshot=%d Health=%.1f MaxHealth=%.1f Dead=%d"),
-        *GetNameSafe(this), *GetNameSafe(BodyCharacter), Reason,
-        BodyCharacter->IsGameplayReady() ? 1 : 0,
-        bSnapshotValid ? 1 : 0, Health, MaxHealth,
-        BodyCharacter->IsCombatDead() ? 1 : 0);
-}
-
-void AETAIController::StopObservingBody()
-{
-    AEmberTrialCharacter* OldBody = ObservedBody.Get();
-    ObservedBody.Reset();
-    if (IsValid(OldBody))
-    {
-        OldBody->OnGameplayReadyChanged.RemoveDynamic(
-            this, &ThisClass::HandleBodyReadyChanged);
-    }
-}
-
-void AETAIController::OnUnPossess()
-{
-    const FString OldBodyName = GetNameSafe(ObservedBody.Get());
-    StopMovement();
-    StopObservingBody();
-    Super::OnUnPossess();
-
-    UE_LOG(LogETAIController, Display,
-        TEXT("[M1-05A] Unpossessed Controller=%s OldBody=%s Ending=%d"),
-        *GetNameSafe(this), *OldBodyName, bEndingPlay ? 1 : 0);
-}
-
-void AETAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    bEndingPlay = true;
-    const FString OldBodyName = GetNameSafe(ObservedBody.Get());
-    StopMovement();
-    StopObservingBody();
-    Super::EndPlay(EndPlayReason);
-
-    UE_LOG(LogETAIController, Display,
-        TEXT("[M1-05A] End Controller=%s OldBody=%s Reason=%d"),
-        *GetNameSafe(this), *OldBodyName, static_cast<int32>(EndPlayReason));
-}
-```
 
 注意引擎成员原名是**`bStopAILogicOnUnposses`**，末尾只有一个s，按代码输入，不改成Unpossess。`ETAIController.generated.h`保持.h的最后一条include。
 

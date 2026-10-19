@@ -1,6 +1,6 @@
 # AI黑板名称契约
 
-更新2026-10-18。清理第2批将8份局部名称定义合并为4个共享键；资产内容和决策行为保持。
+更新2026-10-19。清理第2批将8份局部名称定义合并为4个共享键；资产内容和决策行为保持。
 
 ## 唯一声明与用途
 
@@ -28,7 +28,15 @@ Practice组件仍被正式GA预检、Character移动 / 跳跃、受击 / 死亡�
 
 ET_Stamina / ET_Healing继续供复用检查使用，修改逻辑已限定WITH_EDITOR及PIE / 本地上下文；不因其名称带开发阶段编号就删除。未完成蓝图引用审计的3 / 4入口同样保留，不为清理牺牲已有检查能力。
 
-## 本批验证状态
+## 当前决策写入与回调边界（第16批）
+
+Controller的两项布尔决策共用私有UpdateBlackboardDecision，只写已有同类型键、保留相同值去重。调用方先提交bPursuitAllowed / bMeleeAttackAllowed，再写黑板；不可把它与后续StopMovement交换，否则同步观察者会看到旧状态。共享键头与资产不改，实际距离 / 冷却也不改。
+
+Service仍0.2秒调度，Super维护下一次间隔；Move不自建路径或Timer，保留原生NodeMemory、先150默认值再SetKey、执行前目标复核和结束前快照。Controller强制停树时保留bStoppingTree重入保护；清目标先中止旧Move再清黑板。原生子对象名与反射字段属于已有资产契约。
+
+第16批的实际验证与14项提交清单统一记录在[Cleanup](Cleanup.md)末尾；下面是第2批历史证据，不作第16批新执行结果。
+
+## 第2批历史验证状态
 
 2026-10-18在UE5.5.4完成本批检查：
 
@@ -44,4 +52,4 @@ ET_Stamina / ET_Healing继续供复用检查使用，修改逻辑已限定WITH_E
 
 ## 本批 Commit / Push（固定放在最后）
 
-新增共享键头，四份消费者.cpp及本契约 / Cleanup / Progress / Architecture / Backlog / Introduction当前入口，按实际差异提交。Content / Config无计划变化；Raw基线 / 日志与生成索引本地。助手不Stage / Commit / Push。
+第16批只同步本契约说明；共享键头、近战Task、Editor校验器与资产本批未改。六份Source与八份文档共14项的当前清单统一见[Cleanup末尾](Cleanup.md)，由用户重新Stage最新Diff后Commit / Push。第2批新增头文件和旧四消费者清单已是历史提交，不重复要求加入。Raw / 构建 / 测试结果及生成索引留本地，助手不操作Git索引。

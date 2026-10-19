@@ -1,8 +1,10 @@
 # M1-05C2：停步转向与行为树自动近战攻击
 
+2026-10-19清理同步：保留历史接入、资产配置、排障和验收经验；完整类 / 旧完整方法改为当前Source入口，不按旧片段覆盖已完成工程。当前敌人已能感知、追击、转向并真实攻击；90 / 100 / 100厘米与0.5秒是现有配置，150 / 200属于早期阶段。普通功能开发保留手动实践约定，本轮清理按用户授权由助手直接修改；验证和本批提交清单见[Cleanup](Cleanup.md)。
+
 下发：2026-10-09；复核：2026-10-10；引擎固定 **UE 5.5.4**。**C2已实施并验收通过，无待补项。**用户15:20全项完成，手动35 / 等待5分钟，源码与双构建 / 26cpp索引、真实自动交战 / 有限重试 / 清理核对，见[验收报告](Reports/M1_05C2_Verification.md)。以下保留实施步骤供复盘，已通过项无需重做。主体已提交9cdbc75，本轮只追加收尾文档；后续[D复盘](M1_05D_EnemyCombatReview.md)已完成，整章通过，以下实施步骤无需重做。
 
-继续约定：**所有C++由你按本文手动写入；需要我接管时明确告诉我。**本章不新增Controller测试函数 / 按键。最后一节列出本章Commit / Push内容；以后各开发章也采用这一形式。
+原开发按C++手动实践约定完成；当前清理按本轮授权由助手直接修改和验证。本章不新增Controller测试函数 / 按键。最后一节列出本章Commit / Push内容；以后各开发章也采用这一形式。
 
 ## 1. 完成后看到什么、需要多久
 
@@ -105,406 +107,57 @@ FGameplayAbilitySpecHandle AEmberTrialCharacter::GetLightAttackSpecHandle() cons
 
 保留类名 / 原父类与既有成员；已经修复的`BodyCharacter`参数名保留，不改成继承成员同名的`Character`。
 
-```cpp
-#pragma once
+当前源码：[ETAIController.h](../EmberTrial/Source/EmberTrial/Public/AI/ETAIController.h)。
 
-#include "CoreMinimal.h"
-#include "AIController.h"
-#include "Perception/AIPerceptionTypes.h"
-#include "GameplayTagContainer.h"
-#include "ETAIController.generated.h"
 
-class AEmberTrialCharacter;
-class UAbilitySystemComponent;
-class UAIPerceptionComponent;
-class UAISenseConfig_Sight;
-class UBlackboardData;
-class UBehaviorTree;
+### 4.3 Controller.cpp：当前共享黑板名称
 
-UCLASS()
-class EMBERTRIAL_API AETAIController : public AAIController
-{
-    GENERATED_BODY()
-
-public:
-    AETAIController(const FObjectInitializer& ObjectInitializer =
-        FObjectInitializer::Get());
-
-    UFUNCTION(BlueprintPure, Category = "EmberTrial|AI")
-    AEmberTrialCharacter* GetSensedPlayer() const;
-
-    void UpdatePursuitDecision();
-    bool IsPursuitAllowed() const;
-    bool IsMeleeAttackAllowed() const;
-    void NotifyMeleeAttackAttemptFinished();
-
-protected:
-    virtual void BeginPlay() override;
-    virtual void OnPossess(APawn* InPawn) override;
-    virtual void OnUnPossess() override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|AI",
-        meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<UAIPerceptionComponent> SightPerception;
-
-    UPROPERTY(VisibleAnywhere, Category = "EmberTrial|AI")
-    TObjectPtr<UAISenseConfig_Sight> SightConfig;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI")
-    TObjectPtr<UBlackboardData> EnemyBlackboardAsset;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI")
-    TObjectPtr<UBehaviorTree> EnemyBehaviorTree;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI",
-        meta = (ClampMin = "1.0", Units = "cm"))
-    float PursuitStopDistance = 90.0f;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI",
-        meta = (ClampMin = "1.0", Units = "cm"))
-    float PursuitResumeDistance = 100.0f;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI",
-        meta = (ClampMin = "1.0", Units = "cm"))
-    float MeleeAttackDistance = 100.0f;
-
-    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI",
-        meta = (ClampMin = "0.1", Units = "s"))
-    float MeleeRetryDelay = 0.5f;
-
-    TWeakObjectPtr<AEmberTrialCharacter> ObservedBody;
-    TWeakObjectPtr<AEmberTrialCharacter> SensedPlayer;
-    TWeakObjectPtr<UAbilitySystemComponent> ObservedBodyASC;
-    TWeakObjectPtr<UAbilitySystemComponent> ObservedTargetASC;
-    FDelegateHandle BodyDeadHandle;
-    FDelegateHandle BodyAttackingHandle;
-    FDelegateHandle BodyHitReactHandle;
-    FDelegateHandle TargetDeadHandle;
-    bool bEndingPlay = false;
-    bool bBlackboardReady = false;
-    bool bControllerBegunPlay = false;
-    bool bTreeStartAttempted = false;
-    bool bTreeStarted = false;
-    bool bPursuitAllowed = false;
-    bool bHoldingDistance = false;
-    bool bMeleeAttackAllowed = false;
-    bool bStoppingTree = false;
-    double NextMeleeAttemptTime = 0.0;
-
-    UFUNCTION()
-    void HandleBodyReadyChanged(AEmberTrialCharacter* BodyCharacter, bool bReady);
-
-    UFUNCTION()
-    void HandleSightUpdated(AActor* SensedActor, FAIStimulus Stimulus);
-
-    UFUNCTION()
-    void HandleTargetEndPlay(AActor* EndedTarget,
-        EEndPlayReason::Type PlayEndReason);
-
-    void HandleDeadTagChanged(FGameplayTag ChangedTag, int32 NewCount);
-    void HandleBodyActionTagChanged(FGameplayTag ChangedTag, int32 NewCount);
-    bool InitializeEnemyBlackboard();
-    bool CanObservePlayer() const;
-    bool HasValidPursuitConfig() const;
-    void ObserveBodyState();
-    void RemoveBodyStateSubscriptions();
-    void RefreshVisiblePlayer();
-    void SetSensedPlayer(AEmberTrialCharacter* NewPlayer, const TCHAR* Reason);
-    void ClearSensedPlayer(const TCHAR* Reason);
-    void SetPursuitAllowed(bool bNewAllowed, const TCHAR* Reason,
-        float Distance, bool bForceStop = false);
-    void SetMeleeAttackAllowed(bool bNewAllowed, const TCHAR* Reason,
-        float Distance);
-    void StopPursuitMovement();
-    void TryStartEnemyBehaviorTree();
-    void StopEnemyBehaviorTree(const TCHAR* Reason);
-    void StopObservingBody();
-    void LogBodySnapshot(const TCHAR* Reason) const;
-};
-```
-
-### 4.3 Controller.cpp：include与黑板键各加一项
-
-在顶部include区（DEFINE_LOG_CATEGORY_STATIC之前）新增：
-
-```cpp
-#include "Engine/World.h"
-```
-
-在已有匿名`namespace`中，`const FName CanPursueKey(TEXT("CanPursue"));`之后新增：
-
-```cpp
-    const FName MeleeAttackKey(TEXT("CanMeleeAttack"));
-```
-
-已有IsLiveBody、IsLiveLocalPlayer、RemoveTagSubscription等辅助函数全部保留。
+当前[Controller实现](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)已包含共享[ETBlackboardKeys.h](../EmberTrial/Source/EmberTrial/Public/AI/ETBlackboardKeys.h)，不再追加早期匿名MeleeAttackKey定义。键名称 / 类型与现有BB资产仍保持；到达容差和四项配置关系按当前实现读取。下列历史完整方法统一链接Source，不重复贴旧版本。
 
 ### 4.4 替换InitializeEnemyBlackboard完整函数
 
 用函数名定位，从签名到配对的右大括号完整替换；下一函数不删除。新检查要求BB四个键，旧三键资产稍后第7节补齐。
 
-```cpp
-bool AETAIController::InitializeEnemyBlackboard()
-{
-    UBlackboardComponent* Board = nullptr;
-    if (!IsValid(EnemyBlackboardAsset) ||
-        !UseBlackboard(EnemyBlackboardAsset.Get(), Board) || !IsValid(Board) ||
-        Board->GetBlackboardAsset() != EnemyBlackboardAsset.Get())
-    {
-        UE_LOG(LogETAIController, Warning,
-            TEXT("[M1-05C2] Blackboard unavailable Controller=%s Asset=%s"),
-            *GetNameSafe(this), *GetNameSafe(EnemyBlackboardAsset.Get()));
-        return false;
-    }
+当前源码：[ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)。
 
-    const FBlackboard::FKey KeyID = Board->GetKeyID(TargetActorKey);
-    const FBlackboardEntry* Entry = KeyID != FBlackboard::InvalidKey
-        ? EnemyBlackboardAsset->GetKey(KeyID) : nullptr;
-    const UBlackboardKeyType_Object* ObjectKey = Entry
-        ? Cast<UBlackboardKeyType_Object>(Entry->KeyType.Get()) : nullptr;
-    if (!ObjectKey || !IsValid(ObjectKey->BaseClass) ||
-        !AEmberTrialCharacter::StaticClass()->IsChildOf(ObjectKey->BaseClass.Get()))
-    {
-        UE_LOG(LogETAIController, Warning,
-            TEXT("[M1-05C2] Invalid TargetActor key Controller=%s"),
-            *GetNameSafe(this));
-        return false;
-    }
-
-    const FBlackboard::FKey GateID = Board->GetKeyID(CanPursueKey);
-    const FBlackboard::FKey DistanceID = Board->GetKeyID(StopDistanceKey);
-    const FBlackboard::FKey MeleeID = Board->GetKeyID(MeleeAttackKey);
-    if (GateID == FBlackboard::InvalidKey ||
-        DistanceID == FBlackboard::InvalidKey || MeleeID == FBlackboard::InvalidKey ||
-        Board->GetKeyType(GateID) != UBlackboardKeyType_Bool::StaticClass() ||
-        Board->GetKeyType(DistanceID) != UBlackboardKeyType_Float::StaticClass() ||
-        Board->GetKeyType(MeleeID) != UBlackboardKeyType_Bool::StaticClass())
-    {
-        UE_LOG(LogETAIController, Warning,
-            TEXT("[M1-05C2] Invalid decision keys Controller=%s Expected=TargetActor:Object,CanPursue:Bool,PursuitStopDistance:Float,CanMeleeAttack:Bool"),
-            *GetNameSafe(this));
-        return false;
-    }
-    Board->ClearValue(TargetActorKey);
-    Board->SetValueAsBool(CanPursueKey, false);
-    Board->SetValueAsBool(MeleeAttackKey, false);
-    Board->SetValueAsFloat(StopDistanceKey, PursuitStopDistance);
-    UE_LOG(LogETAIController, Display,
-        TEXT("[M1-05C2] Blackboard ready Controller=%s Asset=%s Stop=%.1f Melee=%.1f"),
-        *GetNameSafe(this), *GetNameSafe(EnemyBlackboardAsset.Get()),
-        PursuitStopDistance, MeleeAttackDistance);
-    return true;
-}
-```
 
 ### 4.5 替换CanObservePlayer与HasValidPursuitConfig两个函数
 
 分别替换各自函数，**夹在中间的GetSensedPlayer保留**；IsPursuitAllowed也保留。
 
-```cpp
-bool AETAIController::CanObservePlayer() const
-{
-    return !bEndingPlay && !bStoppingTree && bBlackboardReady && HasAuthority() &&
-        ObservedBody.Get() == GetPawn() && IsLiveBody(ObservedBody.Get());
-}
-```
+当前源码：[ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)。
 
-```cpp
-bool AETAIController::HasValidPursuitConfig() const
-{
-    return FMath::IsFinite(PursuitStopDistance) &&
-        FMath::IsFinite(PursuitResumeDistance) &&
-        FMath::IsFinite(MeleeAttackDistance) && FMath::IsFinite(MeleeRetryDelay) &&
-        PursuitStopDistance >= 1.0f &&
-        PursuitResumeDistance > PursuitStopDistance + ArrivalTolerance &&
-        MeleeAttackDistance >= PursuitResumeDistance && MeleeRetryDelay >= 0.1f;
-}
-```
+
+当前源码：[ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)。
+
 
 ### 4.6 新增两个public方法的实现
 
 放在旧IsPursuitAllowed完整函数之后、UpdatePursuitDecision之前；都是独立函数，不放进任何旧函数。
 
-```cpp
-bool AETAIController::IsMeleeAttackAllowed() const
-{
-    const AEmberTrialCharacter* BodyCharacter = ObservedBody.Get();
-    const AEmberTrialCharacter* PlayerBody = GetSensedPlayer();
-    const UBlackboardComponent* Board = GetBlackboardComponent();
-    const UWorld* World = GetWorld();
-    const UCharacterMovementComponent* Movement = IsValid(BodyCharacter)
-        ? BodyCharacter->GetCharacterMovement() : nullptr;
-    if (!bMeleeAttackAllowed || !HasValidPursuitConfig() ||
-        !IsValid(BodyCharacter) || !IsValid(PlayerBody) || !IsValid(Board) ||
-        !IsValid(World) || World->GetNetMode() != NM_Standalone || World->IsPaused() ||
-        World->GetTimeSeconds() < NextMeleeAttemptTime ||
-        Board->GetValueAsObject(TargetActorKey) != PlayerBody ||
-        !BodyCharacter->IsFormalActionIdle() ||
-        !BodyCharacter->CanDealCombatDamageTo(PlayerBody) ||
-        !BodyCharacter->GetLightAttackSpecHandle().IsValid() ||
-        !IsValid(Movement) || !Movement->IsMovingOnGround())
-    {
-        return false;
-    }
-    const float Distance = FVector::Dist2D(BodyCharacter->GetActorLocation(),
-        PlayerBody->GetActorLocation());
-    return FMath::IsFinite(Distance) && Distance <= MeleeAttackDistance;
-}
+当前源码：[ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)。
 
-void AETAIController::NotifyMeleeAttackAttemptFinished()
-{
-    UWorld* World = GetWorld();
-    if (!bTreeStarted || !CanObservePlayer() || !HasValidPursuitConfig() ||
-        !IsValid(World))
-    {
-        return;
-    }
-    NextMeleeAttemptTime = static_cast<double>(World->GetTimeSeconds()) +
-        MeleeRetryDelay;
-    SetMeleeAttackAllowed(false, TEXT("RetryCooldown"), -1.0f);
-    UE_LOG(LogETAIController, Display,
-        TEXT("[M1-05C2] Melee retry Controller=%s Delay=%.2f NextWorldTime=%.3f"),
-        *GetNameSafe(this), MeleeRetryDelay, NextMeleeAttemptTime);
-}
-```
 
 ### 4.7 替换UpdatePursuitDecision完整函数
 
 原Service名称和调用保留；它现在同时更新追击 / 近战资格。BB只缓存意图，能力仍执行自己的最终门控。
 
-```cpp
-void AETAIController::UpdatePursuitDecision()
-{
-    AEmberTrialCharacter* BodyCharacter = ObservedBody.Get();
-    AEmberTrialCharacter* PlayerBody = GetSensedPlayer();
-    UBlackboardComponent* Board = GetBlackboardComponent();
-    const auto CloseBoth = [this](const TCHAR* Reason, float Distance)
-    {
-        SetMeleeAttackAllowed(false, Reason, Distance);
-        SetPursuitAllowed(false, Reason, Distance);
-    };
-    if (!CanObservePlayer() || !IsValid(Board))
-    {
-        CloseBoth(TEXT("BodyUnavailable"), -1.0f);
-        return;
-    }
-    if (!HasValidPursuitConfig())
-    {
-        CloseBoth(TEXT("InvalidDistanceConfig"), -1.0f);
-        return;
-    }
-    if (!IsValid(PlayerBody) ||
-        Board->GetValueAsObject(TargetActorKey) != PlayerBody)
-    {
-        bHoldingDistance = false;
-        CloseBoth(TEXT("NoTarget"), -1.0f);
-        return;
-    }
+当前源码：[ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)。
 
-    const float Distance = FVector::Dist2D(BodyCharacter->GetActorLocation(),
-        PlayerBody->GetActorLocation());
-    if (!FMath::IsFinite(Distance))
-    {
-        CloseBoth(TEXT("InvalidDistance"), -1.0f);
-        return;
-    }
-    if (!BodyCharacter->CanDealCombatDamageTo(PlayerBody))
-    {
-        CloseBoth(TEXT("CombatTeam"), Distance);
-        return;
-    }
-    if (Distance <= PursuitStopDistance + ArrivalTolerance)
-    {
-        bHoldingDistance = true;
-    }
-    else if (Distance >= PursuitResumeDistance)
-    {
-        bHoldingDistance = false;
-    }
-
-    UCharacterMovementComponent* Movement = BodyCharacter->GetCharacterMovement();
-    if (!BodyCharacter->IsFormalActionIdle())
-    {
-        CloseBoth(TEXT("Busy"), Distance);
-        return;
-    }
-    if (!IsValid(Movement) || !Movement->IsMovingOnGround())
-    {
-        CloseBoth(TEXT("OffGround"), Distance);
-        return;
-    }
-    const UWorld* World = GetWorld();
-    const bool bCanTry = IsValid(World) && World->GetNetMode() == NM_Standalone &&
-        World->GetTimeSeconds() >= NextMeleeAttemptTime &&
-        Distance <= MeleeAttackDistance &&
-        BodyCharacter->GetLightAttackSpecHandle().IsValid();
-    SetMeleeAttackAllowed(bCanTry, bCanTry ? TEXT("InRange") :
-        TEXT("RangeCooldownOrAbility"), Distance);
-    SetPursuitAllowed(!bHoldingDistance,
-        bHoldingDistance ? TEXT("NearTarget") : TEXT("CanChase"), Distance);
-}
-```
 
 ### 4.8 新增SetMeleeAttackAllowed完整函数
 
 放在旧SetPursuitAllowed完整函数之后、StopPursuitMovement之前。旧SetPursuitAllowed / StopPursuitMovement不改。
 
-```cpp
-void AETAIController::SetMeleeAttackAllowed(bool bNewAllowed,
-    const TCHAR* Reason, float Distance)
-{
-    const bool bChanged = bMeleeAttackAllowed != bNewAllowed;
-    bMeleeAttackAllowed = bNewAllowed;
-    if (bBlackboardReady)
-    {
-        if (UBlackboardComponent* Board = GetBlackboardComponent())
-        {
-            if (Board->GetValueAsBool(MeleeAttackKey) != bNewAllowed)
-            {
-                Board->SetValueAsBool(MeleeAttackKey, bNewAllowed);
-            }
-        }
-    }
-    if (bChanged)
-    {
-        UE_LOG(LogETAIController, Display,
-            TEXT("[M1-05C2] Melee gate Controller=%s Allowed=%d Reason=%s Distance2D=%.1f"),
-            *GetNameSafe(this), bNewAllowed ? 1 : 0, Reason, Distance);
-    }
-}
-```
+当前源码：[ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)。
+
 
 ### 4.9 替换StopEnemyBehaviorTree完整函数
 
 Stop期间的Guard会挡住取消能力引发的Tag回调，防止UnPossess / StopTree时短暂重新打开攻击资格；原Forced Stop与停移动保留。
 
-```cpp
-void AETAIController::StopEnemyBehaviorTree(const TCHAR* Reason)
-{
-    TGuardValue<bool> StopGuard(bStoppingTree, true);
-    const bool bWasStarted = bTreeStarted;
-    bTreeStarted = false;
-    bTreeStartAttempted = false;
-    bHoldingDistance = false;
-    NextMeleeAttemptTime = 0.0;
-    SetMeleeAttackAllowed(false, Reason, -1.0f);
-    SetPursuitAllowed(false, Reason, -1.0f);
-    if (UBehaviorTreeComponent* TreeComponent =
-        Cast<UBehaviorTreeComponent>(GetBrainComponent()))
-    {
-        TreeComponent->StopTree(EBTStopMode::Forced);
-    }
-    StopPursuitMovement();
-    if (bWasStarted)
-    {
-        UE_LOG(LogETAIController, Display,
-            TEXT("[M1-05B2] Tree stopped Controller=%s Reason=%s"),
-            *GetNameSafe(this), Reason);
-    }
-}
-```
+当前源码：[ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)。
+
 
 ### 4.10 ClearSensedPlayer只插入一行
 
