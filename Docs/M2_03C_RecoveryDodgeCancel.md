@@ -6,6 +6,12 @@
 
 原下发预算（非当前待办）：手动 **90–150分钟**：代码 / 理解60–100、资产 / 输入核对10–20、相关检查10–15、记录5–10，构建等待另列，可分两次完成。原路线C的60–100分钟上调为90–150，原因是本批补齐预检失败保留原攻击、保存标签默认值校验和可复用真实交接测试；不是新增旧功能验收矩阵。整章10h基础预算仍保持，未计本批实耗。
 
+## 当前测试维护边界（第26批）
+
+恢复闪避：保留三段恢复交接、预检失败保留攻击、旧Task强引用负向注入、队列清理、暂停 / 受击 / 死亡 / EndPlay。
+
+全部原断言、日志 / 预期Warning、测试注册与场景顺序保留；期望值独立于生产默认值。当前源码排版 / 注释与命名以Source为准，历史完整实现不重复覆盖。本批改动和验证结果见[第26批文档](Cleanup.md#cleanup-batch-26)；三批提交清单统一见Cleanup末尾。
+
 ## 1. 交付规则与实现分工
 
 | 情况 | 结果 |
@@ -478,6 +484,4 @@ slomo1 / 默认数值 / Debug False、Source资产Save All：
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-一新 / 七旧完整源码与此前指南 / B收尾已由用户纳入efaae3e，HEAD / 缓存origin一致，初查新测试暂存骨架已更新为完整实现。当前只Stage [C报告](Reports/M2_03C_Verification.md) / [整章报告](Reports/M2_03_Verification.md)、来源58项最新说明与Progress / Backlog / 路线 / Architecture / 验收流程 / Introduction / VersionControl的本轮收尾。完整源码路径与实际范围见[C报告最后清单](Reports/M2_03C_Verification.md#5-本次-commit--push固定放在最后)，Source / Content无差异不人为重存。
-
-CLion刷新Changes → Stage最新报告 / 文档 → 检查Staged Diff → Commit → Push，可用`docs: close light combo recovery cancel milestone`。Raw / 日志 / 生成CMake / IDE缓存 / Binaries / Intermediate / Saved和历史包留本地；Git由用户操作，本轮未联网核验远端。
+本页历史功能已完成；第26批对应源码 / 文档的改动与验收见[Cleanup对应章节](Cleanup.md#cleanup-batch-26)。用户重新Stage最新差异、检查Staged Diff后Commit / Push，Raw / 日志 / 生成文件留本地。第24–26批一起Stage / Commit / Push，完整18项清单与建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)；助手不操作Git索引。

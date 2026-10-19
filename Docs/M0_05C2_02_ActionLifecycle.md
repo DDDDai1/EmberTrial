@@ -6,6 +6,12 @@
 
 原交接估时：手动 35–55 分钟；实际约 15 分钟。引擎：UE 5.5.4。正常 Build、1 项综合自动测试及用户蓝图 / PIE 验收已通过，覆盖范围见 [本批检查记录](Reports/M0_05C2_Verification.md)。以下操作保留供复现。
 
+## 当前测试维护边界（第26批）
+
+Practice生命周期：保留函数内State别名、八个非法位移配置、外部RMS / Montage归属、旧回调、动画实例替换 / 失活 / EndPlay。
+
+全部原断言、日志 / 预期Warning、测试注册与场景顺序保留；期望值独立于生产默认值。当前源码排版 / 注释与命名以Source为准，历史完整实现不重复覆盖。本批改动和验证结果见[第26批文档](Cleanup.md#cleanup-batch-26)；三批提交清单统一见Cleanup末尾。
+
 ## 1. 本批要做出的效果
 
 1 播放攻击，2 播放闪避姿势，3 播放受击；动作期间普通移动、跳跃和 E 交互被阻止，镜头与 P 仍可用。3 可以打断攻击或闪避，受击自己不能被连按重启。动作结束后恢复正常操作。
@@ -205,4 +211,4 @@ TryInteractWithCurrentTarget 已加入 Idle 检查：是 / 实际结果
 
 ## 本次清理 Commit / Push（固定放在最后）
 
-第19批四份Source与十份Markdown，共14项；当前检查、最新差异和逐文件清单见[Cleanup末尾](Cleanup.md)。历史资产 / 测试未改，不重复制造差异。用户重新Stage后Commit / Push；Raw、报告、索引留本地，助手不操作Git索引。
+本页历史功能已完成；第26批对应源码 / 文档的改动与验收见[Cleanup对应章节](Cleanup.md#cleanup-batch-26)。用户重新Stage最新差异、检查Staged Diff后Commit / Push，Raw / 日志 / 生成文件留本地。第24–26批一起Stage / Commit / Push，完整18项清单与建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)；助手不操作Git索引。

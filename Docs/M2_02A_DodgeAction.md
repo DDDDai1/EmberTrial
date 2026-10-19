@@ -6,6 +6,12 @@
 
 原下发预算（非当前待办）：手动 **90–150分钟**：代码55–95、资产15–25、相关检查10–15、保存记录5–10；构建等待另计。可以分两次完成，代码部分完整保存后再正常Build；不要求做满预算。涉及成本与共用动作门控，本批比单纯体力UI范围更大。
 
+## 当前测试维护边界（第24批）
+
+成本契约：真实GE、一次扣费、同步回调重入、边界足额 / 缺失成本 / 死亡拒绝；瞬态能力实例配置不写CDO。
+
+全部原断言、日志 / 预期Warning、测试注册与场景顺序保留；期望值独立于生产默认值。当前源码排版 / 注释与命名以Source为准，历史完整实现不重复覆盖。本批改动和验证结果见[第24批文档](Cleanup.md#cleanup-batch-24)；三批提交清单统一见Cleanup末尾。
+
 ## 1. 本批结果与关键顺序
 
 新GAS闪避先通过已有ke路线调用角色RequestDodge，播放现有原地Montage，成功一次扣25体力；动作用State.Dodging门控移动 / 跳跃 / 攻击 / E及旧Practice，恢复组件在正式Dodging期间停表。3受击可取消，真实死亡 / EndPlay沿用共同清理。**本批没有新位移或无敌**；原2仍保持M0原型，只能在与正式GAS动作互斥的空闲状态运行。B接方向位移并迁移2键，C再接短无敌。
@@ -733,9 +739,4 @@ Build发第一条真实UHT / C++ / linker错误；资产字段问题发对应Cla
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-- 三新Source：Dodge.h / .cpp与ETDodgeCostTests.cpp；十旧Source按第2节，包含已有Recovery测试与Editor Validator，不能遗漏恢复两处Tag数组或旧Practice互斥。
-- 新GA_ET_Dodge / GE_ET_DodgeCost、玩家Dodge Class与既有三GA实际.uasset差异；原Montage复用，不为本批重新烘焙。来源清单在实物验收后更新，不提前声称51项。
-- 本指南、闪避路线 / 当前状态与后续实际验收报告；本地8b725e5已包含资源实现，不重复提交无差异文件。Build.cs / Target / uproject / UI / IMC本批没有计划修改。
-- 临时None Montage必须恢复原资源，slomo1；Raw / 日志 / Binaries / Intermediate / Saved、生成CMake / IDE状态与旧包留本地，不Force Add。
-
-CLion刷新Changes → 重新Stage最新完整实现 / 合法配置 / 文档 → 查看Staged Diff → Commit → Push。通过后可用 `feat: add GAS dodge action and checked stamina cost`；仅下发方案用 `docs: prepare GAS dodge action`。用户操作Git；B方向位移与C无敌仍未完成，不把本批写成正式闪避整章交付。
+本页历史功能已完成；第24批对应源码 / 文档的改动与验收见[Cleanup对应章节](Cleanup.md#cleanup-batch-24)。用户重新Stage最新差异、检查Staged Diff后Commit / Push，Raw / 日志 / 生成文件留本地。第24–26批一起Stage / Commit / Push，完整18项清单与建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)；助手不操作Git索引。

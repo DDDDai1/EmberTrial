@@ -6,6 +6,12 @@
 
 原下发预算（非当前待办）：手动 **100–170分钟**（代码 / 理解约70–115、资产与连线10–20、相关检查10–15、保存记录5–10），构建等待另列。可分两次完成；预算不要求做满，也不提前记为已用工时。全部C++仍由你手动录入；有编译问题发第一条真实错误，我再按当次请求处理。
 
+## 当前测试维护边界（第24批）
+
+方向 / 位移：三处方向误差命名为float DirectionTolerance；固定30 / 60 / 120步长、原计时舍入与1cm终点判据保持。
+
+全部原断言、日志 / 预期Warning、测试注册与场景顺序保留；期望值独立于生产默认值。当前源码排版 / 注释与命名以Source为准，历史完整实现不重复覆盖。本批改动和验证结果见[第24批文档](Cleanup.md#cleanup-batch-24)；三批提交清单统一见Cleanup末尾。
+
 ## 1. 本批结果与分工
 
 按键盘上方2，使用当前移动输入对应的世界方向闪避；没有移动输入时按**角色前方**，不是相机前方。方向在开始时固定，位移期间转镜头或改WASD不改变这一段轨迹。默认150cm / 0.30世界秒 / 一次25体力；斜向先归一化，不多走一倍。
@@ -353,9 +359,4 @@ Build用文字贴第一条真实错误；蓝图连线问题截IA事件到调用�
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-- 三新Source：Task.h / .cpp与ETDodgeMovementTests.cpp；五旧：ETGA_Dodge.h / .cpp、Character.h / .cpp、ETGameplayAssetValidator.cpp，必须全部保存再Stage。原CostContract / Resources / Practice源码没有计划修改。
-- 旧资产实际差异：GA_ET_Dodge的距离 / 时长配置、BP_ThirdPersonCharacter的2路线；IA_PracticeDodge / IMC_Default仅在确有合法配置修改时提交，不制造无差异文件。没有新UE资产，原Montage / Cost GE复用，来源清单在实物验收时更新真实哈希。
-- 本指南、M2 / 闪避路线、Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow / Introduction的最新状态；A验收报告 / 清单若尚未提交一并处理。本地c6b8a0f包含A实现，本轮未联网核验远端。
-- 临时Cube删除、slomo1、150 / .30 / Cost25 / 原Montage恢复后Save All；Raw / 日志 / Binaries / Intermediate / Saved、生成CMake / IDE缓存与旧包留本地，不Force Add。
-
-CLion刷新Changes → 重新Stage最新完整代码 / 合法配置 / 文档 → 检查Staged Diff → Commit → Push。实现后可用`feat: add directional GAS dodge movement and migrate input`；仅指南用`docs: prepare directional dodge movement`。仍由用户操作Git；C无敌尚未完成，本批不写成整个M2-02已交付。
+本页历史功能已完成；第24批对应源码 / 文档的改动与验收见[Cleanup对应章节](Cleanup.md#cleanup-batch-24)。用户重新Stage最新差异、检查Staged Diff后Commit / Push，Raw / 日志 / 生成文件留本地。第24–26批一起Stage / Commit / Push，完整18项清单与建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)；助手不操作Git索引。

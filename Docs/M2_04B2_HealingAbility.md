@@ -6,6 +6,12 @@
 
 手动预算 **120–180分钟**，含理解录入 / 配置 / 10–15分钟相关检查 / 记录，构建等待另记。原路线100–160微调，原因是本批一次补齐11旧文件门控与可复用取消 / 旧回调检查；不是增加旧验收图。可分两次：先录第3–8节源码，第二次Build / 配置 / 短查。M2-04整章8h基础预算保留，A / B1已实际75 / 等待6分钟，预计时间不当作实耗。
 
+## 当前测试维护边界（第25批）
+
+治疗能力：原13个数字场景改为本地强类型命名枚举，显式列表保持原0–12顺序；真实Montage / Notify / GE与旧回调负向注入保留。
+
+全部原断言、日志 / 预期Warning、测试注册与场景顺序保留；期望值独立于生产默认值。当前源码排版 / 注释与命名以Source为准，历史完整实现不重复覆盖。本批改动和验证结果见[第25批文档](Cleanup.md#cleanup-batch-25)；三批提交清单统一见Cleanup末尾。
+
 ## 1. 做完后的行为与唯一所有者
 
 | 条件 / 输入 | 结果 |
@@ -1061,18 +1067,4 @@ Healing.Resource / Healing.Ability / StaminaRecovery / RecoveryDodge四项：
 
 ## 13. 本批 Commit / Push（固定放在最后）
 
-B2主体已由用户提交a6c5ab8；十六份Source完整实现、实际五份LFS资产均已纳入，Source工作区无差异，HEAD / 缓存origin/main一致。五份资产HEAD的LFS OID与本地SHA匹配，本轮未联网核验服务器状态。当前不需要重新Stage无变化的Source / Content。
-
-当前仅Stage[B2报告](Reports/M2_04B2_Verification.md)、本指南 / 来源63项与Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction等最新文档差异，其他已明确未提交收尾可合并；检查Staged Diff后用户自行Commit / Push，可用`docs: verify formal healing ability milestone`。
-
-本批已提交源码范围见第2节，测试实际ETHealAbilityTests.cpp；已提交五份LFS资产为：
-
-```text
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_Heal.uasset
-EmberTrial/Content/EmberTrial/Input/Actions/IA_ET_Heal.uasset
-EmberTrial/Content/EmberTrial/Animations/Healing/Montages/AM_ET_Heal_01.uasset
-EmberTrial/Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset
-EmberTrial/Content/ThirdPerson/Input/IMC_Default.uasset
-```
-
-四旧GA / 制作源 / Rig / Skeleton / AnimBP / 地图 / Config无本批字节差异，不强制重存。Raw / 日志 / 候选 / 本地脚本、生成索引 / IDE缓存、Binaries / Intermediate / Saved与历史包本地，不Force Add；助手未操作Git索引。按用户本次要求没有下一章新增内容。
+本页历史功能已完成；第25批对应源码 / 文档的改动与验收见[Cleanup对应章节](Cleanup.md#cleanup-batch-25)。用户重新Stage最新差异、检查Staged Diff后Commit / Push，Raw / 日志 / 生成文件留本地。第24–26批一起Stage / Commit / Push，完整18项清单与建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)；助手不操作Git索引。

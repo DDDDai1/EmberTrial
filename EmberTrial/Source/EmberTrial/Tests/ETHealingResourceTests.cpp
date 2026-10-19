@@ -12,12 +12,13 @@
 #include "Tests/AutomationCommon.h"
 #include <limits>
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETHealingResourceTest,
-    "EmberTrial.M2.Healing.Resource",
-    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETHealingResourceTest, "EmberTrial.M2.Healing.Resource",
+                                 EAutomationTestFlags::EditorContext |
+                                     EAutomationTestFlags::EngineFilter)
 
 bool FETHealingResourceTest::RunTest(const FString& Parameters)
 {
+    // ---- 独立原生身体：启动值在BeginPlay前设置，不修改蓝图或CDO ----
     FTestWorldWrapper TestWorld;
     if (!TestWorld.CreateTestWorld(EWorldType::Game))
     {
@@ -46,7 +47,8 @@ bool FETHealingResourceTest::RunTest(const FString& Parameters)
     AEmberTrialCharacter* Reentrant = MakeBody(EETCombatTeam::Player, 20.0f);
     AEmberTrialCharacter* Deactivated = MakeBody(EETCombatTeam::Player, 20.0f);
     AEmberTrialCharacter* Fresh = MakeBody(EETCombatTeam::Player, 20.0f);
-    AEmberTrialCharacter* Bodies[] = {Body, Empty, Invalid, Enemy, Dead, Reentrant, Deactivated, Fresh};
+    AEmberTrialCharacter* Bodies[] = {Body, Empty,     Invalid,     Enemy,
+                                      Dead, Reentrant, Deactivated, Fresh};
     for (AEmberTrialCharacter* Subject : Bodies)
     {
         if (!TestNotNull(TEXT("Spawned body"), Subject) ||
@@ -60,9 +62,10 @@ bool FETHealingResourceTest::RunTest(const FString& Parameters)
     Invalid->HealingResourceComponent->InitialCharges = 4;
     int32 Charges = -1;
     int32 MaxCharges = -1;
-    TestFalse(TEXT("Before BeginPlay unavailable"), Healing->GetHealingSnapshot(Charges, MaxCharges));
+    TestFalse(TEXT("Before BeginPlay unavailable"),
+              Healing->GetHealingSnapshot(Charges, MaxCharges));
     AddExpectedMessagePlain(TEXT("Invalid healing settings"), ELogVerbosity::Warning,
-        EAutomationExpectedMessageFlags::Contains, 1);
+                            EAutomationExpectedMessageFlags::Contains, 1);
     if (!TestWorld.BeginPlayInTestWorld())
     {
         TestWorld.ForwardErrorMessages(this);
@@ -75,32 +78,40 @@ bool FETHealingResourceTest::RunTest(const FString& Parameters)
         return false;
     }
     const FGameplayAttribute HealthAttribute = UETHealthAttributeSet::GetHealthAttribute();
+    // 同时核对可用性与失败时清零；生命分别检查Current和Base。
     auto ExpectCharges = [&](UETHealingResourceComponent* Resource, const TCHAR* Label,
-        bool bExpectedAvailable, int32 ExpectedCharges, int32 ExpectedMax = 3)
+                             bool bExpectedAvailable, int32 ExpectedCharges, int32 ExpectedMax = 3)
     {
         int32 Current = -1;
         int32 Maximum = -1;
         TestEqual(FString::Printf(TEXT("%s available"), Label),
-            Resource->GetHealingSnapshot(Current, Maximum), bExpectedAvailable);
-        TestEqual(FString::Printf(TEXT("%s charges"), Label), Current, bExpectedAvailable ? ExpectedCharges : 0);
-        TestEqual(FString::Printf(TEXT("%s maximum"), Label), Maximum, bExpectedAvailable ? ExpectedMax : 0);
+                  Resource->GetHealingSnapshot(Current, Maximum), bExpectedAvailable);
+        TestEqual(FString::Printf(TEXT("%s charges"), Label), Current,
+                  bExpectedAvailable ? ExpectedCharges : 0);
+        TestEqual(FString::Printf(TEXT("%s maximum"), Label), Maximum,
+                  bExpectedAvailable ? ExpectedMax : 0);
     };
     auto ExpectHealth = [&](const TCHAR* Label, float Expected)
     {
-        TestEqual(FString::Printf(TEXT("%s Current"), Label), ASC->GetNumericAttribute(HealthAttribute), Expected);
-        TestEqual(FString::Printf(TEXT("%s Base"), Label), ASC->GetNumericAttributeBase(HealthAttribute), Expected);
+        TestEqual(FString::Printf(TEXT("%s Current"), Label),
+                  ASC->GetNumericAttribute(HealthAttribute), Expected);
+        TestEqual(FString::Printf(TEXT("%s Base"), Label),
+                  ASC->GetNumericAttributeBase(HealthAttribute), Expected);
     };
     ExpectCharges(Healing, TEXT("Initial"), true, 3);
     ExpectCharges(Empty->HealingResourceComponent.Get(), TEXT("Zero initial valid"), true, 0);
     ExpectCharges(Invalid->HealingResourceComponent.Get(), TEXT("Invalid settings"), false, 0);
-    TestTrue(TEXT("Healing config does not revoke shared Health/Stamina Ready"), Invalid->IsGameplayReady());
+    TestTrue(TEXT("Healing config does not revoke shared Health/Stamina Ready"),
+             Invalid->IsGameplayReady());
     ExpectCharges(Enemy->HealingResourceComponent.Get(), TEXT("Enemy dormant"), false, 0);
     TestFalse(TEXT("Empty rejects"), Empty->HealingResourceComponent->TryApplyHealing(40.0f));
     TestFalse(TEXT("Dead rejects"), Dead->HealingResourceComponent->TryApplyHealing(40.0f));
     TestFalse(TEXT("Enemy rejects"), Enemy->HealingResourceComponent->TryApplyHealing(40.0f));
 
+    // ---- 非法金额 / ASC拒绝不得扣次数、治疗或发布次数变化 ----
     int32 ChargeEvents = 0;
-    const FDelegateHandle CountHandle = Healing->OnSnapshotChanged.AddLambda([&]() { ++ChargeEvents; });
+    const FDelegateHandle CountHandle =
+        Healing->OnSnapshotChanged.AddLambda([&]() { ++ChargeEvents; });
     for (const float Amount : {0.0f, -1.0f, 1001.0f, std::numeric_limits<float>::quiet_NaN()})
     {
         TestFalse(TEXT("Invalid amount rejects"), Healing->TryApplyHealing(Amount));
@@ -114,6 +125,7 @@ bool FETHealingResourceTest::RunTest(const FString& Parameters)
     ExpectHealth(TEXT("Rejected GE preserves Health"), 20.0f);
     TestEqual(TEXT("Rejected GE no notification"), ChargeEvents, 0);
 
+    // ---- 真实Instant GE成功才消费；重复初始化 / 激活 / 换控保留同身体次数 ----
     TestTrue(TEXT("Native Instant heal succeeds"), Healing->TryApplyHealing(40.0f));
     ExpectHealth(TEXT("20 plus 40"), 60.0f);
     ExpectCharges(Healing, TEXT("One success one charge"), true, 2);
@@ -125,15 +137,22 @@ bool FETHealingResourceTest::RunTest(const FString& Parameters)
     ExpectCharges(Healing, TEXT("Reactivation preserves count"), true, 2);
 
     AAIController* Controller = World->SpawnActor<AAIController>();
-    if (!TestNotNull(TEXT("Temporary controller"), Controller)) { return false; }
+    if (!TestNotNull(TEXT("Temporary controller"), Controller))
+    {
+        return false;
+    }
     Controller->Possess(Body);
     Controller->UnPossess();
     Controller->Possess(Body);
     ExpectCharges(Healing, TEXT("Same body Possess preserves count"), true, 2);
     Healing->OnSnapshotChanged.Remove(CountHandle);
 
+    // ---- 暂停只允许查询；恢复后满血 / 过量 / 耗尽边界保持 ----
     APlayerState* Pauser = World->SpawnActor<APlayerState>();
-    if (!TestNotNull(TEXT("Pauser"), Pauser)) { return false; }
+    if (!TestNotNull(TEXT("Pauser"), Pauser))
+    {
+        return false;
+    }
     World->GetWorldSettings()->SetPauserPlayerState(Pauser);
     TestFalse(TEXT("Paused rejects mutation"), Healing->TryApplyHealing(40.0f));
     ExpectCharges(Healing, TEXT("Paused query works"), true, 2);
@@ -142,7 +161,8 @@ bool FETHealingResourceTest::RunTest(const FString& Parameters)
     ExpectHealth(TEXT("Full"), 100.0f);
     TestFalse(TEXT("Full Health rejects without spending"), Healing->TryApplyHealing(40.0f));
     ExpectCharges(Healing, TEXT("Full rejection"), true, 1);
-    ASC->SetNumericAttributeBase(HealthAttribute, 80.0f); // Test setup, not the healing implementation.
+    ASC->SetNumericAttributeBase(HealthAttribute,
+                                 80.0f); // Test setup, not the healing implementation.
     TestTrue(TEXT("Partial effective heal still consumes one"), Healing->TryApplyHealing(40.0f));
     ExpectHealth(TEXT("Overheal clamps Base and Current"), 100.0f);
     ExpectCharges(Healing, TEXT("Exhausted"), true, 0);
@@ -151,45 +171,58 @@ bool FETHealingResourceTest::RunTest(const FString& Parameters)
     ExpectHealth(TEXT("No charge no heal"), 20.0f);
     ExpectCharges(Fresh->HealingResourceComponent.Get(), TEXT("Another body independent"), true, 3);
 
+    // ---- 生命与次数同步回调分别重入：两次都拒绝，外层仅一次治疗 / 扣数 ----
     UETHealingResourceComponent* NestedHealing = Reentrant->HealingResourceComponent.Get();
     UAbilitySystemComponent* NestedASC = Reentrant->GetAbilitySystemComponent();
     int32 RecursiveAttempts = 0;
     bool bRecursiveAccepted = false;
-    const FDelegateHandle HealthHandle = NestedASC->GetGameplayAttributeValueChangeDelegate(HealthAttribute)
-        .AddLambda([&](const FOnAttributeChangeData& Change)
+    const FDelegateHandle HealthHandle =
+        NestedASC->GetGameplayAttributeValueChangeDelegate(HealthAttribute)
+            .AddLambda(
+                [&](const FOnAttributeChangeData& Change)
+                {
+                    if (Change.NewValue > Change.OldValue)
+                    {
+                        ++RecursiveAttempts;
+                        bRecursiveAccepted |= NestedHealing->TryApplyHealing(40.0f);
+                    }
+                });
+    const FDelegateHandle SnapshotHandle = NestedHealing->OnSnapshotChanged.AddLambda(
+        [&]()
         {
-            if (Change.NewValue > Change.OldValue)
-            {
-                ++RecursiveAttempts;
-                bRecursiveAccepted |= NestedHealing->TryApplyHealing(40.0f);
-            }
+            ++RecursiveAttempts;
+            bRecursiveAccepted |= NestedHealing->TryApplyHealing(40.0f);
         });
-    const FDelegateHandle SnapshotHandle = NestedHealing->OnSnapshotChanged.AddLambda([&]()
-    {
-        ++RecursiveAttempts;
-        bRecursiveAccepted |= NestedHealing->TryApplyHealing(40.0f);
-    });
     TestTrue(TEXT("Outer healing succeeds"), NestedHealing->TryApplyHealing(40.0f));
     TestEqual(TEXT("Health and charge callbacks each attempted once"), RecursiveAttempts, 2);
     TestFalse(TEXT("Recursive heal rejected in both callbacks"), bRecursiveAccepted);
-    TestEqual(TEXT("Recursive callbacks do not double heal"), NestedASC->GetNumericAttribute(HealthAttribute), 60.0f);
+    TestEqual(TEXT("Recursive callbacks do not double heal"),
+              NestedASC->GetNumericAttribute(HealthAttribute), 60.0f);
     ExpectCharges(NestedHealing, TEXT("No recursive double spend"), true, 2);
     NestedASC->GetGameplayAttributeValueChangeDelegate(HealthAttribute).Remove(HealthHandle);
     NestedHealing->OnSnapshotChanged.Remove(SnapshotHandle);
 
+    // ---- GE回调内失活不能把已经成功的治疗改成退款 ----
     UETHealingResourceComponent* DisabledHealing = Deactivated->HealingResourceComponent.Get();
     UAbilitySystemComponent* DisabledASC = Deactivated->GetAbilitySystemComponent();
-    const FDelegateHandle DisableHandle = DisabledASC->GetGameplayAttributeValueChangeDelegate(HealthAttribute)
-        .AddLambda([&](const FOnAttributeChangeData& Change)
-        {
-            if (Change.NewValue > Change.OldValue) { DisabledHealing->Deactivate(); }
-        });
-    TestTrue(TEXT("Heal remains successful if callback deactivates resource"), DisabledHealing->TryApplyHealing(40.0f));
+    const FDelegateHandle DisableHandle =
+        DisabledASC->GetGameplayAttributeValueChangeDelegate(HealthAttribute)
+            .AddLambda(
+                [&](const FOnAttributeChangeData& Change)
+                {
+                    if (Change.NewValue > Change.OldValue)
+                    {
+                        DisabledHealing->Deactivate();
+                    }
+                });
+    TestTrue(TEXT("Heal remains successful if callback deactivates resource"),
+             DisabledHealing->TryApplyHealing(40.0f));
     DisabledASC->GetGameplayAttributeValueChangeDelegate(HealthAttribute).Remove(DisableHandle);
     ExpectCharges(DisabledHealing, TEXT("Disabled query unavailable"), false, 0);
     DisabledHealing->Activate();
     ExpectCharges(DisabledHealing, TEXT("Successful heal was not refunded"), true, 2);
 
+    // ---- 世界结束需撤销就绪订阅 / 次数监听；保留原错误转发与早退 ----
     if (!TestWorld.EndPlayInTestWorld())
     {
         TestWorld.ForwardErrorMessages(this);
@@ -198,10 +231,11 @@ bool FETHealingResourceTest::RunTest(const FString& Parameters)
     ExpectCharges(Healing, TEXT("EndPlay unavailable"), false, 0);
     TestFalse(TEXT("EndPlay cannot heal"), Healing->TryApplyHealing(40.0f));
     TestFalse(TEXT("EndPlay ready binding removed"),
-        Body->OnGameplayReadyChanged.IsAlreadyBound(Healing,
-            &UETHealingResourceComponent::HandleGameplayReadyChanged));
+              Body->OnGameplayReadyChanged.IsAlreadyBound(
+                  Healing, &UETHealingResourceComponent::HandleGameplayReadyChanged));
     TestFalse(TEXT("EndPlay count listeners cleared"), Healing->OnSnapshotChanged.IsBound());
-    AddInfo(TEXT("[M2-04A] Healing.Resource: native GE / one charge / rejection / snapshot / possession / reentrancy / EndPlay checked."));
+    AddInfo(TEXT("[M2-04A] Healing.Resource: native GE / one charge / rejection / snapshot / "
+                 "possession / reentrancy / EndPlay checked."));
     TestWorld.ForwardErrorMessages(this);
     return !HasAnyErrors();
 }

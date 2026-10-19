@@ -1,6 +1,6 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
-#include "../ETPracticeActionComponent.h"
+#include "ETPracticeActionComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
 #include "Components/BoxComponent.h"
@@ -17,12 +17,15 @@
 #include "Tests/AutomationCommon.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETPracticeDodgeMovementTest,
-    "EmberTrial.M0.PracticeAction.DodgeMovement",
-    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+                                 "EmberTrial.M0.PracticeAction.DodgeMovement",
+                                 EAutomationTestFlags::EditorContext |
+                                     EAutomationTestFlags::EngineFilter)
 
-    bool FETPracticeDodgeMovementTest::RunTest(const FString& Parameters)
+bool FETPracticeDodgeMovementTest::RunTest(const FString& Parameters)
 {
+    // ---- 真实Movement / 碰撞；本地State别名和旧角色右侧方向契约保留 ----
     using State = EETPracticeActionState;
+    // 固定30 / 60 / 120步长用于积分回归，不能写成实测FPS成绩。
     for (const int32 StepRate : {30, 60, 120})
     {
         AddInfo(FString::Printf(TEXT("[DodgeMovement] Begin StepRate=%d"), StepRate));
@@ -34,7 +37,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETPracticeDodgeMovementTest,
         }
         UWorld* World = TestWorld.GetTestWorld();
         AActor* Floor = World->SpawnActor<AActor>();
-        if (!TestNotNull(TEXT("Temporary floor actor"), Floor)) return false;
+        if (!TestNotNull(TEXT("Temporary floor actor"), Floor))
+            return false;
         UBoxComponent* FloorBox = NewObject<UBoxComponent>(Floor);
         Floor->AddInstanceComponent(FloorBox);
         Floor->SetRootComponent(FloorBox);
@@ -51,14 +55,16 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETPracticeDodgeMovementTest,
             ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
         ACharacter* Character = World->SpawnActor<ACharacter>(
             FVector(0.0f, 0.0f, 200.0f), FRotator::ZeroRotator, SpawnParameters);
-        if (!TestNotNull(TEXT("Temporary moving character"), Character)) return false;
+        if (!TestNotNull(TEXT("Temporary moving character"), Character))
+            return false;
         UCharacterMovementComponent* Movement = Character->GetCharacterMovement();
         // This fixture has no player controller; real movement must still run.
         Movement->bRunPhysicsWithNoController = true;
         USkeletalMeshComponent* Mesh = Character->GetMesh();
-        USkeletalMesh* Quinn = LoadObject<USkeletalMesh>(nullptr,
-            TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple"));
-        if (!TestNotNull(TEXT("Quinn mesh"), Quinn)) return false;
+        USkeletalMesh* Quinn = LoadObject<USkeletalMesh>(
+            nullptr, TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple"));
+        if (!TestNotNull(TEXT("Quinn mesh"), Quinn))
+            return false;
         Mesh->SetSkeletalMeshAsset(Quinn);
         Mesh->SetAnimInstanceClass(UAnimInstance::StaticClass());
         Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -70,12 +76,15 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETPracticeDodgeMovementTest,
         Component->RegisterComponent();
         Component->DodgeDistance = 150.0f;
         Component->DodgeDuration = 0.30f;
-        Component->DodgeMontage = LoadObject<UAnimMontage>(nullptr,
-            TEXT("/Game/EmberTrial/Animations/Practice/Montages/AM_M0_Dodge_01_Montage.AM_M0_Dodge_01_Montage"));
-        Component->HitReactMontage = LoadObject<UAnimMontage>(nullptr,
-            TEXT("/Game/EmberTrial/Animations/Practice/Montages/AM_M0_HitResult_01_Montage.AM_M0_HitResult_01_Montage"));
-        if (!TestNotNull(TEXT("Dodge montage"), Component->DodgeMontage.Get())
-            || !TestNotNull(TEXT("Hit montage"), Component->HitReactMontage.Get())) return false;
+        Component->DodgeMontage = LoadObject<UAnimMontage>(
+            nullptr, TEXT("/Game/EmberTrial/Animations/Practice/Montages/"
+                          "AM_M0_Dodge_01_Montage.AM_M0_Dodge_01_Montage"));
+        Component->HitReactMontage = LoadObject<UAnimMontage>(
+            nullptr, TEXT("/Game/EmberTrial/Animations/Practice/Montages/"
+                          "AM_M0_HitResult_01_Montage.AM_M0_HitResult_01_Montage"));
+        if (!TestNotNull(TEXT("Dodge montage"), Component->DodgeMontage.Get()) ||
+            !TestNotNull(TEXT("Hit montage"), Component->HitReactMontage.Get()))
+            return false;
         if (!TestWorld.BeginPlayInTestWorld())
         {
             TestWorld.ForwardErrorMessages(this);
@@ -84,107 +93,141 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETPracticeDodgeMovementTest,
         // Start above the floor; let real collision resolve landing.
         Movement->SetMovementMode(MOVE_Falling);
         const float Step = 1.0f / static_cast<float>(StepRate);
+        // 保留RoundToInt与StepRate推进，不能用生命周期测试的CeilToInt替换。
         auto Advance = [&TestWorld, Step, StepRate](float Seconds)
+        {
+            const int32 Count = FMath::RoundToInt(Seconds * StepRate);
+            for (int32 Index = 0; Index < Count; ++Index)
             {
-                const int32 Count = FMath::RoundToInt(Seconds * StepRate);
-                for (int32 Index = 0; Index < Count; ++Index)
-                {
-                    if (!TestWorld.TickTestWorld(Step)) return false;
-                }
-                return true;
-            };
+                if (!TestWorld.TickTestWorld(Step))
+                    return false;
+            }
+            return true;
+        };
         if (!Advance(1.0f))
         {
             TestWorld.ForwardErrorMessages(this);
             return false;
         }
-        if (!TestTrue(TEXT("Movement tick enabled"), Movement->IsComponentTickEnabled())
-            || !TestTrue(TEXT("Character landed on real floor"), Movement->IsMovingOnGround())
-            || !TestNotNull(TEXT("Animation instance"), Mesh->GetAnimInstance())) return false;
+        if (!TestTrue(TEXT("Movement tick enabled"), Movement->IsComponentTickEnabled()) ||
+            !TestTrue(TEXT("Character landed on real floor"), Movement->IsMovingOnGround()) ||
+            !TestNotNull(TEXT("Animation instance"), Mesh->GetAnimInstance()))
+            return false;
 
         // Full movement at each fixed step; observe the source without driving it.
         const FVector Start = Character->GetActorLocation();
         const FVector ExpectedEnd = Start + Character->GetActorRightVector() * 150.0f;
-        if (!TestTrue(TEXT("Dodge starts"), Component->RequestPracticeAction(State::Dodging))) return false;
+        if (!TestTrue(TEXT("Dodge starts"), Component->RequestPracticeAction(State::Dodging)))
+            return false;
         TSharedPtr<FRootMotionSource> Source = Component->DodgeSource;
-        if (!TestTrue(TEXT("Dodge owns a source"), Source.IsValid())) return false;
-        if (!Advance(0.4f)) return false;
+        if (!TestTrue(TEXT("Dodge owns a source"), Source.IsValid()))
+            return false;
+        if (!Advance(0.4f))
+            return false;
         const FVector StoppedAt = Character->GetActorLocation();
         const float Travel = FVector::Dist2D(Start, StoppedAt);
         TestTrue(TEXT("Dodge reaches right-side endpoint within 1 cm"),
-            FVector::Dist2D(StoppedAt, ExpectedEnd) <= 1.0f);
+                 FVector::Dist2D(StoppedAt, ExpectedEnd) <= 1.0f);
         TestTrue(TEXT("Source simulates 0.30 seconds"),
-            FMath::IsNearlyEqual(Source->GetTime(), 0.30f, 0.002f));
+                 FMath::IsNearlyEqual(Source->GetTime(), 0.30f, 0.002f));
         TestFalse(TEXT("Movement source ownership released"), Component->DodgeSource.IsValid());
-        TestFalse(TEXT("Movement source drained from movement component"), Movement->HasRootMotionSources());
+        TestFalse(TEXT("Movement source drained from movement component"),
+                  Movement->HasRootMotionSources());
         TestTrue(TEXT("State remains Dodging after movement ends"),
-            Component->GetPracticeActionState() == State::Dodging);
-        if (!Advance(0.6f)) return false;
+                 Component->GetPracticeActionState() == State::Dodging);
+        if (!Advance(0.6f))
+            return false;
         TestTrue(TEXT("Montage later returns Idle"), Component->IsPracticeActionIdle());
         TestTrue(TEXT("No horizontal drift after movement ends"),
-            FVector::Dist2D(StoppedAt, Character->GetActorLocation()) <= 1.0f);
+                 FVector::Dist2D(StoppedAt, Character->GetActorLocation()) <= 1.0f);
         TestTrue(TEXT("No residual horizontal velocity"), Movement->Velocity.Size2D() <= 1.0f);
         AddInfo(FString::Printf(TEXT("[DodgeMovement] StepRate=%d Travel2D=%.2f SourceTime=%.4f"),
-            StepRate, Travel, Source->GetTime()));
+                                StepRate, Travel, Source->GetTime()));
         TestWorld.ForwardErrorMessages(this);
-        if (HasAnyErrors()) return false;
+        if (HasAnyErrors())
+            return false;
 
+        // ---- 60步长额外验证活动位移中的真实受击与暂停 ----
         if (StepRate == 60)
         {
             // Interrupt after actual displacement has started.
             const FVector HitStart = Character->GetActorLocation();
-            if (!TestTrue(TEXT("Dodge before hit"), Component->RequestPracticeAction(State::Dodging))) return false;
-            if (!Advance(0.1f)) return false;
+            if (!TestTrue(TEXT("Dodge before hit"),
+                          Component->RequestPracticeAction(State::Dodging)))
+                return false;
+            if (!Advance(0.1f))
+                return false;
             const FVector HitAt = Character->GetActorLocation();
             const float BeforeHit = FVector::Dist2D(HitStart, HitAt);
-            TestTrue(TEXT("Hit occurs during partial displacement"), BeforeHit > 1.0f && BeforeHit < 149.0f);
-            if (!TestTrue(TEXT("Hit interrupts moving dodge"), Component->RequestPracticeAction(State::HitReact))) return false;
-            TestFalse(TEXT("Hit immediately releases owned source"), Component->DodgeSource.IsValid());
-            TestTrue(TEXT("State becomes HitReact"), Component->GetPracticeActionState() == State::HitReact);
-            if (!Advance(1.0f)) return false;
+            TestTrue(TEXT("Hit occurs during partial displacement"),
+                     BeforeHit > 1.0f && BeforeHit < 149.0f);
+            if (!TestTrue(TEXT("Hit interrupts moving dodge"),
+                          Component->RequestPracticeAction(State::HitReact)))
+                return false;
+            TestFalse(TEXT("Hit immediately releases owned source"),
+                      Component->DodgeSource.IsValid());
+            TestTrue(TEXT("State becomes HitReact"),
+                     Component->GetPracticeActionState() == State::HitReact);
+            if (!Advance(1.0f))
+                return false;
             TestTrue(TEXT("Hit leaves no further horizontal displacement"),
-                FVector::Dist2D(HitAt, Character->GetActorLocation()) <= 1.0f);
+                     FVector::Dist2D(HitAt, Character->GetActorLocation()) <= 1.0f);
             TestFalse(TEXT("Hit leaves no root motion source"), Movement->HasRootMotionSources());
             TestTrue(TEXT("Hit eventually returns Idle"), Component->IsPracticeActionIdle());
-            if (HasAnyErrors()) return false;
+            if (HasAnyErrors())
+                return false;
 
             // Pause halfway through movement, then resume the same source.
             const FVector PauseStart = Character->GetActorLocation();
-            if (!TestTrue(TEXT("Dodge before pause"), Component->RequestPracticeAction(State::Dodging))) return false;
-            if (!Advance(0.1f)) return false;
+            if (!TestTrue(TEXT("Dodge before pause"),
+                          Component->RequestPracticeAction(State::Dodging)))
+                return false;
+            if (!Advance(0.1f))
+                return false;
             TSharedPtr<FRootMotionSource> PausedSource = Component->DodgeSource;
-            if (!TestTrue(TEXT("Source still active before pause"), PausedSource.IsValid())) return false;
+            if (!TestTrue(TEXT("Source still active before pause"), PausedSource.IsValid()))
+                return false;
             APlayerState* Pauser = World->SpawnActor<APlayerState>();
-            if (!TestNotNull(TEXT("Pause owner"), Pauser)) return false;
+            if (!TestNotNull(TEXT("Pause owner"), Pauser))
+                return false;
             UAnimInstance* Anim = Mesh->GetAnimInstance();
             const FVector PausedAt = Character->GetActorLocation();
             const float PausedSourceTime = PausedSource->GetTime();
             const float PausedMontageTime = Anim->Montage_GetPosition(Component->DodgeMontage);
             World->GetWorldSettings()->SetPauserPlayerState(Pauser);
+            // 暂停观测结束后总是先解暂停，再处理推进错误或退出。
             const bool bPauseTicksSucceeded = Advance(0.5f);
-            TestFalse(TEXT("Paused request is rejected"), Component->RequestPracticeAction(State::HitReact));
+            TestFalse(TEXT("Paused request is rejected"),
+                      Component->RequestPracticeAction(State::HitReact));
             TestTrue(TEXT("Pause freezes location"),
-                FVector::Dist(PausedAt, Character->GetActorLocation()) <= 0.01f);
+                     FVector::Dist(PausedAt, Character->GetActorLocation()) <= 0.01f);
             TestTrue(TEXT("Pause freezes source time"),
-                FMath::IsNearlyEqual(PausedSource->GetTime(), PausedSourceTime, 0.0001f));
+                     FMath::IsNearlyEqual(PausedSource->GetTime(), PausedSourceTime, 0.0001f));
             TestTrue(TEXT("Pause freezes montage time"),
-                FMath::IsNearlyEqual(Anim->Montage_GetPosition(Component->DodgeMontage), PausedMontageTime, 0.0001f));
+                     FMath::IsNearlyEqual(Anim->Montage_GetPosition(Component->DodgeMontage),
+                                          PausedMontageTime, 0.0001f));
             // Always unpause before checking errors or leaving this test case.
             World->GetWorldSettings()->SetPauserPlayerState(nullptr);
             TestWorld.ForwardErrorMessages(this);
-            if (!bPauseTicksSucceeded || HasAnyErrors()) return false;
-            if (!Advance(1.0f)) return false;
+            if (!bPauseTicksSucceeded || HasAnyErrors())
+                return false;
+            if (!Advance(1.0f))
+                return false;
             TestTrue(TEXT("Resumed dodge covers 150 cm total"),
-                FMath::Abs(FVector::Dist2D(PauseStart, Character->GetActorLocation()) - 150.0f) <= 1.0f);
+                     FMath::Abs(FVector::Dist2D(PauseStart, Character->GetActorLocation()) -
+                                150.0f) <= 1.0f);
             TestTrue(TEXT("Resumed source finishes at 0.30 seconds"),
-                FMath::IsNearlyEqual(PausedSource->GetTime(), 0.30f, 0.002f));
+                     FMath::IsNearlyEqual(PausedSource->GetTime(), 0.30f, 0.002f));
             TestTrue(TEXT("Resume eventually returns Idle"), Component->IsPracticeActionIdle());
             TestFalse(TEXT("Resume releases owned source"), Component->DodgeSource.IsValid());
-            TestFalse(TEXT("Resume leaves no root motion source"), Movement->HasRootMotionSources());
-            TestTrue(TEXT("Resume leaves no horizontal velocity"), Movement->Velocity.Size2D() <= 1.0f);
+            TestFalse(TEXT("Resume leaves no root motion source"),
+                      Movement->HasRootMotionSources());
+            TestTrue(TEXT("Resume leaves no horizontal velocity"),
+                     Movement->Velocity.Size2D() <= 1.0f);
         }
         TestWorld.ForwardErrorMessages(this);
-        if (HasAnyErrors()) return false;
+        if (HasAnyErrors())
+            return false;
     }
     return true;
 }

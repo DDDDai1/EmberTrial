@@ -8,6 +8,12 @@
 
 本页记录当时新增专项测试的过程，现已实现并保留。完整代码只在Source维护，原测试和断言未因本轮清理而减少；实际新构建与测试结果见Cleanup。
 
+## 当前测试维护边界（第26批）
+
+Practice位移：保留真实碰撞 / CharacterMovement、角色右侧150cm、30 / 60 / 120固定步长、受击中断与暂停。
+
+全部原断言、日志 / 预期Warning、测试注册与场景顺序保留；期望值独立于生产默认值。当前源码排版 / 注释与命名以Source为准，历史完整实现不重复覆盖。本批改动和验证结果见[第26批文档](Cleanup.md#cleanup-batch-26)；三批提交清单统一见Cleanup末尾。
+
 ## 1. 这项测试解决什么问题
 
 已有 Lifecycle 为了隔离动画和状态，关闭了测试角色的移动 Tick，因此它无法发现“动画正常但实际没移动”“打断后继续滑行”等回归。本批新建独立测试，保留真实 CharacterMovement 更新和胶囊碰撞，在临时世界自动生成一块平地。
@@ -115,4 +121,4 @@ C2-03历史已验收；当前固定步长测试只验证位移正确性，不作
 
 ## 本次清理 Commit / Push（固定放在最后）
 
-第19批四份Source与十份Markdown，共14项；当前检查、最新差异和逐文件清单见[Cleanup末尾](Cleanup.md)。历史资产 / 测试未改，不重复制造差异。用户重新Stage后Commit / Push；Raw、报告、索引留本地，助手不操作Git索引。
+本页历史功能已完成；第26批对应源码 / 文档的改动与验收见[Cleanup对应章节](Cleanup.md#cleanup-batch-26)。用户重新Stage最新差异、检查Staged Diff后Commit / Push，Raw / 日志 / 生成文件留本地。第24–26批一起Stage / Commit / Push，完整18项清单与建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)；助手不操作Git索引。

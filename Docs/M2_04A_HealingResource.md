@@ -14,6 +14,12 @@ ET_Healing长期保留为PIE检查入口，调用同一资源服务；0只读，
 
 [声明](../EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETHealingEffect.h) / [实现](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETHealingEffect.cpp)只固定Instant、唯一Health Add(Base)和SetByCaller_HealthDelta。资源组件创建自己的Spec并提供Amount，负责次数 / 成功事务；AttributeSet负责夹限与死亡封口，不把这些判断复制到Effect。固定结构短而明确，不为两类不同Effect引入通用工厂。完整类统一链接Source，原配置 / 排障步骤仍保留作历史学习材料。
 
+## 当前测试维护边界（第25批）
+
+治疗资源：八种独立身体、真实Instant GE、拒绝不扣数 / 无通知、Health与次数回调重入、激活 / 换控 / 死亡 / 结束清理。
+
+全部原断言、日志 / 预期Warning、测试注册与场景顺序保留；期望值独立于生产默认值。当前源码排版 / 注释与命名以Source为准，历史完整实现不重复覆盖。本批改动和验证结果见[第25批文档](Cleanup.md#cleanup-batch-25)；三批提交清单统一见Cleanup末尾。
+
 ## 1. 本批结果、职责与规则
 
 本批先得到“真实生命GE成功一次 → 治疗次数减一”，生命HUD直接响应原属性事件。通过永久保留、仅PIE有效的原生开发命令检查，不搭临时蓝图图表。原A阶段尚无动作 / Q；当前正式Q已通过GA / Notify接入同一服务，次数HUD仍未完成，不另写扣次数逻辑。
@@ -591,4 +597,4 @@ Build错误用**文字**贴第一条真实编译 / UHT / 链接错误及前后�
 
 ## 13. 本批 Commit / Push（固定放在最后）
 
-当前Stage [B1指南](M2_04B1_HealingAnimation.md)、[数值JSON](Data/M2_04B1_HealPoseValues.json)、治疗路线 / 进度 / 任务板 / 架构 / 验收 / 版本管理 / Introduction交接与自动进入下一批约定；A验收报告 / 来源三个身体说明等未提交收尾可合并。Source主体已在685a0f3，本轮没有新B1源码或资产。B1实物完成后按[指南末尾](M2_04B1_HealingAnimation.md#9-本批-commit--push固定放在最后)提交三新LFS资产、核实后的来源61项与报告 / 状态。Raw / 日志 / 生成文件 / 历史包本地；Stage / Commit / Push由用户完成，助手未联网核验远端。
+本页历史功能已完成；第25批对应源码 / 文档的改动与验收见[Cleanup对应章节](Cleanup.md#cleanup-batch-25)。用户重新Stage最新差异、检查Staged Diff后Commit / Push，Raw / 日志 / 生成文件留本地。第24–26批一起Stage / Commit / Push，完整18项清单与建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)；助手不操作Git索引。

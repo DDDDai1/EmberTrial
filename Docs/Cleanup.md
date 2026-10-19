@@ -392,35 +392,142 @@ Foundation指南更新当前源码入口与覆盖表，说明原生身体 / 资�
 
 完整快照、差异、等价 / 格式、双构建、配置与自动化JSON保存在Raw/Cleanup/2026-10-19_Batch23。收尾时额度接口恢复：5小时已用80% / 剩余20%，周已用39% / 剩余61%。已到约定收尾区间，本批完成后不再开启额外源码改动；后续先确认额度再继续。未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第23批后）
+<a id="cleanup-batch-24"></a>
 
-累计23批涉及99 / 116份Source（约85%文件覆盖率）、47份Markdown，已记录移除15608行重复实现 / 配置副本。覆盖率不是整体完成率；17份尚未触及Source不等于17份都必须修改，已触及文件也可能还有局部审计。
+## 第24批：闪避成本、位移与无敌测试
 
-| 范围 | 目前状态 | 主要剩余 |
-| --- | --- | --- |
-| 正式玩法与兼容 | GA / 资源 / 战斗、Character / Practice已整理 | 跨模块规则、蓝图引用与最终实机 |
-| UI与AI | 主要观察 / 呈现 / 输入、感知 / 追击 / 近战已整理 | 焦点 / 切图、取消 / 重试 / 交战实机 |
-| 会话与规则 | Session / Checkpoint及三种GameMode已整理 | 统一流程 / 故障 / 兼容出生验证 |
-| 测试与工程 | 13项断言保留，Foundation已整理；Editor / 构建边界已审计 | 其他测试夹具、工具、材料与引用审计 |
-| 最终交付 | 分批构建、自动化和对应资源检查 | 统一实机、Cook / 打包与收益汇总 |
+2026-10-19，UE5.5.4，连续清理基线HEAD为0888223。该批单独执行构建与回归；当前按用户安排与另外两批合并提交。
 
-此前约10–15批及20–35小时是初估，按实际复杂度校准，不由文件覆盖率推算精确工期。
+### 改动与保持的契约
+
+- 成本契约：真实GE、一次扣费、同步回调重入、边界足额 / 缺失成本 / 死亡拒绝；瞬态能力实例配置不写CDO。
+- 方向 / 位移：三处方向误差命名为float DirectionTolerance；固定30 / 60 / 120步长、原计时舍入与1cm终点判据保持。
+- 无敌：100Hz固定采样、双敌真实Sweep候选 / 伤害、独立GE Handle、暂停 / 同步取消 / 死亡 / EndPlay均保留。
+
+方向容差仍为0.0001f，仅用于三个方向比较，不与秒数或厘米误差合并。无敌夹具的1cm位移用于保持真实手部Sweep命中；正式资产仍150cm。已有.15秒窗口及采样余量不改。三份测试各自的地面、权限、动画、碰撞与资源前提不同，本批保留独立夹具，不引入共用基类或从生产实现生成期望值。
+
+收益为可读性、测试意图与维护边界更明确；不宣称游戏性能改善。没有删除原测试 / 断言、放宽容差、伪造成功路径或新增镜像用例。Source仍116份 / 61cpp；正式Gameplay、资产和配置不改。
+
+### 当批验证
+
+- 正常Editor / Game Development Build、CLion三模块元数据及CMake刷新通过；CodeModel cpp仍43 / 15 / 3。
+- 原13项EmberTrial自动化全部Success；0 Fail / 0 NotRun / 0测试警告。配置PASS Errors=0 / Warnings=0。
+- Token等价按明确命名 / include替换归一化后核对，clang-format、LF / 末尾换行、文档链接 / 围栏及Git差异检查通过。
+- 113份其他Source与290项资产 / 配置保护哈希保持；冻结M1-03B1指南不改。当批结束时前序批专属文件未改；本次只调整文档归档。
+
+自动化启动有既有EOS好友权限403环境警告，测试自身无警告。
+
+未重跑DataValidation、交互式PIE或Cook / 打包。固定步长不是实测FPS，测试夹具中的真实动画 / Sweep / GE也不替代完整键鼠、UI焦点或实际地图交战验证。用户手动工时不增加。
+
+当批原始证据保留在：Docs/Reports/Raw/Cleanup/2026-10-19_Batch24，含独立Before / After、差异、构建、测试JSON、等价及保护检查；Raw留本地。
+
+额度快照：开工5小时已用0% / 周已用39%；收尾已用8% / 41%。未使用重置。
+
+<a id="cleanup-batch-25"></a>
+
+## 第25批：治疗资源与能力测试
+
+2026-10-19，UE5.5.4，连续清理基线HEAD为0888223。该批单独执行构建与回归；当前按用户安排与另外两批合并提交。
+
+### 改动与保持的契约
+
+- 治疗资源：八种独立身体、真实Instant GE、拒绝不扣数 / 无通知、Health与次数回调重入、激活 / 换控 / 死亡 / 结束清理。
+- 治疗能力：原13个数字场景改为本地强类型命名枚举，显式列表保持原0–12顺序；真实Montage / Notify / GE与旧回调负向注入保留。
+
+能力场景依次为：正常与旧回调、提交前取消、提交后取消、提交前暂停、次数耗尽、GE拒绝、提交前死亡、提交后死亡、提交前EndPlay、提交后EndPlay、生命回调同步取消、提交前失控、提交前满血。枚举只命名测试用例，不是生产状态机；各分支、期望数值、提交前后边界、Tick / Until推进及返回路径保持。资源测试的同步回调失活仍视为成功且不退款；不把持续Effect Handle当作Instant GE成功判据。
+
+收益为可读性、测试意图与维护边界更明确；不宣称游戏性能改善。没有删除原测试 / 断言、放宽容差、伪造成功路径或新增镜像用例。Source仍116份 / 61cpp；正式Gameplay、资产和配置不改。
+
+### 当批验证
+
+- 正常Editor / Game Development Build、CLion三模块元数据及CMake刷新通过；CodeModel cpp仍43 / 15 / 3。
+- 原13项EmberTrial自动化全部Success；0 Fail / 0 NotRun / 0测试警告。配置PASS Errors=0 / Warnings=0。
+- Token等价按明确命名 / include替换归一化后核对，clang-format、LF / 末尾换行、文档链接 / 围栏及Git差异检查通过。
+- 114份其他Source与290项资产 / 配置保护哈希保持；冻结M1-03B1指南不改。当批结束时前序批专属文件未改；本次只调整文档归档。
+
+自动化启动有既有EOS好友权限403环境警告，测试自身无警告。
+
+未重跑DataValidation、交互式PIE或Cook / 打包。固定步长不是实测FPS，测试夹具中的真实动画 / Sweep / GE也不替代完整键鼠、UI焦点或实际地图交战验证。用户手动工时不增加。
+
+当批原始证据保留在：Docs/Reports/Raw/Cleanup/2026-10-19_Batch25，含独立Before / After、差异、构建、测试JSON、等价及保护检查；Raw留本地。
+
+额度快照：开工5小时已用8% / 周已用41%；收尾已用11% / 41%。未使用重置。
+
+<a id="cleanup-batch-26"></a>
+
+## 第26批：Practice回归与恢复闪避取消测试
+
+2026-10-19，UE5.5.4，连续清理基线HEAD为0888223。该批单独执行构建与回归；当前按用户安排与另外两批合并提交。
+
+### 改动与保持的契约
+
+- Practice生命周期：保留函数内State别名、八个非法位移配置、外部RMS / Montage归属、旧回调、动画实例替换 / 失活 / EndPlay。
+- Practice位移：保留真实碰撞 / CharacterMovement、角色右侧150cm、30 / 60 / 120固定步长、受击中断与暂停。
+- 恢复闪避：保留三段恢复交接、预检失败保留攻击、旧Task强引用负向注入、队列清理、暂停 / 受击 / 死亡 / EndPlay。
+
+两个Practice测试把../ETPracticeActionComponent.h改为现有模块私有搜索路径下的ETPracticeActionComponent.h，解析到同一文件；不移动或删除组件。生命周期测试故意关闭Movement Tick并显式清理自建外部RMS，移动测试使用真实Movement Tick，不能合并其推进规则。连段测试的手部跟随仅隔离命中几何，仍运行真实Notify / Sweep / GE；EndPlay保留UE将自有RMS标记移除的协议，不改成不可能的立即容器清空断言。
+
+收益为可读性、测试意图与维护边界更明确；不宣称游戏性能改善。没有删除原测试 / 断言、放宽容差、伪造成功路径或新增镜像用例。Source仍116份 / 61cpp；正式Gameplay、资产和配置不改。
+
+### 当批验证
+
+- 正常Editor / Game Development Build、CLion三模块元数据及CMake刷新通过；CodeModel cpp仍43 / 15 / 3。
+- 原13项EmberTrial自动化全部Success；0 Fail / 0 NotRun / 0测试警告。配置PASS Errors=0 / Warnings=0。
+- Token等价按明确命名 / include替换归一化后核对，clang-format、LF / 末尾换行、文档链接 / 围栏及Git差异检查通过。
+- 113份其他Source与290项资产 / 配置保护哈希保持；冻结M1-03B1指南不改。当批结束时前序批专属文件未改；本次只调整文档归档。
+
+自动化启动有既有EOS好友权限403环境警告，测试自身无警告。
+
+未重跑DataValidation、交互式PIE或Cook / 打包。固定步长不是实测FPS，测试夹具中的真实动画 / Sweep / GE也不替代完整键鼠、UI焦点或实际地图交战验证。用户手动工时不增加。
+
+当批原始证据保留在：Docs/Reports/Raw/Cleanup/2026-10-19_Batch26，含独立Before / After、差异、构建、测试JSON、等价及保护检查；Raw留本地。
+
+额度快照：开工5小时已用11% / 周已用41%；收尾已用14% / 42%。未使用重置。
+
+## 整体进度快照（第26批后）
+
+累计26批涉及107 / 116份Source（约92%文件覆盖率）、47份现存Markdown，已记录移除15608行重复实现 / 配置副本。覆盖率不是整体完成率；不为达到100%而修改已审计可用的模块 / 构建文件。原三份独立批次文档已归入上面三个章节并移除，历史原始快照保留。
 
 ## 后续队列
 
-1. 其他原测试夹具与跨模块 / 蓝图引用审计。
-2. 工具、剩余架构材料与过程文档收口。
-3. 统一自动化、实机与包短查，汇总收益。
+1. 工具脚本、模块边界与跨模块 / 蓝图引用审计。
+2. 余下材料与过程文档收口。
+3. 统一自动化、关键实机、Cook / 新包短查及收益汇总。
 
-前二十三批已收口，其余范围未完成，不进入新玩法开发。余量已到20%，后续先复查额度，不在本批追加改动。
+功能开发停在M2-04B2，独立包仍M1 Attempt02；当前构建不等同新版包验收。额度紧的一项余量接近15–20%先收口，不使用重置。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批一份测试Source与三份Markdown，共4项；用户在CLion刷新差异，重新Stage最新修改后Commit / Push。建议Commit信息：refactor: clarify stamina foundation test contracts。
+第24–26批一起Stage、Commit、Push，共18个现有文件：8份测试源码、8份同步指南、Cleanup与Progress。三批开发 / 验证仍分别记录在本页第24、25、26批章节，Raw原始证据保留；不再保留单独的批次Markdown。
 
-- [ETStaminaFoundationTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETStaminaFoundationTests.cpp)
-- [M2_01A_StaminaFoundation.md](M2_01A_StaminaFoundation.md)
+建议Commit信息：
+
+```text
+refactor: clarify gameplay regression tests and cleanup docs
+```
+
+### 测试源码（8项）
+
+- [ETDodgeCostTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETDodgeCostTests.cpp)
+- [ETDodgeMovementTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETDodgeMovementTests.cpp)
+- [ETDodgeInvulnerabilityTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETDodgeInvulnerabilityTests.cpp)
+- [ETHealingResourceTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETHealingResourceTests.cpp)
+- [ETHealAbilityTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETHealAbilityTests.cpp)
+- [ETPracticeActionTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETPracticeActionTests.cpp)
+- [ETPracticeDodgeMovementTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETPracticeDodgeMovementTests.cpp)
+- [ETLightComboCancelTests.cpp](../EmberTrial/Source/EmberTrial/Tests/ETLightComboCancelTests.cpp)
+
+### 文档（10项）
+
+- [M2_02A_DodgeAction.md](M2_02A_DodgeAction.md)
+- [M2_02B_DirectionalDodge.md](M2_02B_DirectionalDodge.md)
+- [M2_02C_Invulnerability.md](M2_02C_Invulnerability.md)
+- [M2_04A_HealingResource.md](M2_04A_HealingResource.md)
+- [M2_04B2_HealingAbility.md](M2_04B2_HealingAbility.md)
+- [M0_05C2_02_ActionLifecycle.md](M0_05C2_02_ActionLifecycle.md)
+- [M0_05C2_03C_DodgeAutomation.md](M0_05C2_03C_DodgeAutomation.md)
+- [M2_03C_RecoveryDodgeCancel.md](M2_03C_RecoveryDodgeCancel.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-正式Gameplay、其他测试与资产 / 配置不改；Raw快照、日志、报告及生成文件留本地。助手不Stage / Commit / Push。
+CLion Save All → 刷新Changes → 将以上18项的最新修改重新Stage → 检查Staged Diff → 一次Commit → Push。原三份独立文档尚未跟踪，移除后无需提交其删除记录。源码的三轮双构建 / 13项自动化已通过；本次只调整Markdown归档和链接，未重跑UE构建。Raw / 日志 / 构建产物继续留本地；助手未Stage / Commit / Push。
