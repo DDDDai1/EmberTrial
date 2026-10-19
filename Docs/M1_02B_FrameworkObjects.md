@@ -1,5 +1,7 @@
 # M1-02B：正式 Framework 对象与角色公开边界
 
+2026-10-19第20批清理同步：会话 / 检查点 / GameMode以当前Source为准，不用早期全文覆盖检查点继续逻辑。本轮按用户授权直接清理，原功能与历史验收保留；当前检查和提交清单见[Cleanup](Cleanup.md)。
+
 2026-10-19第18批清理同步：Character门控、Ready / ActorInfo与结束流程以当前Source为准，勿用早期完整函数覆盖已有连段、闪避或治疗。本轮清理由助手按授权直接执行；普通功能开发保留手动实践约定。当前检查与提交清单见[Cleanup](Cleanup.md)。
 
 生成日期：2026-10-02；交接更新：2026-10-03。前置：[M1-02A 已验收](Reports/M1_02A_Verification.md)。**M1-02B 已通过**：用户手动 50 min、构建 / 索引等待 15 min；源码迁移、双目标构建、正式对象 / 地图装配及原功能回归验收完成。证据与日志范围见 [验收报告](Reports/M1_02B_Verification.md)。CLion 配置问题已解决，无需另发报告。本页保留实施步骤，下一批为 [M1-02C1](M1_02C1_LocalPlayerLifecycle.md)。
@@ -167,53 +169,13 @@ BeginPlay 和 Possess 的先后不作为本批固定契约；BeginPlay 中 Pawn=
 
 新文件：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Public\Framework\ETGameMode.h`。
 
-~~~cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
-#include "ETGameMode.generated.h"
-
-UCLASS()
-class EMBERTRIAL_API AETGameMode : public AGameModeBase
-{
-    GENERATED_BODY()
-
-public:
-    AETGameMode();
-    virtual void StartPlay() override;
-};
-~~~
+当前源码：[ETGameMode.h](../EmberTrial/Source/EmberTrial/Public/Framework/ETGameMode.h)。这里保留历史接入位置，完整实现只在Source维护。
 
 ### 5.2 ETGameMode.cpp
 
 新文件：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\Framework\ETGameMode.cpp`。
 
-~~~cpp
-#include "Framework/ETGameMode.h"
-#include "Framework/ETPlayerController.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "Logging/LogMacros.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETGameMode, Log, All);
-
-AETGameMode::AETGameMode()
-{
-    PlayerControllerClass = AETPlayerController::StaticClass();
-    DefaultPawnClass = AEmberTrialCharacter::StaticClass();
-}
-
-void AETGameMode::StartPlay()
-{
-    Super::StartPlay();
-
-    UE_LOG(LogETGameMode, Display,
-        TEXT("[M1-02B] Rules ready GameMode=%s ControllerClass=%s PawnClass=%s"),
-        *GetNameSafe(this),
-        *GetNameSafe(PlayerControllerClass.Get()),
-        *GetNameSafe(DefaultPawnClass.Get()));
-}
-~~~
+当前源码：[ETGameMode.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETGameMode.cpp)。这里保留历史接入位置，完整实现只在Source维护。
 
 C++ 默认值是原生类型，下面会在 GameMode 蓝图中选择有 Mesh / 输入 / 动画配置的角色资产。新类没有写死蓝图路径；未来规则归 GameMode，Widget 创建归 UI 装配。Rules ready 日志只说明 StartPlay 已执行，不是后续 ASC 的 OnGameplayReady 事件。
 
@@ -315,4 +277,4 @@ B 通过后进入 M1-02C：UI Bootstrap / 本地玩家生命周期与 Pawn 重�
 
 ## 本次清理 Commit / Push（固定放在最后）
 
-本页历史功能已完成，不重做旧步骤。第18批为Character两份Source与八份Markdown，共十项；最新差异、检查结果与逐文件清单见[Cleanup末尾](Cleanup.md)。用户重新Stage后Commit / Push，Raw / 索引 / 日志留本地；助手不操作Git索引。
+第20批整理正式会话 / 检查点 / GameMode六份Source，同步本页等七份Markdown，共13项。当前逐文件清单与检查见[Cleanup末尾](Cleanup.md)。旧Framework迁移已完成，不按早期GameMode全文覆盖现在的出生选择与报告。用户重新Stage后Commit / Push，Raw / 索引 / 日志留本地。

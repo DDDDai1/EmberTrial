@@ -156,6 +156,16 @@ C已按[指南](M1_06C_SessionCheckpoints.md)实施两新 / 八旧Source，稳�
 
 D已验收（[手动指南](M1_06D_PauseFlow.md) / [报告](Reports/M1_06D_Verification.md)）：保留原生FailureFlow类名与Controller单组件装配，统一持有互斥Pause / Failure，UIBootstrap仍专管HUD；Core ETPlayerController仅发布原生P释放意图和无UMG类型的Blueprint通知，UI模块显式依赖InputCore / SlateCore，Widget只发继续 / 菜单意图。角色删除旧菜单实例 / 布尔缓存 /输入切换 / 清理，两交互条件改读World暂停；Controller Blueprint通知仅桥接当前Pawn.RefreshCandidate。Pause KeyUp处理UI Only输入、按钮Down And Up、背景回焦，正常Resume恢复同一世界与输入；返回菜单 / Retry仍调用RunSession，切图EndPlay只清理。失败sealed优先、当前身体身份检查、一次NextTick与已暂停时直接接管保护分工明确；已暂停时直接接管仍只核对静态设计，未冒充运行测试。两新 / 六旧Source、四旧资产已实施，当前69Source / 34cpp / 清单46。D日志中12组Flow绑定 / 清理、15组Pause显示 / 移除、一次真实Failure及三次返回菜单闭合；具体键鼠操作按用户反馈。当前阶段独立包已在[M1-07A](Reports/M1_07A_Verification.md)通过，性能采样留[M1-07B](M1_07B_InsightsBaseline.md)完成。
 
+### 8.1 当前会话 / 出生实现与重入边界
+
+[Session](../EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp)保存已确认包名 / ID和独立Pending请求；它跨世界存活，但只在请求期间弱引用来源World。GetSpawnCheckpointId服务生成前选择，HasContinueSnapshot服务菜单资格，二者不能因都读取ID而混为一个门控。去PIE前缀是匹配地图身份所需，不缓存旧世界对象。
+
+[正式GameMode](../EmberTrial/Source/EmberTrial/Private/Framework/ETGameMode.cpp)以唯一Entry和请求ID匹配数决定出生点，保留缺失 / 重复ID回退；三处会话查询共用私有GetRunSession。StartPlay在Super / Pawn有效门控后回报实际ID，Session在同GI PostLoad确认后提交快照；地图出生确认与身体GameplayReady不同。
+
+[检查点Actor](../EmberTrial/Source/EmberTrial/Private/Flow/ETCheckpointStart.cpp)集中管理Overlap、一次NextTick补查和显示委托；激活规则由Session负责。同ID / 重复ID拒绝，状态先提交再通知，结束清自有句柄。Idle显示文字 / 颜色只作内部命名，不改默认资源 / 激活距离。
+
+切图预检失败不发OpenLevel；到达未确认或引擎失败均先清Pending再通知，保留旧快照。真实引擎TravelFailure、重复Entry / ID等未专项运行的边界仍见原报告和Cleanup，不因本轮等价整理宣称动态覆盖。Continue重建地图，练习交互与敌人回初始状态；本轮未扩持久化。
+
 ## 9. M1-07A包基线与B采样
 
 A已生成Win64 Development Attempt01，UAT Build / Cook / Stage / Package / Archive成功，三次独立启动保留日志；正式Menu、真实伤害、Checkpoint_A Retry / Continue、新进程Entry及UI清理闭合。游戏Source / 46项资产当时与D逐份哈希一致；B随后完成CPU / GPU待机、实际暂停 / Retry与真实AI Combat02分析，并定位Move150 / Controller90绑定回归。最终补修及精简日志已在C1完成双目标构建、在C3 Attempt02验证实际Radius90 / 真实伤害；旧包与Trace保留原版本。B工具只增加本次进程CVar / Trace、Region标记与本地证据目录；UE5.5.4的RegionChannel独立于BookmarkChannel，工具显式开启两者。C2配置GameplayCueNotifyPaths后，C3两轮Runtime的/Game回退扫描Warning已消失；没有新性能对比，不能据此认定性能收益。

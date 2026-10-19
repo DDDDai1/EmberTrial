@@ -318,47 +318,65 @@ Blueprint类型DataValidation实际执行，正式三身体均有本项目Valid 
 
 完整快照、最终差异、等价 / 格式 / CodeModel、双构建、配置 / Blueprint校验与自动化JSON保存在Raw/Cleanup/2026-10-19_Batch19。收尾额度快照：5小时已用46% / 剩余54%，周已用34% / 剩余66%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第19批后）
+## 第20批：会话、检查点与正式GameMode
 
-累计19批涉及85 / 116份Source（约73%文件覆盖率）、45份Markdown，已记录移除13743行重复代码副本。覆盖率不是整体完成率；仍按剩余职责和风险评估收尾。
+2026-10-19开工5小时已用48% / 周已用34%；第19批已提交，工作区干净，基线HEAD为47d2eb1。六份Source为RunSession、CheckpointStart与正式ETGameMode的头 / 实现，统一格式并补当前身份、委托、出生报告和切图确认注释。
+
+GameMode三处GI / Subsystem查询集中到私有GetRunSession，每次读取当前GI，不缓存会话对象；Choose / Debug仍在原位置查询，StartPlay仍先Super、已有Pawn门控再报告实际出生ID。Checkpoint构造 / 刷新共用既有CHECKPOINT文字与颜色，数值 / 显示内容不改，未增加外部配置。
+
+Session两文件与Checkpoint头有效Token保持；Checkpoint实现按占位常量命名、GameMode按三处查询提取归一化后其余Token保持。反射、成员顺序、默认值、日志与测试Source保持。World检查分别承担出生、激活、请求、失败回调权限，不合为宽泛的统一条件；Entry是地图契约，不随意外置改名。
+
+注释明确已确认快照 / Pending分离、先记录请求再解暂停、GameMode报告实际回退ID、同GI PostLoad确认后提交、清Pending后才通知失败；检查点只Overlap与一次NextTick、同世界事件和自有Handle清理。地图出生确认不等于身体GAS Ready；重试 / 继续仍重载新世界，不新增Actor状态或磁盘持久化。
+
+四份指南 / 路线与Architecture同步，移除11处旧完整文件 / 接入块共1104行，改当前Source入口与生命周期表。保留地图 / UI配置、原分层验收、历史报告；清理重复待提交流水，保留用户需要的CLion重新Stage步骤与B / C旧锚点，避免已有入口失效。
+
+本批正常UE5.5.4 Editor / Game Development Build通过，三模块CLion元数据 / CMake刷新成功，六份Source均在Core CodeModel。现有13项自动化全部Success，0 Fail / 0 NotRun / 0测试警告；原断言不改，不为机械提取新增镜像测试。配置PASS Errors=0 / Warnings=0；Blueprint校验命令0 Error / 0 Warning，正式三身体Valid，项目Gameplay共12资产Valid。
+
+110份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改；提取等价、格式、LF / 末尾换行、文档链接 / 围栏及Git差异检查通过。Source仍116份 / 61cpp，三模块cpp为43 / 15 / 3。
+
+收益为重复查询与占位常量集中、生命周期可读性和文档一致性，不宣称帧率提升。本批没有交互式重跑切图 / 激活 / Retry / Continue / 故障矩阵，没有Cook / 打包；既有13项测试和Blueprint结构Valid不能证明这些运行分支。真实引擎TravelFailure、重复Entry / ID等历史未实测范围仍保留。启动有既有EOS好友权限403环境警告，测试本身无警告。
+
+完整快照、差异、等价 / 格式 / CodeModel、双构建、配置 / Blueprint校验与自动化JSON保存在Raw/Cleanup/2026-10-19_Batch20。收尾额度快照：5小时已用57% / 剩余43%，周已用35% / 剩余65%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第20批后）
+
+累计20批涉及91 / 116份Source（约78%文件覆盖率）、45份Markdown，已记录移除14847行重复代码副本。覆盖率不是整体完成率；25份尚未触及Source不等于25份都必须修改，已触及文件也可能还有局部审计。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
-| 正式能力 / 属性 / 资源 | 主要GA、资源、死亡、Trace、Tag / Notify、Character已整理 | 跨模块规则与最终实机 |
-| 旧Practice | 动作组件 / Actor已整理，保留现有兼容与回归 | 蓝图退役引用审计，不凭C++调用数量删除 |
-| UI | HUD / Presenter / 观察、菜单及暂停 / 失败已整理 | 统一焦点 / 切图实机 |
-| AI | 共享键 / 存活、Controller / Service / Move / Melee Task已整理 | 最终取消 / 重试与交战实机 |
-| 工程 / 材料 | 相关指南改Source入口，13项自动化保留 / 扩展 | GameSession / Checkpoint、Editor、工具 / 测试夹具与文档总收口 |
+| 正式玩法与兼容 | GA / 资源 / 战斗、Character / Practice已整理 | 跨模块规则、蓝图引用与最终实机 |
+| UI与AI | 主要观察 / 呈现 / 输入、感知 / 追击 / 近战已整理 | 焦点 / 切图、取消 / 重试 / 交战实机 |
+| 会话与出生 | Session / Checkpoint / 正式GameMode已整理 | 统一流程 / 故障验证，其他模板 / 菜单规则类 |
+| 工程与材料 | 相关指南改Source入口，13项自动化保留 / 扩展 | Editor、模块 / Target / Build、工具 / 测试夹具与文档总收口 |
 | 最终交付 | 分批构建与对应检查 | 统一实机、Cook / 打包与收益汇总 |
 
-此前约10–15批与整体20–35小时是初估，按复杂度继续校准，不从文件覆盖率推算精确工期。
+此前约10–15批及20–35小时是初估，按实际复杂度校准，不由文件覆盖率推算精确工期。
 
 ## 后续队列
 
-1. GameSession / Checkpoint及相关GameMode生命周期。
-2. Editor校验器、工具与测试夹具。
-3. 剩余引用 / 架构材料及跨模块复核。
+1. Editor校验器、模块 / Target / Build边界。
+2. 原测试夹具、剩余模板 / 菜单GameMode及引用审计。
+3. 工具、剩余架构材料与跨模块复核。
 4. 统一自动化、实机与包短查，汇总收益并收拢过程文档。
 
-前十九批已收口，其余范围未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
+前二十批已收口，其余范围未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批四份Source与十份Markdown，共14项；用户在CLion刷新差异并重新Stage最新修改，再Commit / Push。建议Commit信息：refactor: centralize practice callback guards and clarify compatibility lifecycle。
+本批六份Source与七份Markdown，共13项；用户在CLion刷新差异，重新Stage最新修改后Commit / Push。建议Commit信息：refactor: clarify session travel lifecycle and share game mode session lookup。
 
-- [ETPracticeActionComponent.h](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.h)
-- [ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)
-- [ETPracticeActor.h](../EmberTrial/Source/EmberTrial/ETPracticeActor.h)
-- [ETPracticeActor.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActor.cpp)
-- [M0_03_PracticeActor.md](M0_03_PracticeActor.md)
-- [M0_05C2_01_ActionComponent.md](M0_05C2_01_ActionComponent.md)
-- [M0_05C2_02_ActionLifecycle.md](M0_05C2_02_ActionLifecycle.md)
-- [M0_05C2_03A_DodgeConfiguration.md](M0_05C2_03A_DodgeConfiguration.md)
-- [M0_05C2_03B_DodgeMovement.md](M0_05C2_03B_DodgeMovement.md)
-- [M0_05C2_03B_GuardCorrection.md](M0_05C2_03B_GuardCorrection.md)
-- [M0_05C2_03C_DodgeAutomation.md](M0_05C2_03C_DodgeAutomation.md)
+- [ETRunSessionSubsystem.h](../EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h)
+- [ETRunSessionSubsystem.cpp](../EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp)
+- [ETCheckpointStart.h](../EmberTrial/Source/EmberTrial/Public/Flow/ETCheckpointStart.h)
+- [ETCheckpointStart.cpp](../EmberTrial/Source/EmberTrial/Private/Flow/ETCheckpointStart.cpp)
+- [ETGameMode.h](../EmberTrial/Source/EmberTrial/Public/Framework/ETGameMode.h)
+- [ETGameMode.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETGameMode.cpp)
+- [M1_06B_FailureAndRetry.md](M1_06B_FailureAndRetry.md)
+- [M1_06C_SessionCheckpoints.md](M1_06C_SessionCheckpoints.md)
+- [M1_02B_FrameworkObjects.md](M1_02B_FrameworkObjects.md)
+- [M1_06_FlowRoadmap.md](M1_06_FlowRoadmap.md)
 - [Architecture.md](Architecture.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-Content / Config / Build.cs / Target与测试Source保持；Raw、快照、日志、报告和生成文件留本地。助手不Stage / Commit / Push。
+Content / Config / Build.cs / Target与测试Source保持；Raw快照、日志、报告和生成文件留本地。助手不Stage / Commit / Push。
