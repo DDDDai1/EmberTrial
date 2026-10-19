@@ -1,6 +1,6 @@
 # M1-07C1：Editor 模块与 BT / UMG 配置校验
 
-更新：2026-10-14；固定 UE **5.5.4**。**[C1已验收](Reports/M1_07C1_Verification.md)**：用户13:24、手动40 / 等待5，双Build / 三索引、正式BT与HUD、Probe断键恢复全部通过；B Game / include补项同步关闭。本文保留已完成操作记录，下一步[C2](M1_07C2_GameplayValidation.md)，无需重复本章。
+更新2026-10-19，UE **5.5.4**。[C1原验收](Reports/M1_07C1_Verification.md)记录13:24、手动40 / 等待5及断键探针。当前源码已完成第21批清理；本页保留Editor边界、规则与复用检查步骤，首次创建过程为历史记录，无需重复。功能开发暂停在M2-04B2。
 
 ## 1. 本批交付与时间
 
@@ -18,11 +18,11 @@
 | ET-UI-002 | 找到的控件类型匹配原生属性，如 Button / TextBlock / ProgressBar |
 | ET-SETUP-001 | 校验器需要的原生类 / 反射字段可用；工具自身缺依赖也明确报错 |
 
-静态检查不证明 AI 真正移动、按钮输入、事件解绑或蓝图白线正确。Controller 的90 / 100距离关系、能力 / GE / Montage引用、左键映射、启动与 Cook 地图留 C2；Attempt02和包内短流程留 C3。B最终函数的Game Build已在本批补齐；include清理完成，Editor / Game产物与用户反馈已核对。
+静态检查不证明AI真正移动、按钮输入、事件解绑或蓝图白线正确。Controller距离 / 引用 / 输入与共享配置现由[C2](M1_07C2_GameplayValidation.md)负责；[C3](Reports/M1_07C3_Verification.md)保留M1 Attempt02包证据，不能当作M2新版包已验证。
 
 ## 2. 文件和模块分工
 
-先 Save All，关闭 UE；CLion 可保留。在 CLion 项目树中对目录右键 → New → Directory / File 创建以下四个文件。文件扩展名必须正确，不要生成 `.h.txt`。这是 Editor 模块，**不要使用 UE 的 Actor / Component 新建向导**。
+首次接入时在CLion创建下列Editor模块文件；当前文件均已存在，只需按第3节入口阅读。修改反射类前Save All、关闭UE；Editor模块类不使用Actor / Component新建向导。
 
 ```text
 E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\
@@ -33,38 +33,19 @@ E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\
    └─ Validation\ETProjectAssetValidator.cpp
 ```
 
-本批还修改 `EmberTrial.uproject`、`Source\EmberTrialEditor.Target.cs`，以及旧追击 cpp 的 include。**`EmberTrial.Target.cs` 与 Core / UI 的 Build.cs 保持现有内容。**
+注册边界见第4节：Editor Target包含三个项目模块，Game Target只包含Core / UI；Core / UI不反向依赖Editor。
 
-实施前69Source / 34cpp / 清单46；现已实施为73 / 36 / 47，合法Probe已登记来源。
+当前规模与清理结果统一见[Progress](Progress.md)，合法Probe仍保存在专用Validation目录。
 
 依赖方向为 Editor → Core、AIModule、UMG / UMGEditor、DataValidation；Core / UI 不引用 Editor。Validator 只读取资产，不创建角色、Widget 实例或运行世界，不自动修改配置。BT 遍历和控件检查各自独立；规则 ID 便于定位问题。将来扩大规则时先新增小函数，不把运行时玩法写进这个工具。
 
-## 3. 四个新文件：完整内容
+## 3. 当前源码入口与职责
 
 ### 3.1 EmberTrialEditor.Build.cs
 
 完整路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\EmberTrialEditor.Build.cs`。
 
-```csharp
-using UnrealBuildTool;
-
-public class EmberTrialEditor : ModuleRules
-{
-    public EmberTrialEditor(ReadOnlyTargetRules Target) : base(Target)
-    {
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-        PublicDependencyModuleNames.AddRange(new string[]
-        {
-            "Core", "CoreUObject", "Engine", "DataValidation", "AssetRegistry"
-        });
-        PrivateDependencyModuleNames.AddRange(new string[]
-        {
-            "AIModule", "UMG", "UMGEditor", "UnrealEd", "EmberTrial"
-        });
-    }
-}
-```
+[EmberTrialEditor.Build.cs 当前源码](../EmberTrial/Source/EmberTrialEditor/EmberTrialEditor.Build.cs)。实现与配置以该文件为准，本文保留职责和排障说明。
 
 DataValidation 在公开依赖中，因为公开头文件继承它的类；AssetRegistry 提供该父类头文件中的 FAssetData。UnrealEd / UMGEditor 只在这个 Editor 模块中，不向 Runtime Build.cs 添加。
 
@@ -72,24 +53,7 @@ DataValidation 在公开依赖中，因为公开头文件继承它的类；Asset
 
 完整路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\Private\EmberTrialEditorModule.cpp`。
 
-```cpp
-#include "Modules/ModuleManager.h"
-#include "Logging/LogMacros.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETEditorModule, Log, All);
-
-class FEmberTrialEditorModule final : public FDefaultModuleImpl
-{
-public:
-    virtual void StartupModule() override
-    {
-        UE_LOG(LogETEditorModule, Display,
-            TEXT("[M1-07C1] Editor validation module ready"));
-    }
-};
-
-IMPLEMENT_MODULE(FEmberTrialEditorModule, EmberTrialEditor)
-```
+[EmberTrialEditorModule.cpp 当前源码](../EmberTrial/Source/EmberTrialEditor/Private/EmberTrialEditorModule.cpp)。实现与配置以该文件为准，本文保留职责和排障说明。
 
 UE 启动时会发现已加载模块里的原生 Validator；不用手动 AddValidator，也不用做一个 Validator 蓝图。新增反射类后正常关闭 UE 构建 / 重启，不用 Live Coding 验证注册。
 
@@ -97,36 +61,7 @@ UE 启动时会发现已加载模块里的原生 Validator；不用手动 AddVal
 
 完整路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\Public\Validation\ETProjectAssetValidator.h`。
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "EditorValidatorBase.h"
-#include "ETProjectAssetValidator.generated.h"
-
-class UBehaviorTree;
-class UWidgetBlueprint;
-
-UCLASS()
-class EMBERTRIALEDITOR_API UETProjectAssetValidator : public UEditorValidatorBase
-{
-    GENERATED_BODY()
-
-public:
-    virtual bool CanValidateAsset_Implementation(const FAssetData& InAssetData,
-        UObject* InObject, FDataValidationContext& InContext) const override;
-
-    virtual EDataValidationResult ValidateLoadedAsset_Implementation(
-        const FAssetData& InAssetData, UObject* InAsset,
-        FDataValidationContext& Context) override;
-
-private:
-    void AddIssue(UObject* Asset, const TCHAR* Rule, const FString& Reason,
-        int32& IssueCount);
-    void ValidateTree(UBehaviorTree* Tree, int32& IssueCount);
-    void ValidateWidget(UWidgetBlueprint* Blueprint, int32& IssueCount);
-};
-```
+[ETProjectAssetValidator.h 当前源码](../EmberTrial/Source/EmberTrialEditor/Public/Validation/ETProjectAssetValidator.h)。实现与配置以该文件为准，本文保留职责和排障说明。
 
 `generated.h` 必须是最后一个 include。这两个 override 使用本机5.5.4的新签名；不要再添加同名 UFUNCTION，不要换成旧教程的单 UObject / ValidationErrors 参数版本。
 
@@ -136,286 +71,34 @@ private:
 
 完整路径：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\Private\Validation\ETProjectAssetValidator.cpp`。
 
-```cpp
-#include "Validation/ETProjectAssetValidator.h"
-
-#include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BTCompositeNode.h"
-#include "BehaviorTree/BlackboardData.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyType_Float.h"
-#include "BehaviorTree/Tasks/BTTask_MoveTo.h"
-#include "BehaviorTree/ValueOrBBKey.h"
-#include "Blueprint/WidgetTree.h"
-#include "Components/Widget.h"
-#include "Misc/DataValidation.h"
-#include "UObject/UObjectGlobals.h"
-#include "UObject/UnrealType.h"
-#include "WidgetBlueprint.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETAssetValidation, Log, All);
-
-namespace
-{
-    const FName ValidationStopDistanceKey(TEXT("PursuitStopDistance"));
-    const FString ValidationTestRoot(TEXT("/Game/EmberTrial/Tests/Validation/"));
-
-    UWidget* FindRequiredWidget(UWidgetBlueprint* Blueprint, FName WidgetName)
-    {
-        TSet<const UWidgetBlueprint*> Visited;
-        for (UWidgetBlueprint* Current = Blueprint;
-            IsValid(Current) && !Visited.Contains(Current);)
-        {
-            Visited.Add(Current);
-            if (IsValid(Current->WidgetTree))
-            {
-                if (UWidget* Widget = Current->WidgetTree->FindWidget(WidgetName))
-                {
-                    return Widget;
-                }
-            }
-            UClass* Parent = Current->ParentClass.Get();
-            Current = IsValid(Parent)
-                ? Cast<UWidgetBlueprint>(Parent->ClassGeneratedBy) : nullptr;
-        }
-        return nullptr;
-    }
-}
-
-bool UETProjectAssetValidator::CanValidateAsset_Implementation(
-    const FAssetData& InAssetData, UObject* InObject,
-    FDataValidationContext& InContext) const
-{
-    const FString Package = InAssetData.PackageName.ToString();
-    const bool bValidationTest = Package.StartsWith(ValidationTestRoot);
-
-    if (InObject && InObject->IsA<UBehaviorTree>())
-    {
-        return Package == TEXT("/Game/EmberTrial/AI/BehaviorTrees/BT_ETMeleeEnemy")
-            || bValidationTest;
-    }
-    return InObject && InObject->IsA<UWidgetBlueprint>()
-        && Package.StartsWith(TEXT("/Game/EmberTrial/"))
-        && (!Package.StartsWith(TEXT("/Game/EmberTrial/Tests/")) || bValidationTest);
-}
-
-EDataValidationResult UETProjectAssetValidator::ValidateLoadedAsset_Implementation(
-    const FAssetData& InAssetData, UObject* InAsset,
-    FDataValidationContext& Context)
-{
-    int32 IssueCount = 0;
-    if (UBehaviorTree* Tree = Cast<UBehaviorTree>(InAsset))
-    {
-        ValidateTree(Tree, IssueCount);
-    }
-    else if (UWidgetBlueprint* Blueprint = Cast<UWidgetBlueprint>(InAsset))
-    {
-        ValidateWidget(Blueprint, IssueCount);
-    }
-    else
-    {
-        return EDataValidationResult::NotValidated;
-    }
-
-    if (IssueCount > 0)
-    {
-        UE_LOG(LogETAssetValidation, Display,
-            TEXT("[M1-07C1] Invalid Asset=%s Issues=%d"),
-            *GetPathNameSafe(InAsset), IssueCount);
-        return EDataValidationResult::Invalid;
-    }
-    AssetPasses(InAsset);
-    UE_LOG(LogETAssetValidation, Display,
-        TEXT("[M1-07C1] Valid Asset=%s"), *GetPathNameSafe(InAsset));
-    return EDataValidationResult::Valid;
-}
-
-void UETProjectAssetValidator::AddIssue(UObject* Asset, const TCHAR* Rule,
-    const FString& Reason, int32& IssueCount)
-{
-    ++IssueCount;
-    AssetFails(Asset, FText::FromString(FString::Printf(
-        TEXT("[%s] %s : %s"), Rule, *GetPathNameSafe(Asset), *Reason)));
-}
-
-void UETProjectAssetValidator::ValidateTree(UBehaviorTree* Tree, int32& IssueCount)
-{
-    if (!IsValid(Tree->RootNode) || !IsValid(Tree->BlackboardAsset))
-    {
-        AddIssue(Tree, TEXT("ET-AI-001"),
-            TEXT("Root / Blackboard missing; restore the project tree and blackboard."),
-            IssueCount);
-        return;
-    }
-
-    const UBlackboardData* Board = Tree->BlackboardAsset;
-    const FBlackboard::FKey KeyId = Board->GetKeyID(ValidationStopDistanceKey);
-    const UClass* KeyType = Board->GetKeyType(KeyId).Get();
-    if (!IsValid(KeyType) || !KeyType->IsChildOf(UBlackboardKeyType_Float::StaticClass()))
-    {
-        AddIssue(Tree, TEXT("ET-AI-002"),
-            TEXT("PursuitStopDistance must exist as a Float blackboard key."), IssueCount);
-    }
-
-    // Resolve the loaded class by reflection; no exported project task header is required.
-    const UClass* PursuitClass = FindObject<UClass>(nullptr,
-        TEXT("/Script/EmberTrial.ETBTTask_PursuitMove"));
-    const FBoolProperty* BoolDefault = FindFProperty<FBoolProperty>(
-        FValueOrBBKey_Bool::StaticStruct(), TEXT("DefaultValue"));
-    if (!IsValid(PursuitClass) || !BoolDefault)
-    {
-        AddIssue(Tree, TEXT("ET-SETUP-001"),
-            TEXT("Native pursuit class / bool default field unavailable; check Editor module dependencies and UE version."),
-            IssueCount);
-        return;
-    }
-
-    const auto HasConstant = [BoolDefault](const FValueOrBBKey_Bool& Value, bool Expected)
-    {
-        return Value.GetKey().IsNone()
-            && BoolDefault->GetPropertyValue_InContainer(&Value) == Expected;
-    };
-
-    TArray<const UBTCompositeNode*> Pending;
-    TSet<const UBTCompositeNode*> Visited;
-    Pending.Add(Tree->RootNode.Get());
-    int32 PursuitCount = 0;
-    while (!Pending.IsEmpty())
-    {
-        const UBTCompositeNode* Node = Pending.Pop();
-        if (!IsValid(Node) || Visited.Contains(Node))
-        {
-            continue;
-        }
-        Visited.Add(Node);
-        for (const FBTCompositeChild& Child : Node->Children)
-        {
-            if (IsValid(Child.ChildComposite))
-            {
-                Pending.Add(Child.ChildComposite.Get());
-            }
-            const UBTTask_MoveTo* Move = Cast<UBTTask_MoveTo>(Child.ChildTask.Get());
-            if (!IsValid(Move) || !Move->IsA(PursuitClass))
-            {
-                continue;
-            }
-            ++PursuitCount;
-            if (Move->AcceptableRadius.GetKey() != ValidationStopDistanceKey)
-            {
-                AddIssue(Tree, TEXT("ET-AI-003"),
-                    TEXT("ET Pursuit Move To: bind Acceptable Radius to PursuitStopDistance; a constant 90 is not a binding."),
-                    IssueCount);
-            }
-            if (!HasConstant(Move->bReachTestIncludesAgentRadius, false)
-                || !HasConstant(Move->bReachTestIncludesGoalRadius, false)
-                || !HasConstant(Move->bTrackMovingGoal, true))
-            {
-                AddIssue(Tree, TEXT("ET-AI-004"),
-                    TEXT("ET Pursuit Move To: Includes Agent / Goal Radius must be constant False; Track Moving Goal constant True."),
-                    IssueCount);
-            }
-        }
-    }
-    if (PursuitCount != 1)
-    {
-        AddIssue(Tree, TEXT("ET-AI-003"), FString::Printf(
-            TEXT("Expected one ET Pursuit Move To task; found %d. Restore the project pursuit node."),
-            PursuitCount), IssueCount);
-    }
-}
-
-void UETProjectAssetValidator::ValidateWidget(UWidgetBlueprint* Blueprint,
-    int32& IssueCount)
-{
-    if (!IsValid(Blueprint->GeneratedClass) || !IsValid(Blueprint->WidgetTree)
-        || Blueprint->Status == BS_Error || Blueprint->Status == BS_Dirty)
-    {
-        AddIssue(Blueprint, TEXT("ET-UI-001"),
-            TEXT("Widget class / tree not ready; Compile and Save this Widget first."),
-            IssueCount);
-        return;
-    }
-    for (TFieldIterator<FObjectPropertyBase> It(Blueprint->GeneratedClass,
-        EFieldIteratorFlags::IncludeSuper); It; ++It)
-    {
-        const FObjectPropertyBase* Property = *It;
-        if (!Property->HasMetaData(TEXT("BindWidget"))
-            || Property->HasMetaData(TEXT("BindWidgetOptional"))
-            || !Property->PropertyClass->IsChildOf(UWidget::StaticClass()))
-        {
-            continue;
-        }
-        UWidget* Widget = FindRequiredWidget(Blueprint, Property->GetFName());
-        if (!IsValid(Widget))
-        {
-            AddIssue(Blueprint, TEXT("ET-UI-001"), FString::Printf(
-                TEXT("Required widget '%s' missing; rename the Designer widget to match the native BindWidget property."),
-                *Property->GetName()), IssueCount);
-        }
-        else if (!Widget->IsA(Property->PropertyClass))
-        {
-            AddIssue(Blueprint, TEXT("ET-UI-002"), FString::Printf(
-                TEXT("Widget '%s' must be %s; actual type is %s. Replace it with the expected Designer widget type."),
-                *Property->GetName(), *Property->PropertyClass->GetName(),
-                *Widget->GetClass()->GetName()), IssueCount);
-        }
-    }
-}
-```
+[ETProjectAssetValidator.cpp 当前源码](../EmberTrial/Source/EmberTrialEditor/Private/Validation/ETProjectAssetValidator.cpp)。实现与配置以该文件为准，本文保留职责和排障说明。
 
 说明：Bool 的默认值在5.5.4中是 protected，工具通过反射读取，不把 `FValueOrBBKey_Bool` 强转 bool，也不实例化 BehaviorTreeComponent 去运行世界。Acceptable Radius **默认值150与绑定键并存是合法的**；实际值由黑板提供，工具不要求把默认常量改成90。原生追击类未导出跨模块 API，所以只按 `/Script/EmberTrial.ETBTTask_PursuitMove` 获取已加载类，不修改它的 .h。需要 Editor→Core 的显式依赖保证模块顺序。
 
 Widget 检查读取设计时控件树，并向父 Widget Blueprint 查找继承控件；不查看尚未构建的 CDO BindWidget 指针。可选控件不当成必需控件。默认 Widget 编译器本身也检查 BindWidget，本工具统一输出项目规则与资产路径，便于以后批量入口复用。
 
+
+### 3.5 当前遍历与诊断边界
+
+| 入口 | 职责与保护 |
+| --- | --- |
+| CanValidateAsset | 正式BT、项目Widget与专用Validation副本；其他Tests不纳入 |
+| ValidateLoadedAsset / AddIssue | 每资产独立计数；不支持类型返回NotValidated；每条问题保留规则ID / 资产路径 / 修复提示 |
+| ValidateTree | 显式栈与Visited遍历；只对项目追击任务计数和检查，要求恰有一份 |
+| HasConstant | GetKey为空且DefaultValue匹配；绑定黑板键不能冒充布尔常量 |
+| FindRequiredWidget / ValidateWidget | IncludeSuper检查原生必需属性；沿父蓝图设计树找同名同类型控件，Optional跳过，Visited防重复 |
+
+第21批统一排版与职责注释，未改规则编号、提示、判定顺序或范围。Editor入口与依赖文件只审计，未增加手动注册。正常资源通过不等于所有负例分支均重跑；第7节保留历史最小负例步骤供相关改动时复用。
+
 ## 4. 注册模块与插件
 
 ### 4.1 EmberTrial.uproject
 
-文件：`E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject`。完整替换为以下内容（只新增 Editor 模块和 Editor 专用插件项，原两模块 / 插件保留）：
+[EmberTrial.uproject](../EmberTrial/EmberTrial.uproject)中，EmberTrialEditor的Type为Editor，DataValidation插件的TargetAllowList只含Editor。现有其他模块 / 插件保持；不要用历史整文件JSON覆盖当前GAS或输入配置。
 
-```json
-{
-    "FileVersion": 3,
-    "EngineAssociation": "5.5",
-    "Category": "",
-    "Description": "",
-    "Modules": [
-        {
-            "Name": "EmberTrial",
-            "Type": "Runtime",
-            "LoadingPhase": "Default",
-            "AdditionalDependencies": ["Engine"]
-        },
-        {
-            "Name": "EmberTrialUI",
-            "Type": "Runtime",
-            "LoadingPhase": "Default"
-        },
-        {
-            "Name": "EmberTrialEditor",
-            "Type": "Editor",
-            "LoadingPhase": "Default"
-        }
-    ],
-    "Plugins": [
-        {
-            "Name": "ModelingToolsEditorMode",
-            "Enabled": true,
-            "TargetAllowList": ["Editor"]
-        },
-        {
-            "Name": "GameplayAbilities",
-            "Enabled": true
-        },
-        {
-            "Name": "DataValidation",
-            "Enabled": true,
-            "TargetAllowList": ["Editor"]
-        }
-    ]
-}
-```
+[EmberTrial.uproject 当前源码](../EmberTrial/EmberTrial.uproject)。实现与配置以该文件为准，本文保留职责和排障说明。
 
-JSON 最后一项后不要加逗号，插件名是 `DataValidation`，模块名是 `EmberTrialEditor`。
+JSON最后一项后不加逗号。修改模块定义后正常构建 / 重启，由UE发现原生校验器。
 
 ### 4.2 Editor Target
 
@@ -429,11 +112,11 @@ ExtraModuleNames.AddRange(new string[] { "EmberTrial", "EmberTrialUI", "EmberTri
 
 类名、Type=Editor、V5、Unreal5_5 和其余代码保留。**不要向 `EmberTrial.Target.cs` 增加 Editor 模块**；Game Target 原两模块保持不变。`Tools\Refresh-CLion.ps1` 已遍历 .uproject 的模块，无需再改脚本。
 
-### 4.3 合并 B 的 include 清理
+### 4.3 历史B的include排障
 
 文件：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\AI\ETBTTask_PursuitMove.cpp`。
 
-只删下面两个已无用途的 include：
+原B收尾曾删除以下无用途include；当前已完成，阅读时以[追击Task当前实现](../EmberTrial/Source/EmberTrial/Private/AI/ETBTTask_PursuitMove.cpp)为准：
 
 ```cpp
 #include "Engine/World.h"
@@ -507,9 +190,9 @@ Game 构建应成功，Game 不编译 `ETProjectAssetValidator.cpp` / Editor 模
 
 只需第5节双构建、第6节两个正常资产、第7节副本失败 / 恢复。**不要求本批重跑 PIE、旧战斗 / UI矩阵或 Insights**；模块只增加编辑器静态检查，B的行为正常已有反馈。正常检查目标5–10分钟，遇到失败只针对该项排查。
 
-以后改正式 BT / 项目 Widget 后，Compile（如适用）→ Save → Validate Assets。多选资源可一次验证；是否运行全项目 / 命令行检查留 C2 设计，不默认每次扫描整个模板 / 第三方资源。静态通过之后，真正改变运行逻辑时仍执行对应窄实机检查。
+以后改正式BT / 项目Widget后，Compile（如适用）→ Save → Validate Assets，多选资源可一次验证。命令行可按BehaviorTree或Blueprint类型执行DataValidation，检查本项目Valid标记及命令汇总；不默认每次重做负例或旧玩法矩阵。真正改变运行逻辑时仍做对应窄实机检查。
 
-本批已核对本机 `EditorValidatorBase.h`、`ValueOrBBKey.h`、`BTTask_MoveTo.h`、`BaseWidgetBlueprint.h` 与菜单注册源码；代码已由用户手动写入 / 双目标构建并验收；助手未代写Source或运行Build。UE 官方入口和原生注册说明见 [Data Validation，UE5.5](https://dev.epicgames.com/documentation/en-us/unreal-engine/data-validation-in-unreal-engine?application_version=5.5)；方法签名以本机头文件为准。
+原C1签名与行为依据本机EditorValidatorBase、ValueOrBBKey、BTTask_MoveTo、BaseWidgetBlueprint等源码核对；历史接入由用户手动完成。第21批源码清理与实际验证记录见[Cleanup](Cleanup.md)，不混入历史手动工时。[官方Data Validation，UE5.5](https://dev.epicgames.com/documentation/en-us/unreal-engine/data-validation-in-unreal-engine?application_version=5.5)保留作入口参考，方法签名以本机头文件为准。
 
 ## 9. 最简反馈
 
@@ -528,10 +211,4 @@ Probe已恢复 / 未用于正式Controller；源码与资产Save All：
 
 ## 10. 本批需要 Commit / Push（固定放在文档最后）
 
-- 新增四份 Source：`Source/EmberTrialEditor/EmberTrialEditor.Build.cs`、`Private/EmberTrialEditorModule.cpp`、`Public/Validation/ETProjectAssetValidator.h`、`Private/Validation/ETProjectAssetValidator.cpp`，均位于 `EmberTrial` 工程下。
-- 修改 `EmberTrial/EmberTrial.uproject`、`EmberTrial/Source/EmberTrialEditor.Target.cs`；重新 Stage 当前 `EmberTrial/Source/EmberTrial/Private/AI/ETBTTask_PursuitMove.cpp`，包含 B 最终短函数 / 正确 SetKey 顺序和本批 include 清理。B代码如已经提交，则本次只提交真实新增差异。
-- 新增**恢复为合法配置**的 `EmberTrial/Content/EmberTrial/Tests/Validation/BT_ETValidation_Probe.uasset`（LFS）。正式 BT / HealthHUD 若只读取没有内容差异，不人为 Stage；既有测试资产不改。
-- 新增本指南；M1-07路线、B报告、Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow_Options / Introduction 的实际更新，以及验收后更新的 `Docs/AssetManifest.csv` 和本批验收报告。本批报告已生成并通过，随本轮收尾文字追加提交。
-- `Tools/Refresh-CLion.ps1` 本批无需修改；CMake、Intermediate / Binaries / Saved、`.idea`、Raw、Artifacts里的Trace / 日志 / JSON / 包继续留本地，不 Force Add。Game Build不等于新版包，Attempt02留 C3。
-
-CLion：Save All → 刷新 Changes → 对**最新** Unstaged 差异重新 Stage → 检查 Staged Diff → Commit → Push。建议实现提交 `feat: add editor validation for pursuit and required widgets`；B收尾未提交时也纳入最新清单。由你操作 Git，助手不代 Stage / Commit / Push。
+第21批清理的四份Validator Source与五份同步Markdown，共9项，逐文件清单见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。模块入口 / Build.cs / 两Target / uproject与资产未改，不重复提交原C1 / C2实现。CLion刷新Changes → 重新Stage最新差异 → 检查Staged Diff → Commit → Push；由用户操作Git。Raw / 日志 / 生成文件留本地。

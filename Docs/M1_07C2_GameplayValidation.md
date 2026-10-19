@@ -1,6 +1,6 @@
 # M1-07C2：战斗引用、输入与共享配置校验
 
-更新2026-10-14，UE **5.5.4**。**[C2已验收](Reports/M1_07C2_Verification.md)**：用户14:09、手动20 / 等待5，全项通过，75Source /37cpp /48资产，无待补。本文保留已完成手动步骤，下一步[C3新版包](M1_07C3_UpdatedPackage.md)，不用重复九资产 / 负例 / 自动化。
+更新2026-10-19，UE **5.5.4**。[C2原验收](Reports/M1_07C2_Verification.md)记录14:09、手动20 / 等待5及九正式资产。规则已随M2功能扩展，第21批整理源码与本页；首次创建步骤为历史记录，当前实现以Source为准。功能开发暂停在M2-04B2。
 
 ## 1. 成果、时间与范围
 
@@ -18,11 +18,26 @@
 | ET-INPUT-001 | IMC_Default恰有一条左键映射，指向IA_ET_LightAttack |
 | ET-CONFIG-001–004 | 脚本读取共享Default.ini，检查正式默认地图 / Editor地图 / 两Cook条目、文件存在和Cue扫描路径 |
 
-规则限定当前正式资产及命名为 `GA_ETValidation_*` 的隔离样例；既有Waiting / 非法健康Tests不纳入。本批不证明输入事件Started白线 / Condition、UIBootstrap组件Class装配、Montage通知窗口 / Skeleton与具体Mesh兼容、地图Override / 导航、Runtime订阅及真实加载成功。共享配置脚本不读取平台 / Saved覆写，最终生效行为留C3新版包短流程。
+规则限定显式正式资产路径及命名为GA_ETValidation_*的隔离样例；既有Waiting / 非法健康Tests不纳入。当前M2原生检查还覆盖部分Montage / Notify / Tag结构，范围见下表；它仍不证明Started白线、UI组件装配、实际Mesh播放、导航、Runtime订阅或真实加载。共享配置脚本不读取平台 / Saved覆写；C3历史包不包含M2功能。
+
+
+### 1.1 当前M2扩展与只读边界
+
+| 规则 | 当前检查 |
+| --- | --- |
+| ET-BODY-004 / ET-STAM-001 | 体力初值有限且范围合法；恢复组件AutoActivate与Rate / Delay / Interval范围 |
+| ET-DODGE-001–004 | 成本GE与Montage、位移、短无敌、恢复取消策略；复用Dodge原生配置检查 |
+| ET-COMBO-001 / 002 | 连段资源与窗口结构；正式玩家开启、正式敌人关闭连段 |
+| ET-HEAL-001 | 玩家治疗资源组件次数与AutoActivate配置 |
+| ET-HEAL-002 / 003 | Heal的治疗量 / 动画 / Notify / Tag / 空Cost-Cooldown契约；HitReact取消治疗策略 |
+| ET-HEAL-004 | 玩家HealAction类型与路径；IMC恰有一条Q→Heal，Q与Heal不可另绑 |
+| ET-SETUP-002 | Object / 浮点字段缺失或类型失配；与某个资源引用为None分开报告 |
+
+这些编号是已实现规则，本轮未新增。HasValidConfiguration、ReadCostAmount及其他能力检查仍调用Runtime原生实现，避免Editor另写一份近似动画 / Tag判定。身体先查公共子对象，再按玩家 / 训练目标身份检查差异；不因校验而初始化身体或资源。
 
 ## 2. 文件清单与依赖
 
-Save All，关闭UE；在CLion手动创建两个文件，结尾准确为 **Validator**：
+当前两文件均已存在，按第3节链接阅读；首次接入时在CLion创建，文件名结尾为 **Validator**。修改反射类前Save All、关闭UE：
 
 ```text
 E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\
@@ -31,65 +46,21 @@ E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\
 └─ EmberTrialEditor.Build.cs                             修改
 ```
 
-原 `ETProjectAssetValidator.h / .cpp`、Module.cpp、两个Target与uproject保留。实际Source目前73 / cpp36；两新文件实施后预计75 / 37。后续保存GA Probe才新增第48项来源资产，不提前登记。
+原C1的Project Validator、模块入口、两个Target与uproject保持职责边界；当前规模统一见[Progress](Progress.md)。隔离GA Probe保留合法配置。
 
-在 `EmberTrialEditor.Build.cs` **PrivateDependencyModuleNames** 现有列表末尾加入四项，最终私有列表如下（公开列表保持C1版本）：
+[Editor.Build.cs](../EmberTrial/Source/EmberTrialEditor/EmberTrialEditor.Build.cs)集中维护依赖。Core / UI不引用Editor；DataValidation与AssetRegistry为公开父类接口服务，GAS / Tags / EnhancedInput / InputCore只作Editor私有依赖，不用旧列表覆盖当前内容：
 
-```csharp
-PrivateDependencyModuleNames.AddRange(new string[]
-{
-    "AIModule", "UMG", "UMGEditor", "UnrealEd", "EmberTrial",
-    "GameplayAbilities", "GameplayTags", "EnhancedInput", "InputCore"
-});
-```
+[EmberTrialEditor.Build.cs 当前源码](../EmberTrial/Source/EmberTrialEditor/EmberTrialEditor.Build.cs)。实现与配置以该文件为准，本文保留职责和排障说明。
 
-只改Editor Build.cs；Game / Core / UI不添加编辑器依赖。四项分别提供GAS类型、原生Tag、输入映射结构和EKeys。
+这些私有模块分别提供GAS类型、原生Tag、输入映射结构和EKeys。Editor.Build.cs本轮只读核对，没有修改。
 
-## 3. 两个新文件的完整内容
+## 3. 当前源码入口与规则分派
 
 ### 3.1 ETGameplayAssetValidator.h
 
 文件：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\Public\Validation\ETGameplayAssetValidator.h`。
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "EditorValidatorBase.h"
-#include "ETGameplayAssetValidator.generated.h"
-
-class UBlueprint;
-class UInputMappingContext;
-class UAnimMontage;
-class UGameplayEffect;
-
-UCLASS()
-class EMBERTRIALEDITOR_API UETGameplayAssetValidator : public UEditorValidatorBase
-{
-    GENERATED_BODY()
-
-public:
-    virtual bool CanValidateAsset_Implementation(const FAssetData& InAssetData,
-        UObject* InObject, FDataValidationContext& InContext) const override;
-    virtual EDataValidationResult ValidateLoadedAsset_Implementation(
-        const FAssetData& InAssetData, UObject* InAsset,
-        FDataValidationContext& Context) override;
-
-private:
-    void AddIssue(UObject* Asset, const TCHAR* Rule, const FString& Message, int32& Issues);
-    UObject* RequireObject(UObject* Asset, const UObject* Defaults,
-        const TCHAR* PropertyName, const TCHAR* Rule, int32& Issues);
-    TOptional<double> ReadNumber(UObject* Asset, const UObject* Defaults,
-        const TCHAR* PropertyName, int32& Issues);
-    void ValidateBlueprint(UBlueprint* Blueprint, int32& Issues);
-    void ValidateBody(UBlueprint* Blueprint, UObject* Defaults, int32& Issues);
-    void ValidateAbility(UBlueprint* Blueprint, UObject* Defaults, int32& Issues);
-    void ValidateController(UBlueprint* Blueprint, UObject* Defaults, int32& Issues);
-    void ValidateMontage(UObject* Asset, const UAnimMontage* Montage, int32& Issues);
-    void ValidateDamageEffect(UObject* Asset, const UGameplayEffect* Effect, int32& Issues);
-    void ValidateInput(UInputMappingContext* Context, int32& Issues);
-};
-```
+[ETGameplayAssetValidator.h 当前源码](../EmberTrial/Source/EmberTrialEditor/Public/Validation/ETGameplayAssetValidator.h)。实现与配置以该文件为准，本文保留职责和排障说明。
 
 文件名与generated.h前缀一致；generated.h为最后一个include。不要添加同名UFUNCTION，不需要新增Validator蓝图。
 
@@ -97,353 +68,18 @@ private:
 
 文件：`E:\UE_Project\Demo\EmberTrial\Source\EmberTrialEditor\Private\Validation\ETGameplayAssetValidator.cpp`。
 
-```cpp
-#include "Validation/ETGameplayAssetValidator.h"
-
-#include "Abilities/ETGA_LightAttack.h"
-#include "Abilities/ETGA_HitReact.h"
-#include "Abilities/ETGameplayTags.h"
-#include "AI/ETAIController.h"
-#include "Animation/AnimMontage.h"
-#include "Animation/Skeleton.h"
-#include "Attributes/ETHealthAttributeSet.h"
-#include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BlackboardData.h"
-#include "Characters/EmberTrialCharacter.h"
-#include "Engine/Blueprint.h"
-#include "EnhancedActionKeyMapping.h"
-#include "GameplayEffect.h"
-#include "InputAction.h"
-#include "InputCoreTypes.h"
-#include "InputMappingContext.h"
-#include "Misc/DataValidation.h"
-#include "UObject/UnrealType.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETGameplayValidation, Log, All);
-
-namespace
-{
-    UClass* GetGameplayValidationParent(const FString& Package)
-    {
-        static const TMap<FString, UClass*> Profiles =
-        {
-            {TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter"), AEmberTrialCharacter::StaticClass()},
-            {TEXT("/Game/EmberTrial/Characters/Enemies/BP_ETMeleeEnemy"), AEmberTrialCharacter::StaticClass()},
-            {TEXT("/Game/EmberTrial/Tests/Blueprints/BP_ETCombatTrainingTarget"), AEmberTrialCharacter::StaticClass()},
-            {TEXT("/Game/EmberTrial/Abilities/GA_ET_LightAttack"), UETGA_LightAttack::StaticClass()},
-            {TEXT("/Game/EmberTrial/Abilities/GA_ET_EnemyLightAttack"), UETGA_LightAttack::StaticClass()},
-            {TEXT("/Game/EmberTrial/Abilities/GA_ET_HitReact"), UETGA_HitReact::StaticClass()},
-            {TEXT("/Game/EmberTrial/Abilities/Effects/GE_ET_LightAttackDamage"), UGameplayEffect::StaticClass()},
-            {TEXT("/Game/EmberTrial/AI/Controllers/BP_ETMeleeAIController"), AETAIController::StaticClass()}
-        };
-        if (Package.StartsWith(TEXT("/Game/EmberTrial/Tests/Validation/GA_ETValidation_")))
-        {
-            return UETGA_LightAttack::StaticClass();
-        }
-        return Profiles.FindRef(Package);
-    }
-}
-
-bool UETGameplayAssetValidator::CanValidateAsset_Implementation(
-    const FAssetData& InAssetData, UObject* InObject,
-    FDataValidationContext& InContext) const
-{
-    const FString Package = InAssetData.PackageName.ToString();
-    return InObject && ((InObject->IsA<UBlueprint>() && GetGameplayValidationParent(Package))
-        || (InObject->IsA<UInputMappingContext>()
-            && Package == TEXT("/Game/ThirdPerson/Input/IMC_Default")));
-}
-
-EDataValidationResult UETGameplayAssetValidator::ValidateLoadedAsset_Implementation(
-    const FAssetData& InAssetData, UObject* InAsset, FDataValidationContext& Context)
-{
-    int32 Issues = 0;
-    if (UBlueprint* Blueprint = Cast<UBlueprint>(InAsset))
-    {
-        ValidateBlueprint(Blueprint, Issues);
-    }
-    else if (UInputMappingContext* Input = Cast<UInputMappingContext>(InAsset))
-    {
-        ValidateInput(Input, Issues);
-    }
-    else
-    {
-        return EDataValidationResult::NotValidated;
-    }
-    if (Issues == 0)
-    {
-        AssetPasses(InAsset);
-    }
-    UE_LOG(LogETGameplayValidation, Display,
-        TEXT("[M1-07C2] %s Asset=%s Issues=%d"),
-        Issues == 0 ? TEXT("Valid") : TEXT("Invalid"), *GetPathNameSafe(InAsset), Issues);
-    return Issues == 0 ? EDataValidationResult::Valid : EDataValidationResult::Invalid;
-}
-
-void UETGameplayAssetValidator::AddIssue(UObject* Asset, const TCHAR* Rule,
-    const FString& Message, int32& Issues)
-{
-    ++Issues;
-    AssetFails(Asset, FText::FromString(FString::Printf(
-        TEXT("[%s] %s : %s"), Rule, *GetPathNameSafe(Asset), *Message)));
-}
-
-UObject* UETGameplayAssetValidator::RequireObject(UObject* Asset,
-    const UObject* Defaults, const TCHAR* PropertyName, const TCHAR* Rule, int32& Issues)
-{
-    const FObjectPropertyBase* Property = IsValid(Defaults)
-        ? FindFProperty<FObjectPropertyBase>(Defaults->GetClass(), PropertyName) : nullptr;
-    if (!Property)
-    {
-        AddIssue(Asset, TEXT("ET-SETUP-002"), FString::Printf(
-            TEXT("Object property %s unavailable; check native schema / validator version."),
-            PropertyName), Issues);
-        return nullptr;
-    }
-    UObject* Value = Property->GetObjectPropertyValue_InContainer(Defaults);
-    if (!IsValid(Value))
-    {
-        AddIssue(Asset, Rule, FString::Printf(
-            TEXT("Required reference %s is None; restore its Class Defaults value."),
-            PropertyName), Issues);
-        return nullptr;
-    }
-    return Value;
-}
-
-TOptional<double> UETGameplayAssetValidator::ReadNumber(UObject* Asset,
-    const UObject* Defaults, const TCHAR* PropertyName, int32& Issues)
-{
-    const FNumericProperty* Property = FindFProperty<FNumericProperty>(
-        Defaults->GetClass(), PropertyName);
-    if (!Property || !Property->IsFloatingPoint())
-    {
-        AddIssue(Asset, TEXT("ET-SETUP-002"), FString::Printf(
-            TEXT("Float property %s unavailable; check native schema / validator version."),
-            PropertyName), Issues);
-        return {};
-    }
-    return Property->GetFloatingPointPropertyValue(
-        Property->ContainerPtrToValuePtr<void>(Defaults));
-}
-
-void UETGameplayAssetValidator::ValidateBlueprint(UBlueprint* Blueprint, int32& Issues)
-{
-    if (!IsValid(Blueprint->GeneratedClass)
-        || Blueprint->Status == BS_Error || Blueprint->Status == BS_Dirty)
-    {
-        AddIssue(Blueprint, TEXT("ET-REF-001"),
-            TEXT("Blueprint not ready; Compile and Save before validation."), Issues);
-        return;
-    }
-    UClass* ExpectedParent = GetGameplayValidationParent(Blueprint->GetOutermost()->GetName());
-    if (!IsValid(ExpectedParent) || !Blueprint->GeneratedClass->IsChildOf(ExpectedParent))
-    {
-        AddIssue(Blueprint, TEXT("ET-REF-002"),
-            TEXT("Native parent does not match this asset profile; restore parent / update the profile deliberately."),
-            Issues);
-        return;
-    }
-    UObject* Defaults = Blueprint->GeneratedClass->GetDefaultObject();
-    if (!IsValid(Defaults))
-    {
-        AddIssue(Blueprint, TEXT("ET-REF-001"), TEXT("Class default object missing."), Issues);
-    }
-    else if (Defaults->IsA<AEmberTrialCharacter>())
-    {
-        ValidateBody(Blueprint, Defaults, Issues);
-    }
-    else if (Defaults->IsA<UETGA_LightAttack>() || Defaults->IsA<UETGA_HitReact>())
-    {
-        ValidateAbility(Blueprint, Defaults, Issues);
-    }
-    else if (Defaults->IsA<AETAIController>())
-    {
-        ValidateController(Blueprint, Defaults, Issues);
-    }
-    else if (const UGameplayEffect* Effect = Cast<UGameplayEffect>(Defaults))
-    {
-        ValidateDamageEffect(Blueprint, Effect, Issues);
-    }
-    else
-    {
-        AddIssue(Blueprint, TEXT("ET-REF-002"),
-            TEXT("Unsupported native parent for this formal validation profile; restore parent / update profile deliberately."),
-            Issues);
-    }
-}
-
-void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint,
-    UObject* Defaults, int32& Issues)
-{
-    for (const TCHAR* Name : {TEXT("AbilitySystemComponent"), TEXT("HealthAttributes"),
-        TEXT("CombatTraceComponent"), TEXT("CombatLifeComponent")})
-    {
-        RequireObject(Blueprint, Defaults, Name, TEXT("ET-BODY-001"), Issues);
-    }
-    const TOptional<double> Health = ReadNumber(Blueprint, Defaults, TEXT("InitialHealth"), Issues);
-    const TOptional<double> Max = ReadNumber(Blueprint, Defaults, TEXT("InitialMaxHealth"), Issues);
-    if (Health.IsSet() && Max.IsSet() && (!FMath::IsFinite(Health.GetValue())
-        || !FMath::IsFinite(Max.GetValue()) || Max.GetValue() < 1.0
-        || Health.GetValue() < 0.0 || Health.GetValue() > Max.GetValue()))
-    {
-        AddIssue(Blueprint, TEXT("ET-BODY-002"),
-            TEXT("Require finite InitialMaxHealth>=1 and 0<=InitialHealth<=InitialMaxHealth."), Issues);
-    }
-    const bool bTraining = Blueprint->GetOutermost()->GetName()
-        == TEXT("/Game/EmberTrial/Tests/Blueprints/BP_ETCombatTrainingTarget");
-    if (!bTraining)
-    {
-        RequireObject(Blueprint, Defaults, TEXT("LightAttackAbilityClass"), TEXT("ET-BODY-003"), Issues);
-    }
-    const bool bPlayer = Blueprint->GetOutermost()->GetName()
-        == TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter");
-    if (bPlayer)
-    {
-        UObject* Mapping = RequireObject(Blueprint, Defaults,
-            TEXT("DefaultMappingContext"), TEXT("ET-BODY-003"), Issues);
-        if (IsValid(Mapping) && Mapping->GetPathName()
-            != TEXT("/Game/ThirdPerson/Input/IMC_Default.IMC_Default"))
-        {
-            AddIssue(Blueprint, TEXT("ET-INPUT-001"),
-                TEXT("Player DefaultMappingContext must reference the validated IMC_Default for this profile."), Issues);
-        }
-        for (const TCHAR* Name : {TEXT("JumpAction"), TEXT("MoveAction"), TEXT("LookAction")})
-        {
-            RequireObject(Blueprint, Defaults, Name, TEXT("ET-BODY-003"), Issues);
-        }
-    }
-    const FObjectPropertyBase* LifeProperty = FindFProperty<FObjectPropertyBase>(
-        Defaults->GetClass(), TEXT("CombatLifeComponent"));
-    UObject* Life = LifeProperty ? LifeProperty->GetObjectPropertyValue_InContainer(Defaults) : nullptr;
-    if (IsValid(Life))
-    {
-        RequireObject(Blueprint, Life, TEXT("HitReactAbilityClass"), TEXT("ET-BODY-003"), Issues);
-    }
-}
-
-void UETGameplayAssetValidator::ValidateMontage(UObject* Asset,
-    const UAnimMontage* Montage, int32& Issues)
-{
-    if (!IsValid(Montage)) { return; } // Missing reference was already reported.
-    const bool bDefaultSlot = Montage->SlotAnimTracks.ContainsByPredicate(
-        [](const FSlotAnimationTrack& Track) { return Track.SlotName == FName(TEXT("DefaultSlot")); });
-    if (!IsValid(Montage->GetSkeleton()) || !FMath::IsFinite(Montage->GetPlayLength())
-        || Montage->GetPlayLength() <= 0.0f || !bDefaultSlot)
-    {
-        AddIssue(Asset, TEXT("ET-GA-001"), FString::Printf(
-            TEXT("Montage %s needs a Skeleton, positive length and DefaultSlot."),
-            *GetPathNameSafe(Montage)), Issues);
-    }
-}
-
-void UETGameplayAssetValidator::ValidateAbility(UBlueprint* Blueprint,
-    UObject* Defaults, int32& Issues)
-{
-    const UGameplayAbility* Ability = CastChecked<UGameplayAbility>(Defaults);
-    if (Ability->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::InstancedPerActor
-        || Ability->GetNetExecutionPolicy() != EGameplayAbilityNetExecutionPolicy::ServerOnly)
-    {
-        AddIssue(Blueprint, TEXT("ET-GA-002"),
-            TEXT("Formal abilities require InstancedPerActor / ServerOnly for current standalone design."), Issues);
-    }
-    const bool bAttack = Defaults->IsA<UETGA_LightAttack>();
-    ValidateMontage(Blueprint, Cast<UAnimMontage>(RequireObject(Blueprint, Defaults,
-        bAttack ? TEXT("AttackMontage") : TEXT("HitReactMontage"), TEXT("ET-GA-001"), Issues)), Issues);
-    if (!bAttack) { return; }
-    const TOptional<double> Damage = ReadNumber(Blueprint, Defaults, TEXT("AttackDamage"), Issues);
-    const TOptional<double> Speed = ReadNumber(Blueprint, Defaults, TEXT("AttackMaxHorizontalSpeed"), Issues);
-    if (Damage.IsSet() && Speed.IsSet() && (!FMath::IsFinite(Damage.GetValue())
-        || Damage.GetValue() <= 0.0 || !FMath::IsFinite(Speed.GetValue()) || Speed.GetValue() < 0.0))
-    {
-        AddIssue(Blueprint, TEXT("ET-GA-003"),
-            TEXT("AttackDamage must be finite >0; AttackMaxHorizontalSpeed finite >=0."), Issues);
-    }
-    UClass* EffectClass = Cast<UClass>(RequireObject(Blueprint, Defaults,
-        TEXT("DamageEffectClass"), TEXT("ET-GA-003"), Issues));
-    if (IsValid(EffectClass))
-    {
-        ValidateDamageEffect(Blueprint, EffectClass->GetDefaultObject<UGameplayEffect>(), Issues);
-    }
-}
-
-void UETGameplayAssetValidator::ValidateDamageEffect(UObject* Asset,
-    const UGameplayEffect* Effect, int32& Issues)
-{
-    bool bValid = IsValid(Effect) && Effect->DurationPolicy == EGameplayEffectDurationType::Instant
-        && Effect->Modifiers.Num() == 1 && Effect->Executions.Num() == 0;
-    if (bValid)
-    {
-        const FGameplayModifierInfo& Modifier = Effect->Modifiers[0];
-        bValid = Modifier.Attribute == UETHealthAttributeSet::GetHealthAttribute()
-            && Modifier.ModifierOp == EGameplayModOp::AddBase
-            && Modifier.ModifierMagnitude.GetMagnitudeCalculationType()
-                == EGameplayEffectMagnitudeCalculation::SetByCaller
-            && Modifier.ModifierMagnitude.GetSetByCallerFloat().DataTag
-                == ETGameplayTags::SetByCaller_HealthDelta;
-    }
-    if (!bValid)
-    {
-        AddIssue(Asset, TEXT("ET-GE-001"),
-            TEXT("Damage GE must be Instant, one Health Add(Base) / SetByCaller.HealthDelta modifier, no Execution; restore GE_ET_LightAttackDamage."),
-            Issues);
-    }
-}
-
-void UETGameplayAssetValidator::ValidateController(UBlueprint* Blueprint,
-    UObject* Defaults, int32& Issues)
-{
-    const TOptional<double> Stop = ReadNumber(Blueprint, Defaults, TEXT("PursuitStopDistance"), Issues);
-    const TOptional<double> Resume = ReadNumber(Blueprint, Defaults, TEXT("PursuitResumeDistance"), Issues);
-    const TOptional<double> Melee = ReadNumber(Blueprint, Defaults, TEXT("MeleeAttackDistance"), Issues);
-    const TOptional<double> Retry = ReadNumber(Blueprint, Defaults, TEXT("MeleeRetryDelay"), Issues);
-    if (Stop.IsSet() && Resume.IsSet() && Melee.IsSet() && Retry.IsSet()
-        && (!FMath::IsFinite(Stop.GetValue()) || !FMath::IsFinite(Resume.GetValue())
-            || !FMath::IsFinite(Melee.GetValue()) || !FMath::IsFinite(Retry.GetValue())
-            || Stop.GetValue() < 1.0 || Resume.GetValue() <= Stop.GetValue() + 1.0
-            || Melee.GetValue() < Resume.GetValue() || Retry.GetValue() < 0.1))
-    {
-        AddIssue(Blueprint, TEXT("ET-AI-005"),
-            TEXT("Require Stop>=1, Resume>Stop+1cm tolerance, Melee>=Resume, Retry>=0.1s; all finite. Current defaults:90/100/100/0.5."),
-            Issues);
-    }
-    const UBehaviorTree* Tree = Cast<UBehaviorTree>(RequireObject(Blueprint, Defaults,
-        TEXT("EnemyBehaviorTree"), TEXT("ET-AI-006"), Issues));
-    const UBlackboardData* Board = Cast<UBlackboardData>(RequireObject(Blueprint, Defaults,
-        TEXT("EnemyBlackboardAsset"), TEXT("ET-AI-006"), Issues));
-    if (IsValid(Tree) && IsValid(Board) && Tree->BlackboardAsset.Get() != Board)
-    {
-        AddIssue(Blueprint, TEXT("ET-AI-006"),
-            TEXT("Controller and Behavior Tree must reference the same Blackboard asset."), Issues);
-    }
-}
-
-void UETGameplayAssetValidator::ValidateInput(UInputMappingContext* Context, int32& Issues)
-{
-    int32 LeftCount = 0;
-    int32 CorrectCount = 0;
-    for (const FEnhancedActionKeyMapping& Mapping : Context->GetMappings())
-    {
-        if (Mapping.Key == EKeys::LeftMouseButton)
-        {
-            ++LeftCount;
-            if (IsValid(Mapping.Action) && Mapping.Action->GetPathName()
-                == TEXT("/Game/EmberTrial/Input/Actions/IA_ET_LightAttack.IA_ET_LightAttack"))
-            {
-                ++CorrectCount;
-            }
-        }
-    }
-    if (LeftCount != 1 || CorrectCount != 1)
-    {
-        AddIssue(Context, TEXT("ET-INPUT-001"),
-            TEXT("IMC_Default needs exactly one Left Mouse Button mapping to IA_ET_LightAttack; restore that row and remove duplicates."),
-            Issues);
-    }
-}
-```
+[ETGameplayAssetValidator.cpp 当前源码](../EmberTrial/Source/EmberTrialEditor/Private/Validation/ETGameplayAssetValidator.cpp)。实现与配置以该文件为准，本文保留职责和排障说明。
 
 说明：这个校验器用反射读配置、用类型化SDK检查GE / Montage / 输入。某个私有属性改名后会报ET-SETUP-002，不能静默跳过。规则不是通用资产库契约；未来增加新能力或身体时，显式更新所支持路径与规则，避免把练习 / 故意非法样例扫成正式错误。原生C++已有Runtime守卫仍保留，工具不会代替它们。
+
+
+### 3.3 路径、反射与错误汇总
+
+cpp内部ETGameplayValidationPaths集中六组被重复使用的路径：玩家身体、训练身体、玩家 / 敌人攻击、闪避成本GE、Heal Action。前五项是Package路径，最后一项是带对象名的引用路径；新增资产时需显式更新Profile，不能改成扫描所有子类，也不能混用两种路径格式。
+
+RequireObject先区分字段不存在与引用None；ReadNumber以空Optional保留反射失败，不能当作0继续判断。ValidateBlueprint先查编译状态 / 原生父类 / CDO，再分派身体、能力、Controller或GE；各分支返回边界保持。每资产单独计数，AddIssue逐条登记失败，零问题才登记AssetPasses；不支持类型返回NotValidated。
+
+本轮保持白名单、字段名、原值范围、日志、规则顺序和诊断文本。没有创建新配置系统或删除Runtime守卫，也没有用资源Valid替代运行时动作回归。
 
 ## 4. 共享配置与现成脚本
 
@@ -454,7 +90,7 @@ void UETGameplayAssetValidator::ValidateInput(UInputMappingContext* Context, int
 +GameplayCueNotifyPaths=/Game/EmberTrial/Abilities
 ```
 
-这里扫描已有Abilities目录及其子目录；未来本项目GameplayCue资源放入Abilities/Cues，若放到其他目录则明确扩展路径并同步更新脚本规则。当前没有自定义Cue，本批不新增特效。该配置针对已记录的“未指定路径→扫描整个/Game”Warning，**不声称FPS或加载时间已经改善**；Runtime Warning是否消失留C3实际包日志核对。
+这里扫描已有Abilities目录及其子目录；未来本项目GameplayCue资源放入Abilities/Cues，若放到其他目录则明确扩展路径并同步更新脚本规则。当前没有自定义Cue，本批不新增特效。该配置针对已记录的“未指定路径→扫描整个/Game”Warning，**不声称FPS或加载时间已经改善**；C3两轮实际包日志已核对该回退Warning消失，证据见[C3报告](Reports/M1_07C3_Verification.md)；不延伸为M2包结论。
 
 其余DefaultGame.ini内容和DefaultEngine.ini保持既有值；特别是两正式MapsToCook、默认菜单 / 编辑器正式图不删。保存后PowerShell执行：
 
@@ -497,18 +133,18 @@ CLion仍是三个CodeModel，新cpp / h在EmberTrialEditor中。Game这次通常
 | 5 | 左侧目录树的 `/Game/EmberTrial/Abilities` 文件夹右键 → **Validate Assets in Folder** | 三个GA与Effects中的伤害GE各有M1-07C2 Valid；这是递归目录校验 |
 | 6 | `/Game/ThirdPerson/Input/IMC_Default` | M1-07C2 Valid / Issues=0 |
 
-第5项三个GA为 `GA_ET_LightAttack`、`GA_ET_EnemyLightAttack`、`GA_ET_HitReact`；GE为 `Effects/GE_ET_LightAttackDamage`。先分别打开三GA与GE Compile → Save，再对目录检查。其他目录资源可能由UE原生Validator处理；仅原生“校验完成”不能代替这四条项目标记。总计**九个正式资产**，不要求逐个重复截图。
+原C2第5项的三GA为GA_ET_LightAttack、GA_ET_EnemyLightAttack、GA_ET_HitReact，GE为Effects/GE_ET_LightAttackDamage；原九资产验收保留在历史报告。当前目录还包含GA_ET_Dodge、GA_ET_Heal与Effects/GE_ET_DodgeCost，正式范围共12项；加合法GA Probe，Gameplay校验共13项。Blueprint类型覆盖其中12项，InputMappingContext类型覆盖IMC_Default；检查本项目Valid标记，不能只看UE总计“完成”。
 
 如果报错只处理对应规则：ET-BODY参考Class Defaults的引用 / 初始数值，ET-GA参考能力的Montage / 伤害 / 策略，ET-GE参考伤害Modifier，ET-AI参考Controller距离 / Tree / BB，ET-INPUT参考左键行。若ET-BODY-001是HealthAttributes None，先发该资产与规则日志，沿用此前从原生类新建的排障经验，不自动调用运行初始化掩盖CDO问题。
 
 ## 7. 隔离GA的缺失引用→恢复（约3–4分钟）
 
-1. 对正式 **GA_ET_LightAttack** 缩略图右键 → Duplicate，命名 **GA_ETValidation_AttackProbe**。将副本拖到已有 `/Game/EmberTrial/Tests/Validation` 文件夹，弹窗选Move Here；路径为 `/Game/EmberTrial/Tests/Validation/GA_ETValidation_AttackProbe`。原Abilities目录若留下该副本Redirector，对该目录执行Fix Up Redirectors in Folder。正式角色的能力Class保持原值。
+1. 优先使用已存在的合法GA_ETValidation_AttackProbe；以下为原C2首次创建步骤，不重复生成。首次从正式 **GA_ET_LightAttack** 缩略图右键 → Duplicate，命名 **GA_ETValidation_AttackProbe**。将副本拖到已有 `/Game/EmberTrial/Tests/Validation` 文件夹，弹窗选Move Here；路径为 `/Game/EmberTrial/Tests/Validation/GA_ETValidation_AttackProbe`。原Abilities目录若留下该副本Redirector，对该目录执行Fix Up Redirectors in Folder。正式角色的能力Class保持原值。
 2. 打开副本，进入 **Class Defaults**；Details搜索 `Attack Montage`，先记住当前值，清空为 **None**。只改这一项，Compile → Save。
-3. 回副本缩略图，Validate Assets。预期 `[M1-07C2] Invalid ... Issues=1`，Message Log中 **ET-GA-001** 指向这个隔离副本，提示 `AttackMontage is None`。原生编译通过并不代表资源引用有效，这就是本负例的用途。
+3. 回副本缩略图，Validate Assets。预期Invalid且Message Log含 **ET-GA-001**，指向这个隔离副本并提示AttackMontage为None。历史C2的单段Probe仅一条问题；若由当前开启连段的GA新建副本，清空首段Montage还会触发ET-COMBO-001，不再以Issues=1作为统一预期。原生编译通过并不代表资源引用有效，这就是本负例的用途。
 4. 回副本Class Defaults，将Attack Montage恢复为刚才原值，Compile → Save → Validate Assets，应为 `[M1-07C2] Valid ... Issues=0`。副本保留**合法配置**，不授予正式角色、不放地图。
 
-只实测ET-GA-001负例；其他规则本批以正常资产 / 代码审查为证，不声称每条错误分支均有独立样例。现有BT Probe仍保留，无需再设计一次断键测试；C1实现本批未改。
+历史C2只实测ET-GA-001负例；当前未为每条规则建立独立错误样例。BT Probe也保留合法状态；普通批次不重复制造负例，仅规则变更 / 相关失败时复用。第21批未重做交互式断引用或断键。
 
 ## 8. 复用既有自动化（约1–2分钟）
 
@@ -520,7 +156,7 @@ Automation RunTests EmberTrial.M0.PracticeAction
 
 这是已有组，预期 **Lifecycle** 与 **DodgeMovement** 两项各一次 `Test Completed. Result={Success}`；可在Output Log搜完整测试路径核对，DodgeMovement含三种步长，是一项测试。测试创建自己的临时世界并清理，结束后编辑器继续正常。它复用已有动作生命周期 / 位移基线，不证明本批GA真实攻击或新工具所有错误规则；相关Gameplay实现未变，旧实机矩阵不重复。
 
-最后Save All、确认GA Probe已恢复，再执行一次配置脚本确认PASS / Warnings=0。等待日志完成后按第9节反馈；不要求本轮Cook / 新Trace，下一批C3统一Attempt02与包内短流程。
+以上两项是历史C2的最小回归；当前清理按[方案B](AcceptanceWorkflow_Options.md)复用现有13项自动化。GA Probe保持合法，配置脚本应PASS / Warnings=0；不因一次静态清理重复设计临时输入或Cook。最终新版包仍留统一收尾。
 
 ## 9. 最简反馈
 
@@ -535,14 +171,8 @@ GA Probe None→ET-GA-001，恢复→Valid；已保存且未授予正式身体�
 完成时分 / 实际手动用时 / 构建等待：
 ```
 
-报编译错误发首个error的文字 / 文件行号；配置和资源问题发规则ID / 对象路径，必要时附Class Defaults或Details截图。规则失败后局部处理，不补搭Controller输入测试图。入口说明见[官方Data Validation，UE5.5](https://dev.epicgames.com/documentation/en-us/unreal-engine/data-validation-in-unreal-engine?application_version=5.5)，具体API签名按本机5.5.4头文件核对；新C++已由用户手动填写 / Editor构建并验收，助手未代写Source /运行Build。
+报编译错误发首个error的文字 / 文件行号；配置和资源问题发规则ID / 对象路径，必要时附Class Defaults或Details截图。规则失败后局部处理，不补搭Controller输入测试图。入口说明见[官方Data Validation，UE5.5](https://dev.epicgames.com/documentation/en-us/unreal-engine/data-validation-in-unreal-engine?application_version=5.5)，具体API签名按本机5.5.4头文件核对；原C2接入由用户手动完成；当前清理由助手按授权修改并运行构建 / 校验，结果见[Cleanup](Cleanup.md)，不计入历史用户手动工时。
 
 ## 10. 本批需要 Commit / Push（固定放在文档最后）
 
-- 新增 `EmberTrial/Source/EmberTrialEditor/Public/Validation/ETGameplayAssetValidator.h` 与 `Private/Validation/ETGameplayAssetValidator.cpp`；修改同模块Build.cs。原C1两个Validator文件、两个Target / uproject只有出现真实新差异才加入。
-- 新增 `Tools/Validate-ProjectConfig.ps1`；修改 `EmberTrial/Config/DefaultGame.ini` 的Cue路径。DefaultEngine.ini和MapsToCook原值保留，不人为制造差异。
-- 新增**恢复合法配置**的 `EmberTrial/Content/EmberTrial/Tests/Validation/GA_ETValidation_AttackProbe.uasset`（LFS）。正式资产只读 / Compile / Save产生实际差异时核查后提交；不要留下故意None的负例最终版本或无用Redirector。
-- 新增本指南、`Docs/Reports/M1_07C1_Verification.md`；C1清单47项 / HUD哈希和状态、路线 / 架构 / 方案B / VersionControl / Introduction的实际更新。C2报告已生成、AssetManifest实际第48项已登记，随最新收尾文字提交。
-- Raw、日志 / 测试报告、CMake / Intermediate / Binaries / Saved、Artifacts包 / Trace继续留本地，不Force Add。新的Game exe不是Attempt02，包留C3。
-
-CLion Save All → 刷新Changes → 重新Stage最新实现和恢复后的资产 → Staged Diff → Commit → Push。建议 `feat: validate combat references and project configuration`。C1主体已在本地e3ee554，收尾文档仍需追加提交；用户操作Git，助手不代Stage / Commit / Push。
+第21批清理的四份Validator Source与五份同步Markdown，共9项，逐文件清单见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。模块入口 / Build.cs / 两Target / uproject与资产未改，不重复提交原C1 / C2实现。CLion刷新Changes → 重新Stage最新差异 → 检查Staged Diff → Commit → Push；由用户操作Git。Raw / 日志 / 生成文件留本地。
