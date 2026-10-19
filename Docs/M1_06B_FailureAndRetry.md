@@ -1,6 +1,6 @@
 # M1-06B：真实死亡、失败界面与整图重试
 
-2026-10-18清理同步：保留历史接入、Designer、排障与分层验收经验；完整类以当前Source入口为准，不覆盖已完成工程。本轮清理由助手按用户授权直接修改，Git仍由用户操作。M1阶段包与后续功能已完成，当前状态见[Progress](Progress.md)，本批检查与提交清单见[Cleanup](Cleanup.md)。
+2026-10-19第20批清理同步：会话 / 检查点 / GameMode以当前Source为准，不用早期全文覆盖检查点继续逻辑。本轮按用户授权直接清理，原功能与历史验收保留；当前检查和提交清单见[Cleanup](Cleanup.md)。
 
 原B于2026-10-11完成，功能已验收、无待补项，见[B报告](Reports/M1_06B_Verification.md)。用户手动80分钟（代码40 / 资产30 / 检查10）、等待5分钟是历史实耗。当前规模见[Progress](Progress.md)；本页14.1.1重新Stage步骤可复用，不再维护历史HEAD / 缓存远端是否一致的时点描述。
 
@@ -56,276 +56,11 @@
 
 ### 3.1 ETRunSessionSubsystem.h全文
 
-```cpp
-#pragma once
-
-#include "CoreMinimal.h"
-#include "Engine/EngineBaseTypes.h"
-#include "Subsystems/GameInstanceSubsystem.h"
-#include "UObject/SoftObjectPath.h"
-#include "ETRunSessionSubsystem.generated.h"
-
-class UWorld;
-
-DECLARE_MULTICAST_DELEGATE_TwoParams(
-    FETRunTravelFailed, UWorld*, const FText&);
-
-enum class EETRunTravelIntent : uint8
-{
-    None,
-    NewRun,
-    Retry,
-    MainMenu
-};
-
-UCLASS()
-class EMBERTRIAL_API UETRunSessionSubsystem : public UGameInstanceSubsystem
-{
-    GENERATED_BODY()
-
-public:
-    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-    virtual void Deinitialize() override;
-
-    void NotifyGameplayWorldReady(UWorld* GameplayWorld);
-    bool RequestNewRun(UWorld* RequestWorld, const FSoftObjectPath& Map,
-        FText& OutError);
-    bool RequestRetry(UWorld* RequestWorld, FText& OutError);
-    bool RequestMainMenu(UWorld* RequestWorld, const FSoftObjectPath& Map,
-        FText& OutError);
-    bool IsTravelPending() const { return bTravelPending; }
-
-    FETRunTravelFailed OnTravelFailed;
-
-private:
-    bool BeginTravel(UWorld* RequestWorld, const FString& TargetPackage,
-        EETRunTravelIntent Intent, FText& OutError);
-    bool RejectRequest(const TCHAR* Reason, FText& OutError);
-    void HandlePostLoadMap(UWorld* LoadedWorld);
-    void HandleTravelFailure(UWorld* FailedWorld,
-        ETravelFailure::Type FailureType, const FString& ErrorString);
-    void ResetPendingTravel();
-    static FString GetWorldPackage(UWorld* World);
-    static const TCHAR* GetIntentName(EETRunTravelIntent Intent);
-
-    FString GameplayPackage;
-    FString PendingTargetPackage;
-    EETRunTravelIntent PendingIntent = EETRunTravelIntent::None;
-    TWeakObjectPtr<UWorld> OriginWorld;
-    FDelegateHandle PostLoadHandle;
-    FDelegateHandle TravelFailureHandle;
-    bool bTravelPending = false;
-    bool bShuttingDown = false;
-};
-```
+当前源码：[ETRunSessionSubsystem.h](../EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h)。这里保留历史接入位置，完整实现只在Source维护。
 
 ### 3.2 ETRunSessionSubsystem.cpp全文
 
-```cpp
-#include "Flow/ETRunSessionSubsystem.h"
-#include "Engine/Engine.h"
-#include "Engine/GameInstance.h"
-#include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
-#include "Logging/LogMacros.h"
-#include "Misc/PackageName.h"
-#include "UObject/Package.h"
-#include "UObject/UObjectGlobals.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETRunSession, Log, All);
-
-void UETRunSessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
-{
-    Super::Initialize(Collection);
-    bShuttingDown = false;
-    ResetPendingTravel();
-    GameplayPackage.Reset();
-    PostLoadHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(
-        this, &ThisClass::HandlePostLoadMap);
-    if (GEngine)
-    {
-        TravelFailureHandle = GEngine->OnTravelFailure().AddUObject(
-            this, &ThisClass::HandleTravelFailure);
-    }
-    UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Session ready Session=%s"), *GetNameSafe(this));
-}
-
-void UETRunSessionSubsystem::Deinitialize()
-{
-    bShuttingDown = true;
-    FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadHandle);
-    PostLoadHandle.Reset();
-    if (GEngine && TravelFailureHandle.IsValid())
-    {
-        GEngine->OnTravelFailure().Remove(TravelFailureHandle);
-    }
-    TravelFailureHandle.Reset();
-    ResetPendingTravel();
-    OnTravelFailed.Clear();
-    GameplayPackage.Reset();
-    UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Session end Session=%s"), *GetNameSafe(this));
-    Super::Deinitialize();
-}
-
-FString UETRunSessionSubsystem::GetWorldPackage(UWorld* World)
-{
-    return IsValid(World)
-        ? UWorld::RemovePIEPrefix(World->GetOutermost()->GetName()) : FString();
-}
-
-const TCHAR* UETRunSessionSubsystem::GetIntentName(EETRunTravelIntent Intent)
-{
-    switch (Intent)
-    {
-    case EETRunTravelIntent::NewRun: return TEXT("NewRun");
-    case EETRunTravelIntent::Retry: return TEXT("Retry");
-    case EETRunTravelIntent::MainMenu: return TEXT("MainMenu");
-    default: return TEXT("None");
-    }
-}
-
-void UETRunSessionSubsystem::NotifyGameplayWorldReady(UWorld* GameplayWorld)
-{
-    if (bShuttingDown || !IsValid(GameplayWorld) ||
-        GameplayWorld->GetGameInstance() != GetGameInstance() ||
-        GameplayWorld->GetNetMode() != NM_Standalone)
-    {
-        return;
-    }
-    const FString Package = GetWorldPackage(GameplayWorld);
-    if (!bTravelPending && FPackageName::IsValidLongPackageName(Package) &&
-        FPackageName::DoesPackageExist(Package))
-    {
-        // Direct PIE in the gameplay map is also a valid starting session.
-        GameplayPackage = Package;
-    }
-    UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Gameplay world ready Map=%s Pending=%d"),
-        *Package, bTravelPending ? 1 : 0);
-}
-
-bool UETRunSessionSubsystem::RequestNewRun(UWorld* RequestWorld,
-    const FSoftObjectPath& Map, FText& OutError)
-{
-    return BeginTravel(RequestWorld, Map.GetLongPackageName(),
-        EETRunTravelIntent::NewRun, OutError);
-}
-
-bool UETRunSessionSubsystem::RequestRetry(UWorld* RequestWorld, FText& OutError)
-{
-    if (GameplayPackage.IsEmpty() ||
-        GetWorldPackage(RequestWorld) != GameplayPackage)
-    {
-        return RejectRequest(TEXT("当前试炼地图尚未登记，不能重试。"), OutError);
-    }
-    return BeginTravel(RequestWorld, GameplayPackage,
-        EETRunTravelIntent::Retry, OutError);
-}
-
-bool UETRunSessionSubsystem::RequestMainMenu(UWorld* RequestWorld,
-    const FSoftObjectPath& Map, FText& OutError)
-{
-    return BeginTravel(RequestWorld, Map.GetLongPackageName(),
-        EETRunTravelIntent::MainMenu, OutError);
-}
-
-bool UETRunSessionSubsystem::RejectRequest(const TCHAR* Reason, FText& OutError)
-{
-    OutError = FText::FromString(Reason);
-    UE_LOG(LogETRunSession, Warning,
-        TEXT("[M1-06B] Travel rejected Reason=%s"), Reason);
-    return false;
-}
-
-bool UETRunSessionSubsystem::BeginTravel(UWorld* RequestWorld,
-    const FString& TargetPackage, EETRunTravelIntent Intent, FText& OutError)
-{
-    OutError = FText::GetEmpty();
-    if (bShuttingDown || bTravelPending || !IsValid(RequestWorld) ||
-        RequestWorld->bIsTearingDown || !RequestWorld->HasBegunPlay() ||
-        RequestWorld->GetGameInstance() != GetGameInstance() ||
-        RequestWorld->GetNetMode() != NM_Standalone)
-    {
-        return RejectRequest(TEXT("当前无法切换地图，请稍后重试。"), OutError);
-    }
-    if (!FPackageName::IsValidLongPackageName(TargetPackage) ||
-        !FPackageName::DoesPackageExist(TargetPackage) ||
-        (Intent != EETRunTravelIntent::Retry &&
-            TargetPackage == GetWorldPackage(RequestWorld)))
-    {
-        return RejectRequest(TEXT("目标地图不可用，请检查地图配置。"), OutError);
-    }
-    bTravelPending = true;
-    PendingIntent = Intent;
-    PendingTargetPackage = TargetPackage;
-    OriginWorld = RequestWorld;
-    if (UGameplayStatics::IsGamePaused(RequestWorld) &&
-        !UGameplayStatics::SetGamePaused(RequestWorld, false))
-    {
-        ResetPendingTravel();
-        return RejectRequest(TEXT("无法解除世界暂停，未执行切图。"), OutError);
-    }
-    UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Travel requested Intent=%s From=%s To=%s Paused=%d"),
-        GetIntentName(Intent), *GetWorldPackage(RequestWorld), *TargetPackage,
-        UGameplayStatics::IsGamePaused(RequestWorld) ? 1 : 0);
-    UGameplayStatics::OpenLevel(RequestWorld, FName(*TargetPackage), true);
-    return true;
-}
-
-void UETRunSessionSubsystem::HandlePostLoadMap(UWorld* LoadedWorld)
-{
-    if (bShuttingDown || !bTravelPending || !IsValid(LoadedWorld) ||
-        LoadedWorld->GetGameInstance() != GetGameInstance())
-    {
-        return;
-    }
-    const FString LoadedPackage = GetWorldPackage(LoadedWorld);
-    const EETRunTravelIntent CompletedIntent = PendingIntent;
-    const bool bExpectedMap = LoadedPackage == PendingTargetPackage;
-    if (bExpectedMap && CompletedIntent == EETRunTravelIntent::NewRun)
-    {
-        // Commit new-run data only after this GameInstance arrived.
-        GameplayPackage = PendingTargetPackage;
-    }
-    ResetPendingTravel();
-    UE_LOG(LogETRunSession, Display,
-        TEXT("[M1-06B] Travel arrived Intent=%s Map=%s Expected=%d Pending=0"),
-        GetIntentName(CompletedIntent), *LoadedPackage, bExpectedMap ? 1 : 0);
-    if (!bExpectedMap)
-    {
-        OnTravelFailed.Broadcast(LoadedWorld, FText::FromString(
-            TEXT("未到达请求的地图，请检查配置后重试。")));
-    }
-}
-
-void UETRunSessionSubsystem::HandleTravelFailure(UWorld* FailedWorld,
-    ETravelFailure::Type FailureType, const FString& ErrorString)
-{
-    if (bShuttingDown || !bTravelPending || !IsValid(FailedWorld) ||
-        (FailedWorld != OriginWorld.Get() &&
-            FailedWorld->GetGameInstance() != GetGameInstance()))
-    {
-        return;
-    }
-    ResetPendingTravel();
-    UE_LOG(LogETRunSession, Warning,
-        TEXT("[M1-06B] Travel failed Type=%d Error=%s Pending=0"),
-        static_cast<int32>(FailureType), *ErrorString);
-    OnTravelFailed.Broadcast(FailedWorld, FText::FromString(
-        TEXT("加载地图失败，请重试或返回主菜单。")));
-}
-
-void UETRunSessionSubsystem::ResetPendingTravel()
-{
-    bTravelPending = false;
-    PendingIntent = EETRunTravelIntent::None;
-    PendingTargetPackage.Reset();
-    OriginWorld.Reset();
-}
-```
+当前源码：[ETRunSessionSubsystem.cpp](../EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp)。这里保留历史接入位置，完整实现只在Source维护。
 
 只保存包名字符串，OriginWorld仅为当前切图请求的弱引用，确认 / 失败 / 结束都释放；不加载或强持有旧地图。请求有Widget、UI拥有者与会话三层门控；拒绝发生在解除暂停之前，失败页仍可操作。进入正式地图的GI保持，下一轮PIE才重建会话。PostLoad回调过滤所属GI，避免另一PIE窗口的地图替本会话解锁。
 
@@ -434,16 +169,7 @@ void AETMenuGameMode::InitializeHUDForPlayer_Implementation(
 
 在既有`AETGameMode::StartPlay()`中，紧接`Super::StartPlay();`之后、原Rules ready日志之前追加：
 
-```cpp
-    if (UGameInstance* Instance = GetGameInstance())
-    {
-        if (UETRunSessionSubsystem* RunSession =
-            Instance->GetSubsystem<UETRunSessionSubsystem>())
-        {
-            RunSession->NotifyGameplayWorldReady(GetWorld());
-        }
-    }
-```
+当前源码：[ETGameMode.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETGameMode.cpp)。这里保留历史接入位置，完整实现只在Source维护。
 
 构造函数、原Rules日志、GameMode头文件与Blueprint父类不变。直接从正式地图PIE也会登记可重试地图；菜单GameMode**不调用NotifyGameplayWorldReady**，不能把菜单误登记为试炼地图。新游戏请求的地图在PostLoad确认后才提交到会话。
 
@@ -673,51 +399,18 @@ Main Menu Map恢复、100/100、4=Damage25、slomo1、Debug False / Save All：
 
 ## 14. 本批需要Commit / Push的内容（固定放在文档最后）
 
-### 14.1 源码：六新 / 七旧
+历史B功能 / 资产 / 报告已提交，不重复按旧AM提示暂存骨架。当前第20批为六份Source与七份Markdown，共13项；逐文件清单与最新检查见[Cleanup末尾](Cleanup.md)，本次未改资产、配置或测试源码。
 
-选择第2节全部13份实际变化Source：Session / FailureWidget / FailureFlow各头与cpp；CombatLife头 / cpp、MenuGameMode头 / cpp、ETGameMode.cpp、MainMenuController头 / cpp。Build.cs / Target / .uproject / ETPlayerController.cpp / 旧Bootstrap本批无必需改动，不提交生成的UHT / Unity cpp或索引文件。
-
-推荐Commit标题：`feat: add death screen and session-based level retry`。**验收时曾发现六个新文件为AM：暂存区只有类骨架，完整代码在工作区；后续已全部提交4b83b66，不再重复暂存。**以下14.1.1保留为日后“Stage后又修改”的简单操作；提交前看Staged Diff确认完整实现，避免只提交早期暂存内容。
+### 14.1 当前清理与最新暂存
 
 #### 14.1.1 CLion重新Stage最新修改：简单步骤
 
-重新Stage就是把已保存的最新代码更新到暂存区；直接添加最新修改即可，不需要先取消旧暂存。
+重新Stage是用已保存的最新修改更新暂存内容，不需要先取消旧暂存。
 
-1. 在CLion按 **Ctrl+S** 保存代码，再按 **Ctrl+K** 打开Commit提交窗口。
-2. 如果窗口没有 **Staged（已暂存）/ Unstaged（未暂存）** 两组：按 **Ctrl+Alt+S** → **Version Control → Git** → 勾选 **Enable staging area（启用暂存区）** → Apply / OK，再回到Commit窗口。
-3. 展开 **Unstaged**，按住Ctrl选中下面六个文件的**最新修改**，按 **Ctrl+Alt+A** 添加到暂存区；也可以逐个点击文件右侧的 **＋ / Add** 按钮。文件同时出现在Staged和Unstaged时，本步选择Unstaged中的那一份。
+1. Ctrl+S保存，再Ctrl+K打开Commit窗口；启用Staging Area时会看到Staged / Unstaged两组。
+2. 若没有分组，Ctrl+Alt+S → Version Control → Git → Enable staging area → Apply / OK。使用默认Changelist模式也可选择实际修改并预览。
+3. 在Unstaged选择本批实际文件，点击＋ / Add或使用当前Keymap的添加快捷键。文件同时出现在两组时，选Unstaged中的最新修改。
+4. 在Staged查看Diff，确认是完整最终实现；若随后又修改文件，再Stage一次。没有新修改的旧资产不必重传。
+5. 确认本批清单与最终配置后Commit，再Push既有远端；助手不操作Git索引或代提交。
 
-   | 文件组 | 本次需要重新Stage的文件 |
-   | --- | --- |
-   | Session | `ETRunSessionSubsystem.h`、`ETRunSessionSubsystem.cpp` |
-   | 失败View | `ETFailureWidget.h`、`ETFailureWidget.cpp` |
-   | 失败流程 | `ETFailureFlowComponent.h`、`ETFailureFlowComponent.cpp` |
-
-4. 确认这六个文件已在 **Staged** 中，并且 **Unstaged不再列出它们的修改**。这表示暂存区已经跟上最新代码；之后若又改动这些文件，需要再Stage一次。
-5. 在 **Staged** 选中`ETRunSessionSubsystem.cpp`，按 **Ctrl+D** 查看差异，确认新增内容包含完整函数实现，例如`Initialize`、`BeginTravel`，而不是只有最初的include骨架。
-6. 按第14.1–14.3节清单，把本批其他源码、资产和文档也Stage进去，然后填写上面的Commit标题，**Commit → Push**。
-
-界面入口与快捷键依据[JetBrains CLion官方说明](https://www.jetbrains.com/help/clion/commit-and-push-changes.html#use-the-git-staging-area-to-commit-changes)核对；中文界面可对应查看括号中的名称。本步骤由你操作，我没有替你暂存或提交。
-
-### 14.2 可编辑资产
-
-| 内容 | 仓库相对路径 |
-| --- | --- |
-| 新失败Widget | `EmberTrial/Content/EmberTrial/ui/Flow/WBP_ETFailure.uasset` |
-| 组件装配 | `EmberTrial/Content/EmberTrial/Blueprints/Framework/BP_ETPlayerController.uasset` |
-| 旧P死亡门控 | `EmberTrial/Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset` |
-
-BP_ETMainMenuController只有确有父类刷新 / 必要配置保存变化才加入；本批不修改菜单Widget、地图、启动 / Cook设置或旧HUD。三个必需资产继续走LFS；若实际出现其他资产差异，保留并说明，不盲目丢弃或强行全选。
-
-### 14.3 文档与已有待提交项
-
-- `Docs/M1_06B_FailureAndRetry.md`、`Docs/M1_06_FlowRoadmap.md`。
-- 本批更新的`Docs/Progress.md`、`Docs/Backlog.md`、`Docs/Architecture.md`、`Docs/VersionControl.md`、`Docs/AcceptanceWorkflow_Options.md`、`Introduction.md`。
-- 已保存的`Docs/Reports/M1_06B_Verification.md`和`Docs/AssetManifest.csv`（一新Widget / 两旧BP实际哈希，清单45项）。
-- 原个人设置`EmberTrial/Config/DefaultEditorPerProjectUserSettings.ini`取消跟踪删除已进入4b83b66，磁盘个人设置保留，**不再执行删除磁盘文件或重复git rm**。
-
-### 14.4 留本地与最后操作
-
-Raw核查 / 日志、Artifacts包 / 视频、Binaries / Intermediate / Saved / DDC、`.idea` / `.run`、生成CMake / compile_commands与索引留本地，不Force Add绕过忽略规则。
-
-B功能 / 实现已进入4b83b66，B报告随3351b53已跟踪，不按旧AM提示重复提交Source / 资产。本轮C已验收，只追加C验收 / 来源清单 / 状态文档，按[C第13节](M1_06C_SessionCheckpoints.md#13-本批需要commit--push的内容固定放在文档最后)选择实际变化，Stage → Commit → Push已有origin/main。助手不代Stage / Commit / Push；上传失败给原始错误文本，我再定位。
+[CLion原参考说明](https://www.jetbrains.com/help/clion/commit-and-push-changes.html#use-the-git-staging-area-to-commit-changes)保留供查阅，快捷键以本机Keymap为准。Raw、日志、报告、生成索引与个人设置留本地，不Force Add，也不重复删除本机文件。

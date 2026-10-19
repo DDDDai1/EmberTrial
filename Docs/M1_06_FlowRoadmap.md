@@ -1,6 +1,6 @@
 # M1-06：主菜单、失败重试与检查点原型
 
-2026-10-18清理同步：本页保留历史实施 / 配置 / 排障经验，当前整文件实现以Source链接为准，不按旧全文覆盖现有工程。当前已接菜单继续、原生暂停与检查点；这轮清理由助手按用户授权直接修改，普通功能开发的手动实践约定保留。验证与本批Push清单见[Cleanup](Cleanup.md)。
+2026-10-19第20批清理同步：会话 / 检查点 / GameMode以当前Source为准，不用早期全文覆盖检查点继续逻辑。本轮按用户授权直接清理，原功能与历史验收保留；当前检查和提交清单见[Cleanup](Cleanup.md)。
 
 M1-06的A / B / C / D均已验收，无待补项，见[总验收](Reports/M1_06_Verification.md)。全章用户手动315分钟 / 等待20分钟是历史实耗，后续M1-07包、性能采集与校验已完成；当前规模与开发阶段统一见[Progress](Progress.md)。下面保留当时分批决策，不能将“尚待阶段包 / 性能”理解为当前待办。
 
@@ -34,6 +34,10 @@ M1-06的A / B / C / D均已验收，无待补项，见[总验收](Reports/M1_06_
 | **[D暂停迁移与章末闭环](M1_06D_PauseFlow.md)，功能已验收** | 单个Controller FailureFlow管理暂停 / 失败，P继续 / 返回菜单与检查点继续、章末证据整理 | 两新 / 六旧Source、四旧资产；保留历史原生类名 / 单组件，旧Pawn菜单移出，Core发意图、Blueprint提示桥接；无新测试图 | 实际105分钟：代码35 / 资产60 / 检查10；等待5。两新 / 六旧、四旧资产与清理闭合通过，布局与左键门控补修关闭 |
 
 全章实际**5小时15分钟用户有效投入**，等待20分钟另列，位于原5–8小时预算内。当前项目累计手动1836 / 等待140分钟。旧菜单已迁出Pawn，单Controller组件统一所有者，全部功能补项关闭；当前阶段包 / 性能与有限校验由M1-07接续。
+
+当前Core入口：[RunSession](../EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp)、[GameMode](../EmberTrial/Source/EmberTrial/Private/Framework/ETGameMode.cpp)、[CheckpointStart](../EmberTrial/Source/EmberTrial/Private/Flow/ETCheckpointStart.cpp)。已确认快照与待定请求、当前GI与来源World承担不同约束，不合并为宽泛的同一World检查。常量Entry是地图契约，检查点文字 / 颜色是占位默认值；不新增配置系统。
+
+GameMode共用私有会话查询，仍在原门控通过后读取，不持有旧世界对象。原生检查点一次NextTick补查与结束解绑保持。以下对象表与历史验收解释现有设计，新构建 / 测试覆盖见Cleanup，不能把资产Valid当作实际切图成功。
 
 ## 3. 对象归属与低耦合边界
 
@@ -78,6 +82,4 @@ M1-06先采用**非无缝OpenLevel整图重建**，适合目前的小房间与�
 
 ## 6. 本章需要Commit / Push的内容（固定放在文档最后）
 
-实际改动以各批指南最后的清单为准：本批见[D第12节](M1_06D_PauseFlow.md#12-本批需要commit--push的内容固定放在文档最后)。D八Source / 四旧资产已实现并验收，连同D / 总报告与C收尾实际文档差异提交；M1-07A新增手写启动工具和指南按该批清单提交。Raw日志、视频、包、生成CMake / compile_commands、UE / IDE缓存均留本地。
-
-C主体十份Source / 三资产与B报告已进入`3351b53`，不重复提交。D已实施 / 验收，当前追加C收尾、D实际源码 / 资产、D / 总报告与状态文档，按D最后清单由用户Commit / Push。旧AM骨架与个人设置取消跟踪删除已处理，磁盘个人设置保留；Raw留本地。
+M1-06历史功能与包验收已完成，不重复提交旧资产或已跟踪报告。第20批实际六份Source与七份Markdown共13项，清单统一见[Cleanup末尾](Cleanup.md)。用户在CLion刷新并重新Stage最新Diff，再Commit / Push；Raw、报告、包和索引留本地，助手不操作Git索引。
