@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "../../Public/Characters/EmberTrialCharacter.h"
-#include "../../ETPracticeActionComponent.h"
+#include "Characters/EmberTrialCharacter.h"
+#include "ETPracticeActionComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -31,70 +31,78 @@
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 DEFINE_LOG_CATEGORY_STATIC(LogETAbilityFoundation, Log, All);
-//////////////////////////////////////////////////////////////////////////
-// AEmberTrialCharacter
+// ---- 原生子对象与模板默认值；不在这里硬引用内容资产 ----
 
 AEmberTrialCharacter::AEmberTrialCharacter()
 {
-	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
-	AbilitySystemComponent->SetIsReplicated(false);
+    // 子对象名称沿用已有蓝图身份；重复创建会破坏单ASC / 单资源契约。
+    AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
+    AbilitySystemComponent->SetIsReplicated(false);
 
-	HealthAttributes = CreateDefaultSubobject<UETHealthAttributeSet>(TEXT("HealthAttributes"));
+    HealthAttributes = CreateDefaultSubobject<UETHealthAttributeSet>(TEXT("HealthAttributes"));
     StaminaAttributes = CreateDefaultSubobject<UETStaminaAttributeSet>(TEXT("StaminaAttributes"));
 
     CombatTraceComponent = CreateDefaultSubobject<UETCombatTraceComponent>(TEXT("CombatTrace"));
 
     CombatLifeComponent = CreateDefaultSubobject<UETCombatLifeComponent>(TEXT("CombatLife"));
 
-    StaminaRecoveryComponent = CreateDefaultSubobject<UETStaminaRecoveryComponent>(TEXT("StaminaRecovery"));
+    StaminaRecoveryComponent =
+        CreateDefaultSubobject<UETStaminaRecoveryComponent>(TEXT("StaminaRecovery"));
 
-    HealingResourceComponent = CreateDefaultSubobject<UETHealingResourceComponent>(TEXT("HealingResource"));
+    HealingResourceComponent =
+        CreateDefaultSubobject<UETHealingResourceComponent>(TEXT("HealingResource"));
 
-	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
-	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
+    // 以下为既有模板配置，均可在组件 / Blueprint中覆盖；本次保留数值。
+    // Set size for collision capsule
+    GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
+    // Don't rotate when the controller rotates. Let that just affect the camera.
+    bUseControllerRotationPitch = false;
+    bUseControllerRotationYaw = false;
+    bUseControllerRotationRoll = false;
 
-	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
-	// instead of recompiling to adjust them
-	GetCharacterMovement()->JumpZVelocity = 700.f;
-	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
-	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
+    // Configure character movement
+    GetCharacterMovement()->bOrientRotationToMovement =
+        true; // Character moves in the direction of input...
+    GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+    // Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
+    // instead of recompiling to adjust them
+    GetCharacterMovement()->JumpZVelocity = 700.f;
+    GetCharacterMovement()->AirControl = 0.35f;
+    GetCharacterMovement()->MaxWalkSpeed = 500.f;
+    GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
+    GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+    GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	// Create a follow camera
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+    // Create a camera boom (pulls in towards the player if there is a collision)
+    CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+    CameraBoom->SetupAttachment(RootComponent);
+    CameraBoom->TargetArmLength =
+        400.0f; // The camera follows at this distance behind the character
+    CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+    // Create a follow camera
+    FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+    FollowCamera->SetupAttachment(
+        CameraBoom,
+        USpringArmComponent::
+            SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+    FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+    // Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character)
+    // are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
 
+// ---- 启动：先建立ActorInfo和属性Ready，再依次尝试授予能力 ----
 void AEmberTrialCharacter::BeginPlay()
 {
-	// Call the base class  
-	bAbilitySystemShuttingDown = false;
-	Super::BeginPlay();
-	PracticeActionComponent = FindComponentByClass<UETPracticeActionComponent>();
-	RefreshEmberAbilityActorInfo(TEXT("BeginPlay"));
-	EnsureGameplayInitialized();
-	GrantLightAttackAbility();
+    bAbilitySystemShuttingDown = false;
+    Super::BeginPlay();
+    PracticeActionComponent = FindComponentByClass<UETPracticeActionComponent>();
+    RefreshEmberAbilityActorInfo(TEXT("BeginPlay"));
+    EnsureGameplayInitialized();
+    GrantLightAttackAbility();
     GrantDodgeAbility();
     GrantHealAbility();
 }
@@ -104,6 +112,7 @@ UAbilitySystemComponent* AEmberTrialCharacter::GetAbilitySystemComponent() const
     return AbilitySystemComponent.Get();
 }
 
+// ---- 正式闪避：玩家专属；活动请求拒绝，不保存补执行输入 ----
 void AEmberTrialCharacter::GrantDodgeAbility()
 {
     if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown || !HasAuthority() ||
@@ -113,37 +122,47 @@ void AEmberTrialCharacter::GrantDodgeAbility()
     }
     if (DodgeAbilityClass->HasAnyClassFlags(CLASS_Abstract))
     {
-        UE_LOG(LogETAbilityFoundation, Warning, TEXT("[M2-02A] Abstract Dodge class Body=%s"), *GetNameSafe(this));
+        UE_LOG(LogETAbilityFoundation, Warning, TEXT("[M2-02A] Abstract Dodge class Body=%s"),
+               *GetNameSafe(this));
         return;
     }
-    DodgeAbilityHandle = AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(DodgeAbilityClass.Get(), 1, INDEX_NONE, this));
+    DodgeAbilityHandle = AbilitySystemComponent->GiveAbility(
+        FGameplayAbilitySpec(DodgeAbilityClass.Get(), 1, INDEX_NONE, this));
     UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge granted Body=%s Valid=%d"),
-        *GetNameSafe(this), DodgeAbilityHandle.IsValid() ? 1 : 0);
+           *GetNameSafe(this), DodgeAbilityHandle.IsValid() ? 1 : 0);
 }
 
 bool AEmberTrialCharacter::RequestDodge()
 {
-    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown || !DodgeAbilityHandle.IsValid())
+    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
+        !DodgeAbilityHandle.IsValid())
     {
-        UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge request Body=%s Accepted=0 Reason=NotReadyOrNotGranted"), *GetNameSafe(this));
+        UE_LOG(LogETAbilityFoundation, Display,
+               TEXT("[M2-02A] Dodge request Body=%s Accepted=0 Reason=NotReadyOrNotGranted"),
+               *GetNameSafe(this));
         return false;
     }
-    const FGameplayAbilitySpec* Spec = AbilitySystemComponent->FindAbilitySpecFromHandle(DodgeAbilityHandle);
+    const FGameplayAbilitySpec* Spec =
+        AbilitySystemComponent->FindAbilitySpecFromHandle(DodgeAbilityHandle);
     if (!Spec || Spec->IsActive())
     {
-        UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge request Body=%s Accepted=0 Reason=MissingOrBusy"), *GetNameSafe(this));
+        UE_LOG(LogETAbilityFoundation, Display,
+               TEXT("[M2-02A] Dodge request Body=%s Accepted=0 Reason=MissingOrBusy"),
+               *GetNameSafe(this));
         return false;
     }
     const bool bAccepted = AbilitySystemComponent->TryActivateAbility(DodgeAbilityHandle, false);
-    UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge request Body=%s Accepted=%d"), *GetNameSafe(this), bAccepted ? 1 : 0);
+    UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-02A] Dodge request Body=%s Accepted=%d"),
+           *GetNameSafe(this), bAccepted ? 1 : 0);
     return bAccepted;
 }
 
-FVector AEmberTrialCharacter::MakeDodgeWorldDirection(
-    const FVector2D& Axis, float ControlYaw, const FVector& Forward)
+// ---- 方向只在请求时采样；位移期间的固定方向由AbilityTask拥有 ----
+FVector AEmberTrialCharacter::MakeDodgeWorldDirection(const FVector2D& Axis, float ControlYaw,
+                                                      const FVector& Forward)
 {
-    if (!FMath::IsFinite(Axis.X) || !FMath::IsFinite(Axis.Y) ||
-        !FMath::IsFinite(ControlYaw) || Forward.ContainsNaN())
+    if (!FMath::IsFinite(Axis.X) || !FMath::IsFinite(Axis.Y) || !FMath::IsFinite(ControlYaw) ||
+        Forward.ContainsNaN())
     {
         return FVector::ZeroVector;
     }
@@ -152,7 +171,8 @@ FVector AEmberTrialCharacter::MakeDodgeWorldDirection(
         return Forward.GetSafeNormal2D();
     }
     const FRotationMatrix Yaw(FRotator(0.0f, ControlYaw, 0.0f));
-    return (Yaw.GetUnitAxis(EAxis::X) * Axis.Y + Yaw.GetUnitAxis(EAxis::Y) * Axis.X).GetSafeNormal2D();
+    return (Yaw.GetUnitAxis(EAxis::X) * Axis.Y + Yaw.GetUnitAxis(EAxis::Y) * Axis.X)
+        .GetSafeNormal2D();
 }
 
 FVector AEmberTrialCharacter::GetDodgeWorldDirection() const
@@ -160,7 +180,8 @@ FVector AEmberTrialCharacter::GetDodgeWorldDirection() const
     const APlayerController* PC = Cast<APlayerController>(GetController());
     const UEnhancedPlayerInput* Input = PC ? Cast<UEnhancedPlayerInput>(PC->PlayerInput) : nullptr;
     FVector2D Axis = FVector2D::ZeroVector;
-    if (IsValid(Input) && IsValid(MoveAction) && MoveAction->ValueType == EInputActionValueType::Axis2D)
+    if (IsValid(Input) && IsValid(MoveAction) &&
+        MoveAction->ValueType == EInputActionValueType::Axis2D)
     {
         Axis = Input->GetActionValue(MoveAction).Get<FVector2D>();
     }
@@ -168,6 +189,7 @@ FVector AEmberTrialCharacter::GetDodgeWorldDirection() const
     return MakeDodgeWorldDirection(Axis, Yaw, GetActorForwardVector());
 }
 
+// ---- 轻攻击：玩家连段与敌人单段共用授予入口 ----
 void AEmberTrialCharacter::GrantLightAttackAbility()
 {
     if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown || !HasAuthority() ||
@@ -178,8 +200,8 @@ void AEmberTrialCharacter::GrantLightAttackAbility()
     if (LightAttackAbilityClass->HasAnyClassFlags(CLASS_Abstract))
     {
         UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M1-04A] Invalid abstract LightAttackAbilityClass Character=%s"),
-            *GetNameSafe(this));
+               TEXT("[M1-04A] Invalid abstract LightAttackAbilityClass Character=%s"),
+               *GetNameSafe(this));
         return;
     }
 
@@ -187,15 +209,13 @@ void AEmberTrialCharacter::GrantLightAttackAbility()
     LightAttackAbilityHandle = AbilitySystemComponent->GiveAbility(Spec);
     if (!LightAttackAbilityHandle.IsValid())
     {
-        UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M1-04A] Grant failed Character=%s Class=%s"),
-            *GetNameSafe(this), *GetNameSafe(LightAttackAbilityClass.Get()));
+        UE_LOG(LogETAbilityFoundation, Error, TEXT("[M1-04A] Grant failed Character=%s Class=%s"),
+               *GetNameSafe(this), *GetNameSafe(LightAttackAbilityClass.Get()));
         return;
     }
     UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-04A] Granted Character=%s Class=%s Handle=%s"),
-        *GetNameSafe(this), *GetNameSafe(LightAttackAbilityClass.Get()),
-        *LightAttackAbilityHandle.ToString());
+           TEXT("[M1-04A] Granted Character=%s Class=%s Handle=%s"), *GetNameSafe(this),
+           *GetNameSafe(LightAttackAbilityClass.Get()), *LightAttackAbilityHandle.ToString());
 }
 
 bool AEmberTrialCharacter::RequestLightAttack()
@@ -204,8 +224,8 @@ bool AEmberTrialCharacter::RequestLightAttack()
         !LightAttackAbilityHandle.IsValid())
     {
         UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M1-04A] Request rejected Character=%s Reason=NotReadyOrNotGranted"),
-            *GetNameSafe(this));
+               TEXT("[M1-04A] Request rejected Character=%s Reason=NotReadyOrNotGranted"),
+               *GetNameSafe(this));
         return false;
     }
     const FGameplayAbilitySpec* Spec =
@@ -213,33 +233,35 @@ bool AEmberTrialCharacter::RequestLightAttack()
     if (!Spec)
     {
         UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M1-04A] Request rejected Character=%s Reason=MissingSpecOrBusy"),
-            *GetNameSafe(this));
+               TEXT("[M1-04A] Request rejected Character=%s Reason=MissingSpecOrBusy"),
+               *GetNameSafe(this));
         return false;
     }
 
+    // 只有活动轻攻击允许把新按键交给连段缓冲；闪避 / 治疗不采用此规则。
     if (Spec->IsActive())
     {
-        UETGA_LightAttack* Attack=Cast<UETGA_LightAttack>(Spec->GetPrimaryInstance());
-        const bool bBuffered=IsValid(Attack) && Attack->TryBufferComboInput();
-        UE_LOG(LogETAbilityFoundation,Display,TEXT("[M2-03B] Active attack input Character=%s Accepted=%d"),
-            *GetNameSafe(this),bBuffered ? 1 : 0);
+        UETGA_LightAttack* Attack = Cast<UETGA_LightAttack>(Spec->GetPrimaryInstance());
+        const bool bBuffered = IsValid(Attack) && Attack->TryBufferComboInput();
+        UE_LOG(LogETAbilityFoundation, Display,
+               TEXT("[M2-03B] Active attack input Character=%s Accepted=%d"), *GetNameSafe(this),
+               bBuffered ? 1 : 0);
         return bBuffered;
     }
 
-    const bool bAccepted = AbilitySystemComponent->TryActivateAbility(
-        LightAttackAbilityHandle, false);
-    UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-04A] Request Character=%s Accepted=%d"),
-        *GetNameSafe(this), bAccepted ? 1 : 0);
+    const bool bAccepted =
+        AbilitySystemComponent->TryActivateAbility(LightAttackAbilityHandle, false);
+    UE_LOG(LogETAbilityFoundation, Display, TEXT("[M1-04A] Request Character=%s Accepted=%d"),
+           *GetNameSafe(this), bAccepted ? 1 : 0);
     return bAccepted;
 }
 
 FGameplayAbilitySpecHandle AEmberTrialCharacter::GetLightAttackSpecHandle() const
 {
-    return !bAbilitySystemShuttingDown && IsGameplayReady() &&
-        !IsCombatDead() && IsValid(AbilitySystemComponent)
-        ? LightAttackAbilityHandle : FGameplayAbilitySpecHandle();
+    return !bAbilitySystemShuttingDown && IsGameplayReady() && !IsCombatDead() &&
+                   IsValid(AbilitySystemComponent)
+               ? LightAttackAbilityHandle
+               : FGameplayAbilitySpecHandle();
 }
 
 void AEmberTrialCharacter::CancelLightAttack()
@@ -250,16 +272,16 @@ void AEmberTrialCharacter::CancelLightAttack()
     }
 }
 
+// ---- 阵营 / 受击 / 死亡与正式空闲查询 ----
 EETCombatTeam AEmberTrialCharacter::GetCombatTeam() const
 {
     return CombatTeam;
 }
 
-bool AEmberTrialCharacter::CanDealCombatDamageTo(
-    const AEmberTrialCharacter* TargetBody) const
+bool AEmberTrialCharacter::CanDealCombatDamageTo(const AEmberTrialCharacter* TargetBody) const
 {
-    if (!IsValid(TargetBody) || TargetBody == this ||
-        IsActorBeingDestroyed() || TargetBody->IsActorBeingDestroyed())
+    if (!IsValid(TargetBody) || TargetBody == this || IsActorBeingDestroyed() ||
+        TargetBody->IsActorBeingDestroyed())
     {
         return false;
     }
@@ -268,7 +290,7 @@ bool AEmberTrialCharacter::CanDealCombatDamageTo(
     {
     case EETCombatTeam::Player:
         return TargetBody->GetCombatTeam() == EETCombatTeam::Enemy ||
-            TargetBody->GetCombatTeam() == EETCombatTeam::Neutral;
+               TargetBody->GetCombatTeam() == EETCombatTeam::Neutral;
     case EETCombatTeam::Enemy:
         return TargetBody->GetCombatTeam() == EETCombatTeam::Player;
     default:
@@ -279,7 +301,7 @@ bool AEmberTrialCharacter::CanDealCombatDamageTo(
 bool AEmberTrialCharacter::RequestHitReact()
 {
     return !bAbilitySystemShuttingDown && IsGameplayReady() && !IsCombatDead() &&
-        IsValid(CombatLifeComponent) && CombatLifeComponent->RequestHitReact();
+           IsValid(CombatLifeComponent) && CombatLifeComponent->RequestHitReact();
 }
 
 bool AEmberTrialCharacter::IsCombatDead() const
@@ -287,24 +309,26 @@ bool AEmberTrialCharacter::IsCombatDead() const
     return IsValid(CombatLifeComponent) && CombatLifeComponent->IsDead();
 }
 
+// Ready表示初始化完成；零生命、零体力或失去控制不会单独撤销它。
 bool AEmberTrialCharacter::IsGameplayReady() const
 {
-    return bGameplayReady && bStartupAttributesInitialized &&
-        !bAbilitySystemShuttingDown && IsValid(AbilitySystemComponent) &&
-        IsValid(HealthAttributes) && IsValid(StaminaAttributes);
+    return bGameplayReady && bStartupAttributesInitialized && !bAbilitySystemShuttingDown &&
+           IsValid(AbilitySystemComponent) && IsValid(HealthAttributes) &&
+           IsValid(StaminaAttributes);
 }
 
 bool AEmberTrialCharacter::IsFormalActionIdle() const
 {
     return !bAbilitySystemShuttingDown && IsGameplayReady() && !IsCombatDead() &&
-        IsValid(AbilitySystemComponent) &&
-        !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dead) &&
-        !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) &&
-            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) &&
-                !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dodging) &&
-            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Healing);
+           IsValid(AbilitySystemComponent) &&
+           !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dead) &&
+           !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) &&
+           !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) &&
+           !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dodging) &&
+           !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Healing);
 }
 
+// ---- 资源快照：不可用时先清空输出，不把启动配置当作当前属性 ----
 bool AEmberTrialCharacter::GetGameplayHealthSnapshot(float& OutHealth, float& OutMaxHealth) const
 {
     OutHealth = 0.0f;
@@ -319,8 +343,7 @@ bool AEmberTrialCharacter::GetGameplayHealthSnapshot(float& OutHealth, float& Ou
     return true;
 }
 
-bool AEmberTrialCharacter::GetGameplayStaminaSnapshot(
-    float& OutStamina, float& OutMaxStamina) const
+bool AEmberTrialCharacter::GetGameplayStaminaSnapshot(float& OutStamina, float& OutMaxStamina) const
 {
     OutStamina = 0.0f;
     OutMaxStamina = 0.0f;
@@ -334,6 +357,7 @@ bool AEmberTrialCharacter::GetGameplayStaminaSnapshot(
     return true;
 }
 
+// ---- 一次初始化与Ready通知；先提交状态，再允许同步观察者查询 ----
 void AEmberTrialCharacter::SetGameplayReady(bool bNewReady)
 {
     if (bGameplayReady == bNewReady)
@@ -343,8 +367,8 @@ void AEmberTrialCharacter::SetGameplayReady(bool bNewReady)
 
     bGameplayReady = bNewReady;
     UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-03A2-01] Ready changed Character=%s Ready=%d"),
-        *GetNameSafe(this), bGameplayReady ? 1 : 0);
+           TEXT("[M1-03A2-01] Ready changed Character=%s Ready=%d"), *GetNameSafe(this),
+           bGameplayReady ? 1 : 0);
     OnGameplayReadyChanged.Broadcast(this, bGameplayReady);
 }
 
@@ -364,25 +388,27 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
     {
         SetGameplayReady(false);
         UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M2-01A] Missing gameplay dependencies Character=%s"), *GetNameSafe(this));
+               TEXT("[M2-01A] Missing gameplay dependencies Character=%s"), *GetNameSafe(this));
         return false;
     }
 
+    // 同一身体已成功初始化就只读，不在重复Ensure或换控时补血 / 补体力。
     if (bStartupAttributesInitialized)
     {
         UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M2-01A] Already initialized Character=%s Health=%.1f/%.1f Stamina=%.1f/%.1f"),
-            *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth(),
-            StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
+               TEXT("[M2-01A] Already initialized Character=%s Health=%.1f/%.1f Stamina=%.1f/%.1f"),
+               *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth(),
+               StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
         return IsGameplayReady();
     }
 
+    // 两组配置全部通过后才开始写入，避免非法体力导致生命先被部分初始化。
     if (!FMath::IsFinite(InitialMaxHealth) || !FMath::IsFinite(InitialHealth) ||
         InitialMaxHealth < 1.0f || InitialHealth < 0.0f || InitialHealth > InitialMaxHealth)
     {
         UE_LOG(LogETAbilityFoundation, Warning,
-            TEXT("[M1-03A2-01] Invalid startup health Character=%s Health=%.1f MaxHealth=%.1f"),
-            *GetNameSafe(this), InitialHealth, InitialMaxHealth);
+               TEXT("[M1-03A2-01] Invalid startup health Character=%s Health=%.1f MaxHealth=%.1f"),
+               *GetNameSafe(this), InitialHealth, InitialMaxHealth);
         return false;
     }
 
@@ -390,31 +416,33 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
         InitialMaxStamina < 1.0f || InitialStamina < 0.0f || InitialStamina > InitialMaxStamina)
     {
         UE_LOG(LogETAbilityFoundation, Warning,
-            TEXT("[M2-01A] Invalid startup stamina Character=%s Stamina=%.1f MaxStamina=%.1f"),
-            *GetNameSafe(this), InitialStamina, InitialMaxStamina);
+               TEXT("[M2-01A] Invalid startup stamina Character=%s Stamina=%.1f MaxStamina=%.1f"),
+               *GetNameSafe(this), InitialStamina, InitialMaxStamina);
         return false;
     }
 
-    AbilitySystemComponent->SetNumericAttributeBase(
-        UETHealthAttributeSet::GetMaxHealthAttribute(), InitialMaxHealth);
-    AbilitySystemComponent->SetNumericAttributeBase(
-        UETHealthAttributeSet::GetHealthAttribute(), InitialHealth);
+    // 每组先上限后当前值；四次写入完成才提交成功标记 / Ready。
+    AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetMaxHealthAttribute(),
+                                                    InitialMaxHealth);
+    AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(),
+                                                    InitialHealth);
     AbilitySystemComponent->SetNumericAttributeBase(
         UETStaminaAttributeSet::GetMaxStaminaAttribute(), InitialMaxStamina);
-    AbilitySystemComponent->SetNumericAttributeBase(
-        UETStaminaAttributeSet::GetStaminaAttribute(), InitialStamina);
+    AbilitySystemComponent->SetNumericAttributeBase(UETStaminaAttributeSet::GetStaminaAttribute(),
+                                                    InitialStamina);
     bStartupAttributesInitialized = true;
 
     UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-03A2-01] Health initialized Character=%s Health=%.1f MaxHealth=%.1f"),
-        *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth());
+           TEXT("[M1-03A2-01] Health initialized Character=%s Health=%.1f MaxHealth=%.1f"),
+           *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth());
     UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M2-01A] Stamina initialized Character=%s Stamina=%.1f MaxStamina=%.1f"),
-        *GetNameSafe(this), StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
+           TEXT("[M2-01A] Stamina initialized Character=%s Stamina=%.1f MaxStamina=%.1f"),
+           *GetNameSafe(this), StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
     SetGameplayReady(true);
     return IsGameplayReady();
 }
 
+// ---- ASC始终归身体；控制变化只刷新关联，不重建ASC或重置资源 ----
 void AEmberTrialCharacter::RefreshEmberAbilityActorInfo(const TCHAR* Reason)
 {
     if (bAbilitySystemShuttingDown || IsActorBeingDestroyed())
@@ -425,14 +453,13 @@ void AEmberTrialCharacter::RefreshEmberAbilityActorInfo(const TCHAR* Reason)
     if (!IsValid(AbilitySystemComponent) || !AbilitySystemComponent->AbilityActorInfo.IsValid())
     {
         UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M1-03A1] Missing ASC or ActorInfo Character=%s Reason=%s"),
-            *GetNameSafe(this), Reason);
+               TEXT("[M1-03A1] Missing ASC or ActorInfo Character=%s Reason=%s"),
+               *GetNameSafe(this), Reason);
         return;
     }
 
-    const bool bNeedsInit =
-        AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get() != this ||
-        AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get() != this;
+    const bool bNeedsInit = AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get() != this ||
+                            AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get() != this;
 
     if (bNeedsInit)
     {
@@ -444,12 +471,13 @@ void AEmberTrialCharacter::RefreshEmberAbilityActorInfo(const TCHAR* Reason)
     }
 
     UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-03A1] ActorInfo ready Character=%s Reason=%s Mode=%s ASC=%s Owner=%s Avatar=%s Controller=%s"),
-        *GetNameSafe(this), Reason, bNeedsInit ? TEXT("Init") : TEXT("Refresh"),
-        *GetNameSafe(AbilitySystemComponent.Get()),
-        *GetNameSafe(AbilitySystemComponent->GetOwnerActor()),
-        *GetNameSafe(AbilitySystemComponent->GetAvatarActor()),
-        *GetNameSafe(AbilitySystemComponent->AbilityActorInfo->PlayerController.Get()));
+           TEXT("[M1-03A1] ActorInfo ready Character=%s Reason=%s Mode=%s ASC=%s Owner=%s "
+                "Avatar=%s Controller=%s"),
+           *GetNameSafe(this), Reason, bNeedsInit ? TEXT("Init") : TEXT("Refresh"),
+           *GetNameSafe(AbilitySystemComponent.Get()),
+           *GetNameSafe(AbilitySystemComponent->GetOwnerActor()),
+           *GetNameSafe(AbilitySystemComponent->GetAvatarActor()),
+           *GetNameSafe(AbilitySystemComponent->AbilityActorInfo->PlayerController.Get()));
 }
 
 void AEmberTrialCharacter::PossessedBy(AController* NewController)
@@ -470,6 +498,7 @@ void AEmberTrialCharacter::UnPossessed()
     }
 }
 
+// ---- 结束：先封锁重入 / 撤销Ready，再取消能力与清关联，最后交还Super ----
 void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     bAbilitySystemShuttingDown = true;
@@ -477,6 +506,7 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
     if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->AbilityActorInfo.IsValid())
     {
+        // 身体正在退出，取消本ASC的能力；随后只清除Character自己保存的授予句柄。
         AbilitySystemComponent->CancelAllAbilities();
         if (LightAttackAbilityHandle.IsValid())
         {
@@ -494,133 +524,159 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
         AbilitySystemComponent->ClearActorInfo();
 
         UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M1-03A1] ActorInfo cleared Character=%s Reason=%d"),
-            *GetNameSafe(this), static_cast<int32>(EndPlayReason));
+               TEXT("[M1-03A1] ActorInfo cleared Character=%s Reason=%d"), *GetNameSafe(this),
+               static_cast<int32>(EndPlayReason));
     }
     LightAttackAbilityHandle = FGameplayAbilitySpecHandle();
     DodgeAbilityHandle = FGameplayAbilitySpecHandle();
     HealAbilityHandle = FGameplayAbilitySpecHandle();
     Super::EndPlay(EndPlayReason);
 }
-//////////////////////////////////////////////////////////////////////////
-// Input
+
+// ---- 输入绑定与兼容门控；镜头不受正式动作Idle限制 ----
 
 void AEmberTrialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	// Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
-	
-	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
-		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AEmberTrialCharacter::StartPracticeAwareJump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+    // Add Input Mapping Context
+    if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+    {
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+                ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+                    PlayerController->GetLocalPlayer()))
+        {
+            Subsystem->AddMappingContext(DefaultMappingContext, 0);
+        }
+    }
 
-		// Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEmberTrialCharacter::Move);
+    // Set up action bindings
+    if (UEnhancedInputComponent* EnhancedInputComponent =
+            Cast<UEnhancedInputComponent>(PlayerInputComponent))
+    {
 
-		// Looking
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEmberTrialCharacter::Look);
+        // Jumping
+        EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this,
+                                           &AEmberTrialCharacter::StartPracticeAwareJump);
+        EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
+                                           &ACharacter::StopJumping);
 
-	    if (IsValid(HealAction))
-	    {
-	        EnhancedInputComponent->BindAction(HealAction, ETriggerEvent::Started,
-                this, &AEmberTrialCharacter::HandleHealStarted);
-	    }
-	}
-	else
-	{
-		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-	}
+        // Moving
+        EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this,
+                                           &AEmberTrialCharacter::Move);
+
+        // Looking
+        EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this,
+                                           &AEmberTrialCharacter::Look);
+
+        if (IsValid(HealAction))
+        {
+            EnhancedInputComponent->BindAction(HealAction, ETriggerEvent::Started, this,
+                                               &AEmberTrialCharacter::HandleHealStarted);
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemplateCharacter, Error,
+               TEXT("'%s' Failed to find an Enhanced Input component! This template is built to "
+                    "use the Enhanced Input system. If you intend to use the legacy system, then "
+                    "you will need to update this C++ file."),
+               *GetNameSafe(this));
+    }
+}
+
+// 移动与跳跃共用相同短路检查；正式状态通过后才查询旧Practice状态。
+bool AEmberTrialCharacter::CanAcceptLocomotionInput() const
+{
+    return IsFormalActionIdle() &&
+           (!IsValid(PracticeActionComponent) || PracticeActionComponent->IsPracticeActionIdle());
 }
 
 void AEmberTrialCharacter::Move(const FInputActionValue& Value)
 {
-    if (!IsFormalActionIdle())
+    if (!CanAcceptLocomotionInput())
     {
         return;
     }
 
-	if (IsValid(PracticeActionComponent) && !PracticeActionComponent->IsPracticeActionIdle())
-	{
-		return;
-	}
-	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
+    // input is a Vector2D
+    FVector2D MovementVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
-	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+    if (Controller != nullptr)
+    {
+        // find out which way is forward
+        const FRotator Rotation = Controller->GetControlRotation();
+        const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+        // get forward vector
+        const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
-		// add movement 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
-	}
+        // get right vector
+        const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+        // add movement
+        AddMovementInput(ForwardDirection, MovementVector.Y);
+        AddMovementInput(RightDirection, MovementVector.X);
+    }
 }
 
 void AEmberTrialCharacter::StartPracticeAwareJump()
 {
-    if (!IsFormalActionIdle())
+    if (!CanAcceptLocomotionInput())
     {
         return;
     }
 
-	if (IsValid(PracticeActionComponent) && !PracticeActionComponent->IsPracticeActionIdle())
-	{
-		return;
-	}
-	Jump();
+    Jump();
 }
 
 void AEmberTrialCharacter::Look(const FInputActionValue& Value)
 {
-	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+    // input is a Vector2D
+    FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
-	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
+    if (Controller != nullptr)
+    {
+        // add yaw and pitch input to controller
+        AddControllerYawInput(LookAxisVector.X);
+        AddControllerPitchInput(LookAxisVector.Y);
+    }
 }
 
+// ---- 治疗：玩家专属，效果 / 次数事务由GA与资源组件负责 ----
 void AEmberTrialCharacter::GrantHealAbility()
 {
     if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown || !HasAuthority() ||
-        CombatTeam!=EETCombatTeam::Player || !HealAbilityClass || HealAbilityHandle.IsValid()) { return; }
+        CombatTeam != EETCombatTeam::Player || !HealAbilityClass || HealAbilityHandle.IsValid())
+    {
+        return;
+    }
     if (HealAbilityClass->HasAnyClassFlags(CLASS_Abstract))
     {
-        UE_LOG(LogETAbilityFoundation,Warning,TEXT("[M2-04B2] Abstract Heal class Body=%s"),*GetNameSafe(this));return;
+        UE_LOG(LogETAbilityFoundation, Warning, TEXT("[M2-04B2] Abstract Heal class Body=%s"),
+               *GetNameSafe(this));
+        return;
     }
-    HealAbilityHandle=AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(HealAbilityClass.Get(),1,INDEX_NONE,this));
-    UE_LOG(LogETAbilityFoundation,Display,TEXT("[M2-04B2] Heal granted Body=%s Valid=%d"),
-        *GetNameSafe(this),HealAbilityHandle.IsValid() ? 1 : 0);
+    HealAbilityHandle = AbilitySystemComponent->GiveAbility(
+        FGameplayAbilitySpec(HealAbilityClass.Get(), 1, INDEX_NONE, this));
+    UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-04B2] Heal granted Body=%s Valid=%d"),
+           *GetNameSafe(this), HealAbilityHandle.IsValid() ? 1 : 0);
 }
 
 bool AEmberTrialCharacter::RequestHeal()
 {
     if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
-        !IsValid(AbilitySystemComponent) || !HealAbilityHandle.IsValid()) { return false; }
-    const FGameplayAbilitySpec* Spec=AbilitySystemComponent->FindAbilitySpecFromHandle(HealAbilityHandle);
-    if (!Spec || Spec->IsActive()) { return false; }
-    const bool bAccepted=AbilitySystemComponent->TryActivateAbility(HealAbilityHandle,false);
-    UE_LOG(LogETAbilityFoundation,Display,TEXT("[M2-04B2] Heal request Body=%s Accepted=%d"),*GetNameSafe(this),bAccepted ? 1 : 0);
+        !IsValid(AbilitySystemComponent) || !HealAbilityHandle.IsValid())
+    {
+        return false;
+    }
+    const FGameplayAbilitySpec* Spec =
+        AbilitySystemComponent->FindAbilitySpecFromHandle(HealAbilityHandle);
+    if (!Spec || Spec->IsActive())
+    {
+        return false;
+    }
+    const bool bAccepted = AbilitySystemComponent->TryActivateAbility(HealAbilityHandle, false);
+    UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-04B2] Heal request Body=%s Accepted=%d"),
+           *GetNameSafe(this), bAccepted ? 1 : 0);
     return bAccepted;
 }
 

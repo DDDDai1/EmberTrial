@@ -1,6 +1,6 @@
 # M1-04A：正式 GAS 单段攻击
 
-2026-10-18清理同步：本页保留历史设计、资产配置、接入差异和验收依据，整文件代码以当前Source链接为准；当前已包含后续连段、闪避与治疗集成，勿把旧步骤整批重做或覆盖现有工程。当前职责见[连段路线页](M2_03_LightComboRoadmap.md)，本次清理提交见[Cleanup](Cleanup.md)。
+2026-10-19第18批清理同步：Character门控、Ready / ActorInfo与结束流程以当前Source为准，勿用早期完整函数覆盖已有连段、闪避或治疗。本轮清理由助手按授权直接执行；普通功能开发保留手动实践约定。当前检查与提交清单见[Cleanup](Cleanup.md)。
 
 日期：2026-10-06；UE 5.5.4。前置M1-03通过。**状态：已验收。用户手动50分钟 / 构建等待2分钟，源码、双目标receipt、索引与能力日志核对通过，见[A验收](Reports/M1_04A_Verification.md)。**下方实施步骤保留供复查，无需重做；下一步[B1命中窗口与扫掠](M1_04B1_AttackTrace.md)。整体分批见[M1-04路线](M1_04_CombatRoadmap.md)。
 
@@ -70,34 +70,9 @@ namespace ETGameplayTags
 
 Tag由原生代码注册。不要再创建同名DataTable条目或在DefaultGameplayTags.ini手动重复定义。
 
-### 3.3 EmberTrial.Build.cs：完整替换
+### 3.3 当前模块依赖入口
 
-新增的公开Tags头文件依赖GameplayTags，因此把该依赖由Private移到Public；GameplayTasks仍为Private。完整内容：
-
-```csharp
-using UnrealBuildTool;
-
-public class EmberTrial : ModuleRules
-{
-    public EmberTrial(ReadOnlyTargetRules Target) : base(Target)
-    {
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-        PublicDependencyModuleNames.AddRange(new string[]
-        {
-            "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-            "GameplayAbilities", "GameplayTags"
-        });
-
-        PrivateDependencyModuleNames.AddRange(new string[]
-        {
-            "GameplayTasks"
-        });
-
-        PrivateIncludePaths.Add(ModuleDirectory);
-    }
-}
-```
+[EmberTrial.Build.cs](../EmberTrial/Source/EmberTrial/EmberTrial.Build.cs)保留当前公开GAS / Tags / AI依赖与内部Tasks / PhysicsCore依赖，不再复制A阶段旧全文。Core仍不引用UMG / UI模块，本次没有修改依赖。
 
 ## 4. 正式攻击能力
 
@@ -197,127 +172,23 @@ GrantLightAttackAbility();
 
 不要在Tick、每次Possess、每次按键或UI重建里GiveAbility。空能力配置允许测试身体只提供生命属性；本批只在正式玩家蓝图赋值。
 
-### 5.4 四个新函数：完整加入cpp
+### 5.4 当前授予、请求与取消
 
-在 `BeginPlay()` 之后、已有 `GetAbilitySystemComponent()` 之前加入以下函数。所有旧函数保留：
+[Character.cpp](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)为当前入口。GrantLightAttackAbility保存本身体授予的句柄；RequestLightAttack在未活动时请求GAS，活动时仅向现有轻攻击实例提交连段输入；CancelLightAttack按保存的Spec Handle取消。
 
-```cpp
-void AEmberTrialCharacter::GrantLightAttackAbility()
-{
-    if (!IsGameplayReady() || bAbilitySystemShuttingDown || !HasAuthority() ||
-        !LightAttackAbilityClass || LightAttackAbilityHandle.IsValid())
-    {
-        return;
-    }
-    if (LightAttackAbilityClass->HasAnyClassFlags(CLASS_Abstract))
-    {
-        UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M1-04A] Invalid abstract LightAttackAbilityClass Character=%s"),
-            *GetNameSafe(this));
-        return;
-    }
+IsFormalActionIdle包含现有正式状态，不恢复为A阶段只看Attacking的版本。请求返回True表示接受激活 / 缓冲意图，不代表动画或伤害成功，Montage、Trace和GE继续各自验证。
 
-    const FGameplayAbilitySpec Spec(LightAttackAbilityClass.Get(), 1, INDEX_NONE, this);
-    LightAttackAbilityHandle = AbilitySystemComponent->GiveAbility(Spec);
-    if (!LightAttackAbilityHandle.IsValid())
-    {
-        UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M1-04A] Grant failed Character=%s Class=%s"),
-            *GetNameSafe(this), *GetNameSafe(LightAttackAbilityClass.Get()));
-        return;
-    }
-    UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-04A] Granted Character=%s Class=%s Handle=%s"),
-        *GetNameSafe(this), *GetNameSafe(LightAttackAbilityClass.Get()),
-        *LightAttackAbilityHandle.ToString());
-}
+### 5.5 移动与跳跃共用私有门控
 
-bool AEmberTrialCharacter::RequestLightAttack()
-{
-    if (!IsGameplayReady() || bAbilitySystemShuttingDown ||
-        !LightAttackAbilityHandle.IsValid())
-    {
-        UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M1-04A] Request rejected Character=%s Reason=NotReadyOrNotGranted"),
-            *GetNameSafe(this));
-        return false;
-    }
-    const FGameplayAbilitySpec* Spec =
-        AbilitySystemComponent->FindAbilitySpecFromHandle(LightAttackAbilityHandle);
-    if (!Spec || Spec->IsActive())
-    {
-        UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M1-04A] Request rejected Character=%s Reason=MissingSpecOrBusy"),
-            *GetNameSafe(this));
-        return false;
-    }
+Move与StartPracticeAwareJump统一调用CanAcceptLocomotionInput：先查询正式Idle，通过后才检查Practice；组件无效时保留原允许规则。公共IsFormalActionIdle与蓝图入口保持，不复制状态或删除旧组件。
 
-    const bool bAccepted = AbilitySystemComponent->TryActivateAbility(
-        LightAttackAbilityHandle, false);
-    UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-04A] Request Character=%s Accepted=%d"),
-        *GetNameSafe(this), bAccepted ? 1 : 0);
-    return bAccepted;
-}
+Look仍可转镜头，跳跃Completed仍StopJumping；没有新增IgnoreMoveInput计数锁。门控只在[Character.cpp](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)维护。
 
-void AEmberTrialCharacter::CancelLightAttack()
-{
-    if (IsValid(AbilitySystemComponent) && LightAttackAbilityHandle.IsValid())
-    {
-        AbilitySystemComponent->CancelAbilityHandle(LightAttackAbilityHandle);
-    }
-}
+### 5.6 当前EndPlay清理
 
-bool AEmberTrialCharacter::IsFormalActionIdle() const
-{
-    return IsValid(AbilitySystemComponent) &&
-        !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Attacking);
-}
-```
+[EndPlay实现](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)先封锁重入、撤销Ready，再取消本ASC能力，清除Character保存的轻攻击 / 闪避 / 治疗句柄，清Cue / ActorInfo并交还Super。不能按早期只清轻攻击的完整函数覆盖。
 
-`Request`返回True表示GAS接受激活请求，不是伤害成功，也不能替代动画实际播放检查。Task播放失败会取消能力，完整Begin / End与画面仍需核对。这里按自己保存的Spec Handle操作，避免按宽泛Tag误激活多份能力。
-
-### 5.5 Move与跳跃：保留原Practice判断，加正式判断
-
-在 `Move(...)` 函数开头、原Practice判断**之前**加入：
-
-```cpp
-if (!IsFormalActionIdle())
-{
-    return;
-}
-```
-
-在 `StartPracticeAwareJump()` 开头同样加入这四行。两个函数原有的Practice Idle检查继续保留。`Look()`、跳跃Completed的StopJumping以及输入绑定不改；不要添加IgnoreMoveInput / ResetIgnoreMoveInput计数锁。
-
-### 5.6 EndPlay：仅完整替换此函数
-
-```cpp
-void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    bAbilitySystemShuttingDown = true;
-    SetGameplayReady(false);
-
-    if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->AbilityActorInfo.IsValid())
-    {
-        AbilitySystemComponent->CancelAllAbilities();
-        if (LightAttackAbilityHandle.IsValid())
-        {
-            AbilitySystemComponent->ClearAbility(LightAttackAbilityHandle);
-        }
-        AbilitySystemComponent->RemoveAllGameplayCues();
-        AbilitySystemComponent->ClearActorInfo();
-
-        UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M1-03A1] ActorInfo cleared Character=%s Reason=%d"),
-            *GetNameSafe(this), static_cast<int32>(EndPlayReason));
-    }
-    LightAttackAbilityHandle = FGameplayAbilitySpecHandle();
-    Super::EndPlay(EndPlayReason);
-}
-```
-
-保留已有撤销Ready与ASC清理，新增清除本身体授予的攻击Spec。Spec Handle在5.5.4没有Reset函数，因此使用默认构造赋值；不要写 `LightAttackAbilityHandle.Reset()`。没有要求Remove整个ASC或重复创建AttributeSet。
+Spec Handle以默认构造赋值清空，不调用不存在的Reset；不移除整个ASC或重复创建AttributeSet。组件各自清理自己的订阅 / Task，身体按原顺序退出。
 
 ### 5.7 Practice组件：活动Montage检查只改这一处
 
@@ -525,3 +396,7 @@ Practice外部Montage条件已修改 / Lifecycle一次：成功或失败
 如果没有分开计时，填总手动用时即可，不为统计额外补测。日志由助手读取；编译错优先文字，节点Target / 引脚问题用截图，取消 / 淡出 / 暂停时序用短视频。不要手动复制全部Begin / End；给出发生时间和一次操作顺序即可。
 
 助手收到后将核对改动范围、构建 / 保存与对应日志，再登记两份新资产及来源。未创建前不写入资产清单；未验收前不标A完成。后续B才接命中窗口与真实伤害。
+
+## 本次清理 Commit / Push（固定放在最后）
+
+本页历史功能已完成，不重做旧步骤。第18批为Character两份Source与八份Markdown，共十项；最新差异、检查结果与逐文件清单见[Cleanup末尾](Cleanup.md)。用户重新Stage后Commit / Push，Raw / 索引 / 日志留本地；助手不操作Git索引。

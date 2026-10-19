@@ -13,11 +13,11 @@
 
 ## 当前交接
 
-前十六批已完成并提交，本批基线HEAD为5eff9aa。第17批整理近战Task两文件与Controller实现，新增Core私有ETAILiveBody.h，集中两处相同存活规则；转向 / 请求 / 等待 / 取消顺序、重入序号、身份与自身资源所有权保持。C2指南移除455行旧源码，改为当前入口与生命周期说明。
+前十七批已完成并提交，本批基线HEAD为bb04636。第18批整理共享Character两份Source，把移动 / 跳跃的重复门控集中到私有CanAcceptLocomotionInput，规范include / 格式并补初始化、换控、授予与结束注释。五份接入指南移除391行旧方法 / Build.cs副本，Architecture同步当前职责；保留Practice及各能力差异。
 
-本批正常Editor / Game、三模块索引 / CMake、13项自动化与配置脚本均通过，0测试失败 / 警告；正式BT与隔离Probe实际Valid，校验0 Error / Warning。提取等价 / 格式 / 文档检查通过，112份其他Source与290项资产配置保护哈希保持，冻结B1未改。未重跑AI交互式实机或Cook / 打包。收尾5小时已用26% / 周已用31%，未使用重置。
+本批正常Editor / Game、三模块索引 / CMake、13项自动化与配置脚本均通过，0测试失败 / 警告。Blueprint校验中正式三身体Valid，项目Gameplay校验12个资产Valid，汇总0 Error / Warning。六种门控组合静态等价，114份其他Source及290项资产配置保护哈希保持，冻结B1未改。未重新运行交互式输入矩阵或Cook / 打包。收尾5小时已用38% / 周已用32%，未使用重置。
 
-累计17批涉及79 / 116份Source（约68%文件覆盖率，非整体完成率）、37份Markdown，已记录移除12676行代码副本。Character / Practice、会话与工具仍待审计，AI最终交战实机仍待统一收尾；新玩法保持停在M2-04B2。见[剩余范围](Cleanup.md)。
+累计18批涉及81 / 116份Source（约70%文件覆盖率，非整体完成率）、38份Markdown，已记录移除13067行代码副本。Practice / 诊断、会话 / 检查点、工具及最终统一实机仍待处理；新玩法保持停在M2-04B2，详见[剩余范围](Cleanup.md)。
 
 ## 资源与工期校准
 
@@ -41,4 +41,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-第17批四份Source与四份同步文档，共八项；具体清单见Cleanup末尾。新增Private头需一起Stage，Content / Config未改；Raw / 日志 / 测试报告及生成文件留本地，助手未操作Git索引。
+第18批两份Character Source与八份同步文档，共十项；逐文件清单见Cleanup末尾。Content / Config未改，Raw / 日志 / 报告及生成文件留本地；助手未操作Git索引。
