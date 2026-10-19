@@ -75,6 +75,16 @@ Ready只表示两属性链初始化成功，不代表存活、受控或能力已
 
 本次收益为规则集中和生命周期可读性；验证与实机 / 包检查边界见[Cleanup](Cleanup.md)。下方保留阶段演进，实时状态只在Progress维护。
 
+### 2.2 Practice兼容层与回归入口
+
+[动作组件](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp) / [头文件](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.h)保留M0请求、Idle / Cancel桥接和原Lifecycle / DodgeMovement测试。正式左键 / 1、2、Q不回接旧动作；清理不等于已证明所有蓝图引用退役。
+
+两个动画回调共用Serial / Montage / 非结束非Idle身份检查。释放先推进Serial，再停自有RMS / 清状态，按精确动画实例解绑后Stop；源必须同时匹配对象与LocalID，不误删外部复用ID的源。只清自己的水平动量，保留下落速度；RMS结束与动画解锁独立。组件Tick只在活动动作期间启用，Mesh / Movement先更新。
+
+[练习Actor](../EmberTrial/Source/EmberTrial/ETPracticeActor.cpp)仍供既有蓝图和E提示使用，保持反射、默认子对象名、文本本地化键、无原生Tick / 默认无碰撞。内部0.05秒取消淡出、500优先级只是既有实现常量；距离 / 时长仍走原配置，未增一套参数。
+
+原两项M0自动化继续保留真实动画 / CharacterMovement断言。固定步长不等同实测FPS；验证结果与统一实机待办见Cleanup。
+
 ## 3. 初始化与清理原则
 
 - 模块 StartupModule 属于进程级加载，不等于世界 / 角色 / ASC 就绪。

@@ -300,42 +300,65 @@ Blueprint类型DataValidation实际运行；正式玩家、敌人与训练身体
 
 完整快照、最终差异、等价 / 格式 / CodeModel、双构建、配置 / Blueprint校验与自动化JSON留在Raw/Cleanup/2026-10-19_Batch18。收尾额度快照：5小时已用38% / 剩余62%，周已用32% / 剩余68%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第18批后）
+## 第19批：Practice兼容动作与练习Actor
 
-累计18批涉及81 / 116份Source（约70%文件覆盖率）、38份Markdown，已记录移除13067行重复代码副本。覆盖率不是整体完成率；按剩余职责与风险评估收尾工作。
+2026-10-19开工5小时已用39% / 周已用33%；第18批已提交，工作区干净，基线HEAD为7a2fa12。四份Source为ETPracticeActionComponent与ETPracticeActor两组头 / 实现，统一格式与职责分区。
+
+Ended与BlendingOut两份相同回调准入集中到私有IsCurrentActionCallback，按结束标记、Serial、Montage和非Idle依次核对。16种静态状态组合的拒绝结果 / 求值顺序保持，其余组件Token按明确提取和常量命名归一化后保持；头文件仅新增私有声明。Actor两份Source有效Token保持，反射入口、子对象名、FText本地化键 / 标签与日志均保留。
+
+既有0.05秒取消淡出、RMS优先级500命名为cpp内部常量，未改数值或增加一套编辑器配置。注释说明活动期间Tick、Mesh / Movement先更新、先推进Serial再清位移 / 动作、精确动画实例委托解绑、RMS对象与LocalID共同归属、水平动量与下落速度区分。位移先结束 / Montage后解锁的原顺序保持；没有删除Practice或旧测试，没有迁回正式GAS输入。
+
+七份M0指南移除13处完整文件 / 方法 / 用例块共676行代码，改为Source入口；保留基础反射 / 组件、蓝图装配、RMS、局部State作用域、保护补修与固定步长含义等学习内容。修正旧外部Montage条件、过时未实施 / 待授权文字，明确旧M0右侧位移与当前正式M2闪避区别。Architecture同步兼容边界。
+
+本批UE5.5.4正常Editor / Game Development Build通过；三模块CLion元数据 / CMake刷新成功，四份Source均在Core CodeModel。现有13项自动化全部Success，0 Fail / 0 NotRun / 0测试警告，其中原Lifecycle / DodgeMovement真实动画、位移、取消和暂停断言保留。16种状态组合为静态等价证明，不写成新增运行时测试。
+
+Blueprint类型DataValidation实际执行，正式三身体均有本项目Valid / Issues=0，Gameplay校验共12个资产Valid，命令汇总0 Error / 0 Warning。配置PASS Errors=0 / Warnings=0。112份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改；格式、LF / 末尾换行、文档链接 / 围栏与Git差异检查通过。规模仍116份 / 61cpp，三模块cpp为43 / 15 / 3。
+
+收益为回调规则集中、生命周期可读性和文档一致性，不宣称帧率提升。没有交互式重跑旧数字键 / E / 墙坡 / UI矩阵，没有Cook / 打包；蓝图资源Valid不等同于实际交互验证，固定步长不等同实测FPS。自动化启动仍有既有EOS好友权限403环境警告，测试本身无警告。
+
+完整快照、最终差异、等价 / 格式 / CodeModel、双构建、配置 / Blueprint校验与自动化JSON保存在Raw/Cleanup/2026-10-19_Batch19。收尾额度快照：5小时已用46% / 剩余54%，周已用34% / 剩余66%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第19批后）
+
+累计19批涉及85 / 116份Source（约73%文件覆盖率）、45份Markdown，已记录移除13743行重复代码副本。覆盖率不是整体完成率；仍按剩余职责和风险评估收尾。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
-| 正式能力 / 属性 / 资源 | 主要GA、资源、死亡、Trace、Tag / Notify与共享Character已整理 | 旧Practice / 诊断引用与剩余规则审计、跨模块复核 |
+| 正式能力 / 属性 / 资源 | 主要GA、资源、死亡、Trace、Tag / Notify、Character已整理 | 跨模块规则与最终实机 |
+| 旧Practice | 动作组件 / Actor已整理，保留现有兼容与回归 | 蓝图退役引用审计，不凭C++调用数量删除 |
 | UI | HUD / Presenter / 观察、菜单及暂停 / 失败已整理 | 统一焦点 / 切图实机 |
-| AI | 共享键 / 存活规则、Controller / Service / Move / Melee Task已整理 | 最终取消 / 重试与交战实机 |
-| 工程 / 学习材料 | 相关指南改Source入口，13项自动化保留 / 扩展 | GameSession / Checkpoint、Editor校验器、工具、测试夹具及剩余架构材料 |
-| 最终收尾 | 分批构建与对应检查 | 统一实机、Cook / 打包与收益汇总 |
+| AI | 共享键 / 存活、Controller / Service / Move / Melee Task已整理 | 最终取消 / 重试与交战实机 |
+| 工程 / 材料 | 相关指南改Source入口，13项自动化保留 / 扩展 | GameSession / Checkpoint、Editor、工具 / 测试夹具与文档总收口 |
+| 最终交付 | 分批构建与对应检查 | 统一实机、Cook / 打包与收益汇总 |
 
-此前约10–15批与整体20–35小时均是工作量初估，按复杂度继续校准，不从文件覆盖率推算精确工期。
+此前约10–15批与整体20–35小时是初估，按复杂度继续校准，不从文件覆盖率推算精确工期。
 
 ## 后续队列
 
-1. 旧Practice / 诊断引用与GameSession / Checkpoint剩余生命周期。
+1. GameSession / Checkpoint及相关GameMode生命周期。
 2. Editor校验器、工具与测试夹具。
-3. 剩余架构 / 操作文档和跨模块复核。
-4. 统一自动化、实机与包短查，再汇总收益。
+3. 剩余引用 / 架构材料及跨模块复核。
+4. 统一自动化、实机与包短查，汇总收益并收拢过程文档。
 
-前十八批已收口，其余范围未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
+前十九批已收口，其余范围未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批两份Source与八份Markdown，共十项，验证已收口；由用户在CLion刷新差异，重新Stage最新修改后Commit / Push。建议Commit信息：refactor: centralize character locomotion gates and clarify lifecycle。
+本批四份Source与十份Markdown，共14项；用户在CLion刷新差异并重新Stage最新修改，再Commit / Push。建议Commit信息：refactor: centralize practice callback guards and clarify compatibility lifecycle。
 
-- [EmberTrialCharacter.h](../EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h)
-- [EmberTrialCharacter.cpp](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)
-- [M1_03A1_ASCFoundation.md](M1_03A1_ASCFoundation.md)
-- [M1_03A2_01_HealthReady.md](M1_03A2_01_HealthReady.md)
-- [M2_01A_StaminaFoundation.md](M2_01A_StaminaFoundation.md)
-- [M1_04A_LightAttackAbility.md](M1_04A_LightAttackAbility.md)
-- [M1_02B_FrameworkObjects.md](M1_02B_FrameworkObjects.md)
+- [ETPracticeActionComponent.h](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.h)
+- [ETPracticeActionComponent.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActionComponent.cpp)
+- [ETPracticeActor.h](../EmberTrial/Source/EmberTrial/ETPracticeActor.h)
+- [ETPracticeActor.cpp](../EmberTrial/Source/EmberTrial/ETPracticeActor.cpp)
+- [M0_03_PracticeActor.md](M0_03_PracticeActor.md)
+- [M0_05C2_01_ActionComponent.md](M0_05C2_01_ActionComponent.md)
+- [M0_05C2_02_ActionLifecycle.md](M0_05C2_02_ActionLifecycle.md)
+- [M0_05C2_03A_DodgeConfiguration.md](M0_05C2_03A_DodgeConfiguration.md)
+- [M0_05C2_03B_DodgeMovement.md](M0_05C2_03B_DodgeMovement.md)
+- [M0_05C2_03B_GuardCorrection.md](M0_05C2_03B_GuardCorrection.md)
+- [M0_05C2_03C_DodgeAutomation.md](M0_05C2_03C_DodgeAutomation.md)
 - [Architecture.md](Architecture.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-Content / Config / Build.cs / Target保持；Raw快照、日志、报告和生成文件留本地。助手不Stage / Commit / Push。
+Content / Config / Build.cs / Target与测试Source保持；Raw、快照、日志、报告和生成文件留本地。助手不Stage / Commit / Push。

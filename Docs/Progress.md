@@ -13,11 +13,11 @@
 
 ## 当前交接
 
-前十七批已完成并提交，本批基线HEAD为bb04636。第18批整理共享Character两份Source，把移动 / 跳跃的重复门控集中到私有CanAcceptLocomotionInput，规范include / 格式并补初始化、换控、授予与结束注释。五份接入指南移除391行旧方法 / Build.cs副本，Architecture同步当前职责；保留Practice及各能力差异。
+前十八批已完成并提交，本批基线HEAD为7a2fa12。第19批整理Practice动作组件与Actor四份Source，集中两个动画回调的身份检查、命名既有取消淡出 / RMS优先级，补委托 / 位移所有权和清理时序注释。七份M0指南移除676行代码副本，Architecture同步当前兼容边界；保留反射 / 本地化 / 原测试和正式GAS互斥。
 
-本批正常Editor / Game、三模块索引 / CMake、13项自动化与配置脚本均通过，0测试失败 / 警告。Blueprint校验中正式三身体Valid，项目Gameplay校验12个资产Valid，汇总0 Error / Warning。六种门控组合静态等价，114份其他Source及290项资产配置保护哈希保持，冻结B1未改。未重新运行交互式输入矩阵或Cook / 打包。收尾5小时已用38% / 周已用32%，未使用重置。
+本批Editor / Game、三模块索引 / CMake、13项自动化与配置脚本均通过，0测试失败 / 警告。Blueprint校验正式三身体Valid、Gameplay共12资产Valid，命令汇总0 Error / Warning。16种回调组合静态等价，112份其他Source及290项资产配置保护哈希保持，冻结B1未改。未重跑交互式旧输入矩阵或Cook / 打包。收尾5小时已用46% / 周已用34%，未使用重置。
 
-累计18批涉及81 / 116份Source（约70%文件覆盖率，非整体完成率）、38份Markdown，已记录移除13067行代码副本。Practice / 诊断、会话 / 检查点、工具及最终统一实机仍待处理；新玩法保持停在M2-04B2，详见[剩余范围](Cleanup.md)。
+累计19批涉及85 / 116份Source（约73%文件覆盖率，非整体完成率）、45份Markdown，已记录移除13743行代码副本。会话 / 检查点、Editor / 工具 / 测试夹具、引用审计及统一实机待处理；新玩法仍停在M2-04B2，详见[剩余范围](Cleanup.md)。
 
 ## 资源与工期校准
 
@@ -41,4 +41,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-第18批两份Character Source与八份同步文档，共十项；逐文件清单见Cleanup末尾。Content / Config未改，Raw / 日志 / 报告及生成文件留本地；助手未操作Git索引。
+第19批四份Source与十份同步Markdown，共14项；逐文件清单见Cleanup末尾。Content / Config和原测试未改，Raw / 日志 / 报告及生成文件留本地；助手未操作Git索引。

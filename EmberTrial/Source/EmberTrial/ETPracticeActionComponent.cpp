@@ -11,6 +11,14 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogETPracticeAction, Log, All);
 
+namespace ETPracticeActionConstants
+{
+// 既有取消淡出与RMS优先级；不同于可配置的闪避时长 / 距离。
+constexpr float CancellationBlendOutSeconds = 0.05f;
+constexpr uint16 DodgeRootMotionPriority = 500;
+} // namespace ETPracticeActionConstants
+
+// ---- 生命周期准备；Tick只在本组件拥有动作时启用 ----
 UETPracticeActionComponent::UETPracticeActionComponent()
 {
     // Lifecycle safety check, enabled only while this component owns a montage.
@@ -26,7 +34,8 @@ void UETPracticeActionComponent::BeginPlay()
     if (!CharacterOwner.IsValid())
     {
         UE_LOG(LogETPracticeAction, Error,
-            TEXT("[M0-05C2] Component requires an ACharacter owner: %s"), *GetNameSafe(GetOwner()));
+               TEXT("[M0-05C2] Component requires an ACharacter owner: %s"),
+               *GetNameSafe(GetOwner()));
         return;
     }
 
@@ -37,13 +46,14 @@ void UETPracticeActionComponent::BeginPlay()
 
     if (UCharacterMovementComponent* Movement = CharacterOwner->GetCharacterMovement())
     {
-		AddTickPrerequisiteComponent(Movement);
+        AddTickPrerequisiteComponent(Movement);
     }
 
     UE_LOG(LogETPracticeAction, Display, TEXT("[M0-05C2] Component ready Owner=%s State=Idle"),
-        *GetNameSafe(CharacterOwner.Get()));
+           *GetNameSafe(CharacterOwner.Get()));
 }
 
+// ---- 只读状态 / 请求解析与诊断 ----
 EETPracticeActionState UETPracticeActionComponent::GetPracticeActionState() const
 {
     return CurrentState;
@@ -58,24 +68,26 @@ UAnimMontage* UETPracticeActionComponent::ResolveMontage(EETPracticeActionState 
 {
     switch (State)
     {
-    case EETPracticeActionState::Attacking: 
+    case EETPracticeActionState::Attacking:
         return AttackMontage;
-    case EETPracticeActionState::Dodging: 
+    case EETPracticeActionState::Dodging:
         return DodgeMontage;
-    case EETPracticeActionState::HitReact: 
+    case EETPracticeActionState::HitReact:
         return HitReactMontage;
-    default: 
+    default:
         return nullptr;
     }
 }
 
-bool UETPracticeActionComponent::RejectRequest(EETPracticeActionState RequestedState, const TCHAR* Reason) const
+bool UETPracticeActionComponent::RejectRequest(EETPracticeActionState RequestedState,
+                                               const TCHAR* Reason) const
 {
     UE_LOG(LogETPracticeAction, Display, TEXT("[M0-05C2] Reject %s Reason=%s"),
-        *UEnum::GetValueAsString(RequestedState), Reason);
+           *UEnum::GetValueAsString(RequestedState), Reason);
     return false;
 }
 
+// ---- 全部准入检查在播放前；受击可接管本组件的攻击 / 闪避 ----
 bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState RequestedState)
 {
     if (bEndingPlay || !HasBegunPlay() || !IsActive() || !CharacterOwner.IsValid())
@@ -90,18 +102,22 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
 
     if (const AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(CharacterOwner.Get()))
     {
-        if (!Body->IsFormalActionIdle()) { return RejectRequest(RequestedState, TEXT("FormalBusy")); }
+        if (!Body->IsFormalActionIdle())
+        {
+            return RejectRequest(RequestedState, TEXT("FormalBusy"));
+        }
     }
 
-    if (RequestedState != EETPracticeActionState::Attacking
-        && RequestedState != EETPracticeActionState::Dodging
-        && RequestedState != EETPracticeActionState::HitReact)
+    if (RequestedState != EETPracticeActionState::Attacking &&
+        RequestedState != EETPracticeActionState::Dodging &&
+        RequestedState != EETPracticeActionState::HitReact)
     {
         return RejectRequest(RequestedState, TEXT("InvalidAction"));
     }
 
-    const bool bCanInterrupt = RequestedState == EETPracticeActionState::HitReact
-        && (CurrentState == EETPracticeActionState::Attacking || CurrentState == EETPracticeActionState::Dodging);
+    const bool bCanInterrupt = RequestedState == EETPracticeActionState::HitReact &&
+                               (CurrentState == EETPracticeActionState::Attacking ||
+                                CurrentState == EETPracticeActionState::Dodging);
 
     if (!IsPracticeActionIdle() && !bCanInterrupt)
     {
@@ -115,8 +131,9 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
         return RejectRequest(RequestedState, TEXT("NotGrounded"));
     }
 
-    if (RequestedState == EETPracticeActionState::Attacking
-        && Character->GetVelocity().SizeSquared2D() > FMath::Square(FMath::Max(0.0f, AttackMaxHorizontalSpeed)))
+    if (RequestedState == EETPracticeActionState::Attacking &&
+        Character->GetVelocity().SizeSquared2D() >
+            FMath::Square(FMath::Max(0.0f, AttackMaxHorizontalSpeed)))
     {
         return RejectRequest(RequestedState, TEXT("Moving"));
     }
@@ -139,10 +156,11 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
         return RejectRequest(RequestedState, TEXT("ExternalMontage"));
     }
 
+    // 编辑器Clamp不替代运行时校验；拒绝非法配置与外部RMS后才播放动画。
     if (RequestedState == EETPracticeActionState::Dodging)
     {
-        if (!FMath::IsFinite(DodgeDistance) || DodgeDistance < 1.0f || DodgeDistance > 300.0f
-            || !FMath::IsFinite(DodgeDuration) || DodgeDuration < 0.05f || DodgeDuration > 0.50f)
+        if (!FMath::IsFinite(DodgeDistance) || DodgeDistance < 1.0f || DodgeDistance > 300.0f ||
+            !FMath::IsFinite(DodgeDuration) || DodgeDuration < 0.05f || DodgeDuration > 0.50f)
         {
             return RejectRequest(RequestedState, TEXT("InvalidDodgeConfig"));
         }
@@ -162,8 +180,8 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
     CurrentState = RequestedState;
     ActiveAnimInstance = AnimInstance;
     ActiveMontage = Montage;
-    const float PlayedLength = AnimInstance->Montage_Play(Montage, 1.0f,
-        EMontagePlayReturnType::MontageLength, 0.0f, false);
+    const float PlayedLength = AnimInstance->Montage_Play(
+        Montage, 1.0f, EMontagePlayReturnType::MontageLength, 0.0f, false);
     if (PlayedLength <= 0.0f)
     {
         ReleaseAction(false, TEXT("PlaybackFailed"));
@@ -179,12 +197,14 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
 
     ActiveMontageInstanceID = Instance->GetInstanceID();
     Instance->OnMontageEnded.BindUObject(this, &ThisClass::HandleMontageEnded, ThisSerial);
-	Instance->OnMontageBlendingOutStarted.BindUObject(this, &ThisClass::HandleMontageBlendingOut, ThisSerial);
+    Instance->OnMontageBlendingOutStarted.BindUObject(this, &ThisClass::HandleMontageBlendingOut,
+                                                      ThisSerial);
     Character->StopJumping();
     Character->ConsumeMovementInputVector();
     Movement->StopMovementImmediately();
 
-    if (RequestedState == EETPracticeActionState::Dodging && !StartDodgeMovement(Character, Movement))
+    if (RequestedState == EETPracticeActionState::Dodging &&
+        !StartDodgeMovement(Character, Movement))
     {
         ReleaseAction(true, TEXT("DodgeMovementFailed"));
         return RejectRequest(RequestedState, TEXT("DodgeMovementFailed"));
@@ -192,25 +212,35 @@ bool UETPracticeActionComponent::RequestPracticeAction(EETPracticeActionState Re
 
     SetComponentTickEnabled(true);
     UE_LOG(LogETPracticeAction, Display, TEXT("[M0-05C2] Begin %s Montage=%s Serial=%u"),
-        *UEnum::GetValueAsString(CurrentState), *GetNameSafe(Montage), ThisSerial);
+           *UEnum::GetValueAsString(CurrentState), *GetNameSafe(Montage), ThisSerial);
     return true;
 }
 
-void UETPracticeActionComponent::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted, uint32 Serial)
+// ---- 动画结束 / 淡出共用本轮身份检查 ----
+bool UETPracticeActionComponent::IsCurrentActionCallback(UAnimMontage* Montage, uint32 Serial) const
 {
-    if (bEndingPlay || Serial != ActionSerial || Montage != ActiveMontage || IsPracticeActionIdle())
+    return !bEndingPlay && Serial == ActionSerial && Montage == ActiveMontage &&
+           !IsPracticeActionIdle();
+}
+
+void UETPracticeActionComponent::HandleMontageEnded(UAnimMontage* Montage, bool bInterrupted,
+                                                    uint32 Serial)
+{
+    if (!IsCurrentActionCallback(Montage, Serial))
     {
         return;
     }
     ReleaseAction(false, bInterrupted ? TEXT("Interrupted") : TEXT("Completed"));
 }
 
+// ---- 先推进Serial，再停自有位移 / 清状态，解绑后才停止精确动画实例 ----
 void UETPracticeActionComponent::ReleaseAction(bool bStopMontage, const TCHAR* Reason)
 {
     const EETPracticeActionState PreviousState = CurrentState;
     UAnimInstance* AnimInstance = ActiveAnimInstance.Get();
-    FAnimMontageInstance* Instance = AnimInstance
-        ? AnimInstance->GetMontageInstanceForID(ActiveMontageInstanceID) : nullptr;
+    FAnimMontageInstance* Instance =
+        AnimInstance ? AnimInstance->GetMontageInstanceForID(ActiveMontageInstanceID) : nullptr;
+    // Stop / 委托可能同步回调，旧Serial先失效；不更改原清理顺序。
     ++ActionSerial;
     StopDodgeMovement(Reason);
     CurrentState = EETPracticeActionState::Idle;
@@ -230,24 +260,26 @@ void UETPracticeActionComponent::ReleaseAction(bool bStopMontage, const TCHAR* R
         }
         if (bStopMontage)
         {
-            Instance->Stop(FAlphaBlend(0.05f), true);
+            Instance->Stop(FAlphaBlend(ETPracticeActionConstants::CancellationBlendOutSeconds),
+                           true);
         }
     }
     if (PreviousState != EETPracticeActionState::Idle)
     {
         UE_LOG(LogETPracticeAction, Display, TEXT("[M0-05C2] End %s -> Idle Reason=%s"),
-            *UEnum::GetValueAsString(PreviousState), Reason);
+               *UEnum::GetValueAsString(PreviousState), Reason);
     }
 }
 
+// ---- 仅活动动作检查对象身份；RMS结束不提前把动画状态改Idle ----
 void UETPracticeActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-    FActorComponentTickFunction* ThisTickFunction)
+                                               FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     ACharacter* Character = CharacterOwner.Get();
     UAnimInstance* AnimInstance = ActiveAnimInstance.Get();
-    if (!Character || !AnimInstance || !Character->GetMesh()
-        || Character->GetMesh()->GetAnimInstance() != AnimInstance)
+    if (!Character || !AnimInstance || !Character->GetMesh() ||
+        Character->GetMesh()->GetAnimInstance() != AnimInstance)
     {
         ReleaseAction(true, TEXT("AnimInstanceChanged"));
         return;
@@ -260,6 +292,7 @@ void UETPracticeActionComponent::TickComponent(float DeltaTime, ELevelTick TickT
     UpdateDodgeMovement();
 }
 
+// ---- 外部取消 / 失活 / 结束统一走释放入口 ----
 void UETPracticeActionComponent::CancelPracticeAction()
 {
     ReleaseAction(true, TEXT("Cancelled"));
@@ -285,7 +318,9 @@ void UETPracticeActionComponent::EndPlay(const EEndPlayReason::Type EndPlayReaso
     Super::EndPlay(EndPlayReason);
 }
 
-bool UETPracticeActionComponent::StartDodgeMovement(ACharacter* Character, UCharacterMovementComponent* Movement)
+// ---- 旧M0右侧位移；正式M2方向闪避由独立GAS Task实现 ----
+bool UETPracticeActionComponent::StartDodgeMovement(ACharacter* Character,
+                                                    UCharacterMovementComponent* Movement)
 {
     const FVector Direction = Character->GetActorRightVector().GetSafeNormal2D();
     if (Direction.IsNearlyZero())
@@ -296,7 +331,7 @@ bool UETPracticeActionComponent::StartDodgeMovement(ACharacter* Character, UChar
     TSharedPtr<FRootMotionSource_ConstantForce> Source =
         MakeShared<FRootMotionSource_ConstantForce>();
     Source->InstanceName = FName(TEXT("ETPracticeDodge"));
-    Source->Priority = 500;
+    Source->Priority = ETPracticeActionConstants::DodgeRootMotionPriority;
     Source->AccumulateMode = ERootMotionAccumulateMode::Override;
     Source->bInLocalSpace = false;
     Source->Force = Direction * (DodgeDistance / DodgeDuration);
@@ -317,11 +352,12 @@ bool UETPracticeActionComponent::StartDodgeMovement(ACharacter* Character, UChar
     DodgeStartLocation = Character->GetActorLocation();
     DodgeStartWorldTime = GetWorld()->GetTimeSeconds();
     UE_LOG(LogETPracticeAction, Display,
-        TEXT("[M0-05C2] DodgeMove Begin ID=%u Distance=%.1f Duration=%.3f Direction=%s"),
-        SourceID, DodgeDistance, DodgeDuration, *Direction.ToCompactString());
+           TEXT("[M0-05C2] DodgeMove Begin ID=%u Distance=%.1f Duration=%.3f Direction=%s"),
+           SourceID, DodgeDistance, DodgeDuration, *Direction.ToCompactString());
     return true;
 }
 
+// ---- 仅移除对象与LocalID都匹配的源，不误删后来复用ID的外部源 ----
 void UETPracticeActionComponent::StopDodgeMovement(const TCHAR* Reason)
 {
     if (!DodgeSource.IsValid())
@@ -331,9 +367,10 @@ void UETPracticeActionComponent::StopDodgeMovement(const TCHAR* Reason)
     UCharacterMovementComponent* Movement = DodgeMovement.Get();
     ACharacter* Character = Movement ? Movement->GetCharacterOwner() : CharacterOwner.Get();
     const float Travel2D = IsValid(Character)
-        ? FVector::Dist2D(DodgeStartLocation, Character->GetActorLocation()) : 0.0f;
-    const float Elapsed = GetWorld()
-        ? GetWorld()->GetTimeSeconds() - DodgeStartWorldTime : 0.0f;
+                               ? FVector::Dist2D(DodgeStartLocation, Character->GetActorLocation())
+                               : 0.0f;
+    const float Elapsed = GetWorld() ? GetWorld()->GetTimeSeconds() - DodgeStartWorldTime : 0.0f;
+    // Reset前快照；世界Elapsed含申请时机差异，SourceTime才是源累计时间。
     const float SourceTime = DodgeSource->GetTime();
     if (Movement)
     {
@@ -353,10 +390,11 @@ void UETPracticeActionComponent::StopDodgeMovement(const TCHAR* Reason)
     DodgeSource.Reset();
     DodgeMovement.Reset();
     UE_LOG(LogETPracticeAction, Display,
-        TEXT("[M0-05C2] DodgeMove End Reason=%s Travel2D=%.1f Elapsed=%.3f SourceTime=%.3f"),
-        Reason, Travel2D, Elapsed, SourceTime);
+           TEXT("[M0-05C2] DodgeMove End Reason=%s Travel2D=%.1f Elapsed=%.3f SourceTime=%.3f"),
+           Reason, Travel2D, Elapsed, SourceTime);
 }
 
+// ---- 位移窗口 / 离地 / 外部移除都只清自己的源；动画仍独立收尾 ----
 void UETPracticeActionComponent::UpdateDodgeMovement()
 {
     if (!DodgeSource.IsValid())
@@ -389,10 +427,10 @@ void UETPracticeActionComponent::UpdateDodgeMovement()
     }
 }
 
-void UETPracticeActionComponent::HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted, uint32 Serial)
+void UETPracticeActionComponent::HandleMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted,
+                                                          uint32 Serial)
 {
-    if (bEndingPlay || Serial != ActionSerial || Montage != ActiveMontage
-        || IsPracticeActionIdle())
+    if (!IsCurrentActionCallback(Montage, Serial))
     {
         return;
     }
