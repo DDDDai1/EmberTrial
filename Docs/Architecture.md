@@ -85,6 +85,18 @@ Ready只表示两属性链初始化成功，不代表存活、受控或能力已
 
 原两项M0自动化继续保留真实动画 / CharacterMovement断言。固定步长不等同实测FPS；验证结果与统一实机待办见Cleanup。
 
+### 2.3 正式、菜单与旧模板GameMode边界
+
+| 类 | 当前职责与保留原因 |
+| --- | --- |
+| AETGameMode | 正式地图按会话ID选出生点，报告实际选择；蓝图装配身体 / Controller资源 |
+| AETMenuGameMode | 三个默认Class为None；覆盖新玩家 / AHUD初始化，不走默认重生与ClientSetHUD；蓝图只装配菜单Controller |
+| AEmberTrialGameMode | 旧模板兼容规则类；DefaultEngine.ini的GlobalDefaultGameMode与ActiveClassRedirects仍引用，保留原BP构造查找 |
+
+[菜单源码](../EmberTrial/Source/EmberTrial/Private/Framework/ETMenuGameMode.cpp)不依赖UI；[旧模板源码](../EmberTrial/Source/EmberTrial/EmberTrialGameMode.cpp)只需APawn，直接包含Pawn头，避免为类型声明拉入共享Character依赖。原模板资产路径仍是当前兼容出生契约，未另加重复配置。没有证明全部蓝图引用退役前，不删除类、重定向或构造查找。
+
+第22批保持类身份、默认值、日志与生成路径；静态等价和构建不能替代菜单输入、切图或旧图出生的实机检查，最终统一执行。
+
 ## 3. 初始化与清理原则
 
 - 模块 StartupModule 属于进程级加载，不等于世界 / 角色 / ASC 就绪。
@@ -291,4 +303,4 @@ A五新 / 五旧已落地，实际105Source / 56cpp / 来源58；十份与指南
 
 ## 23. 本批 Commit / Push（固定放在最后）
 
-当前第21批为四份Validator Source与五份同步Markdown，共9项，逐文件清单见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Content / Config / 模块入口 / Build.cs / Target / uproject与测试未改，原B2实现已提交，不重复Stage。Raw / 日志 / 生成文件留本地，用户检查最新Staged Diff后Commit / Push；助手不操作索引。
+当前第22批为菜单 / 旧模板GameMode四份Source与五份同步Markdown，共9项；逐文件见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。资产、Config、Build / Target及测试未改；Raw / 日志 / 生成文件留本地，用户检查最新Staged Diff后Commit / Push，助手不操作索引。

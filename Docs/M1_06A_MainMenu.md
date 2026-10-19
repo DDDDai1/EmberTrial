@@ -1,6 +1,6 @@
 # M1-06A：独立主菜单与战斗入口
 
-2026-10-18清理同步：本页保留历史实施 / 配置 / 排障经验，当前整文件实现以Source链接为准，不按旧全文覆盖现有工程。当前已接菜单继续、原生暂停与检查点；这轮清理由助手按用户授权直接修改，普通功能开发的手动实践约定保留。验证与本批Push清单见[Cleanup](Cleanup.md)。
+2026-10-19第22批清理同步：本页保留历史实施 / 配置 / 排障经验，当前整文件实现以Source链接为准，不按旧全文覆盖现有工程。当前已接菜单继续、原生暂停与检查点；这轮清理由助手按用户授权直接修改，普通功能开发的手动实践约定保留。验证与本批Push清单见[Cleanup](Cleanup.md)。
 
 下发与验收：2026-10-10；UE **5.5.4**。前置[M1-05总验收](Reports/M1_05_Verification.md)通过，分批计划见[M1-06路线](M1_06_FlowRoadmap.md)。**A功能验收通过：用户21:13全项反馈、双目标Build / 29cpp索引、菜单切图与清理日志已核对。**六新Source / 两旧cpp、四新资产与启动 / Cook配置完成，清单44；实际手动45 / 等待5分钟。Unity补修已关闭；菜单空HUD初始化Warning已定位、非阻塞，已在后续B原生构建收口，见第11.1节与[验收报告](Reports/M1_06A_Verification.md)。以上是原A实施记录；当前清理的源码修改与验证以Cleanup为准。
 
@@ -14,7 +14,7 @@ Controller拥有唯一菜单View和自己的Session失败订阅。CanHandleMenuA
 
 ## 1. 完成后看到什么、预计多久
 
-启动菜单地图后，全屏显示“EmberTrial / 灰烬试炼”，下面有**开始试炼 / 继续试炼 / 退出游戏**。继续暂时禁用，说明当前尚无存档 / 继续功能；按开始载入已有正式战斗房间，角色 / 敌人初始100/100，HUD为新世界的玩家数据，鼠标隐藏，输入和视口焦点恢复。退出在PIE中结束当前Play，在独立游戏中退出进程。
+以下是A阶段演示目标：启动菜单地图后，全屏显示“EmberTrial / 灰烬试炼”，下面有**开始试炼 / 继续试炼 / 退出游戏**。继续暂时禁用，说明当前尚无存档 / 继续功能；按开始载入已有正式战斗房间，角色 / 敌人初始100/100，HUD为新世界的玩家数据，鼠标隐藏，输入和视口焦点恢复。退出在PIE中结束当前Play，在独立游戏中退出进程。
 
 预计手动**60–100分钟**：代码25–40、资产25–45、相关检查8–12分钟；构建 / 索引等待另计。菜单用UMG纯色与现有字体，不增加美术支出。失败界面、检查点、暂停菜单迁移在后续批次；A沿用当前P菜单和战斗实现。
 
@@ -49,58 +49,13 @@ Controller拥有唯一菜单View和自己的Session失败订阅。CanHandleMenuA
 
 ## 3. Core：不生成身体的菜单GameMode
 
-### 3.1 ETMenuGameMode.h全文
+### 3.1 ETMenuGameMode.h当前入口
 
-```cpp
-#pragma once
+[ETMenuGameMode.h 当前源码](../EmberTrial/Source/EmberTrial/Public/Framework/ETMenuGameMode.h)。
 
-#include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
-#include "ETMenuGameMode.generated.h"
+### 3.2 ETMenuGameMode.cpp当前入口
 
-class APlayerController;
-
-UCLASS()
-class EMBERTRIAL_API AETMenuGameMode : public AGameModeBase
-{
-    GENERATED_BODY()
-
-public:
-    AETMenuGameMode();
-
-protected:
-    virtual void HandleStartingNewPlayer_Implementation(
-        APlayerController* NewPlayer) override;
-};
-```
-
-### 3.2 ETMenuGameMode.cpp全文
-
-```cpp
-#include "Framework/ETMenuGameMode.h"
-#include "GameFramework/Pawn.h"
-#include "GameFramework/PlayerController.h"
-#include "Logging/LogMacros.h"
-
-DEFINE_LOG_CATEGORY_STATIC(LogETMenuGameMode, Log, All);
-
-AETMenuGameMode::AETMenuGameMode()
-{
-    DefaultPawnClass = nullptr;
-    SpectatorClass = nullptr;
-    HUDClass = nullptr;
-}
-
-void AETMenuGameMode::HandleStartingNewPlayer_Implementation(
-    APlayerController* NewPlayer)
-{
-    // Menu players have no Pawn. Do not call the default RestartPlayer path.
-    UE_LOG(LogETMenuGameMode, Display,
-        TEXT("[M1-06A] Menu player ready Controller=%s Pawn=%s"),
-        *GetNameSafe(NewPlayer),
-        *GetNameSafe(IsValid(NewPlayer) ? NewPlayer->GetPawn() : nullptr));
-}
-```
+[ETMenuGameMode.cpp 当前源码](../EmberTrial/Source/EmberTrial/Private/Framework/ETMenuGameMode.cpp)。
 
 不调用此函数的Super是有意设计：引擎默认实现会RestartPlayer并尝试生成身体。菜单只需要Controller与UMG。核心GameMode没有include UI类，UI Controller Class在菜单GameMode BP中指定。
 
@@ -388,33 +343,15 @@ EditorStartupMap=/Game/EmberTrial/Maps/L_ET_VerticalSlice.L_ET_VerticalSlice
 
 本批保留六个新类文件、菜单四资产、两个共享配置变化与游戏Controller输入初始化。原BP_ETPlayerController / UIBootstrap / Health Presenter / HUD、原玩家角色 / Combat / AI / 1–4 / E / P保持当前业务；没有临时测试节点需要删除。
 
-加载提示可能因同步切图太快不明显，是状态反馈，不要求它播放一段动画。恢复Map None后不留错误配置；菜单暂未提供返回战斗或失败重试，后续B / C / D再扩展。
+加载提示可能因同步切图太快不明显，是状态反馈，不要求它播放动画。None负例结束后恢复配置；B / C / D现已实现失败重试、会话继续与原生暂停，A阶段步骤作为历史学习记录。
 
 ### 11.1 菜单空HUD初始化Warning（本轮发现，非阻塞）
 
 验收日志五次菜单开局各有一条`SpawnActor failed because no class was specified`。UE5.5.4默认`AGameModeBase::InitializeHUDForPlayer_Implementation`仍调用`ClientSetHUD(HUDClass)`，PlayerController会尝试生成AHUD；本菜单HUDClass=None，因此出现提示。菜单与三个正常切图、HUD / 输入清理都通过，不要求立即重跑本批。
 
-**随下一批原生代码构建做这个局部补修，当前源码尚未修改：**
+该补修已在M1-06B完成：当前Menu GameMode覆盖InitializeHUDForPlayer_Implementation并有意不调用Super，跳过菜单不需要的AHUD生成；HandleStartingNewPlayer也不进入默认重生路径。两个当前实现见第3节链接，不再复制历史补修代码。正式战斗HUD仍由UIBootstrap管理，不能为消除菜单警告而清空正式HUD配置或添加核心对UI的依赖。
 
-1. 在`EmberTrial/Source/EmberTrial/Public/Framework/ETMenuGameMode.h`的`protected`中，与已有HandleStartingNewPlayer声明并列加入：
-
-```cpp
-    virtual void InitializeHUDForPlayer_Implementation(
-        APlayerController* NewPlayer) override;
-```
-
-2. 在同类`.cpp`中、构造函数之后加入：
-
-```cpp
-void AETMenuGameMode::InitializeHUDForPlayer_Implementation(
-    APlayerController* NewPlayer)
-{
-    // The menu world intentionally has no AHUD actor.
-    (void)NewPlayer;
-}
-```
-
-不调用Super，不改游戏GameMode / 正式HUD / HUDClass=None配置。此修改仅跳过菜单世界不需要的AHUD生成路径；下一批关闭UE后正常双目标Build，一次菜单Play应没有此Warning，开始仍正常即可。真正TravelFailure与独立包验证继续留在对应开发批次。
+第22批保持上述行为、三个None、函数签名与日志，补充原生 / 蓝图职责注释。未重跑菜单Play，不把本轮构建成功当作该警告重新实测；历史B收口结果保留在[B验收报告](Reports/M1_06B_Verification.md)。
 
 ## 12. 完成反馈（复制填写；我负责读日志）
 
@@ -435,40 +372,10 @@ P鼠标 / 键盘继续、左键 / 2与移动转向跳跃短基线：
 实际用时：代码__ / 资产__ / 检查__；构建等待__分钟
 ```
 
-你不用手动统计对象 / 日志次数或填Source哈希。我复核实际文件、receipt / 索引、菜单→战斗的对象与输入记录；未保留的视觉 / 键盘细节依据你反馈，不把静态API核对当实机验收。**2026-10-10收尾已完成：**[A报告](Reports/M1_06A_Verification.md)接受本批功能，四项新资产已真实登记，来源清单44；原40项哈希不变。菜单空HUD Warning登记为非阻塞后续修正，不宣称它已消失。
+你不用手动统计对象 / 日志次数或填Source哈希。我复核实际文件、receipt / 索引、菜单→战斗的对象与输入记录；未保留的视觉 / 键盘细节依据你反馈，不把静态API核对当实机验收。**2026-10-10收尾已完成：**[A报告](Reports/M1_06A_Verification.md)接受本批功能，四项新资产已真实登记，来源清单44；原40项哈希不变。A阶段曾登记菜单空HUD Warning为非阻塞，后在B完成修正；当前状态见第11.1节，保留历史A报告原结论。
 
 ## 13. 本批需要Commit / Push的内容（固定放在文档最后）
 
-### 13.1 实现源码
+当前第22批清理为菜单 / 旧模板GameMode四份Source与五份同步Markdown，共9项，逐文件见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。原菜单资产、Config与框架接入均已提交，本轮没有这些文件的新改动，不重复Stage。
 
-选择第2节**六份新Source**、`EmberTrial/Source/EmberTrial/Private/Framework/ETPlayerController.cpp`，以及第7.1节补修的`EmberTrial/Source/EmberTrial/Private/AI/ETBTTask_PursuitMove.cpp`。不包含生成的`.generated.h`、Module.EmberTrial.cpp、CMakeLists.txt或compile_commands；Build.cs / Target / uproject本批不应因这份方案产生变化。
-
-推荐Commit标题：`feat: add standalone main menu and game entry`。通过反馈后补验收摘要，可和功能一起提交；若已先提交实现，再追加文档收尾即可，不改写历史。
-
-### 13.2 可编辑UE资产与共享配置
-
-| 内容 | 仓库相对路径 |
-| --- | --- |
-| 菜单地图 | `EmberTrial/Content/EmberTrial/Maps/L_ET_MainMenu.umap` |
-| 菜单GameMode BP | `EmberTrial/Content/EmberTrial/Blueprints/Framework/BP_ETMenuGameMode.uasset` |
-| 菜单Controller BP | `EmberTrial/Content/EmberTrial/Blueprints/Framework/BP_ETMainMenuController.uasset` |
-| 菜单Widget BP | `EmberTrial/Content/EmberTrial/ui/Menu/WBP_ETMainMenu.uasset` |
-| 启动地图 | `EmberTrial/Config/DefaultEngine.ini` |
-| Cook地图列表 | `EmberTrial/Config/DefaultGame.ini` |
-
-四个资产继续使用现有LFS规则。正式地图 / 旧Blueprint只有你实际修改并保存了必要配置才加入；不要求为了本章重新保存所有旧资产制造差异。
-
-### 13.3 文档与现有待提交项
-
-- `Docs/M1_06_FlowRoadmap.md`、`Docs/M1_06A_MainMenu.md`。
-- 本次更新的`Docs/Progress.md`、`Docs/Backlog.md`、`Docs/Architecture.md`、`Introduction.md`、`Docs/VersionControl.md`、`Docs/AcceptanceWorkflow_Options.md`。
-- 已完成的`Docs/Reports/M1_06A_Verification.md`、`Docs/AssetManifest.csv`四项真实登记与状态更新。
-- 已暂存的`EmberTrial/Config/DefaultEditorPerProjectUserSettings.ini`取消跟踪**删除记录**，本地个人设置保留。上一轮主体 / 文档已提交8843ffa，这条删除尚未提交；若你已在另一提交处理则不重复操作。
-
-### 13.4 留本地与CLion最后操作
-
-Raw证据 / 日志、Artifacts视频 / 包、Binaries / Intermediate / Saved / DDC、`.idea` / `.run`、生成CMake / compile_commands与索引缓存留本地，禁止Force Add绕过现有忽略规则。
-
-**本次已核对六个新Source为AM：此前暂存的是初始类骨架，工作区才有完整代码。**在CLion Staging窗口将这六个文件的最新修改再次Stage / Add，确认Staged diff包含完整实现；若使用非Staging的Commit窗口，选择这些文件的全部改动。不要只提交已有暂存内容。
-
-完成并恢复配置后，在CLion Commit / Staging窗口选择上述**实际变化**，核对四个UE资产及八份源码、两Config与验收文档路径，再Commit → Push已有origin/main。不提交未知额外改动，不盲目丢弃它们；出现Push错误给原始文本，我定位后再处理。助手不会代Commit / Push。
+CLion Save All → 刷新Changes → 对最新Unstaged修改重新Stage → 检查Staged Diff → Commit → Push。Raw、Artifacts、生成文件与索引缓存继续留本地；用户操作Git，助手不代Stage / Commit / Push。

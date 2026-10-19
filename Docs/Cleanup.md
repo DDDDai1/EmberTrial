@@ -358,40 +358,58 @@ Editor / Game的Target、模块 / 插件类型、三个Build.cs依赖与原生�
 
 未重做交互式断键 / None负例、PIE流程或Cook / 打包；正常资源Valid不能证明全部错误分支、导航、焦点或运行时生命周期。完整快照、差异、等价 / 格式 / 模块审计、双构建、配置 / 三类校验与测试JSON保存在Raw/Cleanup/2026-10-19_Batch21。收尾额度快照：5小时已用69% / 剩余31%，周已用37% / 剩余63%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第21批后）
+## 第22批：菜单与旧模板GameMode兼容边界
 
-累计21批涉及94 / 116份Source（约81%文件覆盖率）、47份Markdown，已记录移除15557行重复实现 / 配置副本。覆盖率不是整体完成率；22份尚未触及Source不等于22份都必须修改，已触及文件也可能还有局部审计。
+2026-10-19开工5小时已用71% / 周已用38%；第21批已提交，工作区干净，基线HEAD为bb587ac。按当前余量只选四份小型Source：ETMenuGameMode与旧EmberTrialGameMode的头 / 实现，统一格式、空指针写法和职责注释。
+
+旧模板cpp不使用具体Character，原Public/Characters头替换为直接GameFramework/Pawn.h，保留APawn类型需求，减少不必要的头文件依赖；NULL改为nullptr，原FClassFinder资源路径、静态构造查找、找到后才赋DefaultPawnClass的条件均保持。不宣称已测得编译提速。
+
+没有删除旧模板类或把构造路径移成新配置：DefaultEngine.ini仍以EmberTrialGameMode作GlobalDefaultGameMode，ActiveClassRedirects也指向它；本轮没有证明全部蓝图引用退役。正式试炼按地图Override使用ETGameMode，菜单使用ETMenuGameMode，三者用途分开。
+
+菜单三个None、HandleStartingNewPlayer / InitializeHUDForPlayer签名、日志与不调用Super的行为保留；注释说明跳过默认重生与空AHUD生成路径，具体UI Controller由BP装配，Core不包含UI类。三份Source有效Token保持；模板cpp仅规范include与NULL后，其余Token保持，反射与类身份不变。
+
+菜单指南删除两份旧完整源码及两处补修片段共51行，改当前Source入口；把空HUD警告“尚待修复”更新为B已完成、A报告仍留历史结论。Framework指南同步Pawn直接include与旧类保留原因，Architecture补三个GameMode的职责表；旧Push标题保留，清理历史待提交流水，当前清单统一到本页末尾。
+
+本批UE5.5.4正常Editor / Game Development Build、三模块CLion元数据 / CMake刷新通过，四份Source均在Core CodeModel，cpp仍43 / 15 / 3。既有13项自动化全部Success，0 Fail / 0 NotRun / 0测试警告，原测试及断言未改；配置PASS Errors=0 / Warnings=0。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+112份其他Source、290项Content / Config / uproject / 来源清单保护哈希保持，冻结B1未改；等价、格式、LF / 末尾换行、文档链接 / 围栏、CodeModel与Git差异检查通过。Source仍116份 / 61cpp。收益为可读性、依赖明确与文档一致性，不宣称运行性能提高。
+
+本批未重跑DataValidation、菜单输入 / 切图 / 旧图出生、PIE或Cook / 打包。既有自动化不覆盖这些完整GameMode流程，静态等价与构建不写成动态验收。完整快照、差异、等价 / 格式、双构建、配置与自动化JSON保存在Raw/Cleanup/2026-10-19_Batch22。收尾额度快照：5小时已用75% / 剩余25%，周已用38% / 剩余62%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第22批后）
+
+累计22批涉及98 / 116份Source（约84%文件覆盖率）、47份Markdown，已记录移除15608行重复实现 / 配置副本。覆盖率不是整体完成率；18份尚未触及Source不等于18份都必须修改，已触及文件也可能还有局部审计。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
 | 正式玩法与兼容 | GA / 资源 / 战斗、Character / Practice已整理 | 跨模块规则、蓝图引用与最终实机 |
 | UI与AI | 主要观察 / 呈现 / 输入、感知 / 追击 / 近战已整理 | 焦点 / 切图、取消 / 重试 / 交战实机 |
-| 会话与出生 | Session / Checkpoint / 正式GameMode已整理 | 统一流程 / 故障验证，其他模板 / 菜单规则类 |
-| 工程与材料 | Editor校验器已整理，构建依赖 / Target边界只读审计 | 工具 / 测试夹具、余下材料与跨模块复核 |
+| 会话与规则 | Session / Checkpoint及三种GameMode已整理 | 统一流程 / 故障 / 兼容出生验证 |
+| 工程与材料 | Editor校验器已整理，构建依赖 / Target边界已审计 | 工具 / 测试夹具、余下材料与跨模块复核 |
 | 最终交付 | 分批构建、13项自动化和对应资源检查 | 统一实机、Cook / 打包与收益汇总 |
 
 此前约10–15批及20–35小时是初估，按实际复杂度校准，不由文件覆盖率推算精确工期。
 
 ## 后续队列
 
-1. 原测试夹具、剩余模板 / 菜单GameMode及引用审计。
-2. 工具、剩余架构材料与跨模块复核。
-3. 统一自动化、实机与包短查，汇总收益并收拢过程文档。
+1. 原测试夹具与跨模块 / 蓝图引用审计。
+2. 工具、剩余架构材料与过程文档收口。
+3. 统一自动化、实机与包短查，汇总收益。
 
-前二十一批已收口，其余范围未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
+前二十二批已收口，其余范围未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批四份Source与五份Markdown，共9项；用户在CLion刷新差异，重新Stage最新修改后Commit / Push。建议Commit信息：refactor: clarify editor validators and centralize repeated asset paths。
+本批四份Source与五份Markdown，共9项；用户在CLion刷新差异，重新Stage最新修改后Commit / Push。建议Commit信息：refactor: clarify menu and legacy game mode boundaries。
 
-- [ETGameplayAssetValidator.h](../EmberTrial/Source/EmberTrialEditor/Public/Validation/ETGameplayAssetValidator.h)
-- [ETGameplayAssetValidator.cpp](../EmberTrial/Source/EmberTrialEditor/Private/Validation/ETGameplayAssetValidator.cpp)
-- [ETProjectAssetValidator.h](../EmberTrial/Source/EmberTrialEditor/Public/Validation/ETProjectAssetValidator.h)
-- [ETProjectAssetValidator.cpp](../EmberTrial/Source/EmberTrialEditor/Private/Validation/ETProjectAssetValidator.cpp)
-- [M1_07C1_EditorValidation.md](M1_07C1_EditorValidation.md)
-- [M1_07C2_GameplayValidation.md](M1_07C2_GameplayValidation.md)
+- [ETMenuGameMode.h](../EmberTrial/Source/EmberTrial/Public/Framework/ETMenuGameMode.h)
+- [ETMenuGameMode.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETMenuGameMode.cpp)
+- [EmberTrialGameMode.h](../EmberTrial/Source/EmberTrial/EmberTrialGameMode.h)
+- [EmberTrialGameMode.cpp](../EmberTrial/Source/EmberTrial/EmberTrialGameMode.cpp)
+- [M1_06A_MainMenu.md](M1_06A_MainMenu.md)
+- [M1_02B_FrameworkObjects.md](M1_02B_FrameworkObjects.md)
 - [Architecture.md](Architecture.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-Content / Config / 模块入口 / Build.cs / Target / uproject与测试Source保持；Raw快照、日志、报告和生成文件留本地。助手不Stage / Commit / Push。
+Content / Config、Build.cs / Target / uproject与测试Source保持；Raw快照、日志、报告和生成文件留本地。助手不Stage / Commit / Push。

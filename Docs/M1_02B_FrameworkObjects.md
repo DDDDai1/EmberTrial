@@ -104,7 +104,7 @@ UCLASS、GENERATED_BODY、属性、函数与文件名全部保留；`EmberTrialC
 
 ### 3.3 更新两处 include
 
-下面两个 .cpp 的原 include `"EmberTrialCharacter.h"` 均改为：
+M1-02B初次移动Character时，下面两份cpp曾统一公开包含路径：
 
 ~~~cpp
 #include "Characters/EmberTrialCharacter.h"
@@ -115,7 +115,9 @@ UCLASS、GENERATED_BODY、属性、函数与文件名全部保留；`EmberTrialC
 1. `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\Characters\EmberTrialCharacter.cpp`。
 2. `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\EmberTrialGameMode.cpp`。
 
-当前Character.cpp已统一为上述公开include；旧Practice头通过模块私有搜索路径使用ETPracticeActionComponent.h，不再使用../../。移动 / Jump共用私有CanAcceptLocomotionInput，保留正式Idle与Practice规则及组件查找；共享身体职责见[架构](Architecture.md)。
+当前Character.cpp继续使用上述公开include；第22批旧EmberTrialGameMode.cpp已改为直接包含GameFramework/Pawn.h，因为FClassFinder只需APawn，不依赖具体Character。不能把历史“两处都包含Character”的步骤重新覆盖到当前模板类。[模板源码](../EmberTrial/Source/EmberTrial/EmberTrialGameMode.cpp)保留原BP查找与找到后赋值；共享DefaultEngine.ini仍以该类作GlobalDefaultGameMode，且保留旧类重定向，所以没有删除此兼容类。
+
+旧Practice头通过模块私有搜索路径使用ETPracticeActionComponent.h，不再使用../../；移动 / Jump共用私有CanAcceptLocomotionInput，保留正式Idle与Practice规则及组件查找。共享身体职责见[架构](Architecture.md)。
 
 ### 3.4 给旧内部头文件保留私有搜索路径
 
@@ -277,4 +279,4 @@ B 通过后进入 M1-02C：UI Bootstrap / 本地玩家生命周期与 Pawn 重�
 
 ## 本次清理 Commit / Push（固定放在最后）
 
-第20批整理正式会话 / 检查点 / GameMode六份Source，同步本页等七份Markdown，共13项。当前逐文件清单与检查见[Cleanup末尾](Cleanup.md)。旧Framework迁移已完成，不按早期GameMode全文覆盖现在的出生选择与报告。用户重新Stage后Commit / Push，Raw / 索引 / 日志留本地。
+第22批整理菜单 / 旧模板GameMode四份Source，同步本页等五份Markdown，共9项。逐文件清单与检查见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。旧Framework迁移已完成，不按历史include或整文件覆盖当前实现。用户重新Stage最新差异后Commit / Push；Raw / 索引 / 日志留本地。

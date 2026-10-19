@@ -13,11 +13,11 @@
 
 ## 当前交接
 
-前二十批已完成并提交，本批基线HEAD为f7718f0。第21批整理两个Editor校验器的四份Source，集中六组重复资产路径，补充反射读取、范围 / 诊断和BT / Widget遍历说明；规则ID、文本、判断顺序、白名单及Runtime守卫保持。两份指南移除710行整文件 / 配置副本，Architecture同步当前规则与模块职责。
+前二十一批已完成并提交，本批基线HEAD为bb587ac。第22批整理菜单 / 旧模板GameMode四份Source，模板cpp改为直接包含Pawn头、统一nullptr，保留资源构造查找与默认类条件；菜单补充不走默认重生 / AHUD生成的说明。共享配置仍引用旧类，因此保留其身份与兼容用途。指南移除51行重复源码 / 过期补修，Framework与Architecture同步职责。
 
-本批Editor / Game、三模块索引 / CMake、13项自动化、共享配置及Blueprint / BehaviorTree / InputMappingContext校验通过；两套校验器共22资产Valid，三命令均0 Error / Warning，自动化零失败 / 测试警告。112份其他Source、290项资产配置保护哈希保持，冻结B1未改。模块 / Build / Target只读审计通过；未重做交互式负例、实机或Cook / 打包。收尾5小时已用69% / 剩余31%，周已用37% / 剩余63%，未使用重置。
+本批Editor / Game、三模块索引 / CMake、13项自动化与配置检查通过，零测试失败 / 警告。112份其他Source及290项资产配置保护哈希保持，冻结B1未改。未重跑DataValidation、菜单切图 / 旧图出生等实机流程或Cook / 打包；既有测试不覆盖这些完整流程。收尾5小时已用75% / 剩余25%，周已用38% / 剩余62%，未使用重置。
 
-累计21批涉及94 / 116份Source（约81%文件覆盖率，非整体完成率）、47份Markdown，已记录移除15557行重复实现 / 配置副本。测试夹具、残余规则类、工具 / 跨模块引用审计与统一实机仍待处理；新玩法停在M2-04B2，详见[剩余范围](Cleanup.md)。
+累计22批涉及98 / 116份Source（约84%文件覆盖率，非整体完成率）、47份Markdown，已记录移除15608行重复实现 / 配置副本。测试夹具、工具 / 跨模块与蓝图引用审计、文档收口和统一实机仍待处理；新玩法停在M2-04B2，详见[剩余范围](Cleanup.md)。
 
 ## 资源与工期校准
 
@@ -41,4 +41,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-第21批四份Validator Source与五份同步Markdown，共9项；逐文件清单见Cleanup末尾。Content / Config、模块依赖 / Target与原测试未改，Raw / 日志 / 报告及生成文件留本地；助手未操作Git索引。
+第22批菜单 / 旧模板GameMode四份Source与五份同步Markdown，共9项；逐文件清单见Cleanup末尾。Content / Config、模块依赖 / Target与原测试未改，Raw / 日志 / 报告及生成文件留本地；助手未操作Git索引。
