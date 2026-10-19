@@ -1,6 +1,6 @@
 # M1-03A2-01：生命属性与 GameplayReady
 
-2026-10-18清理同步：本页保留历史规则、接入差异、资产配置和验收经验，重复整文件 / 完整方法改为当前Source链接；不要将旧阶段代码覆盖到现有M2-04B2工程。本次清理范围、验证与提交清单见[Cleanup](Cleanup.md)。
+2026-10-19第18批清理同步：Character门控、Ready / ActorInfo与结束流程以当前Source为准，勿用早期完整函数覆盖已有连段、闪避或治疗。本轮清理由助手按授权直接执行；普通功能开发保留手动实践约定。当前检查与提交清单见[Cleanup](Cleanup.md)。
 
 **2026-10-03已验收通过，实际手动30 / 等待5 min，A2-02也已通过。** 本页保留当时操作方案；实施结果见 [01验收](Reports/M1_03A2_01_Verification.md) / [A2总验收](Reports/M1_03A2_Verification.md)，当前功能基线已到M2-04B2，正在分批清理，状态见[Progress](Progress.md)。下文“尚未编码”等表述属于交接时状态。
 
@@ -146,94 +146,16 @@ ASC 的 InitializeComponent 会搜索同一 Actor 的原生属性子对象并注
 
 **不在 PossessedBy / UnPossessed 里增加这行，不重置 bStartupAttributesInitialized。** 保留现有 Super / PracticeAction 查找 / 结束保护。
 
-### 5.3 新函数全文
+### 5.3 当前查询与一次初始化
 
-在 GetAbilitySystemComponent 函数之后插入下列完整函数；不覆盖 A1 的关联刷新代码：
+完整实现见[Character.cpp](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)，声明见[Character.h](../EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h)；不再保留只检查Health的旧函数，避免覆盖M2体力接入。
 
-~~~cpp
-bool AEmberTrialCharacter::IsGameplayReady() const
-{
-    return bGameplayReady && !bAbilitySystemShuttingDown &&
-        IsValid(AbilitySystemComponent) && IsValid(HealthAttributes);
-}
+- IsGameplayReady检查成功标记、结束标记及ASC / 两属性集；不按生命、控制权或动作过滤。
+- 两种Snapshot不可用先清空输出，可用时读取当前属性，不返回出生配置。
+- SetGameplayReady对相同状态去重，先提交标记再通知，允许观察者同步查询。
+- EnsureGameplayInitialized先核对ActorInfo与两个已注册属性集；已成功时只读。两组初值全部合法后，分别先上限后当前值，完成才提交成功标记 / Ready。
 
-bool AEmberTrialCharacter::GetGameplayHealthSnapshot(float& OutHealth, float& OutMaxHealth) const
-{
-    OutHealth = 0.0f;
-    OutMaxHealth = 0.0f;
-    if (!IsGameplayReady())
-    {
-        return false;
-    }
-
-    OutHealth = HealthAttributes->GetHealth();
-    OutMaxHealth = HealthAttributes->GetMaxHealth();
-    return true;
-}
-
-void AEmberTrialCharacter::SetGameplayReady(bool bNewReady)
-{
-    if (bGameplayReady == bNewReady)
-    {
-        return;
-    }
-
-    bGameplayReady = bNewReady;
-    UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-03A2-01] Ready changed Character=%s Ready=%d"),
-        *GetNameSafe(this), bGameplayReady ? 1 : 0);
-    OnGameplayReadyChanged.Broadcast(this, bGameplayReady);
-}
-
-bool AEmberTrialCharacter::EnsureGameplayInitialized()
-{
-    if (!HasActorBegunPlay() || bAbilitySystemShuttingDown || IsActorBeingDestroyed())
-    {
-        return false;
-    }
-
-    if (!IsValid(AbilitySystemComponent) || !AbilitySystemComponent->AbilityActorInfo.IsValid() ||
-        AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get() != this ||
-        AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get() != this ||
-        !IsValid(HealthAttributes) ||
-        AbilitySystemComponent->GetSet<UETHealthAttributeSet>() != HealthAttributes.Get())
-    {
-        SetGameplayReady(false);
-        UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M1-03A2-01] Missing gameplay dependencies Character=%s"), *GetNameSafe(this));
-        return false;
-    }
-
-    if (bStartupAttributesInitialized)
-    {
-        UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M1-03A2-01] Already initialized Character=%s Health=%.1f MaxHealth=%.1f"),
-            *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth());
-        return IsGameplayReady();
-    }
-
-    if (!FMath::IsFinite(InitialMaxHealth) || !FMath::IsFinite(InitialHealth) ||
-        InitialMaxHealth < 1.0f || InitialHealth < 0.0f || InitialHealth > InitialMaxHealth)
-    {
-        UE_LOG(LogETAbilityFoundation, Warning,
-            TEXT("[M1-03A2-01] Invalid startup health Character=%s Health=%.1f MaxHealth=%.1f"),
-            *GetNameSafe(this), InitialHealth, InitialMaxHealth);
-        return false;
-    }
-
-    AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetMaxHealthAttribute(), InitialMaxHealth);
-    AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(), InitialHealth);
-    bStartupAttributesInitialized = true;
-
-    UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-03A2-01] Health initialized Character=%s Health=%.1f MaxHealth=%.1f"),
-        *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth());
-    SetGameplayReady(true);
-    return IsGameplayReady();
-}
-~~~
-
-先检查依赖 / 配置，再写 MaxHealth → Health；失败时不广播成功。重复 Ensure 不再写属性，不重复 Ready=True。事件发生时查询已经为 True；目前代表最小属性链就绪，能力授予 / 装备 / 存档接入后，必须把 Ready 放到这些步骤完成之后。
+Ready目前表示生命 / 体力初始化成功。能力在BeginPlay后续步骤授予，不能据此认为所有玩法内容已加载；未来异步就绪条件需要单独设计与验证。
 
 ### 5.4 EndPlay 撤销就绪
 
@@ -331,3 +253,7 @@ Controller临时8/9已删除，Compile / Save：是
 ~~~
 
 报错先给章节 / 操作顺序 / 错误文字；连线问题截包含执行线和数据引脚的图。我会读本机日志复核，只有明确要求时才直接改源码。
+
+## 本次清理 Commit / Push（固定放在最后）
+
+本页历史功能已完成，不重做旧步骤。第18批为Character两份Source与八份Markdown，共十项；最新差异、检查结果与逐文件清单见[Cleanup末尾](Cleanup.md)。用户重新Stage后Commit / Push，Raw / 索引 / 日志留本地；助手不操作Git索引。

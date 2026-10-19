@@ -1,5 +1,7 @@
 # M1-03A1：在现有 Character 上接入 ASC
 
+2026-10-19第18批清理同步：Character门控、Ready / ActorInfo与结束流程以当前Source为准，勿用早期完整函数覆盖已有连段、闪避或治疗。本轮清理由助手按授权直接执行；普通功能开发保留手动实践约定。当前检查与提交清单见[Cleanup](Cleanup.md)。
+
 生成 / 验收日期：2026-10-03。**A1 已通过，用户约20:43完成，手动45 / 等待3分钟。** 证据见 [验收报告](Reports/M1_03A1_Verification.md)，下一批按 [A2-01生命属性 / GameplayReady](M1_03A2_01_HealthReady.md) 操作。下文保留原交接步骤供复查，不重做已通过项；当前实施以实际源码和验收报告为准。
 
 ## 1. 范围、效果与后续批次
@@ -56,36 +58,9 @@ M1-03 依次推进：
 
 这是 JSON 的属性片段，不是完整文件。两个插件对象之间有逗号；不要把 GameplayAbilities 放进项目 Modules，不给它加 Editor 限制。GameplayTags / GameplayTasks 是模块依赖，不需要在这里增加同名插件。
 
-### 3.2 修改核心 Build.cs
+### 3.2 当前核心Build.cs
 
-当前核心文件较短，可替换为下面全文；不要覆盖 UI 模块文件：
-
-~~~csharp
-using UnrealBuildTool;
-
-public class EmberTrial : ModuleRules
-{
-    public EmberTrial(ReadOnlyTargetRules Target) : base(Target)
-    {
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-        PublicDependencyModuleNames.AddRange(new string[]
-        {
-            "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-            "GameplayAbilities"
-        });
-
-        PrivateDependencyModuleNames.AddRange(new string[]
-        {
-            "GameplayTags", "GameplayTasks"
-        });
-
-        PrivateIncludePaths.Add(ModuleDirectory);
-    }
-}
-~~~
-
-GameplayAbilities 为公开依赖，因为公开角色头文件继承它的接口；Tags / Tasks 在核心内部使用。核心没有加入 UI / UMG 依赖。
+[EmberTrial.Build.cs](../EmberTrial/Source/EmberTrial/EmberTrial.Build.cs)为当前依赖入口。旧A1全文不再复制，避免覆盖后来加入的公开GameplayTags / AIModule。公开接口依赖放Public，内部实现依赖放Private；Core仍不依赖UMG / EmberTrialUI。
 
 ## 4. 角色头文件：准确插入 / 替换
 
@@ -161,7 +136,7 @@ UCLASS / GENERATED_BODY 不变，不修改类名 / API 宏，不改 Blueprint Pa
 
 ~~~cpp
 #include "AbilitySystemComponent.h"
-#include "GameplayAbilityTypes.h"
+#include "Abilities/GameplayAbilityTypes.h"
 #include "GameFramework/PlayerController.h"
 ~~~
 
@@ -182,115 +157,24 @@ DEFINE_LOG_CATEGORY_STATIC(LogETAbilityFoundation, Log, All);
 
 其余构造代码保留。单人路线不启用 ASC 网络复制；不关闭 ASC 的 Tick，不设置复制模式，不在 BeginPlay 再 NewObject 一个组件。
 
-### 5.3 替换 BeginPlay
+### 5.3 当前BeginPlay顺序
 
-原 BeginPlay 只有 Super 与 PracticeAction 查找；替换该函数全文为：
+实现见[Character.cpp](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)。结束标记复位 → Super → Practice组件查找 → 建立ActorInfo → 尝试属性初始化 → 依次尝试授予轻攻击 / 闪避 / 治疗。不要恢复为A1仅处理ASC的旧版本。
 
-~~~cpp
-void AEmberTrialCharacter::BeginPlay()
-{
-    bAbilitySystemShuttingDown = false;
-    Super::BeginPlay();
-    PracticeActionComponent = FindComponentByClass<UETPracticeActionComponent>();
-    RefreshEmberAbilityActorInfo(TEXT("BeginPlay"));
-}
-~~~
+### 5.4 ActorInfo、换控与结束边界
 
-保留 FindComponentByClass，避免破坏既有输入门控。
+| 方法 | 当前职责 |
+| --- | --- |
+| GetAbilitySystemComponent | 返回本身体默认子对象，不临时创建第二个ASC |
+| RefreshEmberAbilityActorInfo | Owner / Avatar均为本身体，必要时Init，否则Refresh；结束阶段拒绝重新关联 |
+| PossessedBy / UnPossessed | Super之后、已BeginPlay时刷新Controller关联；不重置属性或重复授予 |
+| EndPlay | 先置结束保护并撤销Ready，再取消能力、清自有句柄 / Cue / ActorInfo，最后Super |
 
-### 5.4 新增接口、刷新与结束函数
+统一入口见[头文件](../EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h)与[实现](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)。Ready表示生命 / 体力初始化成功，与ActorInfo日志、控制权或存活不同；BeginPlay在Ready之后尝试授予能力。
 
-把下面整段加在 BeginPlay 后、原 Input 区域前；不要放进另一个函数的括号里：
+首次Possess可能早于BeginPlay，启动会补关联；运行中UnPossess保留同一个身体和ASC。结束保护先于取消及Super，阻止同步回调重新建立ActorInfo。
 
-~~~cpp
-UAbilitySystemComponent* AEmberTrialCharacter::GetAbilitySystemComponent() const
-{
-    return AbilitySystemComponent.Get();
-}
-
-void AEmberTrialCharacter::RefreshEmberAbilityActorInfo(const TCHAR* Reason)
-{
-    if (bAbilitySystemShuttingDown || IsActorBeingDestroyed())
-    {
-        return;
-    }
-
-    if (!IsValid(AbilitySystemComponent) || !AbilitySystemComponent->AbilityActorInfo.IsValid())
-    {
-        UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M1-03A1] Missing ASC or ActorInfo Character=%s Reason=%s"),
-            *GetNameSafe(this), Reason);
-        return;
-    }
-
-    const bool bNeedsInit =
-        AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get() != this ||
-        AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get() != this;
-
-    if (bNeedsInit)
-    {
-        AbilitySystemComponent->InitAbilityActorInfo(this, this);
-    }
-    else
-    {
-        AbilitySystemComponent->RefreshAbilityActorInfo();
-    }
-
-    UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-03A1] ActorInfo ready Character=%s Reason=%s Mode=%s ASC=%s Owner=%s Avatar=%s Controller=%s"),
-        *GetNameSafe(this), Reason, bNeedsInit ? TEXT("Init") : TEXT("Refresh"),
-        *GetNameSafe(AbilitySystemComponent.Get()),
-        *GetNameSafe(AbilitySystemComponent->GetOwnerActor()),
-        *GetNameSafe(AbilitySystemComponent->GetAvatarActor()),
-        *GetNameSafe(AbilitySystemComponent->AbilityActorInfo->PlayerController.Get()));
-}
-
-void AEmberTrialCharacter::PossessedBy(AController* NewController)
-{
-    Super::PossessedBy(NewController);
-    if (HasActorBegunPlay())
-    {
-        RefreshEmberAbilityActorInfo(TEXT("PossessedBy"));
-    }
-}
-
-void AEmberTrialCharacter::UnPossessed()
-{
-    Super::UnPossessed();
-    if (HasActorBegunPlay())
-    {
-        RefreshEmberAbilityActorInfo(TEXT("UnPossessed"));
-    }
-}
-
-void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-    bAbilitySystemShuttingDown = true;
-
-    if (IsValid(AbilitySystemComponent) && AbilitySystemComponent->AbilityActorInfo.IsValid())
-    {
-        AbilitySystemComponent->CancelAllAbilities();
-        AbilitySystemComponent->RemoveAllGameplayCues();
-        AbilitySystemComponent->ClearActorInfo();
-
-        UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M1-03A1] ActorInfo cleared Character=%s Reason=%d"),
-            *GetNameSafe(this), static_cast<int32>(EndPlayReason));
-    }
-
-    Super::EndPlay(EndPlayReason);
-}
-~~~
-
-理解这段代码：
-
-- UE 5.5.4 的 ASC InitializeComponent 已默认绑定 Owner / Avatar，所以首次项目日志通常是 **Mode=Refresh**；不要求一定出现 Init。
-- 首次 Possess 可能在 BeginPlay 前发生：此时不提前操作 ASC，BeginPlay 会补齐。运行中控制变化在 Super 之后刷新 Controller。
-- UnPossess 只更新 Controller 关联，Owner / Avatar 仍是同一个 Character。属性 / 能力后续不会在这里重置或重新授予。
-- EndPlay 先设结束保护，再清理；Super 期间可能发生 UnPossess，保护阻止它重新建立 ActorInfo。本批还没有授予能力，Cancel 当前为空。
-- 没有 Delay、逐帧初始化或新的 Blueprint BeginPlay 接线；没有创建 GameplayReady 假事件。
-
-核对依据：[接口](D:/UE5/UE_5.5/Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Public/AbilitySystemInterface.h:28)、[ASC 默认初始化](D:/UE5/UE_5.5/Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Private/AbilitySystemComponent_Abilities.cpp:57)、[关联刷新 / 清理](D:/UE5/UE_5.5/Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Private/AbilitySystemComponent_Abilities.cpp:234)、[Controller 查找](D:/UE5/UE_5.5/Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Private/GameplayAbilityTypes.cpp:21)。API 阅读不代表本批 Build 已通过。
+本机依据可读[ASC生命周期源码](D:/UE5/UE_5.5/Engine/Plugins/Runtime/GameplayAbilities/Source/GameplayAbilities/Private/AbilitySystemComponent_Abilities.cpp)；历史实测保留在[原报告](Reports/M1_03A1_Verification.md)，本轮新检查见Cleanup。
 
 ## 6. 保存、正常 Build 与索引
 
@@ -387,4 +271,8 @@ CLion 角色目标 / 两个 GAS 头文件导航：通过
 实际手动用时：约 __ 分钟；构建 / 索引等待：约 __ 分钟
 ~~~
 
-错误优先发文字原文、对应章节与操作顺序；Blueprint 连线 / 属性用包含相关引脚的截图。我会主动读本地日志定位，修正代码继续写进本页供你执行；只有你明确要求时才直接修改源码。
+错误优先发文字原文、对应章节与操作顺序；Blueprint 连线 / 属性用包含相关引脚的截图。常规开发保留手动实践约定；本次清理已经获得助手直接修改授权。
+
+## 本次清理 Commit / Push（固定放在最后）
+
+本页历史功能已完成，不重做旧步骤。第18批为Character两份Source与八份Markdown，共十项；最新差异、检查结果与逐文件清单见[Cleanup末尾](Cleanup.md)。用户重新Stage后Commit / Push，Raw / 索引 / 日志留本地；助手不操作Git索引。

@@ -1,6 +1,6 @@
 # M1-02B：正式 Framework 对象与角色公开边界
 
-2026-10-18清理同步：本页保留历史接入 / 配置 / 验收经验，相关整文件或完整方法以当前Source链接为准，不覆盖已完成工程。本次格式、入口审计与验证见[Cleanup](Cleanup.md)。
+2026-10-19第18批清理同步：Character门控、Ready / ActorInfo与结束流程以当前Source为准，勿用早期完整函数覆盖已有连段、闪避或治疗。本轮清理由助手按授权直接执行；普通功能开发保留手动实践约定。当前检查与提交清单见[Cleanup](Cleanup.md)。
 
 生成日期：2026-10-02；交接更新：2026-10-03。前置：[M1-02A 已验收](Reports/M1_02A_Verification.md)。**M1-02B 已通过**：用户手动 50 min、构建 / 索引等待 15 min；源码迁移、双目标构建、正式对象 / 地图装配及原功能回归验收完成。证据与日志范围见 [验收报告](Reports/M1_02B_Verification.md)。CLion 配置问题已解决，无需另发报告。本页保留实施步骤，下一批为 [M1-02C1](M1_02C1_LocalPlayerLifecycle.md)。
 
@@ -113,7 +113,7 @@ UCLASS、GENERATED_BODY、属性、函数与文件名全部保留；`EmberTrialC
 1. `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\Private\Characters\EmberTrialCharacter.cpp`。
 2. `E:\UE_Project\Demo\EmberTrial\Source\EmberTrial\EmberTrialGameMode.cpp`。
 
-其余代码保持原内容；特别是移动 / Jump 门控与 PracticeActionComponent 的查找。
+当前Character.cpp已统一为上述公开include；旧Practice头通过模块私有搜索路径使用ETPracticeActionComponent.h，不再使用../../。移动 / Jump共用私有CanAcceptLocomotionInput，保留正式Idle与Practice规则及组件查找；共享身体职责见[架构](Architecture.md)。
 
 ### 3.4 给旧内部头文件保留私有搜索路径
 
@@ -312,3 +312,7 @@ ThirdPersonMap 回归；已回新地图并保存：通过
 报错优先提供第一条 Build 错误文字及上下文；Classes / Override 配置不确定时给截图。普通报错仍由我读取与定位、给出修正步骤，不自动直接修改 C++。
 
 B 通过后进入 M1-02C：UI Bootstrap / 本地玩家生命周期与 Pawn 重绑。核心模块继续不依赖 UMG / EmberTrialUI；正式 Gameplay 就绪与 HUD 数据绑定在 M1-03 接入。
+
+## 本次清理 Commit / Push（固定放在最后）
+
+本页历史功能已完成，不重做旧步骤。第18批为Character两份Source与八份Markdown，共十项；最新差异、检查结果与逐文件清单见[Cleanup末尾](Cleanup.md)。用户重新Stage后Commit / Push，Raw / 索引 / 日志留本地；助手不操作Git索引。

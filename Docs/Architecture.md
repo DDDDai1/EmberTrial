@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-18。功能基线M2-04B2已验收，当前执行[代码 / 文档清理](Cleanup.md)；共享AI黑板契约见[专页](AI_BlackboardContract.md)。实时规模与验证状态只在[Progress](Progress.md)维护，历史阶段记录保留，不进入下一功能章。
+更新2026-10-19。功能基线M2-04B2已验收，当前执行[代码 / 文档清理](Cleanup.md)；共享AI黑板契约见[专页](AI_BlackboardContract.md)。实时规模与验证状态只在[Progress](Progress.md)维护，历史阶段记录保留，不进入下一功能章。
 
 ## 1. 模块边界
 
@@ -9,7 +9,7 @@ flowchart LR
     Assembly["Blueprint / 配置装配"] --> Core["EmberTrial：核心 Runtime"]
     Assembly --> UI["EmberTrialUI：UI Runtime"]
     UI -->|公开查询 / 命令 / 事件| Core
-    Editor["后期 EmberTrialEditor"] -.依赖运行时数据定义.-> Core
+    Editor["EmberTrialEditor：Editor"] -.依赖运行时数据定义.-> Core
 ~~~
 
 | 模块 | 当前状态 | 规则 |
@@ -59,6 +59,22 @@ M1-05路线采用AI Perception + Blackboard / Behavior Tree，A身体 / 控制�
 
 本批 Public 目录与 API 宏开放的是受控类型 / 接口，不开放私有状态。蓝图负责选择资源和组件装配；规则、数据所有权和清理责任需要继续落在明确的 C++ 类型中。
 
+### 2.1 当前共享Character：初始化、能力与输入
+
+[Character.h](../EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h)与[Character.cpp](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)是玩家、敌人及训练身体共用的原生实现。子对象名称、类身份、反射字段与默认值保持；Blueprint装配资源，Core不持有Widget。
+
+| 边界 | 职责与顺序 |
+| --- | --- |
+| 出生 | BeginPlay建立ActorInfo，校验四初值，一次写入生命 / 体力并发布Ready，再尝试授予能力 |
+| 换控 | Owner / Avatar仍为身体，只刷新Controller；不重置资源或重复授予 |
+| 动作 | 轻攻击活动时可接连段输入，闪避 / 治疗忙碌拒绝；GA / 组件拥有实际事务，Character保存自有授予句柄 |
+| 移动 / 跳跃 | CanAcceptLocomotionInput共用正式Idle → Practice短路检查；无新状态缓存、Tick或反射入口，镜头不受此门控 |
+| 退出 | 先设结束保护 / 撤销Ready，再取消与清自有句柄 / ActorInfo，最后Super；同步回调不能重建关联 |
+
+Ready只表示两属性链初始化成功，不代表存活、受控或能力已全部授予；治疗次数另有可用快照。Practice仍被GA预检、移动 / 跳跃及受击 / 死亡清理引用，不能凭名称删除。模板移动 / 摄像机数值是既有可配置组件默认值，不增设一套重复配置。
+
+本次收益为规则集中和生命周期可读性；验证与实机 / 包检查边界见[Cleanup](Cleanup.md)。下方保留阶段演进，实时状态只在Progress维护。
+
 ## 3. 初始化与清理原则
 
 - 模块 StartupModule 属于进程级加载，不等于世界 / 角色 / ASC 就绪。
@@ -70,7 +86,7 @@ M1-05路线采用AI Perception + Blackboard / Behavior Tree，A身体 / 控制�
 - A2-01已实施：Character属性初始化只成功执行一次；ActorInfo与OnGameplayReadyChanged分开。M1-04A正式攻击由Character持有授予Handle，C1受击由CombatLife持有自己的Handle，各自幂等并清理。
 - 切图 / EndPlay / UI 关闭各自移除已注册的订阅；LocalPlayer 存活不能成为保留旧 World Actor 的理由。
 
-Controller / Pawn观察、Widget装配 / 重建、真正的新Pawn更换与ASC关联均已验收。Probe是裸Pawn，正式重生仍未实现。ASC取舍见 [ADR-002](ADR/ADR_002_ASCOnCharacter.md)；ActorInfo有效不等于GameplayReady。A2已实现一次设置初值 / 就绪通知 / EndPlay撤销，验证真实Effect的Current / Base范围、最大值策略与修改后Ensure不重置。Ready暂表示最小属性链完成，不表示受控制或存活；正式能力 / 装备 / 存档接入后要扩展就绪前置条件。
+Controller / Pawn观察、Widget装配 / 重建、真正的新Pawn更换与ASC关联均已验收。Probe是隔离裸Pawn；M1-06的Retry / Continue通过重载关卡生成新身体，不复用旧身体属性。ASC取舍见 [ADR-002](ADR/ADR_002_ASCOnCharacter.md)；ActorInfo有效不等于GameplayReady。A2已实现一次设置初值 / 就绪通知 / EndPlay撤销，验证真实Effect的Current / Base范围、最大值策略与修改后Ensure不重置。Ready暂表示最小属性链完成，不表示受控制或存活；正式能力 / 装备 / 存档接入后要扩展就绪前置条件。
 
 B1已实现：Bootstrap强持有唯一Presenter；Presenter先解绑旧Pawn / ASC，再绑定当前角色就绪事件并立即查询，Ready时订阅两属性native事件。DTO只保存展示状态 / 名字 / 数值 / 比例，不保留Actor对象；变化快照发布前提交缓存。Restart只刷新数据源订阅，保持Presenter身份 / View订阅且不写Gameplay；结束Shutdown，GC兜底不广播。日志直接验证Presenter早于Ready、修改后重订阅不重置和单次变化。B1漏写的旧重建入口结束标记已在B2补齐。
 
@@ -82,9 +98,9 @@ B3已验收：原生Character子蓝图共用现有核心实现，各自ASC / 属
 
 **M1-05C1已进入运行基线：**共享身体EETCombatTeam / 只读关系查询，Player可伤害Enemy或Neutral训练身体、Enemy只伤害Player、Neutral不主动造成轻攻击伤害；不据Controller临时存在与否推断敌友。Ability依赖身体公开查询，不依赖具体ETAIController / UI；阵营分类尚未接GenericTeamID。独立Enemy GA10和玩家25共享原生实现，C1真实命中 / 同方拒绝与取消清理通过；[证据边界](Reports/M1_05C1_Verification.md)区分直接日志与用户反馈。C2已用同一查询接入自动攻击决策 / 任务循环；[D复盘](M1_05D_EnemyCombatReview.md)说明AI提出意图、能力决定接受、Trace决定候选和GE结算的边界。
 
-PracticeAction、练习目标、原型提示与暂停菜单现在仍在使用。它们帮助验证模块和对象变化后的行为。正式能力 / UI 接入时逐步迁移：同一动作只有一个可信状态源，正式 GAS 不与练习动作状态机并行驱动同一角色。
+当前左键 / 1、2与Q走GAS，P由Core发意图、UI Flow管理暂停，角色旧暂停链已移除。Practice与练习目标 / E提示仍有兼容用途；同一动作只由一个可信状态源驱动，删除前须核对C++、测试和实际蓝图调用。
 
-[M1-04A实现](M1_04A_LightAttackAbility.md)已验收：UETGA_LightAttack与原生Ability.Attack.Light / State.Attacking，Character在Ready后保存自己授予的Spec Handle；攻击由Montage Task完成 / 取消并让GAS清理Owned Tag。左键 / 1走正式能力，2暂留练习闪避且互斥；3在A阶段为过渡练习受击，C1已改正式命令。移动 / 跳跃与E同时查询两种状态；Practice外部Montage条件已改为仍活动的实例，停止后的淡出允许接续。B2真实伤害、C1正式受击与C2一次死亡均已接入并验收。
+**以下为M1-04接入历史边界：**[M1-04A实现](M1_04A_LightAttackAbility.md)已验收：UETGA_LightAttack与原生Ability.Attack.Light / State.Attacking，Character在Ready后保存自己授予的Spec Handle；攻击由Montage Task完成 / 取消并让GAS清理Owned Tag。左键 / 1走正式能力，2暂留练习闪避且互斥；3在A阶段为过渡练习受击，C1已改正式命令。移动 / 跳跃与E同时查询两种状态；Practice外部Montage条件已改为仍活动的实例，停止后的淡出允许接续。B2真实伤害、C1正式受击与C2一次死亡均已接入并验收。
 
 [B1实现](M1_04B1_AttackTrace.md)已验收：Character唯一CombatTrace持有身体Mesh、准确Montage实例ID、AttackSerial和弱目标集合，原生Notify只路由通知；Ability登记准确播放实例，结束先撤销检测 / 委托再Super停止Montage。窗口内Tick在Mesh更新后采样，Visibility扫掠以目标Overlap / 世界Block区分，身体至拳检查及遇阻关闭防隔墙命中。每次攻击去重、窗口开关不清集合；候选交Ability，组件不依赖GAS / UI，B1不扣血。
 

@@ -1,10 +1,10 @@
 # M2-01A：体力属性、一次初始化与 Ready
 
-2026-10-18清理同步：本页保留历史规则、接入差异、资产配置和验收经验，重复整文件 / 完整方法改为当前Source链接；不要将旧阶段代码覆盖到现有M2-04B2工程。本次清理范围、验证与提交清单见[Cleanup](Cleanup.md)。
+2026-10-19第18批清理同步：Character门控、Ready / ActorInfo与结束流程以当前Source为准，勿用早期完整函数覆盖已有连段、闪避或治疗。本轮清理由助手按授权直接执行；普通功能开发保留手动实践约定。当前检查与提交清单见[Cleanup](Cleanup.md)。
 
-**2026-10-14已验收通过，实际手动60 / 等待5分钟。**当前78Source / 39cpp，StaminaFoundation一次Success、三个正式身体Valid、两轮PIE与短基线通过，IsCombatDead链接补项已关闭；见[本批验收](Reports/M2_01A_Verification.md)。下文保留当时手动实施步骤和预算，“尚未编译”等表述属于下发时状态；本轮无需重复执行。
+**2026-10-14已验收通过，实际手动60 / 等待5分钟。**当时78Source / 39cpp，StaminaFoundation一次Success、三个正式身体Valid、两轮PIE与短基线通过，IsCombatDead链接补项已关闭；见[本批验收](Reports/M2_01A_Verification.md)。下文保留当时手动实施步骤和预算，“尚未编译”等表述属于下发时状态；本轮无需重复执行。
 
-生成2026-10-14，固定 **UE 5.5.4**。前置：[M1总验收](Reports/M1_Verification.md)完成，当前75份Source / 37cpp / 来源清单48项，独立基线为C3 Attempt02。**本页是待你手动实施的代码与操作指南，尚未写入Source、编译或运行新测试。**所有C++继续由你手动输入，出错先发文字日志，我读取工程定位；直接修改源码需你当次明确提出。
+生成2026-10-14，固定 **UE5.5.4**。前置为[M1总验收](Reports/M1_Verification.md)；当时75份Source / 37cpp / 来源48项，包基线为C3 Attempt02。下列预算与步骤属于历史手动实施方案，当前已完成，最新清理授权与状态以页首为准。
 
 M2-01资源基础分批推进，本页先落地Stamina / MaxStamina和统一Ready。后续小批接恢复规则 / 必要的资源观察显示；治疗次数在本页确定语义，实际能力留M2-04，Poise留M2-05。预计手动 **60–100分钟**：代码35–65、编辑器确认10–15、检查5–15、保存记录5；构建 / 索引等待另记。实际比预算短可直接交付，不要求做满预算。
 
@@ -126,125 +126,21 @@ friend仅让第6节自动测试配置临时身体并检查初始化标记，不�
 
 本批仍使用当前的 `LogETAbilityFoundation`，不要再定义同名日志类别或额外的ASC。BeginPlay / PossessedBy / UnPossessed / EndPlay保持现有实现，新增逻辑放在它们已调用的初始化入口内。
 
-### 5.3 完整替换 IsGameplayReady
+### 5.3 就绪查询与死亡查询
 
-只替换同名函数的整个实现，不复制第二份函数：
+[当前实现](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)保留IsCombatDead、IsGameplayReady和IsFormalActionIdle的独立职责。Ready检查两属性集及成功标记，零体力仍可Ready；IsCombatDead由CombatLife查询，不能因修改Ready而删除。
 
-**保留附近原有的 `IsCombatDead()` 与 `IsFormalActionIdle()`。**若链接报 `IsCombatDead() const` 的LNK2019 / LNK2001，先检查它是否只有.h声明而没有.cpp实现。补回下面原函数，放在 `RequestHitReact()` 的结束大括号后、`IsGameplayReady()` 前，三个函数各自独立，不嵌套：
+若再遇IsCombatDead的LNK2019 / LNK2001，核对.h声明、.cpp定义与签名，不通过删除调用掩盖链接问题。
 
-```cpp
-bool AEmberTrialCharacter::IsCombatDead() const
-{
-    return IsValid(CombatLifeComponent) && CombatLifeComponent->IsDead();
-}
-```
+### 5.4 体力快照
 
-然后再确认下面的IsGameplayReady实现。无需改.h声明或清理缓存，保存 / 关闭UE后正常构建即可。
+GetGameplayStaminaSnapshot先清空输出，Ready后读取当前Stamina / MaxStamina；见[Source](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)。生命快照独立，不在这里维护第二份资源值或加入UI逻辑。
 
-```cpp
-bool AEmberTrialCharacter::IsGameplayReady() const
-{
-    return bGameplayReady && bStartupAttributesInitialized &&
-        !bAbilitySystemShuttingDown && IsValid(AbilitySystemComponent) &&
-        IsValid(HealthAttributes) && IsValid(StaminaAttributes);
-}
-```
+### 5.5 四初值整体校验与一次初始化
 
-### 5.4 新增 GetGameplayStaminaSnapshot
+EnsureGameplayInitialized见[Source](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)。依赖和两组配置全部合法后才写入MaxHealth → Health → MaxStamina → Stamina，最后提交成功标记 / Ready。任一非法初值拒绝整轮初始化；同身体重复Ensure / 换控不重置已修改属性。
 
-放在现有GetGameplayHealthSnapshot的结束 `}` 后、SetGameplayReady前；现有Health快照函数保留：
-
-```cpp
-bool AEmberTrialCharacter::GetGameplayStaminaSnapshot(
-    float& OutStamina, float& OutMaxStamina) const
-{
-    OutStamina = 0.0f;
-    OutMaxStamina = 0.0f;
-    if (!IsGameplayReady())
-    {
-        return false;
-    }
-
-    OutStamina = StaminaAttributes->GetStamina();
-    OutMaxStamina = StaminaAttributes->GetMaxStamina();
-    return true;
-}
-```
-
-### 5.5 完整替换 EnsureGameplayInitialized
-
-这是本批关键：**先检查所有依赖与四个初值，再写入任何初值**；成功后才置标记 / Ready。没有存活门控，出生生命0仍让Life收到Ready并提交死亡，保持原M1规则。
-
-```cpp
-bool AEmberTrialCharacter::EnsureGameplayInitialized()
-{
-    if (!HasActorBegunPlay() || bAbilitySystemShuttingDown || IsActorBeingDestroyed())
-    {
-        return false;
-    }
-
-    if (!IsValid(AbilitySystemComponent) || !AbilitySystemComponent->AbilityActorInfo.IsValid() ||
-        AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get() != this ||
-        AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get() != this ||
-        !IsValid(HealthAttributes) || !IsValid(StaminaAttributes) ||
-        AbilitySystemComponent->GetSet<UETHealthAttributeSet>() != HealthAttributes.Get() ||
-        AbilitySystemComponent->GetSet<UETStaminaAttributeSet>() != StaminaAttributes.Get())
-    {
-        SetGameplayReady(false);
-        UE_LOG(LogETAbilityFoundation, Error,
-            TEXT("[M2-01A] Missing gameplay dependencies Character=%s"), *GetNameSafe(this));
-        return false;
-    }
-
-    if (bStartupAttributesInitialized)
-    {
-        UE_LOG(LogETAbilityFoundation, Display,
-            TEXT("[M2-01A] Already initialized Character=%s Health=%.1f/%.1f Stamina=%.1f/%.1f"),
-            *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth(),
-            StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
-        return IsGameplayReady();
-    }
-
-    if (!FMath::IsFinite(InitialMaxHealth) || !FMath::IsFinite(InitialHealth) ||
-        InitialMaxHealth < 1.0f || InitialHealth < 0.0f || InitialHealth > InitialMaxHealth)
-    {
-        UE_LOG(LogETAbilityFoundation, Warning,
-            TEXT("[M1-03A2-01] Invalid startup health Character=%s Health=%.1f MaxHealth=%.1f"),
-            *GetNameSafe(this), InitialHealth, InitialMaxHealth);
-        return false;
-    }
-
-    if (!FMath::IsFinite(InitialMaxStamina) || !FMath::IsFinite(InitialStamina) ||
-        InitialMaxStamina < 1.0f || InitialStamina < 0.0f || InitialStamina > InitialMaxStamina)
-    {
-        UE_LOG(LogETAbilityFoundation, Warning,
-            TEXT("[M2-01A] Invalid startup stamina Character=%s Stamina=%.1f MaxStamina=%.1f"),
-            *GetNameSafe(this), InitialStamina, InitialMaxStamina);
-        return false;
-    }
-
-    AbilitySystemComponent->SetNumericAttributeBase(
-        UETHealthAttributeSet::GetMaxHealthAttribute(), InitialMaxHealth);
-    AbilitySystemComponent->SetNumericAttributeBase(
-        UETHealthAttributeSet::GetHealthAttribute(), InitialHealth);
-    AbilitySystemComponent->SetNumericAttributeBase(
-        UETStaminaAttributeSet::GetMaxStaminaAttribute(), InitialMaxStamina);
-    AbilitySystemComponent->SetNumericAttributeBase(
-        UETStaminaAttributeSet::GetStaminaAttribute(), InitialStamina);
-    bStartupAttributesInitialized = true;
-
-    UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M1-03A2-01] Health initialized Character=%s Health=%.1f MaxHealth=%.1f"),
-        *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth());
-    UE_LOG(LogETAbilityFoundation, Display,
-        TEXT("[M2-01A] Stamina initialized Character=%s Stamina=%.1f MaxStamina=%.1f"),
-        *GetNameSafe(this), StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
-    SetGameplayReady(true);
-    return IsGameplayReady();
-}
-```
-
-SetGameplayReady原函数不改：因此Ready changed日志仍带M1-03A2-01，这是复用原事件，不是未更新。生命日志、体力日志后才出现Ready=1；同一对象再次Ensure只出现Already initialized。
+完整方法只在Source维护。原自动化仍使用真实属性与GE检查Current / Base，指南副本不能代替运行规则。
 
 ### 5.6 Editor校验器：完整替换 ValidateBody
 
@@ -404,11 +300,4 @@ StaminaFoundation一次：Success / Failure
 
 ## 10. 本批需要 Commit / Push（固定放在最后）
 
-- 新增三份Source：`EmberTrial/Source/EmberTrial/Public/Attributes/ETStaminaAttributeSet.h`、`Private/Attributes/ETStaminaAttributeSet.cpp`、`Tests/ETStaminaFoundationTests.cpp`。
-- 修改两份Character Source：`Public/Characters/EmberTrialCharacter.h`、`Private/Characters/EmberTrialCharacter.cpp`；修改既有 `EmberTrial/Source/EmberTrialEditor/Private/Validation/ETGameplayAssetValidator.cpp`。
-- 三正式身体蓝图Compile / Save后有真实差异才纳入：`Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset`、`Content/EmberTrial/Characters/Enemies/BP_ETMeleeEnemy.uasset`、`Content/EmberTrial/Tests/Blueprints/BP_ETCombatTrainingTarget.uasset`，走既有Git LFS。它们已经登记来源，不新增不存在的体力UE资产。
-- 本指南、M2路线与Progress / Backlog / Architecture / VersionControl / AcceptanceWorkflow_Options / Introduction实际更新；完成后我生成的验收报告 / 清单真实变化再追加。M1 / C3收尾若尚未提交，先按原清单纳入独立收尾提交。
-- 已验收收尾：实现主体在本地4fedf14，本轮新增 `Docs/Reports/M2_01A_Verification.md` 与状态更新重新Stage；三正式身体资产哈希不变，无差异无需再次提交。最新远端状态以用户实际Push结果为准。
-- 本批没有计划改Build.cs / Target / uproject / 共享地图配置；看到意外Diff先保留并发给我核对。Binaries / Intermediate / Saved、生成CMake / IDE配置、测试报告Raw / Runtime、旧包 / Trace仍留本地，不Force Add。
-
-CLion **Save All → 刷新Changes → 将最新完整Source / 合法资产与文档重新Stage → 检查Staged Diff → Commit → Push**。功能检查通过后可用 `feat: add stamina attributes and unified gameplay readiness`；当前只下发指南时可单独提交 `docs: prepare M2 stamina foundation`，不要把未实施代码写成已完成。Git操作由你执行。
+本页历史功能已完成，不重做旧步骤。第18批为Character两份Source与八份Markdown，共十项；最新差异、检查结果与逐文件清单见[Cleanup末尾](Cleanup.md)。用户重新Stage后Commit / Push，Raw / 索引 / 日志留本地；助手不操作Git索引。
