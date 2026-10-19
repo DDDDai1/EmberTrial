@@ -1,5 +1,6 @@
 #include "AI/ETAIController.h"
 #include "AI/ETBlackboardKeys.h"
+#include "AI/ETAILiveBody.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "Abilities/ETGameplayTags.h"
 #include "AbilitySystemComponent.h"
@@ -24,20 +25,10 @@ namespace
 // 既有1cm到达容差；不把它与Move请求半径、恢复距离混为一项。
 constexpr float ArrivalTolerance = 1.0f;
 
-// ---- 存活快照与本地玩家身份；不把训练目标当作可追击玩家 ----
-bool IsLiveBody(const AEmberTrialCharacter* BodyCharacter)
-{
-    float Health = 0.0f;
-    float MaxHealth = 0.0f;
-    return IsValid(BodyCharacter) && !BodyCharacter->IsActorBeingDestroyed() &&
-           !BodyCharacter->IsCombatDead() &&
-           BodyCharacter->GetGameplayHealthSnapshot(Health, MaxHealth) && FMath::IsFinite(Health) &&
-           FMath::IsFinite(MaxHealth) && MaxHealth >= 1.0f && Health > 0.0f && Health <= MaxHealth;
-}
-
+// ---- 共享存活规则之外，仍需验证本地玩家及双向控制关系 ----
 bool IsLiveLocalPlayer(const AEmberTrialCharacter* BodyCharacter)
 {
-    if (!IsLiveBody(BodyCharacter))
+    if (!ETAIHealth::IsLiveBody(BodyCharacter))
     {
         return false;
     }
@@ -198,7 +189,7 @@ bool AETAIController::InitializeEnemyBlackboard()
 bool AETAIController::CanObservePlayer() const
 {
     return !bEndingPlay && !bStoppingTree && bBlackboardReady && HasAuthority() &&
-           ObservedBody.Get() == GetPawn() && IsLiveBody(ObservedBody.Get());
+           ObservedBody.Get() == GetPawn() && ETAIHealth::IsLiveBody(ObservedBody.Get());
 }
 
 AEmberTrialCharacter* AETAIController::GetSensedPlayer() const
@@ -653,7 +644,7 @@ void AETAIController::HandleDeadTagChanged(FGameplayTag ChangedTag, int32 NewCou
     {
         return;
     }
-    if (!IsLiveBody(ObservedBody.Get()))
+    if (!ETAIHealth::IsLiveBody(ObservedBody.Get()))
     {
         ClearSensedPlayer(TEXT("BodyDead"));
         StopEnemyBehaviorTree(TEXT("BodyDead"));

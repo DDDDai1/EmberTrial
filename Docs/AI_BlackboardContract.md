@@ -34,7 +34,15 @@ Controller的两项布尔决策共用私有UpdateBlackboardDecision，只写已�
 
 Service仍0.2秒调度，Super维护下一次间隔；Move不自建路径或Timer，保留原生NodeMemory、先150默认值再SetKey、执行前目标复核和结束前快照。Controller强制停树时保留bStoppingTree重入保护；清目标先中止旧Move再清黑板。原生子对象名与反射字段属于已有资产契约。
 
-第16批的实际验证与14项提交清单统一记录在[Cleanup](Cleanup.md)末尾；下面是第2批历史证据，不作第16批新执行结果。
+第16批验证记录保留在[Cleanup](Cleanup.md)对应批次；当前提交清单以Cleanup末尾为准。下面是第2批历史证据。
+
+## 当前存活规则与近战请求（第17批）
+
+Controller与近战Task共用Core私有[ETAILiveBody.h](../EmberTrial/Source/EmberTrial/Private/AI/ETAILiveBody.h)，统一有效对象、非销毁 / 死亡、Ready、有限且范围合法的正生命快照。它不缓存状态、不增加Tick，也不把生命下限等稳定规则变为新资源配置。Controller仍单独验证本地玩家与双向控制关系；Task另验Controller / Pawn、BB目标、阵营及ASC / Spec身份。
+
+[近战Task](../EmberTrial/Source/EmberTrial/Private/AI/ETBTTask_MeleeAttack.cpp)保持首次Tick发请求、准备阶段转向、发招后固定Yaw、只结束 / 取消自身Spec。Request与黑板通知可同步重入，序号保护、同步结束暂存、先撤销身份再解绑 / 取消均保留；FinishLatentTask后不再写成员。
+
+本批只合并相同谓词、统一格式并补职责注释；短路判断、反射与参数、日志、树和能力资源保持。验证与当前提交清单统一见[Cleanup](Cleanup.md)，不把下面历史结果冒充新执行。
 
 ## 第2批历史验证状态
 
@@ -52,4 +60,4 @@ Service仍0.2秒调度，Super维护下一次间隔；Move不自建路径或Time
 
 ## 本批 Commit / Push（固定放在最后）
 
-第16批只同步本契约说明；共享键头、近战Task、Editor校验器与资产本批未改。六份Source与八份文档共14项的当前清单统一见[Cleanup末尾](Cleanup.md)，由用户重新Stage最新Diff后Commit / Push。第2批新增头文件和旧四消费者清单已是历史提交，不重复要求加入。Raw / 构建 / 测试结果及生成索引留本地，助手不操作Git索引。
+第17批同步本契约，新增一个Core私有头并整理Controller实现 / 近战Task两文件；共享黑板键、Editor校验器与资产保持。当前四份Source与四份Markdown共八项，统一见[Cleanup末尾](Cleanup.md)，由用户重新Stage最新Diff再Commit / Push。Raw / 构建 / 测试结果及生成索引留本地，助手不操作Git索引。

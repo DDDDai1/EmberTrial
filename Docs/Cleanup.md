@@ -258,15 +258,35 @@ BehaviorTree类型DataValidation实际执行，正式BT_ETMeleeEnemy与隔离BT_
 
 完整快照、差异、展开等价 / 格式、CodeModel、构建、配置 / 行为树校验与自动化JSON位于Raw/Cleanup/2026-10-19_Batch16。收尾额度快照：5小时已用12% / 剩余88%，周已用28% / 剩余72%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第16批后）
+## 第17批：AI近战请求与共享存活检查
 
-累计16批涉及77 / 115份Source（约67%文件覆盖率）、37份Markdown，已记录移除12221行重复代码副本。覆盖率不是整体完成率，AI近战Task等文件仍有局部审计与最终实机待办。
+2026-10-19开工5小时已用16% / 周已用29%；第16批已提交，工作区干净，基线HEAD为5eff9aa。整理ETBTTask_MeleeAttack两文件与Controller实现，新增Core私有ETAILiveBody.h；本批四份Source。
+
+Controller与近战Task原有两份相同存活谓词合为一份inline无状态检查，保留对象有效 / 非销毁、非死亡、Ready、有限且范围合法的正生命快照及原短路顺序。每次读取当前值，不引入缓存、Tick、反射或新资源配置；本地玩家身份、Controller / Pawn、BB目标、阵营与ASC / Spec仍由各调用方验证。
+
+近战Task统一排版与分区，补执行身份、阶段时钟、发招锁向、同步结束暂存、重入序号和资源所有权注释。首次Tick才请求、Request返回 / Controller通知后复核序号、先撤销身份再按自身Handle解绑 / 取消、FinishLatentTask后不写成员的顺序均保持。配置 / 默认值、反射、日志与树资产未改，未把时序保护当冗余删除。
+
+提取后共享谓词与两份旧函数体有效Token相同；其余Controller / Task实现将调用名称归一化后Token保持，Task头除注释 / 排版外Token保持。两个原任务文件补齐末尾换行后，按最终文本重跑正常构建与自动化。原13项测试及断言未改，不为相同谓词机械提取增加镜像测试。
+
+C2指南移除三处整文件 / 完整方法共455行代码，改为当前Source入口与生命周期表，精简旧覆盖指令、历史状态和重复待提交清单；保留BT / 距离配置、实机验收与头文件路径排障经验。AI契约同步存活规则与取消边界，Cleanup / Progress记录当前状态。
+
+正常UE5.5.4 Editor / Game Development Build通过，三模块CLion元数据与CMake刷新成功；四份Source均在Core CodeModel，cpp仍43 / 15 / 3。现有13项EmberTrial自动化全部Success，0 Fail / 0 NotRun / 0测试警告。配置PASS Errors=0 / Warnings=0；BehaviorTree类型DataValidation实际执行，正式BT_ETMeleeEnemy与隔离BT_ETValidation_Probe均有本项目Valid标记，命令汇总0 Error / 0 Warning。
+
+112份其他Source、290项Content / Config / uproject / 来源清单保护文件哈希保持，冻结B1指南未改。格式、提取等价、LF / 末尾换行、文档链接 / 围栏及Git差异检查通过。Source现为116份 / 61cpp，仅新增一个私有头。
+
+收益为可读性、存活规则集中维护与文档一致性；不宣称帧率提升。没有重跑交互式AI交战 / 取消 / 死亡矩阵，没有Cook / 打包；13项既有自动化与资产结构Valid不能替代完整AI运行回归。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+完整快照、差异、提取等价 / 格式、CodeModel、构建、配置 / 行为树校验与自动化JSON保存在Raw/Cleanup/2026-10-19_Batch17。收尾额度快照：5小时已用26% / 剩余74%，周已用31% / 剩余69%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第17批后）
+
+累计17批涉及79 / 116份Source（约68%文件覆盖率）、37份Markdown，已记录移除12676行重复代码副本。覆盖率不是整体完成率；按模块职责与剩余风险评估收尾工作。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
 | 正式能力 / 属性 / 资源 | 主要GA、属性 / 资源、原生Effect、死亡、Trace、Tag / Notify已整理 | Character大类、旧Practice引用与剩余规则审计 |
 | UI | HUD / Presenter / 观察、主菜单及暂停 / 失败已整理 | 统一焦点 / 切图实机与跨模块复核 |
-| AI | 共享键、Controller / Service / Move职责已整理 | 近战Task完整审计、统一取消 / 重试与交战实机 |
+| AI | 共享键 / 存活规则、Controller / Service / Move / Melee Task已整理 | 最终取消 / 重试与交战实机 |
 | 工程 / 学习材料 | 相关指南改为Source入口，13项自动化保留 / 扩展 | Editor校验器、工具、测试夹具与剩余架构 / 操作文档 |
 | 最终收尾 | 分批构建与对应检查 | 统一实机、Cook / 打包与收益汇总 |
 
@@ -274,28 +294,22 @@ BehaviorTree类型DataValidation实际执行，正式BT_ETMeleeEnemy与隔离BT_
 
 ## 后续队列
 
-1. AI近战Task、Character与旧Practice / 诊断引用审计。
+1. Character与旧Practice / 诊断引用审计。
 2. GameSession / Checkpoint等剩余生命周期规则。
 3. Editor校验器、工具、测试夹具和架构材料。
 4. 统一自动化、实机与包短查，再汇总收益。
 
-前十六批已收口；其余队列未完成，不进入新玩法开发。额度恢复后已复查，继续遵守余量接近15–20%先收尾的边界。
+前十七批已收口，其余队列未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批六份Source与五份指南 / 黑板契约 / Cleanup / Progress，共14项，验证已收口；由用户重新Stage最新Diff并Commit / Push。建议Commit信息：refactor: centralize AI blackboard decisions and clarify pursuit lifecycle。
+本批四份Source与四份Markdown，共八项，验证已收口；用户在CLion刷新差异并重新Stage最新修改，新增ETAILiveBody.h也需加入，再Commit / Push。建议Commit信息：refactor: share AI live-body checks and clarify melee task lifecycle。
 
-- [ETAIController.h](../EmberTrial/Source/EmberTrial/Public/AI/ETAIController.h)
+- [ETAILiveBody.h](../EmberTrial/Source/EmberTrial/Private/AI/ETAILiveBody.h)
 - [ETAIController.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETAIController.cpp)
-- [ETBTService_Pursuit.h](../EmberTrial/Source/EmberTrial/Public/AI/ETBTService_Pursuit.h)
-- [ETBTService_Pursuit.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETBTService_Pursuit.cpp)
-- [ETBTTask_PursuitMove.h](../EmberTrial/Source/EmberTrial/Public/AI/ETBTTask_PursuitMove.h)
-- [ETBTTask_PursuitMove.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETBTTask_PursuitMove.cpp)
-- [M1_05A_EnemyFoundation.md](M1_05A_EnemyFoundation.md)
-- [M1_05B1_PerceptionTarget.md](M1_05B1_PerceptionTarget.md)
-- [M1_05B2_BehaviorTreePursuit.md](M1_05B2_BehaviorTreePursuit.md)
+- [ETBTTask_MeleeAttack.h](../EmberTrial/Source/EmberTrial/Public/AI/ETBTTask_MeleeAttack.h)
+- [ETBTTask_MeleeAttack.cpp](../EmberTrial/Source/EmberTrial/Private/AI/ETBTTask_MeleeAttack.cpp)
 - [M1_05C2_BehaviorTreeMeleeAttack.md](M1_05C2_BehaviorTreeMeleeAttack.md)
-- [M1_07B_InsightsBaseline.md](M1_07B_InsightsBaseline.md)
 - [AI_BlackboardContract.md](AI_BlackboardContract.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)

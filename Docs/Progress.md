@@ -6,18 +6,18 @@
 
 - 工程：E:/UE_Project/Demo/EmberTrial/EmberTrial.uproject。
 - UE5.5.4：D:/UE5/UE_5.5；CLion编辑，MSVC / UBT / UHT构建。
-- 115份Source / 61cpp，来源63项；M0、M1、M2-01 / 02 / 03及M2-04A / B1 / B2已验收。
+- 116份Source / 61cpp，来源63项；M0、M1、M2-01 / 02 / 03及M2-04A / B1 / B2已验收。
 - 功能：生命 / 体力HUD、三段攻击、方向闪避 / 成本 / 短无敌、Q治疗、近战AI、菜单 / 暂停 / 重试 / 会话检查点。
 - 次数HUD与M2-04整章未完成；Continue重建世界，持久存档未实现。
 - 独立包仍M1 C3 Attempt02，不包含M2功能；Editor验收不等于新版包验收。
 
 ## 当前交接
 
-2026-10-19额度恢复后已复查。前十五批已完成并提交，本批基线HEAD为94000a0。第16批整理AI Controller / Service / Move六份Source，将两个黑板Bool写入集中维护，保留状态提交、目标中止 / 清理、原生调度 / Move、距离与重试规则；五份指南移除1871行旧源码，黑板契约同步。
+前十六批已完成并提交，本批基线HEAD为5eff9aa。第17批整理近战Task两文件与Controller实现，新增Core私有ETAILiveBody.h，集中两处相同存活规则；转向 / 请求 / 等待 / 取消顺序、重入序号、身份与自身资源所有权保持。C2指南移除455行旧源码，改为当前入口与生命周期说明。
 
-本批正常Editor / Game、三模块索引 / CMake、13项自动化与配置脚本均通过，0测试失败 / 警告；正式BT与隔离Probe实际Valid，校验0 Error / Warning。展开等价 / 格式 / 文档检查通过，109份其他Source与290项资产配置保护哈希保持，冻结B1未改。未重跑AI交互式实机或Cook / 打包。收尾5小时已用12% / 周已用28%，未使用重置。
+本批正常Editor / Game、三模块索引 / CMake、13项自动化与配置脚本均通过，0测试失败 / 警告；正式BT与隔离Probe实际Valid，校验0 Error / Warning。提取等价 / 格式 / 文档检查通过，112份其他Source与290项资产配置保护哈希保持，冻结B1未改。未重跑AI交互式实机或Cook / 打包。收尾5小时已用26% / 周已用31%，未使用重置。
 
-累计16批涉及77 / 115份Source（约67%文件覆盖率，非整体完成率）、37份Markdown，已记录移除12221行代码副本。近战Task、Character / Practice、会话与工具仍待审计；新玩法保持停在M2-04B2。见[剩余范围](Cleanup.md)。
+累计17批涉及79 / 116份Source（约68%文件覆盖率，非整体完成率）、37份Markdown，已记录移除12676行代码副本。Character / Practice、会话与工具仍待审计，AI最终交战实机仍待统一收尾；新玩法保持停在M2-04B2。见[剩余范围](Cleanup.md)。
 
 ## 资源与工期校准
 
@@ -41,4 +41,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-第16批六份Source与八份同步文档，共14项；具体清单见Cleanup末尾。Content / Config未改；Raw / 日志 / 测试报告及生成文件留本地，助手未操作Git索引。
+第17批四份Source与四份同步文档，共八项；具体清单见Cleanup末尾。新增Private头需一起Stage，Content / Config未改；Raw / 日志 / 测试报告及生成文件留本地，助手未操作Git索引。
