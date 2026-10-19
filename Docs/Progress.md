@@ -13,11 +13,11 @@
 
 ## 当前交接
 
-前十九批已完成并提交，本批基线HEAD为47d2eb1。第20批整理Session / Checkpoint / 正式GameMode六份Source，集中三处会话查询与占位显示常量，补Pending / 已确认快照、实际出生 / 到达、失败释放及委托清理注释；原World权限检查和顺序保持。四份指南 / 路线移除1104行旧实现，Architecture同步当前职责，重新Stage操作与旧锚点保留。
+前二十批已完成并提交，本批基线HEAD为f7718f0。第21批整理两个Editor校验器的四份Source，集中六组重复资产路径，补充反射读取、范围 / 诊断和BT / Widget遍历说明；规则ID、文本、判断顺序、白名单及Runtime守卫保持。两份指南移除710行整文件 / 配置副本，Architecture同步当前规则与模块职责。
 
-本批Editor / Game、三模块索引 / CMake、13项自动化、配置及Blueprint校验均通过；0测试失败 / 警告，正式三身体Valid，Gameplay共12资产Valid，命令汇总0 Error / Warning。110份其他Source与290项资产配置保护哈希保持，冻结B1未改。未交互式复测切图 / 检查点流程或Cook / 打包；真实引擎加载失败等覆盖边界仍保留。收尾5小时已用57% / 周已用35%，未使用重置。
+本批Editor / Game、三模块索引 / CMake、13项自动化、共享配置及Blueprint / BehaviorTree / InputMappingContext校验通过；两套校验器共22资产Valid，三命令均0 Error / Warning，自动化零失败 / 测试警告。112份其他Source、290项资产配置保护哈希保持，冻结B1未改。模块 / Build / Target只读审计通过；未重做交互式负例、实机或Cook / 打包。收尾5小时已用69% / 剩余31%，周已用37% / 剩余63%，未使用重置。
 
-累计20批涉及91 / 116份Source（约78%文件覆盖率，非整体完成率）、45份Markdown，已记录移除14847行代码副本。Editor / 构建边界、测试夹具、残余规则类、工具 / 引用审计与统一实机仍待处理；新玩法停在M2-04B2，详见[剩余范围](Cleanup.md)。
+累计21批涉及94 / 116份Source（约81%文件覆盖率，非整体完成率）、47份Markdown，已记录移除15557行重复实现 / 配置副本。测试夹具、残余规则类、工具 / 跨模块引用审计与统一实机仍待处理；新玩法停在M2-04B2，详见[剩余范围](Cleanup.md)。
 
 ## 资源与工期校准
 
@@ -41,4 +41,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-第20批六份Source与七份同步Markdown，共13项；逐文件清单见Cleanup末尾。Content / Config与原测试未改，Raw / 日志 / 报告及生成文件留本地；助手未操作Git索引。
+第21批四份Validator Source与五份同步Markdown，共9项；逐文件清单见Cleanup末尾。Content / Config、模块依赖 / Target与原测试未改，Raw / 日志 / 报告及生成文件留本地；助手未操作Git索引。

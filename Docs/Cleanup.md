@@ -338,45 +338,60 @@ Session两文件与Checkpoint头有效Token保持；Checkpoint实现按占位常
 
 完整快照、差异、等价 / 格式 / CodeModel、双构建、配置 / Blueprint校验与自动化JSON保存在Raw/Cleanup/2026-10-19_Batch20。收尾额度快照：5小时已用57% / 剩余43%，周已用35% / 剩余65%；未使用重置，不计入用户手动实耗。
 
-## 整体进度快照（第20批后）
+## 第21批：Editor校验器与配置规则文档
 
-累计20批涉及91 / 116份Source（约78%文件覆盖率）、45份Markdown，已记录移除14847行重复代码副本。覆盖率不是整体完成率；25份尚未触及Source不等于25份都必须修改，已触及文件也可能还有局部审计。
+2026-10-19开工5小时已用59% / 周已用36%；第20批已提交，工作区干净，基线HEAD为f7718f0。本批四份Source为Gameplay / Project两个Validator的头与实现，统一格式，按入口、反射读取、类别规则 / 遍历分区，补充设计时只读、诊断与范围注释。
+
+Gameplay中六组重复路径集中到cpp内部命名空间：玩家 / 训练身体、玩家 / 敌人攻击、闪避成本与Heal Action。每组原两次字面量现在只定义一次，Package与对象引用格式保留；显式Profile是项目契约，不扩大为所有子类或所有Tests，不增加新的配置层。原生能力的成本 / 位移 / 无敌 / 连段 / 治疗检查继续复用，未另写一份规则。
+
+Project说明BT显式栈 / Visited、黑板键绑定与布尔常量的区别；Widget保留IncludeSuper、Optional跳过、父蓝图设计树查找及Visited。逐资产计数、NotValidated / Valid / Invalid分派、规则ID、诊断文本与顺序均保持；三份Source有效Token保持，Gameplay实现在六组常量命名归一化后Token保持。
+
+Editor / Game的Target、模块 / 插件类型、三个Build.cs依赖与原生发现入口只读审计：Editor包含三个项目模块，Game仅Core / UI，DataValidation限Editor，Runtime无反向Editor依赖，不添加手动注册。这些文件原内容可用，本批不为覆盖率修改它们。
+
+两份指南移除六份完整Source副本665行及两份配置副本45行，共710行，改链接当前实现；保留UE5.5生成头排障、规则表、隔离探针 / 历史验收、常用检查入口。补齐已实现M2规则与正常资产范围，修正当前连段副本可能多报规则而不能固定Issues=1的说明。Architecture同步职责，两个Push标题及VersionControl的C1锚点保留。
+
+正常UE5.5.4 Editor / Game Development Build通过，三模块CLion元数据 / CMake刷新成功，四份Source均在Editor CodeModel，cpp仍43 / 15 / 3。既有13项EmberTrial自动化全部Success，0 Fail / 0 NotRun / 0测试警告，原测试和断言未改。
+
+实际执行三类DataValidation：Blueprint中Gameplay 12份与Widget 7份Valid，BehaviorTree中正式BT与合法Probe两份Valid，InputMappingContext中IMC_Default一份Valid；两套校验器共22个不同资产Valid，三命令各0 Error / 0 Warning。配置脚本PASS Errors=0 / Warnings=0。自动化启动仍有既有EOS好友权限403环境警告，测试自身无警告。
+
+112份其他Source、290项Content / Config / uproject / 来源清单保护哈希保持，冻结B1指南未改；等价、格式、LF / 末尾换行、文档链接 / 围栏、CodeModel与Git差异检查通过。Source仍116份 / 61cpp。收益为可读性、路径集中维护与文档一致性，不宣称帧率提升。
+
+未重做交互式断键 / None负例、PIE流程或Cook / 打包；正常资源Valid不能证明全部错误分支、导航、焦点或运行时生命周期。完整快照、差异、等价 / 格式 / 模块审计、双构建、配置 / 三类校验与测试JSON保存在Raw/Cleanup/2026-10-19_Batch21。收尾额度快照：5小时已用69% / 剩余31%，周已用37% / 剩余63%；未使用重置，不计入用户手动实耗。
+
+## 整体进度快照（第21批后）
+
+累计21批涉及94 / 116份Source（约81%文件覆盖率）、47份Markdown，已记录移除15557行重复实现 / 配置副本。覆盖率不是整体完成率；22份尚未触及Source不等于22份都必须修改，已触及文件也可能还有局部审计。
 
 | 范围 | 目前状态 | 主要剩余 |
 | --- | --- | --- |
 | 正式玩法与兼容 | GA / 资源 / 战斗、Character / Practice已整理 | 跨模块规则、蓝图引用与最终实机 |
 | UI与AI | 主要观察 / 呈现 / 输入、感知 / 追击 / 近战已整理 | 焦点 / 切图、取消 / 重试 / 交战实机 |
 | 会话与出生 | Session / Checkpoint / 正式GameMode已整理 | 统一流程 / 故障验证，其他模板 / 菜单规则类 |
-| 工程与材料 | 相关指南改Source入口，13项自动化保留 / 扩展 | Editor、模块 / Target / Build、工具 / 测试夹具与文档总收口 |
-| 最终交付 | 分批构建与对应检查 | 统一实机、Cook / 打包与收益汇总 |
+| 工程与材料 | Editor校验器已整理，构建依赖 / Target边界只读审计 | 工具 / 测试夹具、余下材料与跨模块复核 |
+| 最终交付 | 分批构建、13项自动化和对应资源检查 | 统一实机、Cook / 打包与收益汇总 |
 
 此前约10–15批及20–35小时是初估，按实际复杂度校准，不由文件覆盖率推算精确工期。
 
 ## 后续队列
 
-1. Editor校验器、模块 / Target / Build边界。
-2. 原测试夹具、剩余模板 / 菜单GameMode及引用审计。
-3. 工具、剩余架构材料与跨模块复核。
-4. 统一自动化、实机与包短查，汇总收益并收拢过程文档。
+1. 原测试夹具、剩余模板 / 菜单GameMode及引用审计。
+2. 工具、剩余架构材料与跨模块复核。
+3. 统一自动化、实机与包短查，汇总收益并收拢过程文档。
 
-前二十批已收口，其余范围未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
+前二十一批已收口，其余范围未完成，不进入新玩法开发。继续遵守余量接近15–20%先收尾的边界。
 
 ## 本批 Commit / Push（固定放在最后）
 
-本批六份Source与七份Markdown，共13项；用户在CLion刷新差异，重新Stage最新修改后Commit / Push。建议Commit信息：refactor: clarify session travel lifecycle and share game mode session lookup。
+本批四份Source与五份Markdown，共9项；用户在CLion刷新差异，重新Stage最新修改后Commit / Push。建议Commit信息：refactor: clarify editor validators and centralize repeated asset paths。
 
-- [ETRunSessionSubsystem.h](../EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h)
-- [ETRunSessionSubsystem.cpp](../EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp)
-- [ETCheckpointStart.h](../EmberTrial/Source/EmberTrial/Public/Flow/ETCheckpointStart.h)
-- [ETCheckpointStart.cpp](../EmberTrial/Source/EmberTrial/Private/Flow/ETCheckpointStart.cpp)
-- [ETGameMode.h](../EmberTrial/Source/EmberTrial/Public/Framework/ETGameMode.h)
-- [ETGameMode.cpp](../EmberTrial/Source/EmberTrial/Private/Framework/ETGameMode.cpp)
-- [M1_06B_FailureAndRetry.md](M1_06B_FailureAndRetry.md)
-- [M1_06C_SessionCheckpoints.md](M1_06C_SessionCheckpoints.md)
-- [M1_02B_FrameworkObjects.md](M1_02B_FrameworkObjects.md)
-- [M1_06_FlowRoadmap.md](M1_06_FlowRoadmap.md)
+- [ETGameplayAssetValidator.h](../EmberTrial/Source/EmberTrialEditor/Public/Validation/ETGameplayAssetValidator.h)
+- [ETGameplayAssetValidator.cpp](../EmberTrial/Source/EmberTrialEditor/Private/Validation/ETGameplayAssetValidator.cpp)
+- [ETProjectAssetValidator.h](../EmberTrial/Source/EmberTrialEditor/Public/Validation/ETProjectAssetValidator.h)
+- [ETProjectAssetValidator.cpp](../EmberTrial/Source/EmberTrialEditor/Private/Validation/ETProjectAssetValidator.cpp)
+- [M1_07C1_EditorValidation.md](M1_07C1_EditorValidation.md)
+- [M1_07C2_GameplayValidation.md](M1_07C2_GameplayValidation.md)
 - [Architecture.md](Architecture.md)
 - [Cleanup.md](Cleanup.md)
 - [Progress.md](Progress.md)
 
-Content / Config / Build.cs / Target与测试Source保持；Raw快照、日志、报告和生成文件留本地。助手不Stage / Commit / Push。
+Content / Config / 模块入口 / Build.cs / Target / uproject与测试Source保持；Raw快照、日志、报告和生成文件留本地。助手不Stage / Commit / Push。

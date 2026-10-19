@@ -190,6 +190,17 @@ C1已由用户实现 / 双构建；正式BT与HUD项目Valid，隔离Probe断键
 
 C2源码仅新增Editor校验类 / 私有依赖，Runtime Source未变。C3随后完成Attempt02 Build / Cook；实际Game exe与五个容器均更新，两个Runtime正常工作，Editor工具未作为Runtime模块加载。共享Cue路径的回退Warning在两轮Runtime均已消失。启动工具显式指定包目录与证据stage，完整流程见[C3报告](Reports/M1_07C3_Verification.md)；B性能数值仍属于历史Attempt01。
 
+
+### 11.1 当前Editor配置校验的维护边界
+
+两套校验器的[当前源码入口与BT / UMG规则](M1_07C1_EditorValidation.md)及[玩法 / M2规则](M1_07C2_GameplayValidation.md)集中维护，指南不再复制整文件。Game Target只含Core / UI；Editor Target包含第三模块，DataValidation插件限Editor，原生Validator由Subsystem发现，不增加手动注册。
+
+Gameplay按显式Package Profile选择原生父类，只读CDO / 子对象，Object / Float读取失配报ET-SETUP-002；六组重复路径集中在cpp命名空间，Package与对象路径不混用。成本 / 位移 / 无敌 / 连段 / 治疗等调用各原生配置检查；伤害GE仍是独立SetByCaller契约，玩家 / 敌人 / 训练目标差异保留。
+
+Project校验器以栈 / Visited遍历BT，检查实际黑板键绑定与布尔常量，不能用相等的默认数值代替。Widget包含原生父类必需属性，沿设计时父蓝图查控件，Optional跳过，继承链防重复。两者逐资产计数，未支持类型返回NotValidated；规则ID / 诊断与顺序保持，不执行世界或修改资产。
+
+第21批只整理这四份Source；模块 / 依赖 / Target只读审计。Blueprint、BehaviorTree和InputMappingContext正常资源校验属于结构证据；负例覆盖仍按历史报告，不替代实际导航、输入焦点、Notify触发、生命周期和新包验证。
+
 ## 12. M1收口与M2设计入口
 
 C3当前包保持身体ASC / 原生默认属性集、Controller流程、LocalPlayer观察与事件驱动View的既有边界。会话仅存地图 / 检查点ID，Retry和Continue生成新世界与满血身体；两独立进程证明退出后会话清空。Editor Validator用于有限静态规则，实际输入 / 生命与对象清理仍由运行证据验证。
@@ -280,4 +291,4 @@ A五新 / 五旧已落地，实际105Source / 56cpp / 来源58；十份与指南
 
 ## 23. 本批 Commit / Push（固定放在最后）
 
-核对期间用户已将B2十六份完整Source与五份实际变动LFS资产提交至a6c5ab8，HEAD / 缓存origin/main一致；Source工作区无差异，五份HEAD资产LFS OID与本地SHA匹配，本轮未联网核验远端或LFS服务器。无需重复Stage已提交源码 / 资产。当前只Stage新增[B2报告](Reports/M2_04B2_Verification.md)、B2指南 / 来源63项 / Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction及其他已明确未提交文档的最新差异，检查Staged Diff后由用户Commit / Push，可用`docs: verify formal healing ability milestone`。Raw / 日志 / 生成文件 / 历史包本地；助手未操作Git索引。本次没有下一章新增内容。
+当前第21批为四份Validator Source与五份同步Markdown，共9项，逐文件清单见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Content / Config / 模块入口 / Build.cs / Target / uproject与测试未改，原B2实现已提交，不重复Stage。Raw / 日志 / 生成文件留本地，用户检查最新Staged Diff后Commit / Push；助手不操作索引。
