@@ -8,15 +8,18 @@
 #include "Presenters/ETHealthPresenter.h"
 #include "Presenters/ETStaminaPresenter.h"
 #include "Widgets/ETStaminaHUDWidget.h"
+#include "Presenters/ETHealingPresenter.h"
+#include "Widgets/ETHealingHUDWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETUIBootstrap, Log, All);
 
 namespace
 {
-// HUD内部相对层级属于装配契约；保持原值，不改变Pause / Failure的独立层级。
-constexpr int32 StatusWidgetZOrder = 5;
-constexpr int32 HealthWidgetZOrder = 4;
-constexpr int32 StaminaWidgetZOrder = 3;
+    // HUD内部相对层级属于装配契约；保持原值，不改变Pause / Failure的独立层级。
+    constexpr int32 StatusWidgetZOrder = 5;
+    constexpr int32 HealthWidgetZOrder = 4;
+    constexpr int32 StaminaWidgetZOrder = 3;
+    constexpr int32 HealingWidgetZOrder = 2;
 } // namespace
 
 // ---- Controller组件生命周期 ----
@@ -32,18 +35,26 @@ void UETUIBootstrapComponent::BeginPlay()
     Super::BeginPlay();
     RestartHealthObservation();
     RestartStaminaObservation();
+    RestartHealingObservation();
     RebuildStatusWidget();
     RebuildHealthWidget();
     RebuildStaminaWidget();
+    RebuildHealingWidget();
 }
 
 void UETUIBootstrapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     // 先拒绝重入；让仍被外部引用的旧View立即停止接收事件。
     bUIShuttingDown = true;
+    RemoveHealingWidget();
     RemoveStaminaWidget();
     RemoveHealthWidget();
     RemoveStatusWidget();
+    if (HealingPresenter)
+    {
+        HealingPresenter->Shutdown();
+        HealingPresenter = nullptr;
+    }
     if (StaminaPresenter)
     {
         StaminaPresenter->Shutdown();
@@ -292,4 +303,92 @@ void UETUIBootstrapComponent::RemoveStaminaWidget()
            *GetNameSafe(GetOwner()), *GetNameSafe(StaminaWidget.Get()));
     StaminaWidget->RemoveFromParent();
     StaminaWidget = nullptr;
+}
+
+// ---- 治疗次数HUD：事件快照与界面重建分离 ----
+
+UETHealingPresenter* UETUIBootstrapComponent::GetHealingPresenter() const
+{
+    return HealingPresenter.Get();
+}
+
+void UETUIBootstrapComponent::RestartHealingObservation()
+{
+    if (!HasBegunPlay() || bUIShuttingDown)
+    {
+        return;
+    }
+    APlayerController* Controller = ResolveLocalUIController();
+    if (!Controller)
+    {
+        if (HealingPresenter)
+        {
+            HealingPresenter->Shutdown();
+        }
+        return;
+    }
+    if (!HealingPresenter)
+    {
+        HealingPresenter = NewObject<UETHealingPresenter>(this);
+    }
+    HealingPresenter->StartObserving(
+        Controller->GetLocalPlayer()->GetSubsystem<UETUILocalPlayerSubsystem>());
+}
+
+UETHealingHUDWidget* UETUIBootstrapComponent::GetHealingWidget() const
+{
+    return HealingWidget.Get();
+}
+
+void UETUIBootstrapComponent::RebuildHealingWidget()
+{
+    if (!HasBegunPlay() || bUIShuttingDown)
+    {
+        return;
+    }
+    // 先停旧View，再创建新View；Presenter与资源次数保持原对象所有权。
+    RemoveHealingWidget();
+    APlayerController* Controller = ResolveLocalUIController();
+    if (!Controller)
+    {
+        return;
+    }
+    if (!HealingWidgetClass || !IsValid(HealingPresenter.Get()))
+    {
+        UE_LOG(LogETUIBootstrap, Warning,
+               TEXT("[M2-04C] Missing HealingWidgetClass or Presenter Owner=%s"),
+               *GetNameSafe(Controller));
+        return;
+    }
+    HealingWidget = CreateWidget<UETHealingHUDWidget>(Controller, HealingWidgetClass);
+    if (!HealingWidget)
+    {
+        UE_LOG(LogETUIBootstrap, Warning, TEXT("[M2-04C] Healing widget creation failed Owner=%s"),
+               *GetNameSafe(Controller));
+        return;
+    }
+    if (!HealingWidget->AddToPlayerScreen(HealingWidgetZOrder))
+    {
+        UE_LOG(LogETUIBootstrap, Warning,
+               TEXT("[M2-04C] Healing AddToPlayerScreen failed Owner=%s"),
+               *GetNameSafe(Controller));
+        RemoveHealingWidget();
+        return;
+    }
+    HealingWidget->StartObserving(HealingPresenter.Get());
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M2-04C] Healing widget created Owner=%s Widget=%s"),
+           *GetNameSafe(Controller), *GetNameSafe(HealingWidget.Get()));
+}
+
+void UETUIBootstrapComponent::RemoveHealingWidget()
+{
+    if (!HealingWidget)
+    {
+        return;
+    }
+    HealingWidget->StopObserving();
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M2-04C] Healing widget removed Owner=%s Widget=%s"),
+           *GetNameSafe(GetOwner()), *GetNameSafe(HealingWidget.Get()));
+    HealingWidget->RemoveFromParent();
+    HealingWidget = nullptr;
 }

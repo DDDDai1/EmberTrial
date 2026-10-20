@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-19。本文描述M2-04B2后的当前实现，不再逐阶段复制开发流水。规模与最新验证在[Progress](Progress.md)，逐批清理在[Cleanup](Cleanup.md)；完整历史证据仍在原指南与Reports。
+更新2026-10-20。本文描述M2-04C后的当前实现，下一批M2-05A韧性仅为手动设计、未落地。规模与最新验证见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)，分批证据在Reports。
 
 ## 1. 模块与构建边界
 
@@ -64,6 +64,10 @@ ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表�
 
 [CombatLife](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatLifeComponent.cpp)先提交一次死亡锁与自己的一份Dead Tag，再关Trace、取消能力 / 位移并封锁输入；受击不能覆盖死亡。死亡Health保持0，治疗不能复活；当前死亡表现仍为冻结占位，新身体由Retry重建。
 
+**治疗次数HUD已实现并验收：**[HealingPresenter](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETHealingPresenter.cpp)绑定LocalPlayer / Pawn Ready / HealingResource原生事件，弱来源 / 句柄 / 观察代次隔离旧回调；0次仍Ready，失活时也保留事件订阅。Widget仅显示整数，Bootstrap持有对象并区分重建View与重启观察；无Tick / Timer / Text Binding。晚加入、失活重启 / 恢复与世界重建见[C报告](Reports/M2_04C_Verification.md)。
+
+**下一批设计，尚未实现：**[M2-05A](M2_05A_PoiseFoundation.md)拟新增独立PoiseAttributeSet与第三组出生配置，全部校验后一次初始化，Base / Current夹限与只读快照；公共Ready将从两组扩为三组。当前Source仍只有Health / Stamina两组属性，A不预建范围技能、破势状态或韧性UI。
+
 ## 5. 敌人与行为树
 
 [AI黑板契约](AI_BlackboardContract.md)集中定义四个稳定键。感知选择有效玩家，Controller维护每敌人独立状态，Service调度决策，追击Task复用引擎MoveTo，近战Task只请求 / 观察自己拥有的Spec。
@@ -110,8 +114,8 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 现有13项自动化覆盖Practice两项、资源两项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-第30–32批已补未Cook实机样本、当前M2新Cook与两轮包内短查；物理键鼠连续输入仍需窄复验，不把控制台定位 / 正式接口调用写成物理操作通过，具体清单见Cleanup。新包为Cleanup/Attempt01，旧M1 Attempt02不含M2；次数HUD、后续破势 / 锁定 / 构筑、持久存档及最终美术仍按[完整计划](../Introduction.md)逐批实现。当前不进入下一功能章。
+清理32批及最后真实键鼠复验已关闭；M2-04C当前编辑器实物已验收，实际执行 / 用户确认 / 沿用边界见[C报告](Reports/M2_04C_Verification.md)。当前包Cleanup/Attempt01仍为清理后的B2，不含C，不将新编辑器HUD冒充已打包。后续破势 / 锁定 / 构筑、持久存档和最终美术继续按[完整计划](../Introduction.md)分批；当前下发[M2-05A](M2_05A_PoiseFoundation.md)。
 
 ## 23. 本批 Commit / Push（固定放在最后）
 
-第30–32批一起提交，完整清单及建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Raw / Runtime / 包体 / 生成文件留本地，助手不操作Git索引。
+M2-04C与治疗整章已验收。本次由用户重新Stage完整六份C源码、两项LFS资产、来源 / 报告 / 当前指南与下一章文档；四份新C源码暂存仍是空骨架，必须重新Stage最新完整内容。精确范围与建议Commit见[C末尾](M2_04C_HealingHUD.md#11-本批-commit--push固定放在最后)。M2-05A仅下发指南，实际Source未修改；Raw / 日志 / 生成文件 / 包体留本地，助手未操作Git索引或联网核验远端。

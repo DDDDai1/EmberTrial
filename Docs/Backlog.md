@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-19。功能基线M2-04B2已验收，本轮[代码 / 文档清理](Cleanup.md)实施与软件侧验证已收尾，保留物理输入窄复验；共享AI黑板契约见[专页](AI_BlackboardContract.md)。实时规模与验证状态只在[Progress](Progress.md)维护，历史阶段记录保留，不进入下一功能章。
+更新2026-10-20。**[M2-04治疗整章已验收](Reports/M2_04C_Verification.md)**，清理已关闭。当前[M2-05A](M2_05A_PoiseFoundation.md)完整指南待用户手动实施；实时规模和工时统一见[Progress](Progress.md)，历史表格保留当时计数。共享AI黑板契约见[专页](AI_BlackboardContract.md)。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -80,7 +80,7 @@
 | M1-07C2 | [战斗引用与共享配置](M1_07C2_GameplayValidation.md) | 你手动实施，我核查 | 完成 | 75 / 37 / 48、九Valid / GA失败恢复 / 两Success / 配置0/0；20 / 5，无待补 |
 | M1-07C3 | [Attempt02与M1阶段收口](M1_07C3_UpdatedPackage.md) | 你打包 / 实机，我核查 / 复盘 | 完成 | [报告](Reports/M1_07C3_Verification.md)：UAT ExitCode0、两次Move90 / 二十次敌人10伤害、A点Retry / Continue、新进程Entry；手动10 / 等待10 |
 | M1 | 最小纵向闭环与阶段复盘 | 共同 | 完成 | [总验收](Reports/M1_Verification.md)与[复盘](M1_Review.md)，手动1338分钟；当前灰盒范围与最终作品差距明确 |
-| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03及04A / B1 / B2完成，当前清理，次数HUD尚未实现 |
+| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03 / 04已验收，下一批05A韧性基础待手动实施 |
 | M2-01 | [资源基础总验收](Reports/M2_01_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | A / B1 / B2全部通过，87 / 44 / 49；130 / 15分钟，治疗次数已定契约、实现留04 |
 | M2-01A | [体力属性、一次初始化与Ready](M2_01A_StaminaFoundation.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_01A_Verification.md)：78 / 39 / 48，三身体Valid / 测试Success / 两轮PIE，IsCombatDead补项关闭；60 / 5 |
 | M2-01B | 体力恢复与必要变化观察 / 显示 | 你手动实现，我设计 / 审查 | 完成 | B1恢复与B2体力HUD通过；70 / 10分钟，无正式成本 / 无敌 |
@@ -94,10 +94,12 @@
 | M2-03A | [第2 / 3段动画与Montage](M2_03A_ComboAnimationAssets.md) | 你手动制作，我审查 | 完成 | [验收](Reports/M2_03A_Verification.md)：六新素材，96 / 50 / 清单57；旧实现保持，预览与短基线完成，50 / 10分钟，无待补 |
 | M2-03B | [三段轻攻击 / 单槽缓冲](M2_03B_LightCombo.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_03B_Verification.md)：99 / 52 / 58，双构建 / 两Success / 三段各25 / 清理通过，50 / 5，无待补 |
 | M2-03C | [恢复阶段闪避取消](M2_03C_RecoveryDodgeCancel.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_03C_Verification.md)：一新 / 七旧、双构建 / 索引53 / 三Success，三段恢复取消 / 预检拒绝保留原攻击 / Retry / Stop通过；40 / 5，编译补项已关闭 |
-| M2-04 | [有限次数治疗分批路线](M2_04_HealingRoadmap.md) | 你手动实现，我设计 / 审查 | 进行中 | A / B1 / B2已验收115 / 11；次数HUD未实现，本次依用户要求停止衔接，整章未完成 |
+| M2-04 | [有限次数治疗](M2_04_HealingRoadmap.md) | 你手动实现，我设计 / 审查 | 完成 | A / B1 / B2 / C及整章已验收，185 / 等待14；Q正式消费、取消与整数HUD成立 |
 | M2-04A | [治疗次数 / 成功生效事务](M2_04A_HealingResource.md) | 你手动实现，我核对 | 完成 | [验收](Reports/M2_04A_Verification.md)：105 / 56 / 58，双Build / 三Valid / Healing.Resource Success、治疗 / Pause / 耗尽 / Retry通过；60 / 5，无待补 |
 | M2-04B1 | [治疗动画素材](M2_04B1_HealingAnimation.md) | 你手动制作，我核对 | 完成 | [验收](Reports/M2_04B1_Verification.md)：三新素材已保存，预览按用户确认；实际105 / 56 / 来源61，15 / 1，无待补 |
-| M2-04B2 | [正式治疗能力 / 单次Notify / Q](M2_04B2_HealingAbility.md) | 你手动实现，我设计 / 核对 | 完成 | [验收](Reports/M2_04B2_Verification.md)：110 / 59 / 来源63，双Build / 四Success / 七Valid、正式治疗与取消 / 重建；40 / 5，无待补，本次不进入C |
+| M2-04B2 | [正式治疗能力 / 单次Notify / Q](M2_04B2_HealingAbility.md) | 你手动实现，我设计 / 核对 | 完成 | [验收](Reports/M2_04B2_Verification.md)：110 / 59 / 来源63，双Build / 四Success / 七Valid、正式治疗与取消 / 重建；40 / 5，无待补；其后清理已收尾 |
+| M2-04C | [治疗次数HUD](M2_04C_HealingHUD.md) | 你手动实现，我核对 | 完成 | [报告](Reports/M2_04C_Verification.md)：六Source / 双Build / UI17 / 两Success / 新WBP Valid与四组短查；70 / 等待3，无待补 |
+| M2-05A | [韧性属性基础](M2_05A_PoiseFoundation.md) | 你手动实现，我设计 / 核对 | 待用户操作 | 三新 / 三旧，Poise / MaxPoise与公共Ready；新PoiseFoundation / 两相关旧项、三身体Valid及短基线，尚未执行 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为Cleanup/Attempt01；M1 C3 Attempt02只保留历史证据。
 
@@ -106,16 +108,16 @@
 - Blender 接入、关键武器 / 祭坛 / 角色模型的设计制作；先确定规格并完成一个模型试做再估量。
 - GAS四类能力深化、完整构筑UI、持久化与最终表现：按M2及后续阶段分批完成；当前Core / UI / Editor模块、玩家三段与恢复闪避取消已成立。
 
-## 当前清理与剩余验收
+## 清理关闭与当前开发
 
 第27–29批整理工程脚本、模块 / 资产引用及文档；第30–32批补未Cook实机、当前M2打包与两轮包内流程，详细修改与检查保存在[Cleanup](Cleanup.md)各批独立章节。任务表保留完成状态，删除这里重复的下发 / 编译 / 提交流水；逐项原证据仍在各批Reports，不据删文重新判定历史功能未完成。
 
 | 待办 | 当前边界 / 完成条件 |
 | --- | --- |
-| 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；物理连续输入窄复验待确认 |
+| 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 当前M2新Development包 | Cleanup/Attempt01已完成Build / 完整Cook / Stage / Package与两轮独立检查；输入方法 / 范围见Cleanup |
-| 清理结果汇总 | 本轮证据已汇总，代码主要清理停止；最后物理输入确认后关闭验收，不继续堆排版批次 |
-| 后续M2开发 | 用户授权再进入治疗次数HUD及后续能力 / 锁定，不因清理完成自动开新章 |
+| 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
+| 后续M2开发 | 用户已授权恢复；M2-04C已验收，M2-05A完整指南待手动实施；后续破势 / 锁定按路线分批 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -123,4 +125,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-第30–32批一起提交，完整清单及建议Commit信息见[Cleanup末尾](Cleanup.md#本批-commit--push固定放在最后)。Raw / Runtime / 包体 / 生成文件留本地，助手不操作Git索引。
+M2-04C与治疗整章已验收。本次由用户重新Stage完整六份C源码、两项LFS资产、来源 / 报告 / 当前指南与下一章文档；四份新C源码暂存仍是空骨架，必须重新Stage最新完整内容。精确范围与建议Commit见[C末尾](M2_04C_HealingHUD.md#11-本批-commit--push固定放在最后)。M2-05A仅下发指南，实际Source未修改；Raw / 日志 / 生成文件 / 包体留本地，助手未操作Git索引或联网核验远端。

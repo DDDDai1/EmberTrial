@@ -10,6 +10,9 @@ class UETHealthPresenter;
 class UETHealthHUDWidget;
 class UETStaminaPresenter;
 class UETStaminaHUDWidget;
+class UETHealingPresenter;
+class UETHealingHUDWidget;
+
 
 UCLASS(ClassGroup = (EmberTrial), meta = (BlueprintSpawnableComponent))
 class EMBERTRIALUI_API UETUIBootstrapComponent : public UActorComponent
@@ -49,6 +52,19 @@ public:
     UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
     UETStaminaHUDWidget* GetStaminaWidget() const;
 
+    // ---- 治疗次数：只读离散资源，不改变次数或生命 ----
+    UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
+    UETHealingPresenter* GetHealingPresenter() const;
+
+    UFUNCTION(BlueprintCallable, Category = "EmberTrial|UI")
+    void RestartHealingObservation();
+
+    UFUNCTION(BlueprintCallable, Category = "EmberTrial|UI")
+    void RebuildHealingWidget();
+
+    UFUNCTION(BlueprintPure, Category = "EmberTrial|UI")
+    UETHealingHUDWidget* GetHealingWidget() const;
+
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -60,6 +76,7 @@ private:
     void RemoveStatusWidget();
     void RemoveHealthWidget();
     void RemoveStaminaWidget();
+    void RemoveHealingWidget();
 
     // ---- 蓝图配置与运行期所有权；Transient对象不写回资产 ----
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI")
@@ -85,6 +102,15 @@ private:
 
     UPROPERTY(Transient)
     TObjectPtr<UETStaminaHUDWidget> StaminaWidget;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UETHealingPresenter> HealingPresenter;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI")
+    TSubclassOf<UETHealingHUDWidget> HealingWidgetClass;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UETHealingHUDWidget> HealingWidget;
 
     // EndPlay先封闭入口，再移除View，最后停止Presenter。
     bool bUIShuttingDown = false;

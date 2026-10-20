@@ -1,10 +1,10 @@
 # 《烬火试炼》Ember Trial — UE5 求职 Demo 开发计划
 
-版本：v1.4 · 更新日期：2026-10-17 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
+版本：v1.4 · 更新日期：2026-10-20 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M2-04B2功能基线已验收，当前分批清理代码与文档，不进入次数HUD开发。最新范围、规模和验证状态统一维护在[Progress](Docs/Progress.md)与[清理记录](Docs/Cleanup.md)，避免本文重复阶段流水；历史报告与排期保留。
+当前进度：M2-04有限次数治疗与整数次数HUD已验收，32批清理已关闭；[M2-05A韧性基础](Docs/M2_05A_PoiseFoundation.md)完整指南已下发，待用户手动实施。最新实际规模与证据见[Progress](Docs/Progress.md)和[C报告](Docs/Reports/M2_04C_Verification.md)，本文保留最终目标和原始排期，不将指南写成已完成功能。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -756,9 +756,9 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 - **所有 C++ 代码编写与修改，包括复杂实现和修复，默认由我输出到操作文档，由用户手动写入工程；直到用户明确表示需要我直接操作，才接管源码修改。** 普通报错反馈不自动等于接管授权。本约定覆盖旧文档中的“复杂 C++ 由助手直接实现”。
 - 创建工程 / C++ 类 / 蓝图、基础节点和编辑器配置继续由用户实践。我逐次说明目标、入口、名称 / 父类 / 路径、代码、步骤、预期结果和验收，不一次布置整个系统。
 - 2026-10-04补充：蓝图说明逐节点写出白色执行线、数据引脚、Target、Is Valid的Input Object与有效 / 无效分支；验收逐组列准备、操作、画面 / 日志预期及清理恢复，不用笼统转述旧章节替代关键步骤。B1文档按用户要求保留原样，B2起执行此规范。
-- 2026-10-09补充：用户已完成GitHub首次Push，之后按每章完成进度Commit / Push。每份后续开发指南最后固定列出本章需提交的源码、UE资产、文档与实际改动时才包含的文件，并说明忽略产物留本地；用户完成反馈、我更新验收 / 清单后再上传。收尾内容插在Push清单之前，清单始终在指南最后；助手不自动代替用户Stage / Commit / Push。当前入口为[Docs/M1_05C2_BehaviorTreeMeleeAttack.md](Docs/M1_05C2_BehaviorTreeMeleeAttack.md)，完整版本控制约定见[VersionControl](Docs/VersionControl.md)。
+- 2026-10-09补充：用户已完成GitHub首次Push，之后按每章完成进度Commit / Push。每份后续开发指南最后固定列出本章需提交的源码、UE资产、文档与实际改动时才包含的文件，并说明忽略产物留本地；用户完成反馈、我更新验收 / 清单后再上传。收尾内容插在Push清单之前，清单始终在指南最后；助手不自动代替用户Stage / Commit / Push。当前入口为[M2-05A韧性基础](Docs/M2_05A_PoiseFoundation.md)，完整版本控制约定见[VersionControl](Docs/VersionControl.md)。
 - 2026-10-17新增协作约定：每批收到完成反馈后，先核对证据并保存验收报告；**无待补项时同一轮直接生成下一批完整操作指南并更新当前入口**，不再等待用户另发“进入下一章”。有实际缺口时先处理该窄项，不把失败写成通过。该约定不授权助手自动修改Source / UE资产、执行Build或Stage / Commit / Push；手动实践与Git分工保持。
-- 2026-10-17本次例外：用户要求M2-04B2验收结束后先不进入下一章；本轮只收尾并等待其他安排，不生成C。一般自动衔接规则的其他范围保持。
+- 2026-10-17用户曾要求M2-04B2后暂停新章，随后进行32批清理；2026-10-20已确认真实键鼠复验通过并授权恢复开发，此历史暂停解除，回到手动实现和一般自动衔接约定。
 - 我可以先检查工程、准备文档、审查代码和设计测试；不在用户练习期间悄悄完成同一份基础实现。用户要求接手后即可直接处理，不反复确认。
 - 遇到复杂架构、编译 / 链接 / Cook / 崩溃、跨系统状态错误或难以描述的问题，我先读取实际代码和日志定位，给出修正代码与验证步骤。C++ 修复仍按上面的手动规则；其他操作依照用户授权范围执行。
 - 用户只需描述最后一个操作和异常现象即可启动排查，不需要先猜根因。能提供完整文本日志最好；蓝图连线 / 布局用截图，时序 / 动画问题用短视频。具体模板见 `Docs/IssueTemplate.md`。
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-17，M0、[M1](Docs/Reports/M1_Verification.md)、M2-01 / 02 / 03与M2-04A / B1 / [B2](Docs/Reports/M2_04B2_Verification.md)已验收。**当前110Source / 59cpp / 来源63，累计2506 / 等待246分钟；次数HUD尚未实现。按用户本次要求，B2报告保存后先不进入下一章，等待其其他安排。独立包仍C3 Attempt02，最终投递作品尚未完成；手动C++ / 方案B / 用户自行Push保持，以下保留原M0起点：
+**截至2026-10-20，M0、[M1](Docs/Reports/M1_Verification.md)、M2-01 / 02 / 03 / [04](Docs/Reports/M2_04C_Verification.md)已验收，清理验收已关闭。**实际120Source / 63cpp / 来源64，累计2576 / 明确等待249分钟；M2为565 / 64，M2-04为185 / 14。次数HUD已实现，下一章[M2-05A](Docs/M2_05A_PoiseFoundation.md)仅下发指南。当前包Cleanup/Attempt01未含C新HUD，最终作品未完成；手动C++ / 方案B / 用户自行Push保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-核对期间用户已将B2十六份完整Source与五份实际变动LFS资产提交至a6c5ab8，HEAD / 缓存origin/main一致；Source工作区无差异，五份HEAD资产LFS OID与本地SHA匹配，本轮未联网核验远端或LFS服务器。无需重复Stage已提交源码 / 资产。当前只Stage新增[B2报告](Docs/Reports/M2_04B2_Verification.md)、B2指南 / 来源63项 / Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction及其他已明确未提交文档的最新差异，检查Staged Diff后由用户Commit / Push，可用`docs: verify formal healing ability milestone`。Raw / 日志 / 生成文件 / 历史包本地；助手未操作Git索引。本次没有下一章新增内容。
+M2-04C与治疗整章已验收。本次由用户重新Stage完整六份C源码、两项LFS资产、来源 / 报告 / 当前指南与下一章文档；四份新C源码暂存仍是空骨架，必须重新Stage最新完整内容。精确范围与建议Commit见[C末尾](Docs/M2_04C_HealingHUD.md#11-本批-commit--push固定放在最后)。M2-05A仅下发指南，实际Source未修改；Raw / 日志 / 生成文件 / 包体留本地，助手未操作Git索引或联网核验远端。

@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-17最新现状：**[B2已验收](Reports/M2_04B2_Verification.md)，实际110Source / 59cpp / 来源63。核对期间用户提交a6c5ab8，HEAD / 缓存origin/main一致，Source工作区无差异，五份资产HEAD中的LFS OID匹配本地SHA；本轮未联网核验服务器状态。主体已提交，当前只Stage最新报告 / 指南 / 来源 / 状态文档收尾；Raw本地。助手未操作Git索引；按用户要求不进入下一章。
+**2026-10-20最新现状：**[M2-04C与治疗整章已验收](Reports/M2_04C_Verification.md)，实际120Source / 63cpp / 来源64，HEAD仍b1fbb30。四份新C Source暂存仍0字节骨架，工作区已有完整实现，提交前必须重新Stage；两份Bootstrap / 两资产 / 来源 / 报告和下一章文档一起提交。M2-05A只下发指南，Source未改；助手未操作Git索引或联网核验GitHub / LFS服务器。
 
 ## 1. 已配置内容
 
@@ -10,7 +10,7 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
 - 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
-- 当前origin已配置为GitHub的DDDDai1/EmberTrial；本轮读取本机缓存origin/main为e3ee554、HEAD为4fedf14，未联网确认最新远端 / LFS状态；上传以实际Push结果为准，首次故障记录保留在第9节。
+- 当前origin已配置为GitHub的DDDDai1/EmberTrial；本轮仅读取本机HEAD b1fbb30，未联网确认服务器或LFS状态。首次Push故障记录保留在第9节，上传完成以用户实际Push结果为准。
 
 ## 2. 第一个可恢复检查点
 
@@ -358,4 +358,4 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-核对期间用户已将B2十六份完整Source与五份实际变动LFS资产提交至a6c5ab8，HEAD / 缓存origin/main一致；Source工作区无差异，五份HEAD资产LFS OID与本地SHA匹配，本轮未联网核验远端或LFS服务器。无需重复Stage已提交源码 / 资产。当前只Stage新增[B2报告](Reports/M2_04B2_Verification.md)、B2指南 / 来源63项 / Progress / Backlog / M2路线 / 治疗路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction及其他已明确未提交文档的最新差异，检查Staged Diff后由用户Commit / Push，可用`docs: verify formal healing ability milestone`。Raw / 日志 / 生成文件 / 历史包本地；助手未操作Git索引。本次没有下一章新增内容。
+M2-04C与治疗整章已验收。本次由用户重新Stage完整六份C源码、两项LFS资产、来源 / 报告 / 当前指南与下一章文档；四份新C源码暂存仍是空骨架，必须重新Stage最新完整内容。精确范围与建议Commit见[C末尾](M2_04C_HealingHUD.md#11-本批-commit--push固定放在最后)。M2-05A仅下发指南，实际Source未修改；Raw / 日志 / 生成文件 / 包体留本地，助手未操作Git索引或联网核验远端。
