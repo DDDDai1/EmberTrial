@@ -18,6 +18,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Attributes/ETHealthAttributeSet.h"
 #include "Attributes/ETStaminaAttributeSet.h"
+#include "Attributes/ETPoiseAttributeSet.h"
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_Dodge.h"
 #include "Abilities/ETGA_Heal.h"
@@ -48,6 +49,8 @@ AEmberTrialCharacter::AEmberTrialCharacter()
 
     StaminaRecoveryComponent =
         CreateDefaultSubobject<UETStaminaRecoveryComponent>(TEXT("StaminaRecovery"));
+
+    PoiseAttributes = CreateDefaultSubobject<UETPoiseAttributeSet>(TEXT("PoiseAttributes"));
 
     HealingResourceComponent =
         CreateDefaultSubobject<UETHealingResourceComponent>(TEXT("HealingResource"));
@@ -314,7 +317,7 @@ bool AEmberTrialCharacter::IsGameplayReady() const
 {
     return bGameplayReady && bStartupAttributesInitialized && !bAbilitySystemShuttingDown &&
            IsValid(AbilitySystemComponent) && IsValid(HealthAttributes) &&
-           IsValid(StaminaAttributes);
+           IsValid(StaminaAttributes) && IsValid(PoiseAttributes);
 }
 
 bool AEmberTrialCharacter::IsFormalActionIdle() const
@@ -357,6 +360,20 @@ bool AEmberTrialCharacter::GetGameplayStaminaSnapshot(float& OutStamina, float& 
     return true;
 }
 
+bool AEmberTrialCharacter::GetGameplayPoiseSnapshot(float& OutPoise, float& OutMaxPoise) const
+{
+    OutPoise = 0.0f;
+    OutMaxPoise = 0.0f;
+    if (!IsGameplayReady())
+    {
+        return false;
+    }
+
+    OutPoise = PoiseAttributes->GetPoise();
+    OutMaxPoise = PoiseAttributes->GetMaxPoise();
+    return true;
+}
+
 // ---- 一次初始化与Ready通知；先提交状态，再允许同步观察者查询 ----
 void AEmberTrialCharacter::SetGameplayReady(bool bNewReady)
 {
@@ -382,9 +399,10 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
     if (!IsValid(AbilitySystemComponent) || !AbilitySystemComponent->AbilityActorInfo.IsValid() ||
         AbilitySystemComponent->AbilityActorInfo->OwnerActor.Get() != this ||
         AbilitySystemComponent->AbilityActorInfo->AvatarActor.Get() != this ||
-        !IsValid(HealthAttributes) || !IsValid(StaminaAttributes) ||
+        !IsValid(HealthAttributes) || !IsValid(StaminaAttributes) || !IsValid(PoiseAttributes) ||
         AbilitySystemComponent->GetSet<UETHealthAttributeSet>() != HealthAttributes.Get() ||
-        AbilitySystemComponent->GetSet<UETStaminaAttributeSet>() != StaminaAttributes.Get())
+        AbilitySystemComponent->GetSet<UETStaminaAttributeSet>() != StaminaAttributes.Get() ||
+        AbilitySystemComponent->GetSet<UETPoiseAttributeSet>() != PoiseAttributes.Get())
     {
         SetGameplayReady(false);
         UE_LOG(LogETAbilityFoundation, Error,
@@ -392,17 +410,19 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
         return false;
     }
 
-    // 同一身体已成功初始化就只读，不在重复Ensure或换控时补血 / 补体力。
+    // 已成功初始化就只读；重复Ensure或换控都不补血 / 体力 / 韧性。
     if (bStartupAttributesInitialized)
     {
         UE_LOG(LogETAbilityFoundation, Display,
-               TEXT("[M2-01A] Already initialized Character=%s Health=%.1f/%.1f Stamina=%.1f/%.1f"),
+               TEXT("[M2-01A] Already initialized Character=%s Health=%.1f/%.1f Stamina=%.1f/%.1f "
+                    "Poise=%.1f/%.1f"),
                *GetNameSafe(this), HealthAttributes->GetHealth(), HealthAttributes->GetMaxHealth(),
-               StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
+               StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina(),
+               PoiseAttributes->GetPoise(), PoiseAttributes->GetMaxPoise());
         return IsGameplayReady();
     }
 
-    // 两组配置全部通过后才开始写入，避免非法体力导致生命先被部分初始化。
+    // 三组配置全部通过后才开始写入，非法韧性也不能部分初始化生命 / 体力。
     if (!FMath::IsFinite(InitialMaxHealth) || !FMath::IsFinite(InitialHealth) ||
         InitialMaxHealth < 1.0f || InitialHealth < 0.0f || InitialHealth > InitialMaxHealth)
     {
@@ -421,7 +441,16 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
         return false;
     }
 
-    // 每组先上限后当前值；四次写入完成才提交成功标记 / Ready。
+    if (!FMath::IsFinite(InitialMaxPoise) || !FMath::IsFinite(InitialPoise) ||
+        InitialMaxPoise < 1.0f || InitialPoise < 0.0f || InitialPoise > InitialMaxPoise)
+    {
+        UE_LOG(LogETAbilityFoundation, Warning,
+               TEXT("[M2-05A] Invalid startup poise Character=%s Poise=%.1f MaxPoise=%.1f"),
+               *GetNameSafe(this), InitialPoise, InitialMaxPoise);
+        return false;
+    }
+
+    // 每组先上限后当前值；六次写入完成才提交成功标记 / Ready。
     AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetMaxHealthAttribute(),
                                                     InitialMaxHealth);
     AbilitySystemComponent->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(),
@@ -430,6 +459,10 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
         UETStaminaAttributeSet::GetMaxStaminaAttribute(), InitialMaxStamina);
     AbilitySystemComponent->SetNumericAttributeBase(UETStaminaAttributeSet::GetStaminaAttribute(),
                                                     InitialStamina);
+    AbilitySystemComponent->SetNumericAttributeBase(UETPoiseAttributeSet::GetMaxPoiseAttribute(),
+                                                    InitialMaxPoise);
+    AbilitySystemComponent->SetNumericAttributeBase(UETPoiseAttributeSet::GetPoiseAttribute(),
+                                                    InitialPoise);
     bStartupAttributesInitialized = true;
 
     UE_LOG(LogETAbilityFoundation, Display,
@@ -438,6 +471,9 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
     UE_LOG(LogETAbilityFoundation, Display,
            TEXT("[M2-01A] Stamina initialized Character=%s Stamina=%.1f MaxStamina=%.1f"),
            *GetNameSafe(this), StaminaAttributes->GetStamina(), StaminaAttributes->GetMaxStamina());
+    UE_LOG(LogETAbilityFoundation, Display,
+           TEXT("[M2-05A] Poise initialized Character=%s Poise=%.1f MaxPoise=%.1f"),
+           *GetNameSafe(this), PoiseAttributes->GetPoise(), PoiseAttributes->GetMaxPoise());
     SetGameplayReady(true);
     return IsGameplayReady();
 }

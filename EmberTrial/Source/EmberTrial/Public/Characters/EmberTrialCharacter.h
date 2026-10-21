@@ -23,6 +23,7 @@ class UETGA_Heal;
 class UETCombatTraceComponent;
 class UETCombatLifeComponent;
 class UETStaminaAttributeSet;
+class UETPoiseAttributeSet;
 class UETStaminaRecoveryComponent;
 class UETHealingResourceComponent;
 struct FInputActionValue;
@@ -107,6 +108,9 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
               meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UETHealingResourceComponent> HealingResourceComponent;
 
+    UPROPERTY(VisibleAnywhere, Category = "EmberTrial|Poise")
+    TObjectPtr<UETPoiseAttributeSet> PoiseAttributes;
+
     // ---- 出生配置；不是运行值副本，同身体换控不会再次写入 ----
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "1.0"))
     float InitialMaxHealth = 100.0f;
@@ -120,8 +124,15 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "0.0"))
     float InitialStamina = 100.0f;
 
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "1.0"))
+    float InitialMaxPoise = 100.0f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "0.0"))
+    float InitialPoise = 100.0f;
+
     // 自动化夹具只访问既有启动配置 / 句柄，不增加生产测试开关。
     friend class FETStaminaFoundationTest;
+    friend class FETPoiseFoundationTest;
     friend class FETDodgeMovementTest;
     friend class FETDodgeInvulnerabilityTest;
     friend class FETLightComboFlowTest;
@@ -129,7 +140,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETHealingResourceTest;
     friend class FETHealingAbilityTest;
 
-    // Ready只表示两组属性链初始化成功；不代表存活、受控或能力已授予。
+    // Ready只表示三组属性链初始化成功；不代表存活、受控或能力已授予。
     bool bStartupAttributesInitialized = false;
     bool bGameplayReady = false;
 
@@ -188,6 +199,9 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "EmberTrial|Gameplay")
     bool GetGameplayStaminaSnapshot(float& OutStamina, float& OutMaxStamina) const;
+
+    UFUNCTION(BlueprintPure, Category = "EmberTrial|Gameplay")
+    bool GetGameplayPoiseSnapshot(float& OutPoise, float& OutMaxPoise) const;
 
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Gameplay")
     bool EnsureGameplayInitialized();

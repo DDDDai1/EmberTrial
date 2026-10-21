@@ -231,7 +231,7 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint, UObject* Def
                                              int32& Issues)
 {
     for (const TCHAR* Name :
-         {TEXT("AbilitySystemComponent"), TEXT("HealthAttributes"), TEXT("StaminaAttributes"),
+         {TEXT("AbilitySystemComponent"), TEXT("HealthAttributes"), TEXT("StaminaAttributes"),TEXT("PoiseAttributes"),
           TEXT("StaminaRecoveryComponent"), TEXT("HealingResourceComponent"),
           TEXT("CombatTraceComponent"), TEXT("CombatLifeComponent")})
     {
@@ -262,6 +262,19 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint, UObject* Def
             Blueprint, TEXT("ET-BODY-004"),
             TEXT("Require finite InitialMaxStamina>=1 and 0<=InitialStamina<=InitialMaxStamina."),
             Issues);
+    }
+
+    const TOptional<double> Poise = ReadNumber(Blueprint, Defaults, TEXT("InitialPoise"), Issues);
+    const TOptional<double> MaxPoise =
+        ReadNumber(Blueprint, Defaults, TEXT("InitialMaxPoise"), Issues);
+    if (Poise.IsSet() && MaxPoise.IsSet() &&
+        (!FMath::IsFinite(Poise.GetValue()) || !FMath::IsFinite(MaxPoise.GetValue()) ||
+         MaxPoise.GetValue() < 1.0 || Poise.GetValue() < 0.0 ||
+         Poise.GetValue() > MaxPoise.GetValue()))
+    {
+        AddIssue(Blueprint, TEXT("ET-BODY-005"),
+                 TEXT("Require finite InitialMaxPoise>=1 and 0<=InitialPoise<=InitialMaxPoise."),
+                 Issues);
     }
 
     // 训练目标无需攻击；玩家才要求正式输入、闪避和治疗引用。

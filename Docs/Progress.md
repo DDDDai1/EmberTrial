@@ -1,44 +1,37 @@
 # 当前开发进度
 
-更新2026-10-20。**[M2-04C与有限次数治疗整章已验收](Reports/M2_04C_Verification.md)，无待补项。**32批清理验收已关闭，继续普通手动开发；下一批[M2-05A：韧性属性基础](M2_05A_PoiseFoundation.md)完整指南已下发，待用户实施。
+更新2026-10-21。**[M2-05A韧性属性基础已验收](Reports/M2_05A_Verification.md)，无待补项。**M0、M1、M2-01 / 02 / 03 / 04及32批清理均已收尾；下一批[M2-05B1破势状态与行动门控](M2_05B1_StaggerState.md)完整手动指南已下发。
 
 ## 当前工程与功能基线
 
-- 工程：E:/UE_Project/Demo/EmberTrial/EmberTrial.uproject。
-- UE5.5.4：D:/UE5/UE_5.5；CLion编辑，MSVC / UBT / UHT正常构建。
-- 实际120份Source / 63cpp，CodeModel Core43 / UI17 / Editor3，来源64项。
-- M0、M1、M2-01 / 02 / 03 / 04已验收；现有13项自动化，本批相关治疗两项实际Success。
-- 已有生命 / 体力 / 整数治疗次数HUD，三段攻击、方向闪避 / 成本 / 短无敌、Q有限治疗、近战AI、菜单 / 暂停 / 重试 / 会话检查点。
-- Poise、破势能力 / 冷却与锁定尚未实现；Continue重建世界和身体资源，持久存档未实现。
-- 当前独立包仍Artifacts/Builds/Cleanup/Attempt01/Windows/EmberTrial.exe，代表清理后的B2，不包含新C HUD；本轮未新Cook。
+- UE工程：E:/UE_Project/Demo/EmberTrial/EmberTrial.uproject。
+- 固定UE5.5.4：D:/UE5/UE_5.5，CLion编辑、MSVC / UBT / UHT正常构建。
+- 实际123 Source / 65cpp，CodeModel Core45 / UI17 / Editor3，来源64项，现有14项自动化。
+- 生命 / 体力 / 整数治疗次数HUD，三段攻击、方向闪避 / 体力成本 / 短无敌、正式Q治疗、近战AI、菜单 / 暂停 / 重试 / 会话检查点均已验收。
+- Poise / MaxPoise基础已实现，三个属性集全部配置通过后初始化；Poise0是有效值，自动破势 / 恢复、范围能力 / 冷却与锁定尚未实现。
+- 当前包Cleanup/Attempt01仍为清理后的B2，不包含后来的次数HUD或Poise；本轮没有新Cook / 性能采样。
 
 ## 当前交接
 
-C六份源码与候选有效Token一致，其余114旧Source保持；Editor / Game receipt覆盖最后源码，UI17索引成立。21:03两项治疗自动化Success，21:09新WBP项目Valid。实机日志支持次数3→2→1→0、晚加入View / 同Presenter重启、失活时重启再恢复原次数、Retry / Continue新3与退出清理。具体画面与键鼠按用户全项通过确认；证据与覆盖边界在C报告。
+A六份Source已核对：五份有效Token一致，Character.cpp仅调整构造内Poise子对象创建位置、其他有效Token保持。正常Editor / Game receipt覆盖最终源码，三CodeModel45 / 17 / 3成立；三身体Valid / Issues0，PoiseFoundation / StaminaFoundation / Healing.Ability各一次实际Success。两轮正式地图三身体100/100均在Ready前初始化；画面 / 输入与最终保存按用户全项反馈确认，详见A报告。
 
-M2-05A只下发三新 / 三旧Source的手动代码、三身体配置与短查；实际Source未改，预计完成后123 Source / 65cpp、Core45 / UI17 / Editor3，不能当作当前规模。准备与实现约70–110分钟，检查5–10分钟包含其中，构建等待另列。
+原B拆为B1状态 / 门控与B2归零联动 / 恢复 / 表现。B1先做GAS统一取消 / 阻断、1.2游戏秒状态与精确清理，复用生产RequestStagger入口检查，不提前做F技能 / 范围 / 冷却。实际B1 Source未改，预计实施后128 / 68、Core48 / UI17 / Editor3、来源65；估计100–160分钟，检查8–12包含其中，等待另记。
 
-用户HEAD仍b1fbb30；C四份新Source已创建，但暂存区仍是0字节骨架，完整实现在工作区。Commit前必须重新Stage完整代码；源码 / 两资产 / 文档精确清单见[C末尾](M2_04C_HealingHUD.md#11-本批-commit--push固定放在最后)，用户自行Push。
+C已由用户提交至本机HEAD5a340f5；A三个新Source索引仍是0字节骨架，完整代码在工作区，Commit前须重新Stage，不能只勾选创建时旧内容。六Source和13文档清单见[A末尾](M2_05A_PoiseFoundation.md#11-本批-commit--push固定放在最后)。本轮不代Stage / Commit / Push。
 
-## 资源与工期
+## 工期与协作
 
-- 每周约30小时，预算约100元，键鼠交付，不开发手柄。
-- 本批手动70分钟（实现 / 配置60、检查10），等待3；M2-04合计185 / 等待14。
-- M2累计565 / 等待64分钟；项目累计2576分钟（42小时56分）/ 等待249分钟（4小时9分）。助手设计与未报告学习不补算。
-- 清理最后键鼠确认未附用时，不补造；C实耗已加入，A估计尚未计入实际。
-- 预算与剩余范围见[Introduction](../Introduction.md)、[M2路线](M2_Roadmap.md)和[破势路线](M2_05_BreakPulseRoadmap.md)。
-
-## 持续协作原则
-
-- 普通开发由我给完整代码 / 配置步骤，用户手动实现、构建与检查；直接修改实际Source / UE资产须用户明确要求。
-- 方案B按影响范围检查，旧基线不机械重跑；每组说明准备、操作、预期与恢复，不搭重复临时Controller图。
-- 日志优先文字，布局 / 引脚用截图，时序必要时用视频；反馈第一条真实错误，不只给UBT包装错误。
-- 完成反馈先核对并保存报告，无待补项同轮下发下一批；有缺口先窄修。Stage / Commit / Push始终由用户操作。
+- 本批手动70分钟（实现 / 配置60、检查10），等待5；M2-05当前70 / 5。
+- M2累计635 / 等待69分钟；项目累计2646分钟（44小时6分）/ 等待254分钟（4小时14分）。助手设计与未报告学习不补算，估计不计实耗。
+- 每周约30小时，预算约百元，键鼠交付；Blender与最终美术按中后期安排。
+- 我提供完整代码与准确配置步骤，用户手动实现 / 构建 / 检查，直接修改实际Source或UE资产须用户明确要求。
+- 方案B按变更影响选检查，不重复搭Controller验收图；日志优先文字、布局 / 连线截图、时序必要时视频，不要求手掐精确毫秒。
+- 完成反馈先核对并保存报告，无待补项同轮下发下一批；失败先窄修。冻结M1-03B1指南保持原样。
 
 ## 证据与入口
 
-[C报告](Reports/M2_04C_Verification.md)、[治疗路线](M2_04_HealingRoadmap.md)、[清理关闭](Cleanup.md#cleanup-closure)、[A手动指南](M2_05A_PoiseFoundation.md)、[架构](Architecture.md)、[来源](AssetManifest.csv)、[任务板](Backlog.md)、[方案B](AcceptanceWorkflow_Options.md)与[版本管理](VersionControl.md)。冻结M1-03B1指南保持原样。
+[A报告](Reports/M2_05A_Verification.md)、[B1手动指南](M2_05B1_StaggerState.md)、[破势路线](M2_05_BreakPulseRoadmap.md)、[M2路线](M2_Roadmap.md)、[架构](Architecture.md)、[来源](AssetManifest.csv)、[任务板](Backlog.md)、[方案B](AcceptanceWorkflow_Options.md)、[版本管理](VersionControl.md)。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-M2-04C与治疗整章已验收。本次由用户重新Stage完整六份C源码、两项LFS资产、来源 / 报告 / 当前指南与下一章文档；四份新C源码暂存仍是空骨架，必须重新Stage最新完整内容。精确范围与建议Commit见[C末尾](M2_04C_HealingHUD.md#11-本批-commit--push固定放在最后)。M2-05A仅下发指南，实际Source未修改；Raw / 日志 / 生成文件 / 包体留本地，助手未操作Git索引或联网核验远端。
+M2-05A已验收，C已提交至本机HEAD `5a340f5`。本次Stage A三新 / 三旧完整源码与来源 / A报告 / B1指南和状态文档；三份新A Source索引仍为空骨架，必须重新Stage工作区最新实现。精确清单见[A末尾](M2_05A_PoiseFoundation.md#11-本批-commit--push固定放在最后)。B1仅下发手动指南，实际Source未改；资产无差异不强制重存，Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作。

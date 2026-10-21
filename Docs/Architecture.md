@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-20。本文描述M2-04C后的当前实现，下一批M2-05A韧性仅为手动设计、未落地。规模与最新验证见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)，分批证据在Reports。
+更新2026-10-21。本文描述M2-05A后的实际实现；下一批B1状态 / 门控仅为手动设计，尚未落地。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -26,7 +26,7 @@ flowchart LR
 
 | 拥有者 | 持有内容 | 不负责的内容 |
 | --- | --- | --- |
-| AEmberTrialCharacter | 原生ASC、Health / Stamina属性集、Recovery / HealingResource、自己授予的能力Handle | 不持有Widget或跨世界存档 |
+| AEmberTrialCharacter | 原生ASC、Health / Stamina / Poise属性集、Recovery / HealingResource、自己授予的能力Handle | 不持有Widget或跨世界存档 |
 | CombatTrace / CombatLife | 当前检测窗口与命中去重 / 本身体生命观察、受击Handle和死亡封锁 | 不由HUD扣血，不共用敌人运行状态 |
 | 各GameplayAbility / Task | 本次激活的Tag、Montage实例、计时 / 位移源、回调与代次 | 不撤销别人的Handle或复用另一激活的运行数据 |
 | AIController / BT Task | 本敌人的目标、距离决策、移动 / 攻击请求及结束观察 | 不复制伤害规则，不持有UI |
@@ -40,9 +40,9 @@ flowchart LR
 
 ## 3. 初始化、Ready与清理
 
-[Character](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)先校验生命 / 体力的四个出生配置，再一次性写入属性并发布Ready；非法配置不能只初始化一半。重复Ensure或同身体重新Possess不会补满资源。
+[Character](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)先校验生命 / 体力 / 韧性的六个出生配置，再一次性写入属性并发布Ready；非法配置不能只初始化一半。重复Ensure或同身体重新Possess不会补满资源。
 
-ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表示当前两组属性链成功初始化；死亡时仍可Ready且Health为0，UI不应把它显示成Waiting。各能力还有自己的配置 / Spec / 状态检查，不能仅看Ready。
+ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表示当前三组属性链成功初始化；死亡时仍可Ready且Health为0，UI不应把它显示成Waiting。各能力还有自己的配置 / Spec / 状态检查，不能仅看Ready。
 
 观察者先解绑旧源，再绑定新源，并立即读取当前快照，兼顾“先Ready后订阅”和“先订阅后Ready”。异步装备 / 能力就绪尚未接入，不能把现有同步测试扩写成已覆盖全部未来时序。
 
@@ -66,7 +66,9 @@ ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表�
 
 **治疗次数HUD已实现并验收：**[HealingPresenter](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETHealingPresenter.cpp)绑定LocalPlayer / Pawn Ready / HealingResource原生事件，弱来源 / 句柄 / 观察代次隔离旧回调；0次仍Ready，失活时也保留事件订阅。Widget仅显示整数，Bootstrap持有对象并区分重建View与重启观察；无Tick / Timer / Text Binding。晚加入、失活重启 / 恢复与世界重建见[C报告](Reports/M2_04C_Verification.md)。
 
-**下一批设计，尚未实现：**[M2-05A](M2_05A_PoiseFoundation.md)拟新增独立PoiseAttributeSet与第三组出生配置，全部校验后一次初始化，Base / Current夹限与只读快照；公共Ready将从两组扩为三组。当前Source仍只有Health / Stamina两组属性，A不预建范围技能、破势状态或韧性UI。
+**Poise基础已实现：**[PoiseAttributeSet](../EmberTrial/Source/EmberTrial/Private/Attributes/ETPoiseAttributeSet.cpp)维护Base / Current夹限与Max变化，Character一次初始化第三组、公开只读快照；0有效且不等同死亡。当前无自动耗尽反应 / 恢复，见[A报告](Reports/M2_05A_Verification.md)。
+
+**下一批设计，尚未实现：**[B1](M2_05B1_StaggerState.md)由GA拥有Stunned Tag、统一取消 / 阻断四种旧能力和一个活动世界Timer，组件只拥有自己的授予Handle / Ready观察。公共Idle、攻击缓冲、普通受击与体力恢复接同一状态；Poise事件 / 回填和动画在B2接入，不在B1复制运行数值或让UI持有状态。
 
 ## 5. 敌人与行为树
 
@@ -112,10 +114,10 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
-现有13项自动化覆盖Practice两项、资源两项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
+现有14项自动化覆盖Practice两项、资源两项、韧性基础一项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭；M2-04C当前编辑器实物已验收，实际执行 / 用户确认 / 沿用边界见[C报告](Reports/M2_04C_Verification.md)。当前包Cleanup/Attempt01仍为清理后的B2，不含C，不将新编辑器HUD冒充已打包。后续破势 / 锁定 / 构筑、持久存档和最终美术继续按[完整计划](../Introduction.md)分批；当前下发[M2-05A](M2_05A_PoiseFoundation.md)。
+清理32批及最后真实键鼠复验已关闭，C HUD与A韧性实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含C或A，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，当前仅下发[B1](M2_05B1_StaggerState.md)。
 
 ## 23. 本批 Commit / Push（固定放在最后）
 
-M2-04C与治疗整章已验收。本次由用户重新Stage完整六份C源码、两项LFS资产、来源 / 报告 / 当前指南与下一章文档；四份新C源码暂存仍是空骨架，必须重新Stage最新完整内容。精确范围与建议Commit见[C末尾](M2_04C_HealingHUD.md#11-本批-commit--push固定放在最后)。M2-05A仅下发指南，实际Source未修改；Raw / 日志 / 生成文件 / 包体留本地，助手未操作Git索引或联网核验远端。
+M2-05A已验收，C已提交至本机HEAD `5a340f5`。本次Stage A三新 / 三旧完整源码与来源 / A报告 / B1指南和状态文档；三份新A Source索引仍为空骨架，必须重新Stage工作区最新实现。精确清单见[A末尾](M2_05A_PoiseFoundation.md#11-本批-commit--push固定放在最后)。B1仅下发手动指南，实际Source未改；资产无差异不强制重存，Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作。
