@@ -26,6 +26,7 @@
 #include "GameplayAbilitySpec.h"
 #include "Combat/ETCombatTraceComponent.h"
 #include "Combat/ETCombatLifeComponent.h"
+#include "Combat/ETCombatPoiseComponent.h"
 #include "Resources/ETStaminaRecoveryComponent.h"
 #include "Resources/ETHealingResourceComponent.h"
 
@@ -46,6 +47,8 @@ AEmberTrialCharacter::AEmberTrialCharacter()
     CombatTraceComponent = CreateDefaultSubobject<UETCombatTraceComponent>(TEXT("CombatTrace"));
 
     CombatLifeComponent = CreateDefaultSubobject<UETCombatLifeComponent>(TEXT("CombatLife"));
+
+    CombatPoiseComponent = CreateDefaultSubobject<UETCombatPoiseComponent>(TEXT("CombatPoise"));
 
     StaminaRecoveryComponent =
         CreateDefaultSubobject<UETStaminaRecoveryComponent>(TEXT("StaminaRecovery"));
@@ -224,7 +227,8 @@ void AEmberTrialCharacter::GrantLightAttackAbility()
 bool AEmberTrialCharacter::RequestLightAttack()
 {
     if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
-        !LightAttackAbilityHandle.IsValid())
+        !LightAttackAbilityHandle.IsValid() ||
+        AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Stunned))
     {
         UE_LOG(LogETAbilityFoundation, Display,
                TEXT("[M1-04A] Request rejected Character=%s Reason=NotReadyOrNotGranted"),
@@ -312,12 +316,17 @@ bool AEmberTrialCharacter::IsCombatDead() const
     return IsValid(CombatLifeComponent) && CombatLifeComponent->IsDead();
 }
 
-// Ready表示初始化完成；零生命、零体力或失去控制不会单独撤销它。
+// Ready表示三组属性初始化完成；零资源、失去控制或Stunned不单独撤销它。
 bool AEmberTrialCharacter::IsGameplayReady() const
 {
     return bGameplayReady && bStartupAttributesInitialized && !bAbilitySystemShuttingDown &&
            IsValid(AbilitySystemComponent) && IsValid(HealthAttributes) &&
            IsValid(StaminaAttributes) && IsValid(PoiseAttributes);
+}
+
+bool AEmberTrialCharacter::RequestStagger()
+{
+    return IsValid(CombatPoiseComponent) && CombatPoiseComponent->RequestStagger();
 }
 
 bool AEmberTrialCharacter::IsFormalActionIdle() const
@@ -328,7 +337,8 @@ bool AEmberTrialCharacter::IsFormalActionIdle() const
            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) &&
            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) &&
            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dodging) &&
-           !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Healing);
+           !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Healing) &&
+               !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Stunned);
 }
 
 // ---- 资源快照：不可用时先清空输出，不把启动配置当作当前属性 ----

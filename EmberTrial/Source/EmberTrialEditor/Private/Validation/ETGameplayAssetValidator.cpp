@@ -4,6 +4,8 @@
 #include "Abilities/ETGA_HitReact.h"
 #include "Abilities/ETGA_Dodge.h"
 #include "Abilities/ETGA_Heal.h"
+#include "Abilities/ETGA_Stagger.h"
+#include "Combat/ETCombatPoiseComponent.h"
 #include "Abilities/ETGameplayTags.h"
 #include "AI/ETAIController.h"
 #include "Animation/AnimMontage.h"
@@ -45,6 +47,7 @@ UClass* GetGameplayValidationParent(const FString& Package)
         {TEXT("/Game/EmberTrial/Characters/Enemies/BP_ETMeleeEnemy"),
          AEmberTrialCharacter::StaticClass()},
         {ETGameplayValidationPaths::TrainingBodyPackage, AEmberTrialCharacter::StaticClass()},
+        {TEXT("/Game/EmberTrial/Abilities/GA_ET_Stagger"), UETGA_Stagger::StaticClass()},
         {ETGameplayValidationPaths::PlayerAttackPackage, UETGA_LightAttack::StaticClass()},
         {ETGameplayValidationPaths::EnemyAttackPackage, UETGA_LightAttack::StaticClass()},
         {TEXT("/Game/EmberTrial/Abilities/GA_ET_HitReact"), UETGA_HitReact::StaticClass()},
@@ -190,6 +193,15 @@ void UETGameplayAssetValidator::ValidateBlueprint(UBlueprint* Blueprint, int32& 
     {
         ValidateBody(Blueprint, Defaults, Issues);
     }
+    else if (const UETGA_Stagger* Stagger = Cast<UETGA_Stagger>(Defaults))
+    {
+        if (!Stagger->HasValidConfiguration())
+        {
+            AddIssue(Blueprint, TEXT("ET-STAGGER-001"),
+                     TEXT("Stagger requires valid duration / owned state / cancel-block policy, "
+                          "ServerOnly, and no Cost or Cooldown GE."), Issues);
+        }
+    }
     else if (Defaults->IsA<UETGA_LightAttack>() || Defaults->IsA<UETGA_HitReact>() ||
              Defaults->IsA<UETGA_Dodge>() || Defaults->IsA<UETGA_Heal>())
     {
@@ -233,7 +245,7 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint, UObject* Def
     for (const TCHAR* Name :
          {TEXT("AbilitySystemComponent"), TEXT("HealthAttributes"), TEXT("StaminaAttributes"),TEXT("PoiseAttributes"),
           TEXT("StaminaRecoveryComponent"), TEXT("HealingResourceComponent"),
-          TEXT("CombatTraceComponent"), TEXT("CombatLifeComponent")})
+             TEXT("CombatTraceComponent"), TEXT("CombatLifeComponent"), TEXT("CombatPoiseComponent")})
     {
         RequireObject(Blueprint, Defaults, Name, TEXT("ET-BODY-001"), Issues);
     }
@@ -275,6 +287,17 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint, UObject* Def
         AddIssue(Blueprint, TEXT("ET-BODY-005"),
                  TEXT("Require finite InitialMaxPoise>=1 and 0<=InitialPoise<=InitialMaxPoise."),
                  Issues);
+    }
+
+    const FObjectPropertyBase* ReactionProperty = FindFProperty<FObjectPropertyBase>(
+        Defaults->GetClass(), TEXT("CombatPoiseComponent"));
+    const UETCombatPoiseComponent* Reaction = ReactionProperty
+        ? Cast<UETCombatPoiseComponent>(ReactionProperty->GetObjectPropertyValue_InContainer(Defaults))
+        : nullptr;
+    if (IsValid(Reaction) && !Reaction->HasValidConfiguration())
+    {
+        AddIssue(Blueprint, TEXT("ET-STAGGER-002"),
+                 TEXT("CombatPoise requires a configured, valid Stagger ability class."), Issues);
     }
 
     // 训练目标无需攻击；玩家才要求正式输入、闪避和治疗引用。

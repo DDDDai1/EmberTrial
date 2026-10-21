@@ -50,6 +50,7 @@ bool UETGA_HitReact::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
         Character->GetAbilitySystemComponent() != ActorInfo->AbilitySystemComponent.Get() ||
         !Character->GetGameplayHealthSnapshot(Health, MaxHealth) || !FMath::IsFinite(Health) ||
         !FMath::IsFinite(MaxHealth) || MaxHealth < 1.0f || Health <= 0.0f || Health > MaxHealth ||
+        Character->GetAbilitySystemComponent()->HasMatchingGameplayTag(ETGameplayTags::State_Stunned) ||
         UGameplayStatics::IsGamePaused(Character))
     {
         return false;

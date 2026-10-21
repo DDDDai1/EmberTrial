@@ -22,6 +22,7 @@ class UETGA_Dodge;
 class UETGA_Heal;
 class UETCombatTraceComponent;
 class UETCombatLifeComponent;
+class UETCombatPoiseComponent;
 class UETStaminaAttributeSet;
 class UETPoiseAttributeSet;
 class UETStaminaRecoveryComponent;
@@ -133,6 +134,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     // 自动化夹具只访问既有启动配置 / 句柄，不增加生产测试开关。
     friend class FETStaminaFoundationTest;
     friend class FETPoiseFoundationTest;
+    friend class FETStaggerAbilityTest;
     friend class FETDodgeMovementTest;
     friend class FETDodgeInvulnerabilityTest;
     friend class FETLightComboFlowTest;
@@ -180,6 +182,10 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Combat",
               meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UETCombatLifeComponent> CombatLifeComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Poise",
+              meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UETCombatPoiseComponent> CombatPoiseComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EmberTrial|Combat",
               meta = (AllowPrivateAccess = "true"))
@@ -233,6 +239,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
     bool RequestHitReact();
+
+    UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
+    bool RequestStagger();
 
     UFUNCTION(BlueprintPure, Category = "EmberTrial|Combat")
     bool IsFormalActionIdle() const;
