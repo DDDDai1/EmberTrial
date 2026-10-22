@@ -1,5 +1,7 @@
 #include "Abilities/ETGA_Stagger.h"
 #include "Abilities/ETGameplayTags.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Animation/AnimMontage.h"
 #include "Engine/World.h"
 #include "AbilitySystemComponent.h"
 #include "Characters/EmberTrialCharacter.h"
@@ -36,7 +38,8 @@ UETGA_Stagger::UETGA_Stagger()
 
 bool UETGA_Stagger::HasValidConfiguration() const
 {
-    if (!FMath::IsFinite(StaggerDuration) || StaggerDuration < .05f || StaggerDuration > 10.0f ||
+    if (!IsValid(StaggerMontage) || !FMath::IsFinite(StaggerMontage->GetPlayLength()) ||
+        StaggerMontage->GetPlayLength() <= 0.0f || !FMath::IsFinite(StaggerDuration) || StaggerDuration < .05f || StaggerDuration > 10.0f ||
         InstancingPolicy != EGameplayAbilityInstancingPolicy::InstancedPerActor ||
         NetExecutionPolicy != EGameplayAbilityNetExecutionPolicy::ServerOnly ||
         ReplicationPolicy != EGameplayAbilityReplicationPolicy::ReplicateNo ||
@@ -99,6 +102,7 @@ void UETGA_Stagger::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                     const FGameplayEventData* TriggerEventData)
 {
     (void)TriggerEventData;
+    bReactionStarted = false;
     AEmberTrialCharacter* Body = nullptr;
     UAbilitySystemComponent* ASC = nullptr;
     if (!ReadContext(ActorInfo, Body, ASC) || !HasValidConfiguration() ||
@@ -151,6 +155,14 @@ void UETGA_Stagger::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
     }
+    MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+        this, NAME_None, StaggerMontage, 1.0f, NAME_None, true, 0.0f, 0.0f, true);
+    if (!MontageTask)
+    {
+        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+        return;
+    }
+    bReactionStarted = true;
     TimerWorld = World;
     const uint64 Serial = ++ActivationSerial;
     World->GetTimerManager().SetTimer(
@@ -159,6 +171,9 @@ void UETGA_Stagger::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         StaggerDuration, false);
     UE_LOG(LogETStagger, Display, TEXT("[M2-05B1] Stagger begin Body=%s Duration=%.2f"),
            *GetNameSafe(Body), StaggerDuration);
+    // 不把Completed / Interrupted绑定到EndAbility：短动画播放完，逻辑仍持续1.2秒。
+    // Task通过GAS活动任务列表托管；能力结束时只停自己的Montage。
+    MontageTask->ReadyForActivation();
 }
 
 void UETGA_Stagger::HandleDurationFinished(uint64 Serial)
@@ -193,6 +208,7 @@ void UETGA_Stagger::EndAbility(const FGameplayAbilitySpecHandle Handle,
     }
     DurationTimer.Invalidate();
     TimerWorld.Reset();
+    MontageTask = nullptr;
     // 先作废回调 / 清Timer，再由GAS撤销自己的Tag计数和Block关系。
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
     UE_LOG(LogETStagger, Display, TEXT("[M2-05B1] Stagger end Body=%s Cancelled=%d Stunned=%d"),

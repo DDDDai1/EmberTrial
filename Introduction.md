@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M2-05A韧性基础已验收，治疗 / 次数HUD与清理已收尾；[B1破势状态与门控](Docs/M2_05B1_StaggerState.md)完整指南已下发待手动。最新规模与证据见[Progress](Docs/Progress.md)和[A报告](Docs/Reports/M2_05A_Verification.md)；最终玩法与求职目标仍分期实现，不将指南当成已完成功能。
+当前进度：M2-05B2韧性耗尽 / 恢复与占位反应已验收；[C1施放动画素材](Docs/M2_05C1_BreakPulseAnimation.md)完整数值指南已下发待手动制作。最新规模与证据见[Progress](Docs/Progress.md)和[B2报告](Docs/Reports/M2_05B2_Verification.md)；F范围技能与冷却仍待后续接入，不将指南当成已完成玩法。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -756,7 +756,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 - **所有 C++ 代码编写与修改，包括复杂实现和修复，默认由我输出到操作文档，由用户手动写入工程；直到用户明确表示需要我直接操作，才接管源码修改。** 普通报错反馈不自动等于接管授权。本约定覆盖旧文档中的“复杂 C++ 由助手直接实现”。
 - 创建工程 / C++ 类 / 蓝图、基础节点和编辑器配置继续由用户实践。我逐次说明目标、入口、名称 / 父类 / 路径、代码、步骤、预期结果和验收，不一次布置整个系统。
 - 2026-10-04补充：蓝图说明逐节点写出白色执行线、数据引脚、Target、Is Valid的Input Object与有效 / 无效分支；验收逐组列准备、操作、画面 / 日志预期及清理恢复，不用笼统转述旧章节替代关键步骤。B1文档按用户要求保留原样，B2起执行此规范。
-- 2026-10-09补充：用户已完成GitHub首次Push，之后按每章完成进度Commit / Push。每份后续开发指南最后固定列出本章需提交的源码、UE资产、文档与实际改动时才包含的文件，并说明忽略产物留本地；用户完成反馈、我更新验收 / 清单后再上传。收尾内容插在Push清单之前，清单始终在指南最后；助手不自动代替用户Stage / Commit / Push。当前入口为[M2-05B1破势状态与门控](Docs/M2_05B1_StaggerState.md)，完整版本控制约定见[VersionControl](Docs/VersionControl.md)。
+- 2026-10-09补充：用户已完成GitHub首次Push，之后按每章完成进度Commit / Push。每份后续开发指南最后固定列出本章需提交的源码、UE资产、文档与实际改动时才包含的文件，并说明忽略产物留本地；用户完成反馈、我更新验收 / 清单后再上传。收尾内容插在Push清单之前，清单始终在指南最后；助手不自动代替用户Stage / Commit / Push。当前入口为[M2-05C1施放动画素材](Docs/M2_05C1_BreakPulseAnimation.md)，完整版本控制约定见[VersionControl](Docs/VersionControl.md)。
 - 2026-10-17新增协作约定：每批收到完成反馈后，先核对证据并保存验收报告；**无待补项时同一轮直接生成下一批完整操作指南并更新当前入口**，不再等待用户另发“进入下一章”。有实际缺口时先处理该窄项，不把失败写成通过。该约定不授权助手自动修改Source / UE资产、执行Build或Stage / Commit / Push；手动实践与Git分工保持。
 - 2026-10-17用户曾要求M2-04B2后暂停新章，随后进行32批清理；2026-10-20已确认真实键鼠复验通过并授权恢复开发，此历史暂停解除，回到手动实现和一般自动衔接约定。
 - 我可以先检查工程、准备文档、审查代码和设计测试；不在用户练习期间悄悄完成同一份基础实现。用户要求接手后即可直接处理，不反复确认。
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-21，M0、[M1](Docs/Reports/M1_Verification.md)、M2-01 / 02 / 03 / 04与[05A](Docs/Reports/M2_05A_Verification.md)已验收，清理已关闭。**当前123Source / 65cpp / 来源64，累计2646 / 明确等待254分钟，M2为635 / 69、M2-05为70 / 5。Poise基础已实现，自动破势 / 反应尚未接入；[B1](Docs/M2_05B1_StaggerState.md)仅下发指南。当前包Cleanup/Attempt01不含C HUD / A Poise；最终作品未完成，手动C++ / 方案B / 用户自行Push保持。以下保留原M0起点：
+**截至2026-10-22，M0、[M1](Docs/Reports/M1_Verification.md)、M2-01 / 02 / 03 / 04与[05A](Docs/Reports/M2_05A_Verification.md) / [B1](Docs/Reports/M2_05B1_Verification.md) / [B2](Docs/Reports/M2_05B2_Verification.md)已验收，清理已关闭。**当前131Source / 70cpp / 来源65，累计2816 / 明确等待264分钟，M2为805 / 79、M2-05为240 / 15。归零反应 / 回填 / 占位表现已实现，F范围 / 冷却仍待C2；[C1](Docs/M2_05C1_BreakPulseAnimation.md)只下发素材指南。当前包Cleanup/Attempt01不含后来新增的C HUD / Poise / 破势；最终作品未完成，手动C++ / 方案B / 用户自行Push保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-M2-05A已验收，C已提交至本机HEAD `5a340f5`。本次Stage A三新 / 三旧完整源码与来源 / A报告 / B1指南和状态文档；三份新A Source索引仍为空骨架，必须重新Stage工作区最新实现。精确清单见[A末尾](Docs/M2_05A_PoiseFoundation.md#11-本批-commit--push固定放在最后)。B1仅下发手动指南，实际Source未改；资产无差异不强制重存，Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作。
+M2-05B2工作区已验收；用户新提交HEAD`98be3e0`只新增三份0字节文件，完整B2仍未入库。将十二Source、GA_ET_Stagger及待提交B1 / B2报告、C1指南 / JSON、来源65项与状态文档重新Stage并补交，精确清单见[B2末尾](Docs/M2_05B2_PoiseReaction.md#12-本批-commit--push固定放在最后)，建议`feat: complete poise reaction and recovery`。无需回滚已有提交；C1三UE素材尚未创建。Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作，助手未核验远端。

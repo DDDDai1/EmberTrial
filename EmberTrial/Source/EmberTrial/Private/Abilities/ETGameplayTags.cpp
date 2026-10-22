@@ -13,6 +13,8 @@ namespace ETGameplayTags
                                "Signed Health delta carried by an effect spec.");
     UE_DEFINE_GAMEPLAY_TAG_COMMENT(SetByCaller_StaminaDelta, "SetByCaller.StaminaDelta",
                                "Signed stamina change carried by an Instant effect spec.");
+    UE_DEFINE_GAMEPLAY_TAG_COMMENT(SetByCaller_PoiseDelta, "SetByCaller.PoiseDelta",
+                                   "Signed poise change carried by an Instant effect spec.");
     // ---- 受击与死亡状态 ----
     UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_HitReact, "Ability.HitReact",
                                "Identifies the formal hit reaction ability.");

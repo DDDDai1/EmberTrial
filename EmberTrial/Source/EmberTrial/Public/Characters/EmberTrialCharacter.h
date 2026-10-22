@@ -141,6 +141,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETLightComboCancelTest;
     friend class FETHealingResourceTest;
     friend class FETHealingAbilityTest;
+    friend class FETPoiseReactionTest;
 
     // Ready只表示三组属性链初始化成功；不代表存活、受控或能力已授予。
     bool bStartupAttributesInitialized = false;
@@ -242,6 +243,10 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
     bool RequestStagger();
+
+    // 开发期只在PIE接受；0查询、负数测试真实Poise GE，不是正式技能入口。
+    UFUNCTION(Exec)
+    void ET_Poise(float Delta = 0.0f);
 
     UFUNCTION(BlueprintPure, Category = "EmberTrial|Combat")
     bool IsFormalActionIdle() const;

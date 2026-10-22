@@ -156,8 +156,8 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 | 入口 | 适用用途 | 边界 |
 | --- | --- | --- |
 | 正式菜单 / Retry / Continue / P / Q / 攻击与闪避 | 输入、UI、真实交战和主流程 | 画面 / 焦点仍需实机；不重复搭临时Controller验收图 |
-| ET_Stamina / ET_Healing及既有损伤入口 | 资源查询 / 最小复现 | PIE修改有上下文限制；保留入口不等于产品功能 |
-| 14项EmberTrial自动化 | Practice、体力、闪避、连段、治疗与UI纯规则 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
+| ET_Stamina / ET_Healing / ET_Poise及既有损伤入口 | 资源查询 / 最小复现 | PIE修改有上下文限制；保留入口不等于产品功能 |
+| 16项EmberTrial自动化 | Practice、资源、韧性基础 / 状态 / 耗尽、闪避、连段、治疗与UI纯规则 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
 | 两套Editor Validator | 玩法配置、BT键绑定、UMG必需控件 | 只读结构，不证明导航、白线、Notify实触发或切图 |
 | Validate-ProjectConfig | 共享地图 / Cook / Cue配置与文件存在 | 不合并Saved / 平台配置，不解析地图；独立包仍需检查 |
 | Run-StageBuild | 按已有包启动并记录证据 / 性能口径 | WhatIf只预览；旧M1包不包含当前M2 |
@@ -171,8 +171,8 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 3. 保存失败项和未覆盖边界，恢复临时配置。阶段末集中检查输入 / 视觉 / 切图与实际包，不把“自动化全绿”当成最终作品交付。
 4. 时间继续按实现 / 准备 / 检查 / 排查及构建等待区分。5–15分钟为普通批次目标，高风险或失败排查另计；没有完整同口径数据就不报告精确节省率。
 
-A按方案B完成：新PoiseFoundation、两个相关旧项、三身体Valid与出生 / 旧HUD短查，用户实现 / 配置60、检查10、等待5，无临时Controller图。[A报告](Reports/M2_05A_Verification.md)区分当次自动化 / 日志和用户实机确认。下一批[B1](M2_05B1_StaggerState.md)计划真实能力取消 / Timer / Tag计数七场景，以及两项相关旧回归；精确中断时刻由自动化处理，人工只查状态体验 / AI / 镜头 / P与短基线8–12分钟。B1尚未执行，不预记Success。
+B2按方案B完成：PoiseReaction11场景、B1状态 / 基础两相关项、四资产Valid，用户代码 / 配置70、检查20、等待5。销毁场景原测试误读旧ASC导致闪退，补修保留Destroy和可观察退出断言，三项最终Success，详见[B2报告](Reports/M2_05B2_Verification.md)。检查20高于普通目标属于本次失败后的实际需求，未单独拆报的排错不额外追加。下一批[C1](M2_05C1_BreakPulseAnimation.md)只做孤立素材，预览 / 数值 / 骨架和1–2分钟旧短基线即可，不重复Build / 旧自动化或搭图。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M2-05A已验收，C已提交至本机HEAD `5a340f5`。本次Stage A三新 / 三旧完整源码与来源 / A报告 / B1指南和状态文档；三份新A Source索引仍为空骨架，必须重新Stage工作区最新实现。精确清单见[A末尾](M2_05A_PoiseFoundation.md#11-本批-commit--push固定放在最后)。B1仅下发手动指南，实际Source未改；资产无差异不强制重存，Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作。
+M2-05B2工作区已验收；用户新提交HEAD`98be3e0`只新增三份0字节文件，完整B2仍未入库。将十二Source、GA_ET_Stagger及待提交B1 / B2报告、C1指南 / JSON、来源65项与状态文档重新Stage并补交，精确清单见[B2末尾](M2_05B2_PoiseReaction.md#12-本批-commit--push固定放在最后)，建议`feat: complete poise reaction and recovery`。无需回滚已有提交；C1三UE素材尚未创建。Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作，助手未核验远端。

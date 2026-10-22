@@ -23,6 +23,9 @@
 #include "Abilities/ETGA_Dodge.h"
 #include "Abilities/ETGA_Heal.h"
 #include "Abilities/ETGameplayTags.h"
+#include "Abilities/Effects/ETPoiseDeltaEffect.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameplayAbilitySpec.h"
 #include "Combat/ETCombatTraceComponent.h"
 #include "Combat/ETCombatLifeComponent.h"
@@ -327,6 +330,42 @@ bool AEmberTrialCharacter::IsGameplayReady() const
 bool AEmberTrialCharacter::RequestStagger()
 {
     return IsValid(CombatPoiseComponent) && CombatPoiseComponent->RequestStagger();
+}
+
+void AEmberTrialCharacter::ET_Poise(float Delta)
+{
+#if WITH_EDITOR
+    UWorld* World = GetWorld();
+    float Poise = 0.0f;
+    float MaxPoise = 0.0f;
+    if (!IsValid(World) || World->WorldType != EWorldType::PIE || !HasAuthority() ||
+        !FMath::IsFinite(Delta) || Delta > 0.0f || Delta < -100000.0f ||
+        !GetGameplayPoiseSnapshot(Poise, MaxPoise) || UGameplayStatics::IsGamePaused(this))
+    {
+        return;
+    }
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    bool bApplied = false;
+    if (Delta < 0.0f && IsValid(ASC) && !IsCombatDead() &&
+        !ASC->HasMatchingGameplayTag(ETGameplayTags::State_Dead) &&
+        !ASC->HasMatchingGameplayTag(ETGameplayTags::State_Stunned) &&
+        !ASC->HasMatchingGameplayTag(ETGameplayTags::State_Invulnerable))
+    {
+        FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(
+            UETPoiseDeltaEffect::StaticClass(), 1.0f, ASC->MakeEffectContext());
+        if (Spec.IsValid())
+        {
+            Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_PoiseDelta, Delta);
+            bApplied = ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get()).WasSuccessfullyApplied();
+        }
+    }
+    GetGameplayPoiseSnapshot(Poise, MaxPoise);
+    UE_LOG(LogETAbilityFoundation, Display,
+           TEXT("[M2-05B2] Poise dev Body=%s Delta=%.1f Applied=%d Poise=%.1f/%.1f"),
+           *GetNameSafe(this), Delta, bApplied ? 1 : 0, Poise, MaxPoise);
+#else
+    (void)Delta;
+#endif
 }
 
 bool AEmberTrialCharacter::IsFormalActionIdle() const

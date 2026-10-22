@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-21。本文描述M2-05A后的实际实现；下一批B1状态 / 门控仅为手动设计，尚未落地。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-22。本文描述M2-05B2后的实际实现；下一批C1施放素材只下发指南，正式范围 / 冷却尚未接入。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -66,9 +66,13 @@ ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表�
 
 **治疗次数HUD已实现并验收：**[HealingPresenter](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETHealingPresenter.cpp)绑定LocalPlayer / Pawn Ready / HealingResource原生事件，弱来源 / 句柄 / 观察代次隔离旧回调；0次仍Ready，失活时也保留事件订阅。Widget仅显示整数，Bootstrap持有对象并区分重建View与重启观察；无Tick / Timer / Text Binding。晚加入、失活重启 / 恢复与世界重建见[C报告](Reports/M2_04C_Verification.md)。
 
-**Poise基础已实现：**[PoiseAttributeSet](../EmberTrial/Source/EmberTrial/Private/Attributes/ETPoiseAttributeSet.cpp)维护Base / Current夹限与Max变化，Character一次初始化第三组、公开只读快照；0有效且不等同死亡。当前无自动耗尽反应 / 恢复，见[A报告](Reports/M2_05A_Verification.md)。
+**Poise基础已实现：**[PoiseAttributeSet](../EmberTrial/Source/EmberTrial/Private/Attributes/ETPoiseAttributeSet.cpp)维护Base / Current夹限与Max变化，Character一次初始化第三组、公开只读快照；0有效且不等同死亡。自动耗尽 / 回填已由下述B2接入，基础约束见[A报告](Reports/M2_05A_Verification.md)。
 
-**下一批设计，尚未实现：**[B1](M2_05B1_StaggerState.md)由GA拥有Stunned Tag、统一取消 / 阻断四种旧能力和一个活动世界Timer，组件只拥有自己的授予Handle / Ready观察。公共Idle、攻击缓冲、普通受击与体力恢复接同一状态；Poise事件 / 回填和动画在B2接入，不在B1复制运行数值或让UI持有状态。
+**B1状态已实现：**[Stagger](../EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_Stagger.cpp)拥有Stunned、四旧能力取消 / 阻断及一个世界Timer / 激活代次；[CombatPoise](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatPoiseComponent.cpp)拥有当前身体的Spec / Ready观察。公共Idle、攻击缓冲、普通受击与体力恢复已接统一状态，死亡优先、结束只释放自己的一份Tag和Timer。
+
+**B2联动已实现：**[CombatPoise](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatPoiseComponent.cpp)订阅Poise、Stunned撤销和自身Spec结束，以弱来源 / 观察代次与一个一次性Timer合并归零 / 回填事务。出生0 / 晚观察不遗漏，反应期间不重启；存活结束才经[原生Instant Poise GE](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETPoiseDeltaEffect.cpp)回填当前Max。死亡 / Deactivate / EndPlay不回填，退出先撤销身份和订阅再取消自己的Spec。Stagger复用旧HitResult Montage，动画完成不提前解除1.2秒状态；无常驻Tick / 失败轮询。
+
+[C1](M2_05C1_BreakPulseAnimation.md)下一步只制作独立施放素材，受害反应资源保持；F输入、范围 / 阵营 / 遮挡结算与冷却事务在C2接入。
 
 ## 5. 敌人与行为树
 
@@ -102,7 +106,7 @@ Continue / Retry重载地图、创建新身体与新HUD，保留最近检查点I
 
 C++负责规则、接口 / 状态归属、句柄与清理；Blueprint负责资源选择、Designer布局、Montage / Notify配置与少量既有交互桥接。角色暂停旧链已迁移，不能再给同一动作接两个状态来源。基础功能学习继续手动实践，本次清理依据用户授权直接修改。
 
-Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动化使用；练习Actor仍服务E提示。数字1是正式攻击备用入口，3请求正式受击，4为保留的开发损伤入口；ET_Stamina / ET_Healing修改限定Editor / PIE及合法本地身体。开发命令不代表最终产品界面。
+Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动化使用；练习Actor仍服务E提示。数字1是正式攻击备用入口，3请求正式受击，4为保留的开发损伤入口；ET_Stamina / ET_Healing修改限定Editor / PIE及合法本地身体；ET_Poise经指定身体的PIE命令查询 / 合法负增量GE，拒绝暂停 / 忙碌 / 无敌 / 死亡修改。开发命令不代表最终产品界面。
 
 第28批AssetRegistry只读审计确认：正式地图引用Tests下训练目标，玩家引用GE_ET_Test_Damage25，均须保留；不能对整个Tests目录直接NeverCook / 删除。未被两张正式地图包闭包引用的Probe也不能仅据此删除，包级硬 / 软引用图不能证明蓝图白线、反射加载或实际运行可达性。
 
@@ -114,10 +118,10 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
-现有14项自动化覆盖Practice两项、资源两项、韧性基础一项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
+现有16项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭，C HUD与A韧性实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含C或A，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，当前仅下发[B1](M2_05B1_StaggerState.md)。
+清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含C HUD / A / B1 / B2，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，当前仅下发[C1](M2_05C1_BreakPulseAnimation.md)。
 
-## 23. 本批 Commit / Push（固定放在最后）
+## 10. 本批 Commit / Push（固定放在最后）
 
-M2-05A已验收，C已提交至本机HEAD `5a340f5`。本次Stage A三新 / 三旧完整源码与来源 / A报告 / B1指南和状态文档；三份新A Source索引仍为空骨架，必须重新Stage工作区最新实现。精确清单见[A末尾](M2_05A_PoiseFoundation.md#11-本批-commit--push固定放在最后)。B1仅下发手动指南，实际Source未改；资产无差异不强制重存，Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作。
+M2-05B2工作区已验收；用户新提交HEAD`98be3e0`只新增三份0字节文件，完整B2仍未入库。将十二Source、GA_ET_Stagger及待提交B1 / B2报告、C1指南 / JSON、来源65项与状态文档重新Stage并补交，精确清单见[B2末尾](M2_05B2_PoiseReaction.md#12-本批-commit--push固定放在最后)，建议`feat: complete poise reaction and recovery`。无需回滚已有提交；C1三UE素材尚未创建。Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作，助手未核验远端。

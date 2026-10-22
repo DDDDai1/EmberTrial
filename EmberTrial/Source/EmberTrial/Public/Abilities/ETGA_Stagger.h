@@ -8,8 +8,10 @@
 class AEmberTrialCharacter;
 class UAbilitySystemComponent;
 class UWorld;
+class UAnimMontage;
+class UAbilityTask_PlayMontageAndWait;
 
-// 本批仅拥有破势状态 / 时长；Poise结算与动作表现后续接入。
+// Timer决定状态时长；Montage只负责表现，不提前解除Stunned。
 UCLASS(Blueprintable)
 class EMBERTRIAL_API UETGA_Stagger : public UGameplayAbility
 {
@@ -18,6 +20,12 @@ class EMBERTRIAL_API UETGA_Stagger : public UGameplayAbility
 public:
     UETGA_Stagger();
     bool HasValidConfiguration() const;
+
+    // 本轮是否成功接管过动作；供结束观察者区分启动拒绝，不代表当前Active状态。
+    bool WasReactionStarted() const
+    {
+        return bReactionStarted;
+    }
 
 protected:
     virtual bool CanActivateAbility(
@@ -40,6 +48,14 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Stagger",
               meta = (ClampMin = "0.05", ClampMax = "10.0"))
     float StaggerDuration = 1.2f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Stagger")
+    TObjectPtr<UAnimMontage> StaggerMontage;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
+
+    bool bReactionStarted = false;
 
     FTimerHandle DurationTimer;
     TWeakObjectPtr<UWorld> TimerWorld;

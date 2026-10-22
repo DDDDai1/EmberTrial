@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-21最新现状：**[A已验收](Reports/M2_05A_Verification.md)，123Source / 65cpp / 来源64。用户已将C纳入HEAD5a340f5；当前A三新Source仍为AM，索引0字节骨架、工作区有完整代码，须重新Stage。A三旧Source与报告 / 来源 / B1指南和状态文档一起提交，资产无字节变化不强制重存。B1 Source未实施，助手未操作索引或联网核验远端。
+**2026-10-22最新现状：**[B2工作区已验收](Reports/M2_05B2_Verification.md)，131Source / 70cpp / 来源65。用户新提交HEAD `98be3e0`只新增三份空文件，未包含工作区完整实现；当前十二Source、GA和文档仍是待提交差异。请按B2末尾重新Stage最新内容并补交，无需回滚。C1三素材尚未创建；助手未操作索引或核验远端。
 
 ## 1. 已配置内容
 
@@ -358,4 +358,4 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M2-05A已验收，C已提交至本机HEAD `5a340f5`。本次Stage A三新 / 三旧完整源码与来源 / A报告 / B1指南和状态文档；三份新A Source索引仍为空骨架，必须重新Stage工作区最新实现。精确清单见[A末尾](M2_05A_PoiseFoundation.md#11-本批-commit--push固定放在最后)。B1仅下发手动指南，实际Source未改；资产无差异不强制重存，Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作。
+M2-05B2工作区已验收；用户新提交HEAD`98be3e0`只新增三份0字节文件，完整B2仍未入库。将十二Source、GA_ET_Stagger及待提交B1 / B2报告、C1指南 / JSON、来源65项与状态文档重新Stage并补交，精确清单见[B2末尾](M2_05B2_PoiseReaction.md#12-本批-commit--push固定放在最后)，建议`feat: complete poise reaction and recovery`。无需回滚已有提交；C1三UE素材尚未创建。Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作，助手未核验远端。

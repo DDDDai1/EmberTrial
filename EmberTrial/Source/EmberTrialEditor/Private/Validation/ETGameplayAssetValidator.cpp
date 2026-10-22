@@ -198,7 +198,7 @@ void UETGameplayAssetValidator::ValidateBlueprint(UBlueprint* Blueprint, int32& 
         if (!Stagger->HasValidConfiguration())
         {
             AddIssue(Blueprint, TEXT("ET-STAGGER-001"),
-                     TEXT("Stagger requires valid duration / owned state / cancel-block policy, "
+            TEXT("Stagger requires a valid Montage, duration / owned state / cancel-block policy, "
                           "ServerOnly, and no Cost or Cooldown GE."), Issues);
         }
     }
