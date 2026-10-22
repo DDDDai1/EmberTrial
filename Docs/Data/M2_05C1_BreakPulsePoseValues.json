@@ -1,0 +1,675 @@
+{
+  "Engine": "5.5.4",
+  "Status": "Planned manual authoring; new combination has not been evaluated, baked or visually verified",
+  "Rig": "/Game/Characters/Mannequins/Rigs/CR_Mannequin_Body",
+  "AuthoringMesh": "/Game/Characters/Mannequins/Meshes/SKM_Manny",
+  "PreviewMesh": "/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple",
+  "Skeleton": "/Game/Characters/Mannequins/Meshes/SK_Mannequin",
+  "CoordinateSpace": "Anim Details current local control values relative to template offsets; not Actor, bone, Initial or Offset transforms",
+  "RotationOrder": [
+    "X (Roll)",
+    "Y (Pitch)",
+    "Z (Yaw)"
+  ],
+  "FPS": 30,
+  "PlaybackStart": 0,
+  "PlaybackEndExclusive": 31,
+  "LastPoseKeyFrame": 30,
+  "ExpectedBakeFrameIntervals": 31,
+  "ExpectedBakeSamplePoints": 32,
+  "ExpectedBakeSeconds": 1.0333333333333334,
+  "Interpolation": "Linear",
+  "FKSwitches": {
+    "arm_r_fk_ik_switch": false,
+    "arm_l_fk_ik_switch": false,
+    "spine_fk_ik_switch": false
+  },
+  "LevelSequence": "/Game/EmberTrial/Animations/BreakPulse/Sequence/LS_ET_BreakPulse_01",
+  "AnimationSequence": "/Game/EmberTrial/Animations/BreakPulse/Clips/AS_ET_BreakPulse_01",
+  "Montage": "/Game/EmberTrial/Animations/BreakPulse/Montages/AM_ET_BreakPulse_01",
+  "PlannedCommitFrame": 12,
+  "PlannedCommitSeconds": 0.4,
+  "StableHoldBegin": 12,
+  "StableHoldEnd": 20,
+  "NotifyAddedInThisBatch": false,
+  "MontageSettings": {
+    "Slot": "DefaultGroup.DefaultSlot",
+    "SegmentStart": 0,
+    "LoopCount": 1,
+    "PlayRate": 1,
+    "BlendIn": 0.1,
+    "BlendOut": 0.1,
+    "EnableAutoBlendOut": true,
+    "NextSection": "None"
+  },
+  "UnmodifiedControls": [
+    "global_ctrl",
+    "root_ctrl",
+    "body_ctrl",
+    "clavicles",
+    "head",
+    "legs",
+    "feet",
+    "fingers"
+  ],
+  "PoseSources": [
+    "Docs/Data/M0_05A_AttackPoseValues.json",
+    "Docs/Data/M2_04B1_HealPoseValues.json"
+  ],
+  "Controls": [
+    "spine_01_ctrl",
+    "upperarm_r_fk_ctrl",
+    "lowerarm_r_fk_ctrl",
+    "hand_r_fk_ctrl",
+    "upperarm_l_fk_ctrl",
+    "lowerarm_l_fk_ctrl",
+    "hand_l_fk_ctrl"
+  ],
+  "Frames": {
+    "0": {
+      "spine_01_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          -20,
+          15
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          70
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          -20,
+          25
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          70
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "8": {
+      "spine_01_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          10,
+          -55
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          80
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          -20,
+          30
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          85
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "12": {
+      "spine_01_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          75
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          -20
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          -20,
+          30
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          85
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "20": {
+      "spine_01_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          75
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          -20
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          -20,
+          30
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          85
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "30": {
+      "spine_01_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          -20,
+          15
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          70
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_r_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "upperarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          -20,
+          25
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "lowerarm_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          70
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "hand_l_fk_ctrl": {
+        "Location": [
+          0,
+          0,
+          0
+        ],
+        "Rotation": [
+          0,
+          0,
+          0
+        ],
+        "Scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  }
+}
