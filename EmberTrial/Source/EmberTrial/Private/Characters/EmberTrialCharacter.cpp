@@ -22,6 +22,7 @@
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_Dodge.h"
 #include "Abilities/ETGA_Heal.h"
+#include "Abilities/ETGA_BreakPulse.h"
 #include "Abilities/ETGameplayTags.h"
 #include "Abilities/Effects/ETPoiseDeltaEffect.h"
 #include "Engine/World.h"
@@ -114,6 +115,7 @@ void AEmberTrialCharacter::BeginPlay()
     GrantLightAttackAbility();
     GrantDodgeAbility();
     GrantHealAbility();
+    GrantBreakPulseAbility();
 }
 
 UAbilitySystemComponent* AEmberTrialCharacter::GetAbilitySystemComponent() const
@@ -231,7 +233,8 @@ bool AEmberTrialCharacter::RequestLightAttack()
 {
     if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
         !LightAttackAbilityHandle.IsValid() ||
-        AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Stunned))
+        AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Stunned) ||
+         AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_CastingBreakPulse))
     {
         UE_LOG(LogETAbilityFoundation, Display,
                TEXT("[M1-04A] Request rejected Character=%s Reason=NotReadyOrNotGranted"),
@@ -377,7 +380,8 @@ bool AEmberTrialCharacter::IsFormalActionIdle() const
            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_HitReact) &&
            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dodging) &&
            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Healing) &&
-               !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Stunned);
+               !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Stunned) &&
+           !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_CastingBreakPulse);
 }
 
 // ---- 资源快照：不可用时先清空输出，不把启动配置当作当前属性 ----
@@ -605,6 +609,10 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
         {
             AbilitySystemComponent->ClearAbility(HealAbilityHandle);
         }
+        if (BreakPulseAbilityHandle.IsValid())
+        {
+            AbilitySystemComponent->ClearAbility(BreakPulseAbilityHandle);
+        }
         AbilitySystemComponent->RemoveAllGameplayCues();
         AbilitySystemComponent->ClearActorInfo();
 
@@ -615,6 +623,7 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
     LightAttackAbilityHandle = FGameplayAbilitySpecHandle();
     DodgeAbilityHandle = FGameplayAbilitySpecHandle();
     HealAbilityHandle = FGameplayAbilitySpecHandle();
+    BreakPulseAbilityHandle = FGameplayAbilitySpecHandle();
     Super::EndPlay(EndPlayReason);
 }
 
@@ -652,6 +661,11 @@ void AEmberTrialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
         EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this,
                                            &AEmberTrialCharacter::Look);
 
+        if (IsValid(BreakPulseAction))
+        {
+            EnhancedInputComponent->BindAction(BreakPulseAction, ETriggerEvent::Started, this,
+                &AEmberTrialCharacter::HandleBreakPulseStarted);
+        }
         if (IsValid(HealAction))
         {
             EnhancedInputComponent->BindAction(HealAction, ETriggerEvent::Started, this,
@@ -768,4 +782,62 @@ bool AEmberTrialCharacter::RequestHeal()
 void AEmberTrialCharacter::HandleHealStarted()
 {
     RequestHeal();
+}
+
+// ---- 破势请求与冷却快照日志；不在输入层播放动画或修改Poise ----
+void AEmberTrialCharacter::GrantBreakPulseAbility()
+{
+    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown || !HasAuthority() ||
+        CombatTeam != EETCombatTeam::Player || !BreakPulseAbilityClass ||
+        BreakPulseAbilityHandle.IsValid())
+    {
+        return;
+    }
+    if (BreakPulseAbilityClass->HasAnyClassFlags(CLASS_Abstract))
+    {
+        return;
+    }
+    BreakPulseAbilityHandle = AbilitySystemComponent->GiveAbility(
+        FGameplayAbilitySpec(BreakPulseAbilityClass.Get(), 1, INDEX_NONE, this));
+    UE_LOG(LogETAbilityFoundation, Display, TEXT("[M2-05C2-01] Break granted Body=%s Valid=%d"),
+           *GetNameSafe(this), BreakPulseAbilityHandle.IsValid() ? 1 : 0);
+}
+
+bool AEmberTrialCharacter::RequestBreakPulse()
+{
+    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
+        !IsValid(AbilitySystemComponent) || !BreakPulseAbilityHandle.IsValid())
+    {
+        return false;
+    }
+    const FGameplayAbilitySpec* Spec =
+        AbilitySystemComponent->FindAbilitySpecFromHandle(BreakPulseAbilityHandle);
+    if (!Spec || !Spec->Ability || Spec->Ability->GetClass() != BreakPulseAbilityClass.Get())
+    {
+        return false;
+    }
+    const TWeakObjectPtr<UAbilitySystemComponent> WeakASC = AbilitySystemComponent;
+    const FString BodyName = GetName();
+    const FGameplayAbilitySpecHandle Handle = BreakPulseAbilityHandle;
+    const bool bActivated = AbilitySystemComponent->TryActivateAbility(Handle, false);
+    float Remaining = 0.0f;
+    float Duration = 0.0f;
+    UAbilitySystemComponent* ASC = WeakASC.Get();
+    Spec = IsValid(ASC) ? ASC->FindAbilitySpecFromHandle(Handle) : nullptr;
+    const bool bAccepted = bActivated && Spec && Spec->IsActive();
+    const UETGA_BreakPulse* Ability = Spec ? Cast<UETGA_BreakPulse>(Spec->Ability) : nullptr;
+    if (Ability && ASC->AbilityActorInfo.IsValid())
+    {
+        Ability->GetCooldownTimeRemainingAndDuration(Handle, ASC->AbilityActorInfo.Get(), Remaining,
+                                                     Duration);
+    }
+    UE_LOG(LogETAbilityFoundation, Display,
+           TEXT("[M2-05C2-01] Break request Body=%s Accepted=%d Remaining=%.2f Duration=%.2f"),
+           *BodyName, bAccepted ? 1 : 0, Remaining, Duration);
+    return bAccepted;
+}
+
+void AEmberTrialCharacter::HandleBreakPulseStarted()
+{
+    RequestBreakPulse();
 }

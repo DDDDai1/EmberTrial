@@ -1,6 +1,6 @@
 # EmberTrial 验收流程调整：方案比较与选择记录
 
-方案选择日期2026-10-05，维护更新2026-10-19。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前功能基线M2-04B2，清理进度见[Progress](Progress.md)；本页保留方案比较、最终选择与可复用的执行规则。
+方案选择日期2026-10-05，维护更新2026-10-23。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前功能基线M2-05C1，清理进度见[Progress](Progress.md)；本页保留方案比较、最终选择与可复用的执行规则。
 
 ## 1. 当前结论与需要解决的问题
 
@@ -173,6 +173,12 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 
 B2按方案B完成：PoiseReaction11场景、B1状态 / 基础两相关项、四资产Valid，用户代码 / 配置70、检查20、等待5。销毁场景原测试误读旧ASC导致闪退，补修保留Destroy和可观察退出断言，三项最终Success，详见[B2报告](Reports/M2_05B2_Verification.md)。检查20高于普通目标属于本次失败后的实际需求，未单独拆报的排错不额外追加。下一批[C1](M2_05C1_BreakPulseAnimation.md)只做孤立素材，预览 / 数值 / 骨架和1–2分钟旧短基线即可，不重复Build / 旧自动化或搭图。
 
+## C1收尾与C2-01影响范围
+
+C1用户实际检查5分钟、制作40 / 等待5；三孤立素材不重Build / 旧自动化。源码与原284资产保持，采样数字未报告不伪造；用户视觉反馈与文件保存各标证据范围。
+
+C2拆为施放冷却 / 通知范围两批。C2-01只跑新BreakPulseAbility与相关StaggerAbility / RecoveryDodge / Healing.Ability各一次，人工8–12分钟；不搭Controller图、不重复多Pawn重建矩阵。自动化没过先排查，不叠加无关实机清单。指南详见[C2-01](M2_05C2_01_BreakPulseAbility.md)。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M2-05B2工作区已验收；用户新提交HEAD`98be3e0`只新增三份0字节文件，完整B2仍未入库。将十二Source、GA_ET_Stagger及待提交B1 / B2报告、C1指南 / JSON、来源65项与状态文档重新Stage并补交，精确清单见[B2末尾](M2_05B2_PoiseReaction.md#12-本批-commit--push固定放在最后)，建议`feat: complete poise reaction and recovery`。无需回滚已有提交；C1三UE素材尚未创建。Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作，助手未核验远端。
+截至2026-10-23，本地HEAD`b3cbc24`已包含完整B2与C1三素材，实施前工作区 / 暂存区干净；此前空文件提交问题已由用户补交解决，无需重复提交或回滚。本次只Stage最新C1报告、来源68项 / 数值JSON实际目录修正、状态 / 路线文档与[C2-01指南](M2_05C2_01_BreakPulseAbility.md)，建议`docs: verify break pulse animation and prepare casting ability`。C2-01源码 / GA / IA尚未生成，实施并验收后按其最后清单另交。Raw / 日志 / 生成文件 / 包体留本地；Git由用户操作，助手未联网核验远端。

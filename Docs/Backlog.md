@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-22。**[M2-05B2已验收](Reports/M2_05B2_Verification.md)**，闪退补修关闭；下一批[C1施放素材](M2_05C1_BreakPulseAnimation.md)待手动制作。实时规模与工时见[Progress](Progress.md)，历史表格保留当时口径。
+更新2026-10-23。**[M2-05C1施放素材已验收](Reports/M2_05C1_Verification.md)**，无待补项；下一批[C2-01施放 / 冷却](M2_05C2_01_BreakPulseAbility.md)待手动实施。实时规模与工时见[Progress](Progress.md)，历史表格保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -80,7 +80,7 @@
 | M1-07C2 | [战斗引用与共享配置](M1_07C2_GameplayValidation.md) | 你手动实施，我核查 | 完成 | 75 / 37 / 48、九Valid / GA失败恢复 / 两Success / 配置0/0；20 / 5，无待补 |
 | M1-07C3 | [Attempt02与M1阶段收口](M1_07C3_UpdatedPackage.md) | 你打包 / 实机，我核查 / 复盘 | 完成 | [报告](Reports/M1_07C3_Verification.md)：UAT ExitCode0、两次Move90 / 二十次敌人10伤害、A点Retry / Continue、新进程Entry；手动10 / 等待10 |
 | M1 | 最小纵向闭环与阶段复盘 | 共同 | 完成 | [总验收](Reports/M1_Verification.md)与[复盘](M1_Review.md)，手动1338分钟；当前灰盒范围与最终作品差距明确 |
-| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03 / 04已验收，05A / B1 / B2已验收，下一批05C1施放素材待手动 |
+| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03 / 04与05A / B1 / B2 / C1已验收，下一批C2-01施放与冷却待手动 |
 | M2-01 | [资源基础总验收](Reports/M2_01_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | A / B1 / B2全部通过，87 / 44 / 49；130 / 15分钟，治疗次数已定契约、实现留04 |
 | M2-01A | [体力属性、一次初始化与Ready](M2_01A_StaminaFoundation.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_01A_Verification.md)：78 / 39 / 48，三身体Valid / 测试Success / 两轮PIE，IsCombatDead补项关闭；60 / 5 |
 | M2-01B | 体力恢复与必要变化观察 / 显示 | 你手动实现，我设计 / 审查 | 完成 | B1恢复与B2体力HUD通过；70 / 10分钟，无正式成本 / 无敌 |
@@ -102,7 +102,9 @@
 | M2-05A | [韧性属性基础](M2_05A_PoiseFoundation.md) | 你手动实现，我核对 | 完成 | [报告](Reports/M2_05A_Verification.md)：三新 / 三旧、双Build / 65cpp / 三Valid / 三Success、两轮出生与短基线；70 / 等待5，无待补 |
 | M2-05B1 | [破势状态与行动门控](M2_05B1_StaggerState.md) | 你实现，我核对 | 完成 | 五新 / 七旧、四资产Valid、三专项Success、门控与清理通过；手动80 / 等待5 |
 | M2-05B2 | [耗尽联动 / 恢复 / 占位表现](M2_05B2_PoiseReaction.md) | 你实现，我核对 | 完成 | 三新 / 九旧、四资产Valid、三专项Success，销毁测试修复 / 实机通过；手动90 / 等待5 |
-| M2-05C1 | [破势施放动画素材](M2_05C1_BreakPulseAnimation.md) | 你手动制作，我给数值 / 核对 | 待用户操作 | 三独立LS / AS / AM，0/8/12/20/30完整坐标、12帧预留生效；不改Source / 输入 |
+| M2-05C1 | [破势施放动画素材](M2_05C1_BreakPulseAnimation.md) | 你手动制作，我给数值 / 核对 | 完成 | 三LS / AS / AM保存、预览与旧短基线通过；Source保持，来源68；手动45 / 等待5 |
+| M2-05C2-01 | [施放 / 冷却与优先级](M2_05C2_01_BreakPulseAbility.md) | 你实现，我核对 | 待用户操作 | 五新 / 八旧待实施；F Started / 6秒Duration GE / 取消与暂停，不含范围结算 |
+| M2-05C2-02 | 唯一Notify与范围结算 | 共同 | 待开始 | C2-01通过后下发，阵营 / 遮挡 / 去重 / Poise GE |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为Cleanup/Attempt01；M1 C3 Attempt02只保留历史证据。
 
@@ -120,12 +122,12 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 当前M2新Development包 | Cleanup/Attempt01已完成Build / 完整Cook / Stage / Package与两轮独立检查；输入方法 / 范围见Cleanup |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| 后续M2开发 | 用户已授权恢复；M2-05B2已验收，M2-05C1素材指南待手动制作；后续破势 / 锁定按路线分批 |
+| 后续M2开发 | 用户已授权恢复；M2-05C1已验收，C2-01代码 / 配置指南待手动实施；后续破势 / 锁定按路线分批 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
-历史阶段入口：[M0校准](Reports/M0_07_Calibration.md)、[M1总验收](Reports/M1_Verification.md)、[M2路线](M2_Roadmap.md)、[当前B2验收](Reports/M2_04B2_Verification.md)。当前架构见[Architecture](Architecture.md)，验收按[方案B](AcceptanceWorkflow_Options.md)，不在本页再次维护全部流水。
+历史阶段入口：[M0校准](Reports/M0_07_Calibration.md)、[M1总验收](Reports/M1_Verification.md)、[M2路线](M2_Roadmap.md)、[当前C1验收](Reports/M2_05C1_Verification.md)。当前架构见[Architecture](Architecture.md)，验收按[方案B](AcceptanceWorkflow_Options.md)，不在本页再次维护全部流水。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-M2-05B2工作区已验收；用户新提交HEAD`98be3e0`只新增三份0字节文件，完整B2仍未入库。将十二Source、GA_ET_Stagger及待提交B1 / B2报告、C1指南 / JSON、来源65项与状态文档重新Stage并补交，精确清单见[B2末尾](M2_05B2_PoiseReaction.md#12-本批-commit--push固定放在最后)，建议`feat: complete poise reaction and recovery`。无需回滚已有提交；C1三UE素材尚未创建。Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作，助手未核验远端。
+截至2026-10-23，本地HEAD`b3cbc24`已包含完整B2与C1三素材，实施前工作区 / 暂存区干净；此前空文件提交问题已由用户补交解决，无需重复提交或回滚。本次只Stage最新C1报告、来源68项 / 数值JSON实际目录修正、状态 / 路线文档与[C2-01指南](M2_05C2_01_BreakPulseAbility.md)，建议`docs: verify break pulse animation and prepare casting ability`。C2-01源码 / GA / IA尚未生成，实施并验收后按其最后清单另交。Raw / 日志 / 生成文件 / 包体留本地；Git由用户操作，助手未联网核验远端。

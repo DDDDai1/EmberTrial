@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前M2-05B2韧性耗尽 / 恢复已验收；下一批[C1施放动画素材](Docs/M2_05C1_BreakPulseAnimation.md)待手动制作，尚未达到最终投递版本。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前M2-05C1施放动画素材已验收；下一批[C2-01施放 / 冷却](Docs/M2_05C2_01_BreakPulseAbility.md)待手动实施，尚未达到最终投递版本。
 
 ## 已实现的体验
 
@@ -46,7 +46,7 @@ Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说�
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发指南：M2-05C1施放动画素材](Docs/M2_05C1_BreakPulseAnimation.md)：手动代码、配置、短查与Push清单；[上章验收](Docs/Reports/M2_05B2_Verification.md)。
+- [当前开发指南：M2-05C2-01施放 / 冷却](Docs/M2_05C2_01_BreakPulseAbility.md)：手动代码、配置、短查与Push清单；[上章验收](Docs/Reports/M2_05C1_Verification.md)。
 - [代码清理记录](Docs/Cleanup.md)：逐批修改、验证证据、未覆盖范围和本批提交清单。
 - [验收方案B](Docs/AcceptanceWorkflow_Options.md)：按影响范围测试、复用入口与阶段验收。
 - [资产来源清单](Docs/AssetManifest.csv)：来源、用途及授权记录；复用资产时需分别核对原授权。

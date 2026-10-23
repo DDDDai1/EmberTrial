@@ -23,6 +23,10 @@ namespace ETGameplayTags
     // ---- 破势反应 ----
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Stagger);
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Stunned);
+    // ---- 破势施放与独立冷却 ----
+    EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_BreakPulse);
+    EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_CastingBreakPulse);
+    EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_BreakPulse);
     // ---- 治疗动作 ----
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Heal);
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Healing);

@@ -20,6 +20,7 @@ class AEmberTrialCharacter;
 class UETGA_LightAttack;
 class UETGA_Dodge;
 class UETGA_Heal;
+class UETGA_BreakPulse;
 class UETCombatTraceComponent;
 class UETCombatLifeComponent;
 class UETCombatPoiseComponent;
@@ -142,6 +143,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETHealingResourceTest;
     friend class FETHealingAbilityTest;
     friend class FETPoiseReactionTest;
+    friend class FETBreakPulseAbilityTest;
 
     // Ready只表示三组属性链初始化成功；不代表存活、受控或能力已授予。
     bool bStartupAttributesInitialized = false;
@@ -172,6 +174,15 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     void GrantHealAbility();
 
     void HandleHealStarted();
+
+    // ---- 破势施放：玩家专属，只由原生Started入口请求 ----
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|BreakPulse")
+    TSubclassOf<UETGA_BreakPulse> BreakPulseAbilityClass;
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|BreakPulse")
+    TObjectPtr<UInputAction> BreakPulseAction;
+    FGameplayAbilitySpecHandle BreakPulseAbilityHandle;
+    void GrantBreakPulseAbility();
+    void HandleBreakPulseStarted();
 
     void SetGameplayReady(bool bNewReady);
 
@@ -221,6 +232,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Healing")
     bool RequestHeal();
+
+    UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
+    bool RequestBreakPulse();
 
     // 输入轴按镜头Yaw转换；低于既有死区时使用身体前方。
     FVector GetDodgeWorldDirection() const;

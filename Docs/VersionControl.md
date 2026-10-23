@@ -356,6 +356,8 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-10-17 B1指南下发：[治疗动画完整步骤](M2_04B1_HealingAnimation.md)与[数值JSON](Data/M2_04B1_HealPoseValues.json)已保存。空白LS_ET_Heal_01 → AS_ET_Heal_01 → AM_ET_Heal_01；五帧0 / 8 / 18 / 22 / 30、七控制器完整L/R/S，8–18相同停留，B2生效预留15帧 / .5秒。旋转向量来自旧M0 / Combo，新的组合 / 时序尚未在UE求值 / 蒙皮预览，用户先查0 / 8再补余帧；未伪造视觉通过。30fps / 排他End31、DefaultSlot / Loop1 / Blend .10与.10 / AutoBlendOut，Notifies保持空，不改Skeleton；B2再添加原生生效Notify。预算45–75手动 / 检查5–10未计实耗，无新C++ / Build / 旧测试 / Cook或Controller测试图。工程仍105 / 56 / 清单58，与A验收基线保持；预计三新素材后来源61。当前累计2451 / 明确240不变；完成并保存报告且无待补项时，按用户新增约定同轮下发B2。
 
+2026-10-23 C1收尾：本地b3cbc24已包含三份动画与完整B2，f4127ff / 77e556f补交关闭旧空文件问题。工作区起点干净，131Source归一换行后与HEAD一致；三个新LFS OID吻合本机。当前只Stage最新文档收尾，不重复Stage无变化资产。C2-01待用户写入，未来新Source / GA / IA不提前提交；未联网确认远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M2-05B2工作区已验收；用户新提交HEAD`98be3e0`只新增三份0字节文件，完整B2仍未入库。将十二Source、GA_ET_Stagger及待提交B1 / B2报告、C1指南 / JSON、来源65项与状态文档重新Stage并补交，精确清单见[B2末尾](M2_05B2_PoiseReaction.md#12-本批-commit--push固定放在最后)，建议`feat: complete poise reaction and recovery`。无需回滚已有提交；C1三UE素材尚未创建。Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作，助手未核验远端。
+截至2026-10-23，本地HEAD`b3cbc24`已包含完整B2与C1三素材，实施前工作区 / 暂存区干净；此前空文件提交问题已由用户补交解决，无需重复提交或回滚。本次只Stage最新C1报告、来源68项 / 数值JSON实际目录修正、状态 / 路线文档与[C2-01指南](M2_05C2_01_BreakPulseAbility.md)，建议`docs: verify break pulse animation and prepare casting ability`。C2-01源码 / GA / IA尚未生成，实施并验收后按其最后清单另交。Raw / 日志 / 生成文件 / 包体留本地；Git由用户操作，助手未联网核验远端。

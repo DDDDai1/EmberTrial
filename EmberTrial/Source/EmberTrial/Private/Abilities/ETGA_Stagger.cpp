@@ -28,7 +28,7 @@ UETGA_Stagger::UETGA_Stagger()
 
     const FGameplayTag Actions[] = {ETGameplayTags::Ability_Attack_Light,
                                     ETGameplayTags::Ability_Dodge, ETGameplayTags::Ability_Heal,
-                                    ETGameplayTags::Ability_HitReact};
+                                    ETGameplayTags::Ability_HitReact, ETGameplayTags::Ability_BreakPulse};
     for (const FGameplayTag& Tag : Actions)
     {
         CancelAbilitiesWithTag.AddTag(Tag);
@@ -50,13 +50,13 @@ bool UETGA_Stagger::HasValidConfiguration() const
         ActivationBlockedTags.Num() != 2 ||
         !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Stunned) ||
         !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Dead) ||
-        CancelAbilitiesWithTag.Num() != 4 || BlockAbilitiesWithTag.Num() != 4)
+        CancelAbilitiesWithTag.Num() != 5 || BlockAbilitiesWithTag.Num() != 5)
     {
         return false;
     }
     const FGameplayTag Actions[] = {ETGameplayTags::Ability_Attack_Light,
                                     ETGameplayTags::Ability_Dodge, ETGameplayTags::Ability_Heal,
-                                    ETGameplayTags::Ability_HitReact};
+                                    ETGameplayTags::Ability_HitReact, ETGameplayTags::Ability_BreakPulse};
     for (const FGameplayTag& Tag : Actions)
     {
         if (!CancelAbilitiesWithTag.HasTagExact(Tag) || !BlockAbilitiesWithTag.HasTagExact(Tag))

@@ -28,6 +28,10 @@ namespace ETGameplayTags
     // ---- 破势反应 ----
     UE_DEFINE_GAMEPLAY_TAG(Ability_Stagger, "Ability.Stagger");
     UE_DEFINE_GAMEPLAY_TAG(State_Stunned, "State.Stunned");
+    // ---- 破势施放与独立冷却 ----
+    UE_DEFINE_GAMEPLAY_TAG(Ability_BreakPulse, "Ability.BreakPulse");
+    UE_DEFINE_GAMEPLAY_TAG(State_CastingBreakPulse, "State.Casting.BreakPulse");
+    UE_DEFINE_GAMEPLAY_TAG(Cooldown_BreakPulse, "Cooldown.BreakPulse");
     // ---- 治疗动作 ----
     UE_DEFINE_GAMEPLAY_TAG(Ability_Heal, "Ability.Heal");
     UE_DEFINE_GAMEPLAY_TAG(State_Healing, "State.Healing");

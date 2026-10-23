@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-22。本文描述M2-05B2后的实际实现；下一批C1施放素材只下发指南，正式范围 / 冷却尚未接入。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-23。本文描述C1素材验收后的实际实现；独立施放动画已保存，正式范围 / 冷却尚未接入；[C2-01](M2_05C2_01_BreakPulseAbility.md)仅待手动实施。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -120,8 +120,8 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 现有16项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含C HUD / A / B1 / B2，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，当前仅下发[C1](M2_05C1_BreakPulseAnimation.md)。
+清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含C HUD / A / B1 / B2，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1施放素材已通过，实际单数Montage目录已登记；C2-01设计由GA拥有Casting与真实Duration GE，C2-02再接范围生效，但二者尚未进入实际Source。当前入口[C2-01](M2_05C2_01_BreakPulseAbility.md)。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M2-05B2工作区已验收；用户新提交HEAD`98be3e0`只新增三份0字节文件，完整B2仍未入库。将十二Source、GA_ET_Stagger及待提交B1 / B2报告、C1指南 / JSON、来源65项与状态文档重新Stage并补交，精确清单见[B2末尾](M2_05B2_PoiseReaction.md#12-本批-commit--push固定放在最后)，建议`feat: complete poise reaction and recovery`。无需回滚已有提交；C1三UE素材尚未创建。Raw / 日志 / 生成文件 / 包体留本地，Git由用户操作，助手未核验远端。
+截至2026-10-23，本地HEAD`b3cbc24`已包含完整B2与C1三素材，实施前工作区 / 暂存区干净；此前空文件提交问题已由用户补交解决，无需重复提交或回滚。本次只Stage最新C1报告、来源68项 / 数值JSON实际目录修正、状态 / 路线文档与[C2-01指南](M2_05C2_01_BreakPulseAbility.md)，建议`docs: verify break pulse animation and prepare casting ability`。C2-01源码 / GA / IA尚未生成，实施并验收后按其最后清单另交。Raw / 日志 / 生成文件 / 包体留本地；Git由用户操作，助手未联网核验远端。

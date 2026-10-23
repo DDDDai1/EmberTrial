@@ -5,6 +5,7 @@
 #include "Abilities/ETGA_Dodge.h"
 #include "Abilities/ETGA_Heal.h"
 #include "Abilities/ETGA_Stagger.h"
+#include "Abilities/ETGA_BreakPulse.h"
 #include "Combat/ETCombatPoiseComponent.h"
 #include "Abilities/ETGameplayTags.h"
 #include "AI/ETAIController.h"
@@ -34,6 +35,7 @@ constexpr TCHAR TrainingBodyPackage[] =
 constexpr TCHAR PlayerAttackPackage[] = TEXT("/Game/EmberTrial/Abilities/GA_ET_LightAttack");
 constexpr TCHAR EnemyAttackPackage[] = TEXT("/Game/EmberTrial/Abilities/GA_ET_EnemyLightAttack");
 constexpr TCHAR DodgeCostPackage[] = TEXT("/Game/EmberTrial/Abilities/Effects/GE_ET_DodgeCost");
+constexpr TCHAR BreakActionObject[] = TEXT("/Game/EmberTrial/Input/Actions/IA_ET_BreakPulse.IA_ET_BreakPulse");
 constexpr TCHAR HealActionObject[] = TEXT("/Game/EmberTrial/Input/Actions/IA_ET_Heal.IA_ET_Heal");
 } // namespace ETGameplayValidationPaths
 
@@ -48,6 +50,7 @@ UClass* GetGameplayValidationParent(const FString& Package)
          AEmberTrialCharacter::StaticClass()},
         {ETGameplayValidationPaths::TrainingBodyPackage, AEmberTrialCharacter::StaticClass()},
         {TEXT("/Game/EmberTrial/Abilities/GA_ET_Stagger"), UETGA_Stagger::StaticClass()},
+        {TEXT("/Game/EmberTrial/Abilities/GA_ET_BreakPulse"), UETGA_BreakPulse::StaticClass()},
         {ETGameplayValidationPaths::PlayerAttackPackage, UETGA_LightAttack::StaticClass()},
         {ETGameplayValidationPaths::EnemyAttackPackage, UETGA_LightAttack::StaticClass()},
         {TEXT("/Game/EmberTrial/Abilities/GA_ET_HitReact"), UETGA_HitReact::StaticClass()},
@@ -193,6 +196,15 @@ void UETGameplayAssetValidator::ValidateBlueprint(UBlueprint* Blueprint, int32& 
     {
         ValidateBody(Blueprint, Defaults, Issues);
     }
+    else if (const UETGA_BreakPulse* Break = Cast<UETGA_BreakPulse>(Defaults))
+    {
+        if (!Break->HasValidConfiguration())
+        {
+            AddIssue(Blueprint, TEXT("ET-BREAK-001"),
+                TEXT("BreakPulse requires valid native policy, in-place empty-notify montage, "
+                     "Cooldown .1..60, Speed 0..600, and built-in Cost/Cooldown classes None."), Issues);
+        }
+    }
     else if (const UETGA_Stagger* Stagger = Cast<UETGA_Stagger>(Defaults))
     {
         if (!Stagger->HasValidConfiguration())
@@ -326,6 +338,17 @@ void UETGameplayAssetValidator::ValidateBody(UBlueprint* Blueprint, UObject* Def
                      Issues);
         }
 
+        RequireObject(Blueprint, Defaults, TEXT("BreakPulseAbilityClass"), TEXT("ET-BREAK-001"), Issues);
+        const UInputAction* BreakInput = Cast<UInputAction>(
+            RequireObject(Blueprint, Defaults, TEXT("BreakPulseAction"), TEXT("ET-BREAK-002"), Issues));
+        if (IsValid(BreakInput) &&
+            (BreakInput->GetPathName() != ETGameplayValidationPaths::BreakActionObject ||
+             BreakInput->ValueType != EInputActionValueType::Boolean || BreakInput->bTriggerWhenPaused ||
+             BreakInput->Triggers.Num() != 0 || BreakInput->Modifiers.Num() != 0))
+        {
+            AddIssue(Blueprint, TEXT("ET-BREAK-002"),
+                TEXT("BreakPulseAction must be IA_ET_BreakPulse, Boolean, no Triggers/Modifiers, not while paused."), Issues);
+        }
         RequireObject(Blueprint, Defaults, TEXT("HealAbilityClass"), TEXT("ET-HEAL-002"), Issues);
         const UInputAction* HealInput = Cast<UInputAction>(
             RequireObject(Blueprint, Defaults, TEXT("HealAction"), TEXT("ET-HEAL-004"), Issues));
@@ -450,7 +473,7 @@ void UETGameplayAssetValidator::ValidateAbility(UBlueprint* Blueprint, UObject* 
         if (!Hit->HasValidHealingCancelPolicy())
         {
             AddIssue(Blueprint, TEXT("ET-HEAL-003"),
-                     TEXT("HitReact must cancel Ability.Heal and must not block State.Healing."),
+                     TEXT("HitReact must cancel Heal and BreakPulse, without blocking Healing/Casting states."),
                      Issues);
         }
     }
@@ -654,6 +677,25 @@ void UETGameplayAssetValidator::ValidateInput(UInputMappingContext* Context, int
                  TEXT("IMC_Default needs exactly one Left Mouse Button mapping to "
                       "IA_ET_LightAttack; restore that row and remove duplicates."),
                  Issues);
+    }
+    int32 BreakKeyCount = 0;
+    int32 BreakActionCount = 0;
+    for (const FEnhancedActionKeyMapping& Mapping : Context->GetMappings())
+    {
+        const bool bBreak = IsValid(Mapping.Action) &&
+            Mapping.Action->GetPathName() == ETGameplayValidationPaths::BreakActionObject;
+        BreakKeyCount += Mapping.Key == EKeys::F ? 1 : 0;
+        BreakActionCount += bBreak ? 1 : 0;
+        if ((Mapping.Key == EKeys::F && !bBreak) || (bBreak && Mapping.Key != EKeys::F) ||
+            (bBreak && (Mapping.Triggers.Num() != 0 || Mapping.Modifiers.Num() != 0)))
+        {
+            AddIssue(Context, TEXT("ET-BREAK-002"),
+                TEXT("Only one F mapping to IA_ET_BreakPulse, with no mapping Triggers/Modifiers."), Issues);
+        }
+    }
+    if (BreakKeyCount != 1 || BreakActionCount != 1)
+    {
+        AddIssue(Context, TEXT("ET-BREAK-002"), TEXT("Exactly one F / BreakPulse mapping required."), Issues);
     }
     if (HealKeyCount != 1 || HealMappingCount != 1)
     {

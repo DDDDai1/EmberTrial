@@ -18,7 +18,8 @@ TConstArrayView<FGameplayTag> GetStaminaRecoveryBlockingTags()
     // 首次组件使用时原生Tag已注册；之后只返回只读视图，注册 / 解绑不复制两份名单。
     static const FGameplayTag Tags[] = {
         ETGameplayTags::State_Attacking, ETGameplayTags::State_HitReact, ETGameplayTags::State_Dead,
-        ETGameplayTags::State_Dodging, ETGameplayTags::State_Healing,ETGameplayTags::State_Stunned};
+        ETGameplayTags::State_Dodging, ETGameplayTags::State_Healing, ETGameplayTags::State_Stunned,
+        ETGameplayTags::State_CastingBreakPulse};
     return Tags;
 }
 } // namespace

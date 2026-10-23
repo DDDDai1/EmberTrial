@@ -1,8 +1,8 @@
 # M2-05C1：破势施放动画素材与Montage
 
-2026-10-22，固定UE5.5.4。前置[B2耗尽 / 恢复已验收](Reports/M2_05B2_Verification.md)，本章为待手动制作的素材批。**只做三份独立动画资产，不改C++或输入，不运行Build / 自动测试。**范围破势、F键与冷却在后续C2接入，当前不会因为新建Montage就能施放技能。
+2026-10-23收尾，固定UE5.5.4。**[本章已验收](Reports/M2_05C1_Verification.md)**：用户13:49确认完成，手动45 / 等待5分钟；三素材保存与哈希已核对。以下保留完整制作步骤供学习 / 复现。实际Montage目录为单数，已同步，不需要搬资源。**只做三份独立动画资产，不改C++或输入，不运行Build / 自动测试。**范围破势、F键与冷却在后续C2接入，当前不会因为新建Montage就能施放技能。
 
-预计手动30–60分钟，含录入 / 预览20–40、烘焙 / Montage配置5–10、分组检查与记录5–10；加载 / 烘焙等待另记，不要求做满预算。当前131 Source / 70cpp、Core50 / UI17 / Editor3、16项自动化、来源65；本批完成后Source不变，三新资产核对后来源预计68。
+预计手动30–60分钟，含录入 / 预览20–40、烘焙 / Montage配置5–10、分组检查与记录5–10；加载 / 烘焙等待另记，不要求做满预算。收尾当前131 Source / 70cpp、Core50 / UI17 / Editor3、16项自动化、来源68；三素材已存在，Source保持。
 
 ## 1. 施放动作、视觉标准与当前边界
 
@@ -17,7 +17,7 @@
 | 30 / 1.000000 | 收回准备 | 七控制器与0完全相同，连续衔接回待机 |
 | End31 / 约1.033333 | 排他结束 | 最后姿势key仍在30，不能把End31当秒数 |
 
-这组旋转向量复用M0挥击和治疗中已用的数值，但**本次新组合 / 时序尚未在Rig求值、烘焙或检查蒙皮**。先做0与12帧，看正面 / 侧面后再补其余三帧；方向明显不符时按第8节反馈，不通过修改Skeleton、Rig Offset或负Scale掩盖问题。
+这组旋转向量复用M0挥击和治疗中已用的数值，但**制作前这组新组合 / 时序尚未在Rig求值、烘焙或检查蒙皮；现已按用户预览反馈验收**。先做0与12帧，看正面 / 侧面后再补其余三帧；方向明显不符时按第8节反馈，不通过修改Skeleton、Rig Offset或负Scale掩盖问题。
 
 | 资源 / 状态 | 本批处理 |
 | --- | --- |
@@ -37,7 +37,7 @@
 ```text
 /Game/EmberTrial/Animations/BreakPulse/Sequence
 /Game/EmberTrial/Animations/BreakPulse/Clips
-/Game/EmberTrial/Animations/BreakPulse/Montages
+/Game/EmberTrial/Animations/BreakPulse/Montage
 ```
 
 最终只新增下表三份资产，不移动 / 覆盖Practice、Combo或Healing：
@@ -46,7 +46,7 @@
 | --- | --- |
 | 制作源 | `/Game/EmberTrial/Animations/BreakPulse/Sequence/LS_ET_BreakPulse_01` |
 | 烘焙动画 | `/Game/EmberTrial/Animations/BreakPulse/Clips/AS_ET_BreakPulse_01` |
-| Montage | `/Game/EmberTrial/Animations/BreakPulse/Montages/AM_ET_BreakPulse_01` |
+| Montage | `/Game/EmberTrial/Animations/BreakPulse/Montage/AM_ET_BreakPulse_01` |
 
 ### 2.2 新Sequence与Control Rig
 
@@ -216,32 +216,16 @@ GA_Stagger保持旧HitResult引用；正式左键-2-Q-E-P与基础输入短基�
 
 姿势不符时给**帧号、控制器完整名、实际L/R/S**，截图同时含全身、Anim Details与时间指针，最好补侧面；时序用5–10秒预览视频。菜单找不到截当前对象和菜单；保存 / 导出报错用文字贴首条Error和上下文。不要求逐条手抄日志，给完成时分与实际路径，我读取保存记录核对。
 
-收到反馈后保存C1报告；无待补项同轮进入C2正式范围技能 / 输入 / 冷却。当前C1设计完成不代表动画已经制作或F已经可用。
+C1反馈及保存核对已完成，无待补项；当前进入[C2-01施放 / 冷却](M2_05C2_01_BreakPulseAbility.md)。素材已完成，正式F仍待手动接入；C2-02再做通知 / 范围结算。
 
 ## 9. 本批 Commit / Push（固定放在最后）
 
-### 先收尾已验收B2
+三份动画已纳入本地`b3cbc24`，完整B2也已补交；先前空文件问题关闭。当前没有源码 / 资产待补交，不重复Stage没有差异的资源。
 
-用户核对期间新增`98be3e0`，但它只提交了三份空Source，完整B2仍在工作区。无需回滚：先在CLion Stage最新十二Source、GA_ET_Stagger及本轮待提交文档，再补交一次；精确路径和Stage步骤见[B2末尾](M2_05B2_PoiseReaction.md#12-本批-commit--push固定放在最后)。建议：
-
-```text
-feat: complete poise reaction and recovery
-```
-
-### C1制作、验收收尾后
+本次验收收尾包含本指南、`Docs/Data/M2_05C1_BreakPulsePoseValues.json`、`Docs/Reports/M2_05C1_Verification.md`、`Docs/AssetManifest.csv`、Progress / Backlog / Architecture / AcceptanceWorkflow_Options / VersionControl / 两份M2路线 / README / Introduction，及`Docs/M2_05C2_01_BreakPulseAbility.md`；B2指南仅同步收尾状态。
 
 ```text
-EmberTrial/Content/EmberTrial/Animations/BreakPulse/Sequence/LS_ET_BreakPulse_01.uasset
-EmberTrial/Content/EmberTrial/Animations/BreakPulse/Clips/AS_ET_BreakPulse_01.uasset
-EmberTrial/Content/EmberTrial/Animations/BreakPulse/Montages/AM_ET_BreakPulse_01.uasset
-Docs/M2_05C1_BreakPulseAnimation.md
-Docs/Data/M2_05C1_BreakPulsePoseValues.json
+docs: verify break pulse animation and prepare casting ability
 ```
 
-届时再包含`Docs/Reports/M2_05C1_Verification.md`、新增三素材后的AssetManifest和Progress / Backlog / 路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / README / Introduction最新收尾，以及下一章文档。本轮C1报告和三UE资产尚未生成，不提前提交空资源。
-
-```text
-feat: add break pulse casting animation assets
-```
-
-旧Map / Rig / Skeleton / AS / AM、GA / 输入 / Config与Source无计划变更，仅实际改动且原因明确时提交。可先独立Push B2，再完成本素材批；若打算合并提交，完整保留两个批次的源码 / 资产 / 文档。CLion刷新Changes → Stage最新修改 → 检查Staged Diff与LFS → Commit → Push；Raw / 日志 / 缓存 / 生成文件 / 包体留本地，不Force Add，Git由你操作。
+CLion刷新Changes → Stage最新文档 → 检查Diff → Commit → Push。C2-01 Source / GA / IA没有实际生成，实施后按其末尾清单另交。Raw / 日志 / 缓存 / 生成文件 / 包体留本地；助手未改索引或核验远端。

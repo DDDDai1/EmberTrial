@@ -29,6 +29,7 @@ UETGA_HitReact::UETGA_HitReact()
     CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Attack_Light);
     CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Dodge);
     CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_Heal);
+    CancelAbilitiesWithTag.AddTag(ETGameplayTags::Ability_BreakPulse);
 }
 
 bool UETGA_HitReact::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -146,5 +147,7 @@ void UETGA_HitReact::EndAbility(const FGameplayAbilitySpecHandle Handle,
 bool UETGA_HitReact::HasValidHealingCancelPolicy() const
 {
     return CancelAbilitiesWithTag.HasTagExact(ETGameplayTags::Ability_Heal) &&
-           !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Healing);
+           !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_Healing) &&
+           CancelAbilitiesWithTag.HasTagExact(ETGameplayTags::Ability_BreakPulse) &&
+           !ActivationBlockedTags.HasTagExact(ETGameplayTags::State_CastingBreakPulse);
 }

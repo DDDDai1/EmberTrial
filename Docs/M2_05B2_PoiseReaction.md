@@ -188,56 +188,6 @@ Source资产Save All、默认值 / slomo1 / Debug False恢复：
 
 ## 12. 本批 Commit / Push（固定放在最后）
 
-B2工作区已验收。核对期间用户创建了`98be3e0`，但该提交只新增以下三个**0字节文件**，完整实现仍在工作区；其他九旧Source / GA / 文档也尚未提交。当前暂存区为空，不能只修改Commit信息再提交，须先Stage本节全部最新差异，无需回滚已有提交。
+2026-10-23更新：完整B2已由用户补交f4127ff / 77e556f，并包含在当前b3cbc24。曾出现98be3e0空文件提交，现已关闭；不需要回滚或再次补交，没有差异的十二Source / GA不重复Stage。原时点事实保留在[B2报告](Reports/M2_05B2_Verification.md)。
 
-CLion启用Staging Area时：打开Commit面板 → 在**Unstaged**中选择本节文件 → 右键**Stage** → 确认移到Staged → 点开三个原空文件，看到完整代码 → Commit → Push。若使用普通Changes勾选模式，勾选全部应交最新差异并检查预览。
-
-```text
-EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETPoiseDeltaEffect.h
-EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETPoiseDeltaEffect.cpp
-EmberTrial/Source/EmberTrial/Tests/ETPoiseReactionTests.cpp
-```
-
-同次Stage这九旧Source：
-
-```text
-EmberTrial/Source/EmberTrial/Public/Combat/ETCombatPoiseComponent.h
-EmberTrial/Source/EmberTrial/Private/Combat/ETCombatPoiseComponent.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_Stagger.h
-EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_Stagger.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/ETGameplayTags.h
-EmberTrial/Source/EmberTrial/Private/Abilities/ETGameplayTags.cpp
-EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h
-EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp
-EmberTrial/Source/EmberTrialEditor/Private/Validation/ETGameplayAssetValidator.cpp
-```
-
-本批唯一UE资产差异与当前全部待提交文档：
-
-```text
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_Stagger.uasset
-Docs/Reports/M2_05B1_Verification.md
-Docs/Reports/M2_05B2_Verification.md
-Docs/M2_05B1_StaggerState.md
-Docs/M2_05B2_PoiseReaction.md
-Docs/M2_05C1_BreakPulseAnimation.md
-Docs/Data/M2_05C1_BreakPulsePoseValues.json
-Docs/AssetManifest.csv
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_Roadmap.md
-Docs/M2_05_BreakPulseRoadmap.md
-README.md
-Introduction.md
-```
-
-```text
-feat: complete poise reaction and recovery
-```
-
-三身体、旧HitResult AS / AM、地图、Rig / Skeleton、UI / 输入 / Config本批无字节差异，不强制重存。C1三份UE素材尚未创建，制作并验收后按[C1末尾](M2_05C1_BreakPulseAnimation.md#9-本批-commit--push固定放在最后)另交，可先Push B2。
-
-CLion刷新Changes → 重新Stage全部最新完整修改 → 检查Staged Diff与LFS → Commit → Push。Raw / 日志 / 崩溃转储 / 缓存 / 生成CodeModel / Saved / Binaries / Intermediate与包体留本地，不Force Add；用户操作Git，助手未核验远端或代改索引。
+当前C1素材也已提交并验收；只Stage最新文档收尾与C2-01指南，见[C1末尾](M2_05C1_BreakPulseAnimation.md#9-本批-commit--push固定放在最后)。后续C2-01实际代码 / 资产按其末尾清单在实施通过后提交。Raw / 崩溃转储 / 日志 / 生成文件 / 包体留本地，用户操作Git，助手未联网核验远端或修改索引。
