@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-23。**[M2-05C2-01已验收](Reports/M2_05C2_01_Verification.md)**，无待补项；下一批[C2-02通知 / 范围](M2_05C2_02_BreakPulseRange.md)待手动实施。实时规模与工时见[Progress](Progress.md)，历史表格保留当时口径。
+更新2026-10-23。**[M2-05C2-02已验收](Reports/M2_05C2_02_Verification.md)**，下一开发批[D冷却HUD](M2_05D_BreakPulseHUD.md)已下发、待实施；现有自动化保留。实时规模与工时见[Progress](Progress.md)，历史表格保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -80,7 +80,7 @@
 | M1-07C2 | [战斗引用与共享配置](M1_07C2_GameplayValidation.md) | 你手动实施，我核查 | 完成 | 75 / 37 / 48、九Valid / GA失败恢复 / 两Success / 配置0/0；20 / 5，无待补 |
 | M1-07C3 | [Attempt02与M1阶段收口](M1_07C3_UpdatedPackage.md) | 你打包 / 实机，我核查 / 复盘 | 完成 | [报告](Reports/M1_07C3_Verification.md)：UAT ExitCode0、两次Move90 / 二十次敌人10伤害、A点Retry / Continue、新进程Entry；手动10 / 等待10 |
 | M1 | 最小纵向闭环与阶段复盘 | 共同 | 完成 | [总验收](Reports/M1_Verification.md)与[复盘](M1_Review.md)，手动1338分钟；当前灰盒范围与最终作品差距明确 |
-| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03 / 04与05A / B1 / B2 / C1 / C2-01已验收，下一批C2-02通知与范围待手动 |
+| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03 / 04与05A / B1 / B2 / C1 / C2-01已验收，C2-02范围也已验收，D指南已下发、待实施 |
 | M2-01 | [资源基础总验收](Reports/M2_01_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | A / B1 / B2全部通过，87 / 44 / 49；130 / 15分钟，治疗次数已定契约、实现留04 |
 | M2-01A | [体力属性、一次初始化与Ready](M2_01A_StaminaFoundation.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_01A_Verification.md)：78 / 39 / 48，三身体Valid / 测试Success / 两轮PIE，IsCombatDead补项关闭；60 / 5 |
 | M2-01B | 体力恢复与必要变化观察 / 显示 | 你手动实现，我设计 / 审查 | 完成 | B1恢复与B2体力HUD通过；70 / 10分钟，无正式成本 / 无敌 |
@@ -104,7 +104,8 @@
 | M2-05B2 | [耗尽联动 / 恢复 / 占位表现](M2_05B2_PoiseReaction.md) | 你实现，我核对 | 完成 | 三新 / 九旧、四资产Valid、三专项Success，销毁测试修复 / 实机通过；手动90 / 等待5 |
 | M2-05C1 | [破势施放动画素材](M2_05C1_BreakPulseAnimation.md) | 你手动制作，我给数值 / 核对 | 完成 | 三LS / AS / AM保存、预览与旧短基线通过；Source保持，来源68；手动45 / 等待5 |
 | M2-05C2-01 | [施放 / 冷却与优先级](M2_05C2_01_BreakPulseAbility.md) | 你实现，我核对 | 完成 | 五新 / 八旧、双Build / 三索引、五配置Valid / 四Success与实机通过；手动70 / 等待5；136Source / 来源70 |
-| M2-05C2-02 | [唯一Notify与范围结算](M2_05C2_02_BreakPulseRange.md) | 你实现，我核对 | 待用户操作 | 三新 / 五旧待实施；.4秒一次提交、300cm / 60Poise、阵营 / 遮挡 / 去重与Range专项 |
+| M2-05C2-02 | [唯一Notify与范围结算](M2_05C2_02_BreakPulseRange.md) | 你实现，我核对 | 完成 | 八Source一致、双Build / 三索引、GA Valid / 三Success与实机两次结算恢复；手动80 / 等待10 |
+| M2-05D | [冷却HUD与模块收口](M2_05D_BreakPulseHUD.md) | 你实现，我核对 | 指南已下发、待实施 | 五新 / 五旧、单WBP、.10秒可见冷却刷新 / 无Widget Tick；新UI生命周期专项与两旧相关项、交战 / 重建 / 重试短查；预算90–140，实耗未计 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为Cleanup/Attempt01；M1 C3 Attempt02只保留历史证据。
 
@@ -122,12 +123,12 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 当前M2新Development包 | Cleanup/Attempt01已完成Build / 完整Cook / Stage / Package与两轮独立检查；输入方法 / 范围见Cleanup |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| 后续M2开发 | 用户已授权恢复；M2-05C2-01已验收，C2-02代码 / 配置指南待手动实施；后续破势 / 锁定按路线分批 |
+| 后续M2开发 | 用户已授权恢复；M2-05C2-02已验收，下一开发批[D冷却HUD](M2_05D_BreakPulseHUD.md)已下发、待实施；后续破势 / 锁定按路线分批 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
-历史阶段入口：[M0校准](Reports/M0_07_Calibration.md)、[M1总验收](Reports/M1_Verification.md)、[M2路线](M2_Roadmap.md)、[当前C2-01验收](Reports/M2_05C2_01_Verification.md)。当前架构见[Architecture](Architecture.md)，验收按[方案B](AcceptanceWorkflow_Options.md)，不在本页再次维护全部流水。
+历史阶段入口：[M0校准](Reports/M0_07_Calibration.md)、[M1总验收](Reports/M1_Verification.md)、[M2路线](M2_Roadmap.md)、[当前C2-02验收](Reports/M2_05C2_02_Verification.md)。当前架构见[Architecture](Architecture.md)，验收按[方案B](AcceptanceWorkflow_Options.md)，不在本页再次维护全部流水。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-本地HEAD`0cce598`已包含完整C2-01五新 / 八旧Source、两新输入 / 能力与实际资产修改；核对起点工作区 / 暂存区干净。本次只Stage最新C2-01报告、来源70项与状态 / 路线收尾、[C2-02指南](M2_05C2_02_BreakPulseRange.md)，建议`docs: verify break pulse cast and prepare range resolution`。C2-02实际Source / 通知配置尚未实施，按其末尾清单完成后另交。Raw / 日志 / 生成物 / 包体留本地；Git由用户操作，助手未联网核验远端或改索引。
+当前实现基线为`36bb869`，Source / UE资产保持C2-02验收状态。本轮只提交新`Docs/M2_05D_BreakPulseHUD.md`、未提交的C2-02报告 / 来源收尾及本轮状态文档，建议`docs: prepare break pulse cooldown HUD and milestone closure`。D尚未实施，不先建空Source / WBP或生成D验收报告。完成后按D最后清单重新Stage五新 / 五旧Source、新WBP与原Controller实际差异及验收文档，建议`feat: show break pulse cooldown through lifecycle-aware HUD`。Raw / 生成物 / 日志 / 包体留本地；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。

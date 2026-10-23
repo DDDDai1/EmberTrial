@@ -841,3 +841,42 @@ void AEmberTrialCharacter::HandleBreakPulseStarted()
 {
     RequestBreakPulse();
 }
+
+bool AEmberTrialCharacter::GetBreakPulseCooldownSnapshot(bool& bOutCooling, float& OutRemaining,
+                                                         float& OutDuration) const
+{
+    bOutCooling = false;
+    OutRemaining = 0.0f;
+    OutDuration = 0.0f;
+    UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
+    if (bAbilitySystemShuttingDown || !IsGameplayReady() || CombatTeam != EETCombatTeam::Player ||
+        !IsValid(ASC) || !BreakPulseAbilityHandle.IsValid() || !ASC->AbilityActorInfo.IsValid() ||
+        ASC->AbilityActorInfo->OwnerActor.Get() != this ||
+        ASC->AbilityActorInfo->AvatarActor.Get() != this)
+    {
+        return false;
+    }
+    const FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(BreakPulseAbilityHandle);
+    const UETGA_BreakPulse* Ability = Spec ? Cast<UETGA_BreakPulse>(Spec->Ability) : nullptr;
+    if (!IsValid(Ability) || Ability->GetClass() != BreakPulseAbilityClass.Get())
+    {
+        return false;
+    }
+    if (!ASC->HasMatchingGameplayTag(ETGameplayTags::Cooldown_BreakPulse))
+    {
+        return true;
+    }
+    float Remaining = 0.0f;
+    float Duration = 0.0f;
+    Ability->GetCooldownTimeRemainingAndDuration(BreakPulseAbilityHandle,
+                                                 ASC->AbilityActorInfo.Get(), Remaining, Duration);
+    if (!FMath::IsFinite(Remaining) || !FMath::IsFinite(Duration) || Duration <= 0.0f)
+    {
+        return false;
+    }
+    // 到期Tag尚未撤销的极短窗口仍属于Cooling，不能仅按Remaining==0显示就绪。
+    bOutCooling = true;
+    OutDuration = Duration;
+    OutRemaining = FMath::Clamp(Remaining, 0.0f, Duration);
+    return true;
+}

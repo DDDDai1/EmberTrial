@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M2-05C2-01正式F施放、真实冷却与优先级已验收；[C2-02通知 / 范围](Docs/M2_05C2_02_BreakPulseRange.md)已下发待手动实施。最新规模与证据见[Progress](Docs/Progress.md)和[C2-01报告](Docs/Reports/M2_05C2_01_Verification.md)；当前F仍不结算范围Poise，按指南逐批完善，不把计划当成完成玩法。
+当前进度：M2-05C2-02唯一通知与真实范围破势已验收；F施放 / 6秒冷却 / 300cm与60Poise结算成立，冷却反馈UI留D。最新规模与证据见[Progress](Docs/Progress.md)和[C2-02报告](Docs/Reports/M2_05C2_02_Verification.md)；保留现有自动化，不把源码测试数量当成普通Play运行负担。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-23，M0、M1、M2-01 / 02 / 03 / 04与05A / B1 / B2 / C1 / C2-01均已验收，清理已关闭。**当前136Source / 73cpp / 来源70，累计2931 / 明确等待274分钟，M2为920 / 89、M2-05为355 / 25。归零反应 / 回填、C1素材与F施放 / 冷却已完成；范围待[C2-02](Docs/M2_05C2_02_BreakPulseRange.md)。当前包Cleanup/Attempt01不含后来次数HUD / Poise / F；最终作品未完成，手动C++ / 方案B / 用户自行Push保持。以下保留原M0起点：
+**截至2026-10-23，M0、M1、M2-01 / 02 / 03 / 04与05A / B1 / B2 / C1 / C2已验收，清理已关闭。**当前139Source / 75cpp / 来源70，累计3011 / 明确等待284分钟，M2为1000 / 99、M2-05为435 / 35。F施放 / 冷却 / 范围成立，[D冷却HUD指南](Docs/M2_05D_BreakPulseHUD.md)已下发、待手动实施（90–140分钟，未计实耗）；当前包Cleanup/Attempt01不含后来的次数HUD / Poise / F。最终作品未完成，手动C++ / 方案B / 用户自行Push保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-本地HEAD`0cce598`已包含完整C2-01五新 / 八旧Source、两新输入 / 能力与实际资产修改；核对起点工作区 / 暂存区干净。本次只Stage最新C2-01报告、来源70项与状态 / 路线收尾、[C2-02指南](Docs/M2_05C2_02_BreakPulseRange.md)，建议`docs: verify break pulse cast and prepare range resolution`。C2-02实际Source / 通知配置尚未实施，按其末尾清单完成后另交。Raw / 日志 / 生成物 / 包体留本地；Git由用户操作，助手未联网核验远端或改索引。
+当前实现基线为`36bb869`，Source / UE资产保持C2-02验收状态。本轮只提交新`Docs/M2_05D_BreakPulseHUD.md`、未提交的C2-02报告 / 来源收尾及本轮状态文档，建议`docs: prepare break pulse cooldown HUD and milestone closure`。D尚未实施，不先建空Source / WBP或生成D验收报告。完成后按D最后清单重新Stage五新 / 五旧Source、新WBP与原Controller实际差异及验收文档，建议`feat: show break pulse cooldown through lifecycle-aware HUD`。Raw / 生成物 / 日志 / 包体留本地；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。

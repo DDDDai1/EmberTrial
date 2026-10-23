@@ -360,6 +360,10 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-10-23 C2-01验收：本地0cce598已完整提交五新 / 八旧与两新 / 两变UE资产；核对起点工作区 / 暂存区干净。136Source归一换行一致，四个LFS OID与本机SHA吻合；HitReact / Stagger原资产字节无变，继承原生新增策略并有Valid / 自动化证明，不强行重存制造差异。当前只提交报告 / 来源70项 / 状态和C2-02指南；下一批新Source / 通知未落地，不提前提交空文件，未联网核验远端。
 
+2026-10-23 C2-02收尾：八份Source与AM已验收；初查时三新文件暂存为空，核对期间用户完成36bb869，139Source与HEAD归一换行一致、AM LFS匹配，问题关闭。当前只提交报告 / 来源 / 状态文档，不重复Stage无变化Source / 资产；测试保留，助手未改索引或联网核验远端。
+
+2026-10-23 D指南下发：五新 / 五旧Source、一新WBP与原Controller配置均待用户实施。当前源码 / 资产保持C2-02，无新Build / 测试 / Cook证据；只提交指南与状态文档。新WBP实物完成后才登记来源71，不能把静态候选或预计19项写成已运行Success。完整实施清单见[D末尾](M2_05D_BreakPulseHUD.md#12-本批-commit--push固定放在最后)，仍由用户Stage最新完整内容 / Commit / Push。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-本地HEAD`0cce598`已包含完整C2-01五新 / 八旧Source、两新输入 / 能力与实际资产修改；核对起点工作区 / 暂存区干净。本次只Stage最新C2-01报告、来源70项与状态 / 路线收尾、[C2-02指南](M2_05C2_02_BreakPulseRange.md)，建议`docs: verify break pulse cast and prepare range resolution`。C2-02实际Source / 通知配置尚未实施，按其末尾清单完成后另交。Raw / 日志 / 生成物 / 包体留本地；Git由用户操作，助手未联网核验远端或改索引。
+当前实现基线为`36bb869`，Source / UE资产保持C2-02验收状态。本轮只提交新`Docs/M2_05D_BreakPulseHUD.md`、未提交的C2-02报告 / 来源收尾及本轮状态文档，建议`docs: prepare break pulse cooldown HUD and milestone closure`。D尚未实施，不先建空Source / WBP或生成D验收报告。完成后按D最后清单重新Stage五新 / 五旧Source、新WBP与原Controller实际差异及验收文档，建议`feat: show break pulse cooldown through lifecycle-aware HUD`。Raw / 生成物 / 日志 / 包体留本地；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。

@@ -10,6 +10,8 @@
 #include "Widgets/ETStaminaHUDWidget.h"
 #include "Presenters/ETHealingPresenter.h"
 #include "Widgets/ETHealingHUDWidget.h"
+#include "Presenters/ETBreakPulsePresenter.h"
+#include "Widgets/ETBreakPulseHUDWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETUIBootstrap, Log, All);
 
@@ -20,6 +22,7 @@ namespace
     constexpr int32 HealthWidgetZOrder = 4;
     constexpr int32 StaminaWidgetZOrder = 3;
     constexpr int32 HealingWidgetZOrder = 2;
+    constexpr int32 BreakPulseWidgetZOrder = 1;
 } // namespace
 
 // ---- Controller组件生命周期 ----
@@ -36,20 +39,28 @@ void UETUIBootstrapComponent::BeginPlay()
     RestartHealthObservation();
     RestartStaminaObservation();
     RestartHealingObservation();
+    RestartBreakPulseObservation();
     RebuildStatusWidget();
     RebuildHealthWidget();
     RebuildStaminaWidget();
     RebuildHealingWidget();
+    RebuildBreakPulseWidget();
 }
 
 void UETUIBootstrapComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     // 先拒绝重入；让仍被外部引用的旧View立即停止接收事件。
     bUIShuttingDown = true;
+    RemoveBreakPulseWidget();
     RemoveHealingWidget();
     RemoveStaminaWidget();
     RemoveHealthWidget();
     RemoveStatusWidget();
+    if (BreakPulsePresenter)
+    {
+        BreakPulsePresenter->Shutdown();
+        BreakPulsePresenter = nullptr;
+    }
     if (HealingPresenter)
     {
         HealingPresenter->Shutdown();
@@ -391,4 +402,92 @@ void UETUIBootstrapComponent::RemoveHealingWidget()
            *GetNameSafe(GetOwner()), *GetNameSafe(HealingWidget.Get()));
     HealingWidget->RemoveFromParent();
     HealingWidget = nullptr;
+}
+
+// ---- 破势冷却HUD；不管理施放 / 冷却GE ----
+UETBreakPulsePresenter* UETUIBootstrapComponent::GetBreakPulsePresenter() const
+{
+    return BreakPulsePresenter.Get();
+}
+
+void UETUIBootstrapComponent::RestartBreakPulseObservation()
+{
+    if (!HasBegunPlay() || bUIShuttingDown)
+    {
+        return;
+    }
+    APlayerController* Controller = ResolveLocalUIController();
+    if (!Controller)
+    {
+        if (BreakPulsePresenter)
+        {
+            BreakPulsePresenter->Shutdown();
+        }
+        return;
+    }
+    if (!BreakPulsePresenter)
+    {
+        BreakPulsePresenter = NewObject<UETBreakPulsePresenter>(this);
+    }
+    BreakPulsePresenter->StartObserving(
+        Controller->GetLocalPlayer()->GetSubsystem<UETUILocalPlayerSubsystem>());
+}
+
+UETBreakPulseHUDWidget* UETUIBootstrapComponent::GetBreakPulseWidget() const
+{
+    return BreakPulseWidget.Get();
+}
+
+void UETUIBootstrapComponent::RebuildBreakPulseWidget()
+{
+    if (!HasBegunPlay() || bUIShuttingDown)
+    {
+        return;
+    }
+    // 先停旧View，再创建新View；Presenter与GAS冷却保持原对象所有权。
+    RemoveBreakPulseWidget();
+    APlayerController* Controller = ResolveLocalUIController();
+    if (!Controller)
+    {
+        return;
+    }
+    if (!BreakPulseWidgetClass || !IsValid(BreakPulsePresenter.Get()))
+    {
+        UE_LOG(LogETUIBootstrap, Warning,
+               TEXT("[M2-05D] Missing BreakPulseWidgetClass or Presenter Owner=%s"),
+               *GetNameSafe(Controller));
+        return;
+    }
+    BreakPulseWidget = CreateWidget<UETBreakPulseHUDWidget>(Controller, BreakPulseWidgetClass);
+    if (!BreakPulseWidget)
+    {
+        UE_LOG(LogETUIBootstrap, Warning,
+               TEXT("[M2-05D] BreakPulse widget creation failed Owner=%s"),
+               *GetNameSafe(Controller));
+        return;
+    }
+    if (!BreakPulseWidget->AddToPlayerScreen(BreakPulseWidgetZOrder))
+    {
+        UE_LOG(LogETUIBootstrap, Warning,
+               TEXT("[M2-05D] BreakPulse AddToPlayerScreen failed Owner=%s"),
+               *GetNameSafe(Controller));
+        RemoveBreakPulseWidget();
+        return;
+    }
+    BreakPulseWidget->StartObserving(BreakPulsePresenter.Get());
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M2-05D] BreakPulse widget created Owner=%s Widget=%s"),
+           *GetNameSafe(Controller), *GetNameSafe(BreakPulseWidget.Get()));
+}
+
+void UETUIBootstrapComponent::RemoveBreakPulseWidget()
+{
+    if (!BreakPulseWidget)
+    {
+        return;
+    }
+    BreakPulseWidget->StopObserving();
+    UE_LOG(LogETUIBootstrap, Display, TEXT("[M2-05D] BreakPulse widget removed Owner=%s Widget=%s"),
+           *GetNameSafe(GetOwner()), *GetNameSafe(BreakPulseWidget.Get()));
+    BreakPulseWidget->RemoveFromParent();
+    BreakPulseWidget = nullptr;
 }

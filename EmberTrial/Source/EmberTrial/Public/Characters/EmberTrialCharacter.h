@@ -145,6 +145,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETPoiseReactionTest;
     friend class FETBreakPulseAbilityTest;
     friend class FETBreakPulseRangeTest;
+    friend class FETBreakPulseHUDTest;
 
     // Ready只表示三组属性链初始化成功；不代表存活、受控或能力已授予。
     bool bStartupAttributesInitialized = false;
@@ -236,6 +237,11 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
     bool RequestBreakPulse();
+
+    // 冷却快照不等于允许立即施放；不播放 / 不授予 / 不修改GE。
+    UFUNCTION(BlueprintPure, Category = "EmberTrial|Combat")
+    bool GetBreakPulseCooldownSnapshot(bool& bOutCooling, float& OutRemaining,
+        float& OutDuration) const;
 
     // 输入轴按镜头Yaw转换；低于既有死区时使用身体前方。
     FVector GetDodgeWorldDirection() const;

@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-23。本文描述C2-01验收后的实际实现；F施放与真实冷却已接入，范围结算尚未实现；[C2-02](M2_05C2_02_BreakPulseRange.md)仅待手动实施。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-23。本文描述C2-02验收后的实际实现；F施放、真实冷却与唯一通知范围结算已接入，冷却UI反馈[D指南已下发](M2_05D_BreakPulseHUD.md)，尚未写入Source。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -72,7 +72,7 @@ ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表�
 
 **B2联动已实现：**[CombatPoise](../EmberTrial/Source/EmberTrial/Private/Combat/ETCombatPoiseComponent.cpp)订阅Poise、Stunned撤销和自身Spec结束，以弱来源 / 观察代次与一个一次性Timer合并归零 / 回填事务。出生0 / 晚观察不遗漏，反应期间不重启；存活结束才经[原生Instant Poise GE](../EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETPoiseDeltaEffect.cpp)回填当前Max。死亡 / Deactivate / EndPlay不回填，退出先撤销身份和订阅再取消自己的Spec。Stagger复用旧HitResult Montage，动画完成不提前解除1.2秒状态；无常驻Tick / 失败轮询。
 
-[C1](M2_05C1_BreakPulseAnimation.md)已完成独立施放素材，受害反应仍旧HitResult。C2-01的BreakPulse GA拥有Casting / Task / Montage实例与一次真实Duration GE；GetCooldownTags按活动GE查询剩余时间，不另建Tick计时。F只Started，施放阻断攻击 / 闪避 / 治疗与共享Idle，受击 / Stagger / Death可以取消，已提交冷却不退。C2-02再接无状态Notify与范围 / 阵营 / 遮挡；尚未实施，不当成当前事实。
+[C1](M2_05C1_BreakPulseAnimation.md)已完成独立施放素材，受害反应仍旧HitResult。C2-01的BreakPulse GA拥有Casting / Task / Montage实例与一次真实Duration GE；GetCooldownTags按活动GE查询剩余时间，不另建Tick计时。F只Started，施放阻断攻击 / 闪避 / 治疗与共享Idle，受击 / Stagger / Death可以取消，已提交冷却不退。C2-02已接无状态Notify，准确Montage实例 / Token与一次提交标志隔离旧事件；只在生效点Overlap，按身体去重、中心距离 / 阵营 / 状态 / Visibility过滤，逐目标创建原生PoiseDelta GE。范围300 / Poise60为GA配置，通知时间由资产读取；同步取消停止剩余目标，已落地效果不回滚。
 
 ## 5. 敌人与行为树
 
@@ -91,6 +91,10 @@ Widget先订阅再取即时快照，晚创建可显示已有值。重建只换Vi
 正式Widget使用Never + DisableNativeTick，不设Text Binding。共享[比例计算](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETResourceViewMath.h)与[文本格式](../EmberTrial/Source/EmberTrialUI/Private/Widgets/ETResourceHUDText.h)只处理纯展示规则，不把业务状态合并为UI缓存。
 
 Core Controller发布P意图，既有[FailureFlow](../EmberTrial/Source/EmberTrialUI/Private/Flow/ETFailureFlowComponent.cpp)统一协调Pause / Failure。Widget发继续 / Retry / 菜单意图；Flow维护焦点、输入刷新与自己取得的暂停。Failure优先且两页互斥；普通继续恢复同一世界，切图 / EndPlay只清自身资源，不擅自恢复另一个世界的输入。
+
+### D章计划接口（尚未实现）
+
+[D指南](M2_05D_BreakPulseHUD.md)增加Character只读冷却快照；Core不引用UI。UI私有依赖GameplayTags，Presenter绑定当前玩家身体Ready与冷却 / 施放 / 死亡Tag，一次NextTick避开GAS中间态和Ready早于能力授予；仅可见且冷却活动时每.10游戏秒重读真实剩余，隐藏 / 死亡 / 换身体 / 结束即停。Widget只渲染DTO / 报告根可见性，Bootstrap拥有单View，重建不重置GAS。新专项计划验证真实冷却 / 观察生命周期，不代替Viewport、Designer或交战画面检查。以上是待实施设计，不计入当前18项测试与139份Source。
 
 ## 7. 会话、菜单与出生
 
@@ -118,10 +122,10 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
-现有17项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却一项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
+现有18项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含C HUD / A / B1 / B2，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2-01已通过，F施放 / 冷却已进入实际Source；C2-02再接范围生效，当前仅下发[C2-02](M2_05C2_02_BreakPulseRange.md)。
+清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含C HUD / A / B1 / B2，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D已下发最小冷却HUD指南，待手动实施。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-本地HEAD`0cce598`已包含完整C2-01五新 / 八旧Source、两新输入 / 能力与实际资产修改；核对起点工作区 / 暂存区干净。本次只Stage最新C2-01报告、来源70项与状态 / 路线收尾、[C2-02指南](M2_05C2_02_BreakPulseRange.md)，建议`docs: verify break pulse cast and prepare range resolution`。C2-02实际Source / 通知配置尚未实施，按其末尾清单完成后另交。Raw / 日志 / 生成物 / 包体留本地；Git由用户操作，助手未联网核验远端或改索引。
+当前实现基线为`36bb869`，Source / UE资产保持C2-02验收状态。本轮只提交新`Docs/M2_05D_BreakPulseHUD.md`、未提交的C2-02报告 / 来源收尾及本轮状态文档，建议`docs: prepare break pulse cooldown HUD and milestone closure`。D尚未实施，不先建空Source / WBP或生成D验收报告。完成后按D最后清单重新Stage五新 / 五旧Source、新WBP与原Controller实际差异及验收文档，建议`feat: show break pulse cooldown through lifecycle-aware HUD`。Raw / 生成物 / 日志 / 包体留本地；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。

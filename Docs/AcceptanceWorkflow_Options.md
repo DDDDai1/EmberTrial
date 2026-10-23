@@ -1,6 +1,6 @@
 # EmberTrial 验收流程调整：方案比较与选择记录
 
-方案选择日期2026-10-05，维护更新2026-10-23。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前功能基线M2-05C2-01，清理进度见[Progress](Progress.md)；本页保留方案比较、最终选择与可复用的执行规则。
+方案选择日期2026-10-05，维护更新2026-10-23。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前功能基线M2-05C2-02，清理进度见[Progress](Progress.md)；本页保留方案比较、最终选择与可复用的执行规则。
 
 ## 1. 当前结论与需要解决的问题
 
@@ -157,7 +157,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 | --- | --- | --- |
 | 正式菜单 / Retry / Continue / P / Q / 攻击与闪避 | 输入、UI、真实交战和主流程 | 画面 / 焦点仍需实机；不重复搭临时Controller验收图 |
 | ET_Stamina / ET_Healing / ET_Poise及既有损伤入口 | 资源查询 / 最小复现 | PIE修改有上下文限制；保留入口不等于产品功能 |
-| 16项EmberTrial自动化 | Practice、资源、韧性基础 / 状态 / 耗尽、闪避、连段、治疗与UI纯规则 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
+| 18项EmberTrial自动化 | Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 范围、闪避、连段、治疗与UI纯规则 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
 | 两套Editor Validator | 玩法配置、BT键绑定、UMG必需控件 | 只读结构，不证明导航、白线、Notify实触发或切图 |
 | Validate-ProjectConfig | 共享地图 / Cook / Cue配置与文件存在 | 不合并Saved / 平台配置，不解析地图；独立包仍需检查 |
 | Run-StageBuild | 按已有包启动并记录证据 / 性能口径 | WhatIf只预览；旧M1包不包含当前M2 |
@@ -185,6 +185,16 @@ C2-01用户实际检查10分钟、代码 / 配置60 / 等待5；四专项14:44�
 
 C2-02跑新Range、旧BreakPulseAbility / PoiseReaction各一次；范围去重 / 遮挡 / 状态与通知取消由14场景自动化复用，人工只查训练目标两次F、可见反馈、一次Pause / Stop与原短基线，目标8–12分钟。不要求精准撞敌人攻击帧，不新搭Controller验收图。实机没有碰到的交战时序照实记录，不把未观察写成通过。
 
+## C2-02收尾与测试保留
+
+用户本批检查10分钟，三项专项Success、GA Valid、训练目标两次真实F与归零恢复有日志；可选敌人交战未给细节，留D收口，不重复14组人工矩阵。
+
+Core16 / UI2共18项自动化保留；全部由WITH_DEV_AUTOMATION_TESTS隔离，普通Play不会自行运行，默认Shipping排除主体。Development的编译 / 代码体积 / 静态注册成本与游戏每帧玩法开销区分。后续只维护失效 / 重复用例或随真实功能删除同步调整，不定期清空旧阶段测试，不因目录叫Tests而删除正式引用资产。
+
+## D章影响范围（指南已下发、待实施）
+
+[D](M2_05D_BreakPulseHUD.md)新增一个真实GAS / Presenter生命周期专项`EmberTrial.UI.BreakPulse.Lifecycle`，配套旧BreakPulseRange / BreakPulseAbility各一次；预计共19项，但当前仍18项。自动化覆盖计时 / 显示门控 / 暂停 / 换身体 / 旧来源与EndPlay，不生成屏幕Widget；人工8–12分钟只查四组：显示与P、既有控制台重建入口、敌人正式F / 四能力交战、Retry / Continue / Stop短基线。无需Controller临时接线，不重复旧训练目标矩阵，不强求撞指定攻击帧。若真实敌人未归零，反馈实际情况再定位，不用开发扣Poise代替正式命中证据。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-本地HEAD`0cce598`已包含完整C2-01五新 / 八旧Source、两新输入 / 能力与实际资产修改；核对起点工作区 / 暂存区干净。本次只Stage最新C2-01报告、来源70项与状态 / 路线收尾、[C2-02指南](M2_05C2_02_BreakPulseRange.md)，建议`docs: verify break pulse cast and prepare range resolution`。C2-02实际Source / 通知配置尚未实施，按其末尾清单完成后另交。Raw / 日志 / 生成物 / 包体留本地；Git由用户操作，助手未联网核验远端或改索引。
+当前实现基线为`36bb869`，Source / UE资产保持C2-02验收状态。本轮只提交新`Docs/M2_05D_BreakPulseHUD.md`、未提交的C2-02报告 / 来源收尾及本轮状态文档，建议`docs: prepare break pulse cooldown HUD and milestone closure`。D尚未实施，不先建空Source / WBP或生成D验收报告。完成后按D最后清单重新Stage五新 / 五旧Source、新WBP与原Controller实际差异及验收文档，建议`feat: show break pulse cooldown through lifecycle-aware HUD`。Raw / 生成物 / 日志 / 包体留本地；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。

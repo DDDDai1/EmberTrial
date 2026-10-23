@@ -1,6 +1,6 @@
 # M2-05C2-02：唯一动画通知与真实范围破势
 
-2026-10-23，固定UE5.5.4。前置[C2-01已验收](Reports/M2_05C2_01_Verification.md)，无待补项；本章为**待手动实施**，三新 / 五旧共8份Source，完整代码见下文。助手只准备忽略目录候选和指南，未直接改实际Source、资产，未代Build / 自动化 / PIE或操作Git。
+2026-10-23，固定UE5.5.4。前置[C2-01已验收](Reports/M2_05C2_01_Verification.md)，无待补项；**[本章已验收](Reports/M2_05C2_02_Verification.md)**，用户18:44全项反馈通过，手动80 / 等待10；以下保留完整手动步骤，三新 / 五旧共8份Source，完整代码见下文。助手只准备忽略目录候选和指南，未直接改实际Source、资产，未代Build / 自动化 / PIE或操作Git。
 
 本批把已有F施放接到第12帧 / .4秒的一次范围Poise GE，复用B2的归零反应 / 恢复。F绑定、6秒真实冷却、三类旧资源HUD保持原逻辑；冷却反馈UI留D。预计手动70–110分钟（代码40–65、资产配置15–30、短查8–12），构建 / 索引等待另列。
 
@@ -1341,38 +1341,16 @@ F中Stop再开 / 原能力-E-P与移动跳跃短基线：
 
 编译 / 自动化用文字贴首条Error或断言、文件行号与前后约20行；通知配置用截图含AM标题 / 通知点 / 右键菜单或Details；时序难描述给5–10秒视频和按键先后。给完成时分即可，我读本地日志；不用抄每行成功日志，也不让你精准掐测试时点。正常开发由你输入代码；直接接手仍需你明确要求。
 
-通过后保存报告，同轮进入D的最小冷却反馈与模块收口；本批没有新Cook / 性能采样。当前139Source / 75cpp / 18测试仅是**实施后的预期**，实际工程仍C2-01的136 / 73 / 17。
+通过后保存报告，同轮进入D的最小冷却反馈与模块收口；本批没有新Cook / 性能采样。2026-10-23收尾：当前实际139Source / 75cpp / 18测试已落地，来源仍70；[D冷却HUD指南](M2_05D_BreakPulseHUD.md)已下发、待手动实施，现有测试保留。
 
 ## 12. 本批 Commit / Push（固定放在最后）
 
-**实施且验收通过后**Stage以下三新 / 五旧Source（前缀EmberTrial/Source/）：
+2026-10-23收尾：完整八Source与AM修改已由用户提交36bb869；139Source与HEAD归一换行一致，AM LFS匹配，当前暂存区为空。初查时三份新文件的空暂存快照已由用户更新后提交，问题关闭，不重复Stage无差异源码 / 资产，不需回滚。
+
+当前只Stage最新文档：本指南、Docs/Reports/M2_05C2_02_Verification.md、Docs/AssetManifest.csv、Progress / Backlog / Architecture / AcceptanceWorkflow_Options / VersionControl / 两份M2路线 / README / Introduction收尾与新D指南。测试保留，无测试源码清理差异。
 
 ```text
-EmberTrial/Public/Animation/ETAN_BreakPulseCommit.h
-EmberTrial/Private/Animation/ETAN_BreakPulseCommit.cpp
-EmberTrial/Tests/ETBreakPulseRangeTests.cpp
-EmberTrial/Public/Abilities/ETGA_BreakPulse.h
-EmberTrial/Private/Abilities/ETGA_BreakPulse.cpp
-EmberTrial/Public/Characters/EmberTrialCharacter.h
-EmberTrialEditor/Private/Validation/ETGameplayAssetValidator.cpp
-EmberTrial/Tests/ETBreakPulseAbilityTests.cpp
+docs: prepare break pulse cooldown HUD and milestone closure
 ```
 
-**UE资产**：
-
-```text
-EmberTrial/Content/EmberTrial/Animations/BreakPulse/Montage/AM_ET_BreakPulse_01.uasset
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_BreakPulse.uasset
-```
-
-AM应有新通知差异；GA完成Compile / Save，只有实际出现差异时Stage，原生继承的新默认值不要求人为制造资产变化。C1 LS / AS、Skeleton / Rig、旧Stagger / Hit / Body / 输入均无计划改动；临时禁用AI不能入库，地图恢复后如无差异就不Stage。
-
-**文档**：本指南、实施后生成的`Docs/Reports/M2_05C2_02_Verification.md`、来源清单中AM / GA实际哈希与用途、Progress / Backlog / Architecture / AcceptanceWorkflow_Options / VersionControl / 两份路线 / README / Introduction最新收尾与下一批指南。若当前C2-01收尾尚未提交，一起包含；来源仍70项，不为原生Notify的源码虚增UE资产行。
-
-建议Commit：
-
-```text
-feat: resolve break pulse poise damage from montage notify
-```
-
-CLion刷新Changes → Stage最新变化（先Stage后又修改的文件要**再Stage**）→ 检查完整Source、AM真实Notify配置 / LFS与正式值 → Commit → Push。现在尚不存在的新Source / 后续报告不要提前创建空文件提交；Raw / 日志 / 崩溃转储 / Binaries / Intermediate / Saved / IDE生成物与包体留本地。用户操作Git，助手未改索引、Commit或联网核验远端。
+CLion刷新Changes → Stage最新文档 → 检查Diff → Commit → Push；Raw / 日志 / 生成物 / 包体留本地。用户操作Git，助手未代改索引、Commit或联网核验远端。D指南已生成，但实际Source / WBP尚未实施，不提前创建空文件提交。
