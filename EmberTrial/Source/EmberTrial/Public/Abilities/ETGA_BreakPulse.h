@@ -7,9 +7,12 @@
 class AEmberTrialCharacter;
 class UAbilitySystemComponent;
 class UAnimMontage;
+class UAnimNotify;
+class UAnimSequenceBase;
+class USkeletalMeshComponent;
 class UAbilityTask_PlayMontageAndWait;
 
-// C2-01只负责施放 / 真实冷却事务；C2-02再接唯一通知与范围结算。
+// 施放与冷却由GA拥有；无状态Notify只路由准确实例的一次范围提交。
 UCLASS(Blueprintable)
 class EMBERTRIAL_API UETGA_BreakPulse : public UGameplayAbility
 {
@@ -17,6 +20,8 @@ class EMBERTRIAL_API UETGA_BreakPulse : public UGameplayAbility
 public:
     UETGA_BreakPulse();
     bool HasValidConfiguration() const;
+    void HandleBreakPulseCommit(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
+                                int32 MontageInstanceID, UAnimNotify* NotifyToken);
     virtual const FGameplayTagContainer* GetCooldownTags() const override;
 
 protected:
@@ -36,6 +41,7 @@ protected:
 
 private:
     friend class FETBreakPulseAbilityTest;
+    friend class FETBreakPulseRangeTest;
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|BreakPulse")
     TObjectPtr<UAnimMontage> CastMontage;
@@ -46,6 +52,20 @@ private:
               meta = (ClampMin = "0.0", ClampMax = "600.0"))
     float CastMaxHorizontalSpeed = 3.0f;
 
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|BreakPulse",
+              meta = (ClampMin = "1.0", ClampMax = "3000.0", Units = "cm"))
+    float PulseRadius = 300.0f;
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|BreakPulse",
+              meta = (ClampMin = "1.0", ClampMax = "1000.0"))
+    float PoiseDamage = 60.0f;
+
+    // 一次激活的快照；运行中改CDO不改变已接受施放的范围 / 数值。
+    TWeakObjectPtr<UAnimNotify> ActiveCommitToken;
+    float ActiveCommitTime = 0.0f;
+    float ActiveRadius = 0.0f;
+    float ActivePoiseDamage = 0.0f;
+    bool bStarting = false;
+    bool bCommitAttempted = false;
     FGameplayTagContainer NativeCooldownTags;
     UPROPERTY(Transient)
     TObjectPtr<UAnimMontage> ActiveMontage;
@@ -57,6 +77,8 @@ private:
 
     bool ReadContext(const FGameplayAbilityActorInfo* ActorInfo, AEmberTrialCharacter*& Body,
                      UAbilitySystemComponent*& ASC) const;
+    bool IsCurrentCast(uint32 Serial) const;
+    void ResolvePulse(uint32 Serial, const FVector& Origin, float Radius, float Damage);
     void ReleaseMontage();
     UFUNCTION()
     void HandleCompleted();

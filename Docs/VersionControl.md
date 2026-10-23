@@ -358,6 +358,8 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-10-23 C1收尾：本地b3cbc24已包含三份动画与完整B2，f4127ff / 77e556f补交关闭旧空文件问题。工作区起点干净，131Source归一换行后与HEAD一致；三个新LFS OID吻合本机。当前只Stage最新文档收尾，不重复Stage无变化资产。C2-01待用户写入，未来新Source / GA / IA不提前提交；未联网确认远端。
 
+2026-10-23 C2-01验收：本地0cce598已完整提交五新 / 八旧与两新 / 两变UE资产；核对起点工作区 / 暂存区干净。136Source归一换行一致，四个LFS OID与本机SHA吻合；HitReact / Stagger原资产字节无变，继承原生新增策略并有Valid / 自动化证明，不强行重存制造差异。当前只提交报告 / 来源70项 / 状态和C2-02指南；下一批新Source / 通知未落地，不提前提交空文件，未联网核验远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-截至2026-10-23，本地HEAD`b3cbc24`已包含完整B2与C1三素材，实施前工作区 / 暂存区干净；此前空文件提交问题已由用户补交解决，无需重复提交或回滚。本次只Stage最新C1报告、来源68项 / 数值JSON实际目录修正、状态 / 路线文档与[C2-01指南](M2_05C2_01_BreakPulseAbility.md)，建议`docs: verify break pulse animation and prepare casting ability`。C2-01源码 / GA / IA尚未生成，实施并验收后按其最后清单另交。Raw / 日志 / 生成文件 / 包体留本地；Git由用户操作，助手未联网核验远端。
+本地HEAD`0cce598`已包含完整C2-01五新 / 八旧Source、两新输入 / 能力与实际资产修改；核对起点工作区 / 暂存区干净。本次只Stage最新C2-01报告、来源70项与状态 / 路线收尾、[C2-02指南](M2_05C2_02_BreakPulseRange.md)，建议`docs: verify break pulse cast and prepare range resolution`。C2-02实际Source / 通知配置尚未实施，按其末尾清单完成后另交。Raw / 日志 / 生成物 / 包体留本地；Git由用户操作，助手未联网核验远端或改索引。

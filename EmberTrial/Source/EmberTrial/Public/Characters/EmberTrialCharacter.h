@@ -144,6 +144,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETHealingAbilityTest;
     friend class FETPoiseReactionTest;
     friend class FETBreakPulseAbilityTest;
+    friend class FETBreakPulseRangeTest;
 
     // Ready只表示三组属性链初始化成功；不代表存活、受控或能力已授予。
     bool bStartupAttributesInitialized = false;

@@ -303,7 +303,7 @@ bool FETBreakPulseAbilityTest::RunTest(const FString& Parameters)
                     TEXT("Cast does not spend stamina"),
                     ASC->GetNumericAttributeBase(UETStaminaAttributeSet::GetStaminaAttribute()),
                     100.0f);
-                TestEqual(TEXT("C2-01 has no Poise resolution"),
+                TestEqual(TEXT("Cast does not reduce caster Poise"),
                           ASC->GetNumericAttributeBase(UETPoiseAttributeSet::GetPoiseAttribute()),
                           100.0f);
                 int32 Charges = 0;

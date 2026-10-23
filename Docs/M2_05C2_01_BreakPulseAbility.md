@@ -1,6 +1,6 @@
 # M2-05C2-01：F施放、真实冷却与动作优先级
 
-2026-10-23，UE5.5.4。前置[C1动画素材已验收](Reports/M2_05C1_Verification.md)，无待补项。本章为**待手动实施**指南，五新 / 八旧共13份Source的代码在下文；助手没有写入实际Source或创建UE资产，也未代Build / 自动化 / PIE / Git操作。
+2026-10-23，UE5.5.4。前置[C1动画素材已验收](Reports/M2_05C1_Verification.md)，无待补项。**[本章已验收](Reports/M2_05C2_01_Verification.md)**，用户14:48反馈全项完成，手动70 / 等待5分钟；以下保留完整手动实施指南，五新 / 八旧共13份Source的代码在下文；助手没有写入实际Source或创建UE资产，也未代Build / 自动化 / PIE / Git操作。
 
 先完成F的站定施放、6游戏秒真实冷却和中断清理；C2-02再接第12帧的唯一原生Notify、范围 / 阵营 / 遮挡和Poise结算。本批F播放完成却不扣敌人韧性是预期；不添加临时按键播放图。预计手动80–130分钟，含代码40–70、资源配置20–40、检查8–12；构建 / 索引等待另记。
 
@@ -1536,52 +1536,16 @@ F单次 / 长按 / 冷却到期 / 移动空中拒绝无补播、资源隔离：
 
 编译 / 自动化用文字贴首条Error或断言、路径行号和上下文；编辑器字段找不到用截图含当前资产名称 / 选中对象 / Details搜索框；动作时序给5–10秒视频与按键顺序。不要只发“退出码6”，也无需手抄所有成功日志。正常开发仍由你输入代码；需要直接接手时明确说明，我再修改实际工程。
 
-本批通过后保存报告、登记真实新增GA / IA来源，再生成C2-02通知与范围结算。**当前只有指南和忽略目录候选，不把136Source / 73cpp / 17测试或新GA / IA写成已落地。**
+本批通过后保存报告、登记真实新增GA / IA来源，再生成C2-02通知与范围结算。**2026-10-23收尾：实际已落地136Source / 73cpp / 17测试及两新GA / IA，来源70；范围结算仍待[C2-02](M2_05C2_02_BreakPulseRange.md)。**
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-以下是**实施且验收通过后**需要包含的实际变化；现在不存在的Source / GA / IA不要先建空文件提交。C1三动画已在b3cbc24内，无差异就不重复Stage。
+2026-10-23收尾：完整五新 / 八旧Source、两新 / 两变UE资产已由用户纳入本地`0cce598`，核对起点工作区 / 暂存区干净；HitReact / Stagger字节无差异，原生继承规则已有Valid / 实测支持，不强制重存。
 
-**新增五个Source**（前缀均为`EmberTrial/Source/`）：
-
-```text
-EmberTrial/Public/Abilities/Effects/ETBreakPulseCooldownEffect.h
-EmberTrial/Private/Abilities/Effects/ETBreakPulseCooldownEffect.cpp
-EmberTrial/Public/Abilities/ETGA_BreakPulse.h
-EmberTrial/Private/Abilities/ETGA_BreakPulse.cpp
-EmberTrial/Tests/ETBreakPulseAbilityTests.cpp
-```
-
-**修改八个Source**（前缀均为`EmberTrial/Source/`）：
+当前Stage最新内容：本指南、`Docs/Reports/M2_05C2_01_Verification.md`、`Docs/AssetManifest.csv`、Progress / Backlog / Architecture / AcceptanceWorkflow_Options / VersionControl / 两份M2路线 / README / Introduction，以及`Docs/M2_05C2_02_BreakPulseRange.md`。源码 / 资产无差异不重复Stage。
 
 ```text
-EmberTrial/Public/Abilities/ETGameplayTags.h
-EmberTrial/Private/Abilities/ETGameplayTags.cpp
-EmberTrial/Public/Characters/EmberTrialCharacter.h
-EmberTrial/Private/Characters/EmberTrialCharacter.cpp
-EmberTrial/Private/Abilities/ETGA_HitReact.cpp
-EmberTrial/Private/Abilities/ETGA_Stagger.cpp
-EmberTrial/Private/Resources/ETStaminaRecoveryComponent.cpp
-EmberTrialEditor/Private/Validation/ETGameplayAssetValidator.cpp
+docs: verify break pulse cast and prepare range resolution
 ```
 
-**两新 / 四旧UE资产**：
-
-```text
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_BreakPulse.uasset
-EmberTrial/Content/EmberTrial/Input/Actions/IA_ET_BreakPulse.uasset
-EmberTrial/Content/ThirdPerson/Input/IMC_Default.uasset
-EmberTrial/Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_HitReact.uasset
-EmberTrial/Content/EmberTrial/Abilities/GA_ET_Stagger.uasset
-```
-
-**文档**：本指南、实施后生成的`Docs/Reports/M2_05C2_01_Verification.md`、实际来源清单、Progress / Backlog / 路线 / Architecture / AcceptanceWorkflow_Options / VersionControl / README / Introduction收尾，以及届时下发的下一批指南。当前C1报告 / 修正后的C1路径JSON若尚未提交，也一起包含。
-
-建议本批Commit：
-
-```text
-feat: add break pulse cast and cooldown transaction
-```
-
-CLion刷新Changes → Stage本批最新内容（已有Staged但又改过的文件需**再Stage**）→ 检查Staged Diff、Source非空与六个资产LFS → Commit → Push。没有差异的地图 / Config / uproject / 旧动画不用Stage；不要提交负例None / 临时速度或冷却。Artifacts、Saved / Intermediate / Binaries、IDE生成物、Docs/Reports/Raw留本地。助手没有操作索引、Commit或远端，也不依据缓存origin断言GitHub已同步。
+C2-02源码 / 通知尚未实施，按其最后清单完成后另交，不提前创建空文件。CLion刷新Changes → Stage最新文档 → 检查Diff → Commit → Push；Raw / 日志 / 生成文件 / 包体本地，用户操作Git，助手未改索引或联网核验远端。

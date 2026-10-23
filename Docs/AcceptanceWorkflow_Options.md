@@ -1,6 +1,6 @@
 # EmberTrial 验收流程调整：方案比较与选择记录
 
-方案选择日期2026-10-05，维护更新2026-10-23。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前功能基线M2-05C1，清理进度见[Progress](Progress.md)；本页保留方案比较、最终选择与可复用的执行规则。
+方案选择日期2026-10-05，维护更新2026-10-23。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前功能基线M2-05C2-01，清理进度见[Progress](Progress.md)；本页保留方案比较、最终选择与可复用的执行规则。
 
 ## 1. 当前结论与需要解决的问题
 
@@ -179,6 +179,12 @@ C1用户实际检查5分钟、制作40 / 等待5；三孤立素材不重Build / 
 
 C2拆为施放冷却 / 通知范围两批。C2-01只跑新BreakPulseAbility与相关StaggerAbility / RecoveryDodge / Healing.Ability各一次，人工8–12分钟；不搭Controller图、不重复多Pawn重建矩阵。自动化没过先排查，不叠加无关实机清单。指南详见[C2-01](M2_05C2_01_BreakPulseAbility.md)。
 
+## C2-01收尾与下一批影响范围
+
+C2-01用户实际检查10分钟、代码 / 配置60 / 等待5；四专项14:44–45当次Success，五配置Valid，日志 / 用户反馈分别注明覆盖范围。本轮不补做旧多Pawn / HUD重建矩阵。
+
+C2-02跑新Range、旧BreakPulseAbility / PoiseReaction各一次；范围去重 / 遮挡 / 状态与通知取消由14场景自动化复用，人工只查训练目标两次F、可见反馈、一次Pause / Stop与原短基线，目标8–12分钟。不要求精准撞敌人攻击帧，不新搭Controller验收图。实机没有碰到的交战时序照实记录，不把未观察写成通过。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-截至2026-10-23，本地HEAD`b3cbc24`已包含完整B2与C1三素材，实施前工作区 / 暂存区干净；此前空文件提交问题已由用户补交解决，无需重复提交或回滚。本次只Stage最新C1报告、来源68项 / 数值JSON实际目录修正、状态 / 路线文档与[C2-01指南](M2_05C2_01_BreakPulseAbility.md)，建议`docs: verify break pulse animation and prepare casting ability`。C2-01源码 / GA / IA尚未生成，实施并验收后按其最后清单另交。Raw / 日志 / 生成文件 / 包体留本地；Git由用户操作，助手未联网核验远端。
+本地HEAD`0cce598`已包含完整C2-01五新 / 八旧Source、两新输入 / 能力与实际资产修改；核对起点工作区 / 暂存区干净。本次只Stage最新C2-01报告、来源70项与状态 / 路线收尾、[C2-02指南](M2_05C2_02_BreakPulseRange.md)，建议`docs: verify break pulse cast and prepare range resolution`。C2-02实际Source / 通知配置尚未实施，按其末尾清单完成后另交。Raw / 日志 / 生成物 / 包体留本地；Git由用户操作，助手未联网核验远端或改索引。

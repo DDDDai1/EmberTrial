@@ -201,7 +201,7 @@ void UETGameplayAssetValidator::ValidateBlueprint(UBlueprint* Blueprint, int32& 
         if (!Break->HasValidConfiguration())
         {
             AddIssue(Blueprint, TEXT("ET-BREAK-001"),
-                TEXT("BreakPulse requires valid native policy, in-place empty-notify montage, "
+                TEXT("BreakPulse requires valid native policy, one ET Break Pulse Commit outside blending, "
                      "Cooldown .1..60, Speed 0..600, and built-in Cost/Cooldown classes None."), Issues);
         }
     }
