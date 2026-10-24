@@ -1,6 +1,6 @@
 # M2-05：范围破势分批路线
 
-更新2026-10-24，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；下一批[M2-06A锁定目标](M2_06A_TargetSelection.md)已下发。
+更新2026-10-24，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；M2-06A也已验收，下一批[B1锁定标记](M2_06B1_TargetMarker.md)已下发。
 
 ## 1. 最终玩法与数值归属
 
@@ -43,4 +43,4 @@ A不加入常驻更新；范围能力不逐帧扫描关卡。必要效果和状�
 
 ## 5. 当前 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`c59291d`；实际Source / UE资产与该HEAD一致，助手未改索引或核验GitHub远端。本轮Stage D与M2-05总验收、新M2-06路线 / A指南、来源71项和本轮状态文档即可，不重复Stage无差异源码 / 资产。建议Commit（英文）：`docs: verify break pulse HUD and prepare target locking`。中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。未来A的实物提交按A最后清单；Raw / 日志 / 生成物 / 包体留本地，用户自行Stage最新完整内容 / Commit / Push。
+当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。

@@ -1,6 +1,6 @@
 # M2-06A：锁定目标筛选与生命周期
 
-2026-10-24，UE5.5.4。前置[M2-05模块验收通过](Reports/M2_05_Verification.md)，无待补项；[锁定路线](M2_06_TargetLockRoadmap.md)。**本章待用户手动实施**，助手仅在忽略目录准备代码候选，未改实际Source / UE资产或执行Build / 自动化。
+2026-10-24，UE5.5.4。前置[M2-05模块验收通过](Reports/M2_05_Verification.md)，无待补项；[锁定路线](M2_06_TargetLockRoadmap.md)。**本章已于12:44反馈并验收通过**，见[A报告](Reports/M2_06A_Verification.md)；下文保留实施步骤，无需重做，助手仅在忽略目录准备代码候选，未改实际Source / UE资产或执行Build / 自动化。
 
 预算手动100–150分钟：代码60–95、资产 / 配置25–40、检查8–12，构建等待另记。代码较长可分段保存，全部完成再正常Build，不用Live Coding。
 
@@ -913,7 +913,7 @@ Set-Location 'E:\UE_Project\Demo'
 .\Tools\Refresh-CLion.ps1
 ```
 
-CLion Reload CMake Project。预期Core57 / UI20 / Editor3，共80cpp / 147Source，自动化20项（Core17 / UI3）；当前实际仍D的144 / 78 / 19，这些是实施后的预期。
+CLion Reload CMake Project。预期Core57 / UI20 / Editor3，共80cpp / 147Source，自动化20项（Core17 / UI3）；下发时为D的144 / 78 / 19，现已达到147 / 80 / 20；后文保留原操作步骤。
 
 ```powershell
 & 'D:\UE5\UE_5.5\Engine\Build\BatchFiles\Build.bat' EmberTrial Win64 Development '-Project=E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject' -WaitMutex -NoHotReloadFromIDE
@@ -925,15 +925,15 @@ CLion Reload CMake Project。预期Core57 / UI20 / Editor3，共80cpp / 147Sourc
 
 ### 7.1 新Input Action
 
-1. Content Browser进入`/Game/EmberTrial/Input/Actions`，右键 → Input → Input Action，命名**IA_ET_LockToggle**，不用Duplicate旧F / Q。
+1. Content Browser进入`/Game/EmberTrial/Input/Actions`，右键 → Input → Input Action，命名**IA_ET_LockTarget**，不用Duplicate旧F / Q。
 2. 打开，Value Type=**Digital (bool) / Boolean**；Triggers数组0项、Modifiers数组0项。不要增加Hold / Pressed Trigger，本次Started已经表示一次按下。
 3. Trigger When Paused=False。Consume Input保持True，其他字段沿默认；Save。
 
 ### 7.2 在现有IMC_Default加一行
 
 1. 打开`/Game/ThirdPerson/Input/IMC_Default`，路径与目前角色Default Mapping Context一致。**不是新建IMC，也不把它配到菜单Controller。**
-2. Mappings点一次+，Action选择IA_ET_LockToggle，Key展开键盘选**Tab**；该行Triggers / Modifiers均0。
-3. 核对只有一个IA_ET_LockToggle映射、只有这一条游戏内Tab锁定入口。原WASD / Space / 左键 / 2 / Q / F映射保留，不加P旧映射，不改菜单Tab导航。
+2. Mappings点一次+，Action选择IA_ET_LockTarget，Key展开键盘选**Tab**；该行Triggers / Modifiers均0。
+3. 核对只有一个IA_ET_LockTarget映射、只有这一条游戏内Tab锁定入口。原WASD / Space / 左键 / 2 / Q / F映射保留，不加P旧映射，不改菜单Tab导航。
 4. Save。若搜索Tab看见旧正式动作也占用Tab，先报告该行内容，勿盲删既有功能；目前基线没有已设计的游戏内Tab动作。
 
 ### 7.3 Controller Class Defaults与继承组件
@@ -952,7 +952,7 @@ CLion Reload CMake Project。预期Core57 / UI20 / Editor3，共80cpp / 147Sourc
 | Occlusion Grace | .35s |
 | Auto Activate | True |
 
-4. 点击工具栏**Class Defaults**，Details搜索**Target Lock Action**，选IA_ET_LockToggle。这个输入资产是Controller类属性，不在TargetLock组件的六个数值里；搜索Heal / F等角色属性也找不到它。
+4. 点击工具栏**Class Defaults**，Details搜索**Target Lock Action**，选IA_ET_LockTarget。这个输入资产是Controller类属性，不在TargetLock组件的六个数值里；搜索Heal / F等角色属性也找不到它。
 5. 不给Character / 敌人 / 菜单Controller添加TargetLock或新IA引用，不在EventGraph接Tab或Toggle函数。Compile → Save，IA与IMC也Save。
 6. 回L_ET_VerticalSlice。本批没有新WBP，旧五HUD不变，也不做新的BindWidget校验规则。TargetLock不勾选Tick / Debug Draw。
 
@@ -1027,7 +1027,7 @@ EmberTrial/Public/Characters/EmberTrialCharacter.h
 一新 / 两旧UE资产：
 
 ```text
-EmberTrial/Content/EmberTrial/Input/Actions/IA_ET_LockToggle.uasset
+EmberTrial/Content/EmberTrial/Input/Actions/IA_ET_LockTarget.uasset
 EmberTrial/Content/ThirdPerson/Input/IMC_Default.uasset
 EmberTrial/Content/EmberTrial/Blueprints/Framework/BP_ETPlayerController.uasset
 ```
@@ -1049,3 +1049,5 @@ feat: 新增锁定目标评分筛选与锁定生命周期管理
 英文可作标题，中文译文供理解或作为提交正文；不需要把两条重复拼成同一行。后续每份操作文档都按这一格式提供术语准确的中英建议。
 
 CLion刷新Changes → Stage最新完整内容（已Stage后又修改需要再Stage）→ 检查Staged新文件不为空、物理路径正确、资产由LFS管理 → Commit → Push。Raw / Saved / Binaries / Intermediate / 索引 / 日志 / 包体留本地，不Force Add。用户操作Git，助手未改暂存区、Commit、Push或联网核验远端。
+
+2026-10-24收尾：输入实物名称IA_ET_LockTarget与原建议LockToggle不同，引用和功能正确，本文已按实物同步。完整实现已由用户提交5bd5354，源码 / 资产无需重复Stage；当前提交范围及中英Commit建议见[A验收报告末尾](Reports/M2_06A_Verification.md#5-当前-commit--push固定放在最后)。下一批进入B1标记，镜头仍待B2。

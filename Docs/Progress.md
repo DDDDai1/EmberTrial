@@ -1,36 +1,38 @@
 # 当前开发进度
 
-更新2026-10-24。**[M2-05整章已验收](Reports/M2_05_Verification.md)，无待补项。**最新[D报告](Reports/M2_05D_Verification.md)已保存；下一批[M2-06A锁定目标筛选与生命周期](M2_06A_TargetSelection.md)已下发，待用户手动实施。
+更新2026-10-24。**[M2-06A目标锁定已验收](Reports/M2_06A_Verification.md)，无待补项。**下一批[B1锁定标记](M2_06B1_TargetMarker.md)已下发、待用户手动实施；镜头跟随留B2。
 
 ## 当前工程与功能基线
 
 - UE5.5.4 / Windows Standalone / 键鼠，CLion编辑、UBT / UHT正常构建。
-- 实际144 Source / 78cpp，Core55 / UI20 / Editor3；19项自动化（Core16 / UI3），来源71项 / 本地290份UE资产。
-- 三段轻攻击、体力方向闪避 / 短无敌、Q治疗 / 次数HUD、近战AI和菜单 / 暂停 / 失败重试 / 本次进程检查点保持。
-- F站定施放，一次6秒冷却，12帧/.4秒唯一通知结算300cm / 每合法目标60Poise；无Health伤害，取消不退款、Pause冻结。
-- 两次F100→40→0、1.2秒Stagger / 存活回填100与继续近战已有真实敌人日志；D冷却HUD已接，施放 / 冷却 / 就绪状态与只读GAS快照，有限刷新 / 旧实例清理通过。
-- 当前包Cleanup/Attempt01仍为清理后的治疗B2，不含后来次数HUD / Poise / F / 冷却HUD；本轮无新Cook / Insights。
+- 实际147 Source / 80cpp，Core57 / UI20 / Editor3；20项自动化（Core17 / UI3），来源72项 / 本地291份UE资产。
+- 三段轻攻击、体力方向闪避 / 短无敌、Q治疗 / 次数、F范围破势 / 冷却HUD、近战AI、菜单 / 暂停 / Failure / 本次进程检查点均保持。
+- Tab Started获取 / 解除唯一Ready存活Enemy；按需Overlap、角度 / 距离量化评分 / Visibility筛选，1200获取 / 1500脱锁、.10秒维持与.35秒遮挡宽限。无锁无Timer，死亡 / 换控 / 结束清理，不自动抢换目标。
+- 当前只有锁定身份与日志，**还没有标记或自动转镜头**。A真实请求 / 敌人及玩家死亡清理、Selection专项已通过。
+- 当前包Cleanup/Attempt01仍是旧版本，不含后来次数HUD / Poise / F / 冷却HUD / 锁定；本轮无Cook / Insights。
 
 ## 当前证据与下一开发入口
 
-用户10/23 20:26反馈D完成，手动代码 / 配置60、检查10、构建等待5。五新 / 五旧Source完整，双目标产物覆盖最后源码19:27:50；新WBP与原Controller实物已保存，本项目Valid，三指定专项20:20–21 Success。真实敌人100→40→0、回填与恢复近战已关闭C2-02遗留的可见样本缺口；具体画面 / 键鼠仍按用户反馈注明范围，详见D报告。
+用户12:44反馈A全部完成，代码 / 配置80、检查10、构建等待5。六Source与候选一致，双构建覆盖最终12:31:34源码，Selection于12:42:20.733 Success；真实Tab / 主动解除 / NoCandidate、敌人及玩家死亡 / PawnChanged清理有日志。新IA实际名IA_ET_LockTarget，引用与功能正确，指南同步实物名、不重命名。详见[A报告](Reports/M2_06A_Verification.md)。
 
-[M2-06路线](M2_06_TargetLockRoadmap.md)分A目标身份 / 筛选 / 生命周期、B标记 / 镜头、C切换 / 交战。A三新 / 三旧Source、单Tab Started，按请求Overlap / 角度距离评分 / Visibility筛选，锁定后只检查当前目标；暂不转镜头或显示标记。预计100–150分钟、人工检查8–12；实现后才预计147 Source / 80cpp，Core57 / UI20 / Editor3、20测试与来源72。当前仍是D实际规模，不计预计工时。
+[B1指南](M2_06B1_TargetMarker.md)新增六UI文件 / 零旧Source、新WBP与Controller一份UI标记组件，读取Core同一目标并按需投影；Widget无Tick / Binding，只有锁定有效且根可见时UI组件更新。预计80–120分钟 / 人工8–12，未来才153 Source / 83cpp、UI23、21测试与来源73。当前实际仍147 / 80 / 20 / 72，未计预计工时。
 
-本次只读审查、生成报告与指南并同步文档；未写实际Source / UE资产、执行Build / 自动化 / PIE / Cook或操作Git。冻结M1-03B1不改，旧有效测试保留。
+[锁定路线](M2_06_TargetLockRoadmap.md)原B拆为B1标记 / B2镜头；增加的60–90分钟粗估使用M2既有缓冲，不叠加全项目预算。A已用90 + 后续220–350，当前模块估计310–440分钟；仅90为实耗。
+
+本次只读审查、写报告 / 指南 / 状态文档；未改实际Source / UE资产，未Build / 自动化 / PIE / Cook或操作Git。冻结M1-03B1保持，旧有效测试保留。
 
 ## 工期与协作
 
-- D手动70 / 等待5；M2-05累计505分钟（8小时25分）/ 等待40；M2累计1070 / 104。
-- 项目累计3081分钟（51小时21分）/ 明确等待289分钟（4小时49分），仅计用户报告。
-- 每周约30小时、百元预算、键鼠；Blender与最终美术按中后期安排，暂无硬投递日期。
-- 普通开发我给完整代码 / 配置 / 短查，你手动实现；直接改工程须明确授权。方案B不重复搭Controller验收图。
-- 用户10/23新增约定：以后每份操作文档的建议Commit同步给出专业中文译文；如Break Pulse译为“破势”、lifecycle译为“生命周期”，不改历史Git提交。
+- A手动90 / 等待5；M2-06当前90 / 5，M2累计1160 / 109。
+- 项目累计3171分钟（52小时51分）/ 明确等待294分钟（4小时54分）；M2-05已收口505 / 40，只计用户报告。
+- 每周30小时、百元预算、键鼠、暂无硬期限；Blender与最终美术按中后期安排。
+- 普通实现由我给完整代码 / 配置 / 短查，你手动操作；直接改工程须明确授权。方案B不重搭Controller验收图，日志由我关联时间。
+- 每份新操作文档末尾给出实际提交范围、英文建议Commit与专业中文译文；不改历史提交标题。
 
 ## 证据与入口
 
-[当前A指南](M2_06A_TargetSelection.md)、[锁定路线](M2_06_TargetLockRoadmap.md)、[D报告](Reports/M2_05D_Verification.md)、[M2-05总验收](Reports/M2_05_Verification.md)、[M2路线](M2_Roadmap.md)、[架构](Architecture.md)、[来源](AssetManifest.csv)、[任务板](Backlog.md)、[方案B](AcceptanceWorkflow_Options.md)、[版本管理](VersionControl.md)。
+[当前B1指南](M2_06B1_TargetMarker.md)、[锁定路线](M2_06_TargetLockRoadmap.md)、[A报告](Reports/M2_06A_Verification.md)、[M2-05总验收](Reports/M2_05_Verification.md)、[M2路线](M2_Roadmap.md)、[架构](Architecture.md)、[来源](AssetManifest.csv)、[任务板](Backlog.md)、[方案B](AcceptanceWorkflow_Options.md)、[版本管理](VersionControl.md)。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`c59291d`；实际Source / UE资产与该HEAD一致，助手未改索引或核验GitHub远端。本轮Stage D与M2-05总验收、新M2-06路线 / A指南、来源71项和本轮状态文档即可，不重复Stage无差异源码 / 资产。建议Commit（英文）：`docs: verify break pulse HUD and prepare target locking`。中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。未来A的实物提交按A最后清单；Raw / 日志 / 生成物 / 包体留本地，用户自行Stage最新完整内容 / Commit / Push。
+当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。

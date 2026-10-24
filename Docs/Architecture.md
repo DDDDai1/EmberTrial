@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-24。本文描述M2-05验收后的实际实现：F施放 / 冷却 / 唯一通知范围结算与冷却HUD均已接入；[M2-06A锁定指南](M2_06A_TargetSelection.md)已下发，锁定尚未写入Source。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-24。本文描述M2-06A验收后的实际实现：四能力 / 五HUD与Core目标锁定已接；[B1标记指南](M2_06B1_TargetMarker.md)待手动实施，当前无自动镜头 / 锁定图标。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -96,9 +96,13 @@ Core Controller发布P意图，既有[FailureFlow](../EmberTrial/Source/EmberTri
 
 Character只读接口核对自有Spec / ASC并查询真实GE；[BreakPulsePresenter](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETBreakPulsePresenter.cpp)绑定本地Pawn / Ready与三个Tag，NextTick合并GAS中间态和Ready早于授予。可见且冷却活动时每.10游戏秒查询，隐藏 / 死亡 / 失去身体 / 结束即停。Widget仅渲染快照与报告根可见性，无Tick / Binding；Bootstrap换View不重置GAS，同Presenter重启隔离旧句柄 / 代次。冷却就绪只描述冷却，不复制CanActivate规则。新UI生命周期专项和真实画面边界见[D报告](Reports/M2_05D_Verification.md)。
 
-### 下一批锁定设计（尚未实现）
+### 目标锁定（A已实现）
 
-[A指南](M2_06A_TargetSelection.md)计划由Controller原生组件拥有唯一目标；请求时Overlap、角度 / 距离量化评分与可见性筛选，之后只限频检查当前目标。弱来源、死亡封口 / Ready / EndPlay / Possess与代次负责清理。先不动镜头 / 攻击方向 / UI，后续标记和镜头观察同一身份；Core不依赖UI。新选择专项仍为候选，不计入当前19项。
+[TargetLock](../EmberTrial/Source/EmberTrial/Private/TargetLock/ETTargetLockComponent.cpp)由游戏Controller创建唯一原生组件，Tab Started按请求Overlap并去重，Enemy / Ready / 存活 / 中心距离与Visibility精筛，角度 / 距离归一分数量化后按对象路径决胜。已有目标仅限频维持、距离迟滞 / 遮挡宽限；不自动抢换，无目标无Timer。弱引用、死亡封口 / Ready / EndPlay / Possess和代次确保释放；新身体不继承，不更改镜头 / 动作方向或伤害。实物IA_ET_LockTarget，代码不硬引用内容路径；见[A报告](Reports/M2_06A_Verification.md)。
+
+### 下一批标记（尚未实现）
+
+[B1](M2_06B1_TargetMarker.md)计划六个新UI文件和独立Controller表现组件，观察Core同一目标，不修改Bootstrap / Core。Widget只渲染Canvas坐标，无Actor引用 / Tick / Binding；组件仅锁定有效且根可见时在相机更新后投影，暂停不Tick、解锁即停。使用引擎UMG投影 / 玩家界面几何，不重复处理DPI；根隐藏与子控件离屏隐藏有不同刷新语义。新规则专项计划不替代真实Viewport检查，当前不计入20项。
 
 ## 7. 会话、菜单与出生
 
@@ -126,10 +130,10 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
-现有19项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
+现有20项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含后来次数HUD / Poise / F / 冷却HUD，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D冷却HUD已验收；锁定A指南已下发、待手动实施。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
+清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含后来次数HUD / Poise / F / 冷却HUD，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D冷却HUD已验收；锁定A已验收，B1标记指南已下发、待手动实施。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`c59291d`；实际Source / UE资产与该HEAD一致，助手未改索引或核验GitHub远端。本轮Stage D与M2-05总验收、新M2-06路线 / A指南、来源71项和本轮状态文档即可，不重复Stage无差异源码 / 资产。建议Commit（英文）：`docs: verify break pulse HUD and prepare target locking`。中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。未来A的实物提交按A最后清单；Raw / 日志 / 生成物 / 包体留本地，用户自行Stage最新完整内容 / Commit / Push。
+当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。

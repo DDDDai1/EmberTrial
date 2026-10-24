@@ -157,7 +157,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 | --- | --- | --- |
 | 正式菜单 / Retry / Continue / P / Q / 攻击与闪避 | 输入、UI、真实交战和主流程 | 画面 / 焦点仍需实机；不重复搭临时Controller验收图 |
 | ET_Stamina / ET_Healing / ET_Poise及既有损伤入口 | 资源查询 / 最小复现 | PIE修改有上下文限制；保留入口不等于产品功能 |
-| 19项EmberTrial自动化 | Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 范围、闪避、连段、治疗、UI纯规则与冷却生命周期 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
+| 20项EmberTrial自动化 | Practice、资源、韧性 / F、闪避、连段、治疗、UI纯规则 / 冷却生命周期、目标选择 / 生命周期 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
 | 两套Editor Validator | 玩法配置、BT键绑定、UMG必需控件 | 只读结构，不证明导航、白线、Notify实触发或切图 |
 | Validate-ProjectConfig | 共享地图 / Cook / Cue配置与文件存在 | 不合并Saved / 平台配置，不解析地图；独立包仍需检查 |
 | Run-StageBuild | 按已有包启动并记录证据 / 性能口径 | WhatIf只预览；旧M1包不包含当前M2 |
@@ -191,12 +191,12 @@ C2-02跑新Range、旧BreakPulseAbility / PoiseReaction各一次；范围去重 
 
 Core16 / UI2共18项自动化保留；全部由WITH_DEV_AUTOMATION_TESTS隔离，普通Play不会自行运行，默认Shipping排除主体。Development的编译 / 代码体积 / 静态注册成本与游戏每帧玩法开销区分。后续只维护失效 / 重复用例或随真实功能删除同步调整，不定期清空旧阶段测试，不因目录叫Tests而删除正式引用资产。
 
-## D收尾与M2-06A影响范围
+## A收尾与B1影响范围
 
-[D报告](Reports/M2_05D_Verification.md)：用户检查10分钟，三指定专项各Success、新WBP Valid，真实敌人F100→40→0 / 回填 / 恢复近战已有日志。实际共19项；其余16项本轮沿用，不把历史通过当成当次全组Success。重建日志样本位于就绪阶段，冷却中重建按用户反馈接受，计时 / 重启规则有专项交叉覆盖，不补造时序证据或新增重复手工图。
+[A报告](Reports/M2_06A_Verification.md)：检查10分钟，Selection当次Success，真实目标 / 源死亡和重开清理有日志；其余19项沿用。当前20项保留，不因阶段新旧清空测试；IA实际名LockTarget与原建议LockToggle不同，按实物同步，不为名字制造重存 / 重定向。
 
-[M2-06A](M2_06A_TargetSelection.md)只新增TargetLock.Selection专项，使用真实Overlap / 射线 / 生命周期夹具；旧19项沿用。人工8–12分钟只看真实Tab请求 / 长按、Neutral / 背向拒绝、死亡释放、P无补执行与Retry / Stop短基线。标记 / 镜头未接，暂不做相机手感验收；不搭Controller函数、不临时加第二敌人 / 挡板矩阵。实际新增规则或失败后才扩大相关检查。
+[B1](M2_06B1_TargetMarker.md)零旧Source修改，只新增MarkerRules纯规则专项，验证有限坐标 / 投影标志 / 视口内边界，旧20项沿用。不建模拟Viewport冒充投影集成；人工8–12分钟补真实标记 / 屏幕后隐藏 / 窗口缩放与DPI口径、重建 / 失活和死亡 / 切图清理。复用ke组件命令，不搭Controller变量 / 函数图、不重做全部伤害矩阵；镜头手感留B2。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`c59291d`；实际Source / UE资产与该HEAD一致，助手未改索引或核验GitHub远端。本轮Stage D与M2-05总验收、新M2-06路线 / A指南、来源71项和本轮状态文档即可，不重复Stage无差异源码 / 资产。建议Commit（英文）：`docs: verify break pulse HUD and prepare target locking`。中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。未来A的实物提交按A最后清单；Raw / 日志 / 生成物 / 包体留本地，用户自行Stage最新完整内容 / Commit / Push。
+当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。

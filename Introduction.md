@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-24，M0、M1、M2-01 / 02 / 03 / 04 / 05已验收，清理已关闭。**当前144 Source / 78cpp / 来源71，累计3081 / 明确等待289分钟，M2为1070 / 104、M2-05为505 / 40。四能力与F冷却HUD / 真实敌人交战成立；[M2-06A锁定目标指南](Docs/M2_06A_TargetSelection.md)已下发、待手动实施（100–150分钟，未计实耗）。当前包Cleanup/Attempt01不含后来次数HUD / Poise / F / 冷却HUD，最终作品未完成。手动C++ / 方案B / 用户自行Push保持；后续Commit建议同步专业中文译文。以下保留原M0起点：
+**截至2026-10-24，M0、M1、M2-01 / 02 / 03 / 04 / 05及06A已验收，清理已关闭。**当前147 Source / 80cpp / 来源72，累计3171 / 明确等待294分钟，M2为1160 / 109、M2-06为90 / 5，M2-05已收口505 / 40。目标筛选 / 生命周期成立，但标记 / 镜头尚未实现；[B1标记指南](Docs/M2_06B1_TargetMarker.md)已下发，预计80–120分钟未计实耗。旧独立包不含后来次数HUD / Poise / F / 冷却HUD / 锁定，最终作品未完成。手动C++ / 方案B / 用户自行Push保持，后续Commit同步专业中文译文。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`c59291d`；实际Source / UE资产与该HEAD一致，助手未改索引或核验GitHub远端。本轮Stage D与M2-05总验收、新M2-06路线 / A指南、来源71项和本轮状态文档即可，不重复Stage无差异源码 / 资产。建议Commit（英文）：`docs: verify break pulse HUD and prepare target locking`。中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。未来A的实物提交按A最后清单；Raw / 日志 / 生成物 / 包体留本地，用户自行Stage最新完整内容 / Commit / Push。
+当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。
