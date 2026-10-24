@@ -157,7 +157,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 | --- | --- | --- |
 | 正式菜单 / Retry / Continue / P / Q / 攻击与闪避 | 输入、UI、真实交战和主流程 | 画面 / 焦点仍需实机；不重复搭临时Controller验收图 |
 | ET_Stamina / ET_Healing / ET_Poise及既有损伤入口 | 资源查询 / 最小复现 | PIE修改有上下文限制；保留入口不等于产品功能 |
-| 20项EmberTrial自动化 | Practice、资源、韧性 / F、闪避、连段、治疗、UI纯规则 / 冷却生命周期、目标选择 / 生命周期 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
+| 21项EmberTrial自动化 | Practice、资源、韧性 / F、闪避、连段、治疗、UI纯规则 / 冷却生命周期、目标选择 / 生命周期与标记边界 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
 | 两套Editor Validator | 玩法配置、BT键绑定、UMG必需控件 | 只读结构，不证明导航、白线、Notify实触发或切图 |
 | Validate-ProjectConfig | 共享地图 / Cook / Cue配置与文件存在 | 不合并Saved / 平台配置，不解析地图；独立包仍需检查 |
 | Run-StageBuild | 按已有包启动并记录证据 / 性能口径 | WhatIf只预览；旧M1包不包含当前M2 |
@@ -195,8 +195,10 @@ Core16 / UI2共18项自动化保留；全部由WITH_DEV_AUTOMATION_TESTS隔离�
 
 [A报告](Reports/M2_06A_Verification.md)：检查10分钟，Selection当次Success，真实目标 / 源死亡和重开清理有日志；其余19项沿用。当前20项保留，不因阶段新旧清空测试；IA实际名LockTarget与原建议LockToggle不同，按实物同步，不为名字制造重存 / 重定向。
 
-[B1](M2_06B1_TargetMarker.md)零旧Source修改，只新增MarkerRules纯规则专项，验证有限坐标 / 投影标志 / 视口内边界，旧20项沿用。不建模拟Viewport冒充投影集成；人工8–12分钟补真实标记 / 屏幕后隐藏 / 窗口缩放与DPI口径、重建 / 失活和死亡 / 切图清理。复用ke组件命令，不搭Controller变量 / 函数图、不重做全部伤害矩阵；镜头手感留B2。
+[B1报告](Reports/M2_06B1_Verification.md)：人工检查10分钟，MarkerRules当次Success，旧20项沿用；两次真实View重建 / Pause / 切图 / Stop有日志。离屏 / 窗口缩放 / 失活恢复及死亡相关画面按用户反馈接受，PIE方式未注明，不扩充成完整DPI矩阵。早期LockMarker绑定Error已有后续保存 / Valid / 运行覆盖，关闭历史错误，不重复整章。
+
+[B2](M2_06B2_LockCamera.md)只新增CameraRules专项，验证有限值、最短角路径、指数收敛 / 帧率与Pitch目标边界；无Viewport夹具，不把纯规则冒充真实镜头。人工8–12分钟补鼠标所有权、Tab解除无回跳、动作方向、相机组件失活、Pause与死亡 / 切图释放，复用正式入口 / ke，不搭临时Controller图，旧21项按影响沿用。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。
+B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。

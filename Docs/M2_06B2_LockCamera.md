@@ -4,6 +4,8 @@
 
 手动预计80–130分钟：代码55–90、配置10–20、人工短查8–12；构建等待另记。本批没有新动画 / 美术 / 插件，不增加临时Blueprint测试函数，不进入C的双目标切换。
 
+下发前已对照本机UE5.5的UpdateRotation、CameraManager和输入清零流程，检查候选头文件路径 / 声明实现、文档代码及插值数学。属于静态核对，**尚未执行本章UBT / UHT、CameraRules或实机镜头检查**；第5–7节由你正常实施，不把候选检查当成Build成功。
+
 ## 1. 做完后应看到什么
 
 未锁定：鼠标和原来一样自由转镜头。Tab锁定：镜头平滑转向Core已有敌人，敌人移动时继续跟随；Yaw走最短角路径，不绕一整圈。水平同高时期望Pitch=-12°，高低目标加入两身体中心连线的仰角，再把期望Pitch限制在-35°至15°。旧SpringArm仍处理相机碰撞、原距离400cm不改，B1菱形仍在相机更新后投影。
@@ -493,7 +495,7 @@ EmberTrial/Private/Framework/ETPlayerController.cpp
 
 UE资产预计只有原`EmberTrial/Content/EmberTrial/Blueprints/Framework/BP_ETPlayerController.uasset`保存Camera配置；新组件来自原生，不创建新uasset。如果6.2纠正过玩家相机设置，额外包含实际BP_ThirdPersonCharacter差异并说明，不制造其他重存。B2不改UI源码 / WBP / 输入 / GA / 地图 / Config，来源数量预计仍73，仅实际变化资产更新hash。
 
-文档：本指南、完成后B2报告、Progress / Backlog / Architecture / 方案B / VersionControl / 两份M2路线 / README / Introduction和实际来源更新。尚未提交的B1六新UI、WBP / Controller、B1报告 / 清单与A报告按[B1末尾](M2_06B1_TargetMarker.md#12-本章-commit--push固定放在最后)一并检查：旧Core/Tests误放路径先取消暂存，再Stage正确UI/Private/Tests；已Stage的空骨架需要重新Stage最新完整实现。
+文档：本指南、完成后B2报告、Progress / Backlog / Architecture / 方案B / VersionControl / 两份M2路线 / README / Introduction和实际来源更新。B1完整源码与两资产已由用户提交c902dcc，正确UI测试路径和完整实现已纳入，无需重复Stage；当前B1验收报告与最新文档收尾若尚未提交可一起包含。后续Stage后又修改的文件需要重新Stage最新内容，不提前提交未实施的B2空骨架。
 
 建议Commit（英文）：`feat: follow the locked target with a smooth camera`。
 

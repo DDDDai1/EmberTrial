@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-24最新现状：**[M2-06A已验收](Reports/M2_06A_Verification.md)，用户已提交完整实现`5bd5354`，实际147 Source / 80cpp / 来源72；当前只提交报告 / 清单与B1新指南和最新状态。新IA实际为IA_ET_LockTarget，保留实物名，助手未改索引或联网核验远端。
+**2026-10-24最新现状：**[M2-06B1已验收](Reports/M2_06B1_Verification.md)，实际153 Source / 83cpp / 来源73；用户最新提交c902dcc已纳入完整六新UI / 两资产、正确UI测试路径与先前文档。旧AD / AM问题已解决；当前仅新报告与最新文档收尾待提交。助手未操作索引或联网核验远端。
 
 **Commit双语约定（10/23用户新增）：**后续每份操作文档同时给英文建议标题与专业中文译文。Break Pulse使用“破势”、cooldown使用“技能冷却”、lifecycle使用“生命周期”，不机械逐词翻译。英文可作标题，中文可作正文或理解参考，不需要拼成一条重复标题；不改写已存在的历史提交。
 
@@ -370,6 +370,8 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-10-24 A验收：六Source与候选一致，来源实际新增IA_ET_LockTarget至72；两个旧资产IMC / Controller的本地SHA与HEAD LFS匹配。用户5bd5354已包含完整Source / 资产，无需重复Stage。当前A报告 / 清单 / 状态与B1指南待提交，未来B1六新UI文件 / WBP和Controller按[B1末尾](M2_06B1_TargetMarker.md#12-本章-commit--push固定放在最后)处理，未实施前不创建空文件。英文建议与专业中文译文同步，助手未操作Git索引或网络。
 
+2026-10-24 B1收尾：六新UI / 零旧Source、双Build / MarkerRules Success / 两资产保存已核对；本轮文档整理期间用户提交c902dcc，源码 / 两资产与HEAD一致，误放路径已关闭，不重复提示取消旧暂存。当前只提交B1报告 / 清单 / 状态与B2指南修订；B2代码仍仅在忽略Raw候选与MD中，不提前Stage实际Source。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。
+B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。

@@ -7,6 +7,7 @@
 class APawn;
 class UInputAction;
 class UETTargetLockComponent;
+class UETTargetLockCameraComponent;
 
 DECLARE_MULTICAST_DELEGATE(FETPauseRequested);
 
@@ -38,6 +39,7 @@ public:
 
 protected:
     virtual void SetupInputComponent() override;
+    virtual void UpdateRotation(float DeltaTime) override;
     virtual void BeginPlay() override;
     virtual void OnPossess(APawn* InPawn) override;
     virtual void OnUnPossess() override;
@@ -53,4 +55,9 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock")
     TObjectPtr<UInputAction> TargetLockAction;
     void HandleTargetLockStarted();
+
+    // 镜头规则不进入UI，也不让Character的动作状态接管相机所有权。
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Target Lock Camera",
+              meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UETTargetLockCameraComponent> TargetLockCameraComponent;
 };

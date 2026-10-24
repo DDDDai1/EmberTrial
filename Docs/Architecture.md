@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-24。本文描述M2-06A验收后的实际实现：四能力 / 五HUD与Core目标锁定已接；[B1标记指南](M2_06B1_TargetMarker.md)待手动实施，当前无自动镜头 / 锁定图标。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-24。本文描述M2-06B1验收后的实际实现：四能力 / 五HUD、Core目标锁定与UI标记已接；[B2镜头指南](M2_06B2_LockCamera.md)待手动实施，当前无自动镜头。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -100,9 +100,13 @@ Character只读接口核对自有Spec / ASC并查询真实GE；[BreakPulsePresen
 
 [TargetLock](../EmberTrial/Source/EmberTrial/Private/TargetLock/ETTargetLockComponent.cpp)由游戏Controller创建唯一原生组件，Tab Started按请求Overlap并去重，Enemy / Ready / 存活 / 中心距离与Visibility精筛，角度 / 距离归一分数量化后按对象路径决胜。已有目标仅限频维持、距离迟滞 / 遮挡宽限；不自动抢换，无目标无Timer。弱引用、死亡封口 / Ready / EndPlay / Possess和代次确保释放；新身体不继承，不更改镜头 / 动作方向或伤害。实物IA_ET_LockTarget，代码不硬引用内容路径；见[A报告](Reports/M2_06A_Verification.md)。
 
-### 下一批标记（尚未实现）
+### 锁定标记（B1已实现）
 
-[B1](M2_06B1_TargetMarker.md)计划六个新UI文件和独立Controller表现组件，观察Core同一目标，不修改Bootstrap / Core。Widget只渲染Canvas坐标，无Actor引用 / Tick / Binding；组件仅锁定有效且根可见时在相机更新后投影，暂停不Tick、解锁即停。使用引擎UMG投影 / 玩家界面几何，不重复处理DPI；根隐藏与子控件离屏隐藏有不同刷新语义。新规则专项计划不替代真实Viewport检查，当前不计入20项。
+[B1报告](Reports/M2_06B1_Verification.md)：六新UI与Controller独立表现组件读取Core同一目标，不修改Bootstrap / Core身份。Widget只渲染直接Canvas子级Border，根可见且目标合法时组件在PostUpdateWork投影；暂停不Tick、解锁即停，离屏只隐藏子控件以便转回重新出现。UMG投影 / 玩家界面几何负责DPI，不重复缩放；重建移除旧View / 引擎委托，不改变Core锁。MarkerRules为第21项纯规则专项，不替代真实Viewport。
+
+### 下一批镜头（B2尚未实现）
+
+[B2指南](M2_06B2_LockCamera.md)三新Core / 两旧Controller：原UpdateRotation调用独立Camera规则组件，不另建Tick / Timer / 目标缓存；最短角路径与指数插值，只替换锁定期间RotationInput，继续走Super / CameraManager。解锁从当前角度归还鼠标，不写Actor旋转 / GAS或UI；新的CameraRules尚不计入实际21项。
 
 ## 7. 会话、菜单与出生
 
@@ -130,10 +134,10 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
-现有20项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
+现有21项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项、标记边界纯规则一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含后来次数HUD / Poise / F / 冷却HUD，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D冷却HUD已验收；锁定A已验收，B1标记指南已下发、待手动实施。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
+清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含后来次数HUD / Poise / F / 冷却HUD，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D冷却HUD已验收；锁定A / B1标记已验收，B2镜头指南已下发、待手动实施。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。
+B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。

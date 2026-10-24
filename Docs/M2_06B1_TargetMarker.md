@@ -1,6 +1,6 @@
 # M2-06B1：锁定目标屏幕标记
 
-2026-10-24，UE5.5.4。前置[A验收通过](Reports/M2_06A_Verification.md)，无待补项；[锁定路线](M2_06_TargetLockRoadmap.md)。**本章待用户手动实施**：六新UI文件、零旧Source修改、一新WBP与原Controller添加一份UI组件。助手只准备忽略目录中的候选与文档，未改实际Source / UE资产，未代Build / 自动化 / PIE。
+2026-10-24，UE5.5.4。前置[A验收通过](Reports/M2_06A_Verification.md)，无待补项；[锁定路线](M2_06_TargetLockRoadmap.md)。**本章已于13:39反馈并验收通过**，见[B1报告](Reports/M2_06B1_Verification.md)；下文保留实施步骤，无需重做：六新UI文件、零旧Source修改、一新WBP与原Controller添加一份UI组件。下发时助手只准备候选 / 文档；实施中仅按明确授权移动误放的测试文件，Build / 自动化 / PIE由用户完成。
 
 预算手动80–120分钟：代码45–70、Designer / 配置25–35、人工检查8–12，构建等待另记。原B将UI与镜头合在一次粗估；现在分B1标记、B2镜头，避免同时排查投影、输入和相机插值，新增预算使用M2既有缓冲，不叠加全项目总预算。
 
@@ -635,6 +635,8 @@ Source / 资产Save All；AutoActivate与默认配置恢复或未改：
 
 编译发首条Error、文件行号与前后约20行；绑定 / 槽位问题截图含资产名、Hierarchy、Details和Compiler Results。投影偏移给一张包含游戏窗口边界的全图、PIE方式与目标位置，别只截小菱形；动态抖动给5–10秒视频和按键顺序。给完成时分即可，我读日志，不要求手抄成功段。
 
+2026-10-24收尾：实际153 Source / 83cpp、Core57 / UI23 / Editor3、21项自动化、来源73；手动90 / 等待5。窗口缩放按用户反馈通过，具体PIE方式未注明；不扩充成DPI矩阵证明。已直接进入[B2镜头指南](M2_06B2_LockCamera.md)。
+
 ## 12. 本章 Commit / Push（固定放在最后）
 
 **手动实施且验收通过后**Stage六新Source（均加前缀EmberTrial/Source/）：
@@ -655,7 +657,7 @@ EmberTrial/Content/EmberTrial/ui/HUD/WBP_ETTargetLockMarker.uasset
 EmberTrial/Content/EmberTrial/Blueprints/Framework/BP_ETPlayerController.uasset
 ```
 
-文档：本指南、完成后生成的B1报告与实际来源（当前72，实物核对新增WBP后才73）、Progress / Backlog / Architecture / 方案B / VersionControl / 两份M2路线 / README / Introduction最新收尾和下一章指南；A报告尚未提交时一起包含。本章不改旧六份A Source / UI Bootstrap / Build.cs / 输入资产 / GA / 角色 / 地图 / Config，不制造无关重存差异。
+文档：本指南、完成后生成的B1报告与实际来源（现已核对为73）、Progress / Backlog / Architecture / 方案B / VersionControl / 两份M2路线 / README / Introduction最新收尾和下一章指南；A报告尚未提交时一起包含。本章不改旧六份A Source / UI Bootstrap / Build.cs / 输入资产 / GA / 角色 / 地图 / Config，不制造无关重存差异。
 
 建议Commit（英文）：
 
@@ -671,4 +673,4 @@ feat: 新增适配视口坐标的锁定目标标记
 
 英文可作标题，中文供理解或作正文，不必拼成重复标题。CLion刷新Changes → Stage最新完整内容（已Stage后又改需要再Stage）→ 检查新文件非空 / UI路径正确、Controller只有一份新组件 / 正确Class、WBP与LFS → Commit → Push。Raw / 日志 / Saved / Binaries / Intermediate / 索引 / 包体留本地，不Force Add；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。
 
-本次修复前错误Core路径已暂存为新增；提交前先取消旧路径的暂存新增，再Stage正确UI路径，确认最终Staged只有UI目录的一份完整测试。助手已移动工作区文件并更新本文，未代改暂存区。
+历史C1083误放路径已修复，用户c902dcc已纳入正确UI路径的完整测试与其余五新UI / 两资产，旧AD / AM问题关闭，无需重复Stage。当前只提交B1报告、实际来源73与最新状态 / B2指南修订；建议英文`docs: verify the target marker and prepare camera following`，中文译文`docs: 记录锁定标记验收并准备镜头跟随`。上方feat建议保留为B1实现提交示例。

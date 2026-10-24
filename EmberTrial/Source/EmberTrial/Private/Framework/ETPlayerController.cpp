@@ -1,5 +1,6 @@
 #include "Framework/ETPlayerController.h"
 #include "TargetLock/ETTargetLockComponent.h"
+#include "TargetLock/ETTargetLockCameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "Components/InputComponent.h"
@@ -30,6 +31,22 @@ constexpr float MaxHealingDebugAmount = 1000.0f;
 AETPlayerController::AETPlayerController()
 {
     TargetLockComponent = CreateDefaultSubobject<UETTargetLockComponent>(TEXT("TargetLock"));
+    TargetLockCameraComponent =
+        CreateDefaultSubobject<UETTargetLockCameraComponent>(TEXT("TargetLockCamera"));
+}
+
+void AETPlayerController::UpdateRotation(float DeltaTime)
+{
+    FRotator LockDelta = FRotator::ZeroRotator;
+    if (IsValid(TargetLockCameraComponent.Get()) &&
+        TargetLockCameraComponent->TryMakeRotationDelta(TargetLockComponent.Get(), DeltaTime,
+                                                         LockDelta))
+    {
+        // 锁定时接管本帧Yaw / Pitch；解除后自然沿用鼠标输入，不保存旧输入或旧角度。
+        RotationInput = LockDelta;
+    }
+    // 保留引擎CameraManager约束与原生控制流程，只调用一次。
+    Super::UpdateRotation(DeltaTime);
 }
 
 UETTargetLockComponent* AETPlayerController::GetTargetLockComponent() const

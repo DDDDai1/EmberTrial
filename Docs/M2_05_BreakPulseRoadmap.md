@@ -1,6 +1,6 @@
 # M2-05：范围破势分批路线
 
-更新2026-10-24，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；M2-06A也已验收，下一批[B1锁定标记](M2_06B1_TargetMarker.md)已下发。
+更新2026-10-24，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；M2-06A / B1也已验收，下一批[B2镜头跟随](M2_06B2_LockCamera.md)已下发。
 
 ## 1. 最终玩法与数值归属
 
@@ -43,4 +43,4 @@ A不加入常驻更新；范围能力不逐帧扫描关卡。必要效果和状�
 
 ## 5. 当前 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。
+B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。

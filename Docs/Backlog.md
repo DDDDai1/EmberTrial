@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-24。**[M2-06A已验收](Reports/M2_06A_Verification.md)**；下一批[B1锁定标记](M2_06B1_TargetMarker.md)已下发，镜头留B2。实时规模与工时见[Progress](Progress.md)，历史行保留当时口径。
+更新2026-10-24。**[M2-06B1已验收](Reports/M2_06B1_Verification.md)**；下一批[B2镜头跟随](M2_06B2_LockCamera.md)已下发、待用户操作。实时规模与工时见[Progress](Progress.md)，历史行保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -80,7 +80,7 @@
 | M1-07C2 | [战斗引用与共享配置](M1_07C2_GameplayValidation.md) | 你手动实施，我核查 | 完成 | 75 / 37 / 48、九Valid / GA失败恢复 / 两Success / 配置0/0；20 / 5，无待补 |
 | M1-07C3 | [Attempt02与M1阶段收口](M1_07C3_UpdatedPackage.md) | 你打包 / 实机，我核查 / 复盘 | 完成 | [报告](Reports/M1_07C3_Verification.md)：UAT ExitCode0、两次Move90 / 二十次敌人10伤害、A点Retry / Continue、新进程Entry；手动10 / 等待10 |
 | M1 | 最小纵向闭环与阶段复盘 | 共同 | 完成 | [总验收](Reports/M1_Verification.md)与[复盘](M1_Review.md)，手动1338分钟；当前灰盒范围与最终作品差距明确 |
-| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03 / 04 / 05均已验收，06A锁定目标已验收，B1标记指南已下发、待实施 |
+| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03 / 04 / 05均已验收，06A / B1目标与标记已验收，B2镜头指南已下发、待实施 |
 | M2-01 | [资源基础总验收](Reports/M2_01_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | A / B1 / B2全部通过，87 / 44 / 49；130 / 15分钟，治疗次数已定契约、实现留04 |
 | M2-01A | [体力属性、一次初始化与Ready](M2_01A_StaminaFoundation.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_01A_Verification.md)：78 / 39 / 48，三身体Valid / 测试Success / 两轮PIE，IsCombatDead补项关闭；60 / 5 |
 | M2-01B | 体力恢复与必要变化观察 / 显示 | 你手动实现，我设计 / 审查 | 完成 | B1恢复与B2体力HUD通过；70 / 10分钟，无正式成本 / 无敌 |
@@ -107,8 +107,9 @@
 | M2-05C2-02 | [唯一Notify与范围结算](M2_05C2_02_BreakPulseRange.md) | 你实现，我核对 | 完成 | 八Source一致、双Build / 三索引、GA Valid / 三Success与实机两次结算恢复；手动80 / 等待10 |
 | M2-05D | [冷却HUD与模块收口](M2_05D_BreakPulseHUD.md) | 你实现，我核对 | 完成 | [报告](Reports/M2_05D_Verification.md)：144 / 78、三专项Success、新WBP Valid，真实敌人F归零 / 回填 / 继续攻击；手动70 / 等待5 |
 | M2-06A | [目标筛选与生命周期](M2_06A_TargetSelection.md) | 你实现，我核对 | 完成 | [报告](Reports/M2_06A_Verification.md)：六Source一致、双Build / 80cpp、Selection Success与实机死亡 / 换身体清理；手动90 / 等待5 |
-| M2-06B1 | [锁定屏幕标记](M2_06B1_TargetMarker.md) | 你实现，我核对 | 待用户操作 | 六新UI / 零旧Source、单WBP与表现组件；按需投影 / DPI / 边界 / 释放，80–120 / 检查8–12，尚未计实耗 |
-| M2-06B2 / C | [镜头 / 切换收口](M2_06_TargetLockRoadmap.md) | 共同 | 待开始 | 不提前实施，镜头与标记消费同一目标，不改已有能力结算权 |
+| M2-06B1 | [锁定屏幕标记](M2_06B1_TargetMarker.md) | 你实现，我核对 | 完成 | [报告](Reports/M2_06B1_Verification.md)：六新UI一致、双Build / 83cpp、MarkerRules Success、单标记 / 两次重建 / 清理；手动90 / 等待5 |
+| M2-06B2 | [镜头跟随](M2_06B2_LockCamera.md) | 你实现，我核对 | 待用户操作 | 三新Core / 两旧Controller、平滑跟随 / 解锁归还鼠标、无独立Tick / Timer，80–130 / 检查8–12 |
+| M2-06C | [切换 / 交战收口](M2_06_TargetLockRoadmap.md) | 共同 | 待开始 | B2完成后下发；同一Core目标，保留能力结算与动作方向契约 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为Cleanup/Attempt01；M1 C3 Attempt02只保留历史证据。
 
@@ -126,7 +127,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 当前M2新Development包 | Cleanup/Attempt01已完成Build / 完整Cook / Stage / Package与两轮独立检查；输入方法 / 范围见Cleanup |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| 后续M2开发 | 用户已授权恢复；M2-05整章已验收，M2-06A也已验收，下一批[B1标记](M2_06B1_TargetMarker.md)已下发；后续按锁定路线分批 |
+| 后续M2开发 | 用户已授权恢复；M2-05整章已验收，M2-06A / B1也已验收，下一批[B2镜头](M2_06B2_LockCamera.md)已下发；后续按锁定路线分批 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -134,4 +135,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-当前实现已由用户提交`5bd5354`；实际Source / UE资产与本地HEAD一致，助手未改索引或联网核验GitHub。本轮Stage A验收报告、来源72、M2-06路线 / B1新指南、A指南和本轮状态文档，不重复Stage无差异Source / 资产。建议Commit（英文）：`docs: verify target locking and prepare the lock marker`。中文译文：`docs: 记录目标锁定验收并准备锁定标记开发`。B1实物完成后按其末尾清单提交六新UI源码、新WBP / 原Controller实际差异及报告；Raw / 日志 / 生成物 / 包体留本地，Git由用户Stage最新内容 / Commit / Push。
+B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。
