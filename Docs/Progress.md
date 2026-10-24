@@ -1,39 +1,36 @@
 # 当前开发进度
 
-更新2026-10-23。**[M2-05C2-02通知 / 范围已验收](Reports/M2_05C2_02_Verification.md)，无阻断项。**M0、M1、M2-01 / 02 / 03 / 04、05A / B1 / B2 / C1 / C2与32批清理均已收尾；下一开发批[D冷却HUD与模块收口](M2_05D_BreakPulseHUD.md)已下发，待用户手动实施。本次另核对了自动化性能疑问：保留现有18项测试，不做删除。
+更新2026-10-24。**[M2-05整章已验收](Reports/M2_05_Verification.md)，无待补项。**最新[D报告](Reports/M2_05D_Verification.md)已保存；下一批[M2-06A锁定目标筛选与生命周期](M2_06A_TargetSelection.md)已下发，待用户手动实施。
 
 ## 当前工程与功能基线
 
-- 固定UE5.5.4 / Windows Standalone / 键鼠；CLion编辑，UBT / UHT正常构建。
-- 实际139 Source / 75cpp，Core55 / UI17 / Editor3；18项自动化（Core16 / UI2）、来源70项 / 本地289份UE资产。
-- 三段轻攻击、方向闪避 / 成本 / 短无敌、Q治疗 / 次数HUD、近战AI、菜单 / 暂停 / 失败重试 / 本次进程检查点均保持。
-- F拥有站定施放 / 一次6秒真实冷却；在12帧/.4秒一次查询300cm球体，按阵营 / 中心距离 / 遮挡 / 状态过滤，每目标独立扣60Poise。
-- 两次命中100→40→0，沿已有1.2秒Stagger / 五动作取消与存活回填；取消不退款、Pause冻结，旧实例 / EndPlay不误写。冷却反馈UI仍未接入。
-- 当前包Cleanup/Attempt01仍为清理后的治疗B2，不含后来次数HUD / Poise / F；本轮没有新Cook / 性能采样。
+- UE5.5.4 / Windows Standalone / 键鼠，CLion编辑、UBT / UHT正常构建。
+- 实际144 Source / 78cpp，Core55 / UI20 / Editor3；19项自动化（Core16 / UI3），来源71项 / 本地290份UE资产。
+- 三段轻攻击、体力方向闪避 / 短无敌、Q治疗 / 次数HUD、近战AI和菜单 / 暂停 / 失败重试 / 本次进程检查点保持。
+- F站定施放，一次6秒冷却，12帧/.4秒唯一通知结算300cm / 每合法目标60Poise；无Health伤害，取消不退款、Pause冻结。
+- 两次F100→40→0、1.2秒Stagger / 存活回填100与继续近战已有真实敌人日志；D冷却HUD已接，施放 / 冷却 / 就绪状态与只读GAS快照，有限刷新 / 旧实例清理通过。
+- 当前包Cleanup/Attempt01仍为清理后的治疗B2，不含后来次数HUD / Poise / F / 冷却HUD；本轮无新Cook / Insights。
 
-## 当前交接与证据
+## 当前证据与下一开发入口
 
-用户18:44全项反馈通过。八份Source与下发候选格式化后一致，其余131旧Source / Config保持；双目标覆盖18:29:58最终源码，三专项18:38–41实际Success。AM唯一资产差异，GA继承新原生默认且通过Valid；实机两次训练目标结算 / 归零恢复、空放、前取消及活动Pause均有日志。可选敌人F交战未给具体画面结果，留D交战收口，不虚构样本，详见[C2-02报告](Reports/M2_05C2_02_Verification.md)。
+用户10/23 20:26反馈D完成，手动代码 / 配置60、检查10、构建等待5。五新 / 五旧Source完整，双目标产物覆盖最后源码19:27:50；新WBP与原Controller实物已保存，本项目Valid，三指定专项20:20–21 Success。真实敌人100→40→0、回填与恢复近战已关闭C2-02遗留的可见样本缺口；具体画面 / 键鼠仍按用户反馈注明范围，详见D报告。
 
-自动化文件不随普通Play运行测试体，Development有编译 / 体积 / 注册成本，默认Shipping排除开发测试主体；仍有效的回归用例保留。不能把Source测试代码与Content/Tests中正式引用资源混为一谈。
+[M2-06路线](M2_06_TargetLockRoadmap.md)分A目标身份 / 筛选 / 生命周期、B标记 / 镜头、C切换 / 交战。A三新 / 三旧Source、单Tab Started，按请求Overlap / 角度距离评分 / Visibility筛选，锁定后只检查当前目标；暂不转镜头或显示标记。预计100–150分钟、人工检查8–12；实现后才预计147 Source / 80cpp，Core57 / UI20 / Editor3、20测试与来源72。当前仍是D实际规模，不计预计工时。
 
-## D章当前交接（尚未实施）
-
-[D指南](M2_05D_BreakPulseHUD.md)包含五新 / 五旧Source、一新WBP与原Controller装配；只读GAS快照、施放 / 冷却 / 就绪显示、可见冷却期间.10秒刷新及一个生命周期专项。冷却就绪不等于允许立即施放，Widget无Tick / Text Binding。
-
-预算90–140分钟（代码50–80、布局25–45、检查8–12），等待另记；原60–90粗估增加30–50使用M2既有缓冲。实际仍139Source / 75cpp / 18测试 / 来源70；实施后才预计144 / 78、Core55 / UI20 / Editor3、19测试与新WBP入清单71。正式敌人F归零反应后恢复追击在D补可见样本，不再搭临时Controller测试图。本轮只做文档和静态核对，未Build / 测试 / PIE / Cook，累计工时不追加预计值。
+本次只读审查、生成报告与指南并同步文档；未写实际Source / UE资产、执行Build / 自动化 / PIE / Cook或操作Git。冻结M1-03B1不改，旧有效测试保留。
 
 ## 工期与协作
 
-- 本批手动80（代码 / 配置70、检查10）/ 等待10分钟；M2-05累计435 / 35，M2累计1000 / 99。
-- 项目累计3011分钟（50小时11分）/ 明确等待284分钟（4小时44分）；仅计用户报告。
-- 每周约30小时、百元预算、键鼠；Blender与最终美术按中后期安排。
-- 我提供完整代码 / 配置 / 短查，你手动实现；直接改实际Source或UE资产须明确要求。方案B不重复搭Controller验收图，冻结M1-03B1保持。
+- D手动70 / 等待5；M2-05累计505分钟（8小时25分）/ 等待40；M2累计1070 / 104。
+- 项目累计3081分钟（51小时21分）/ 明确等待289分钟（4小时49分），仅计用户报告。
+- 每周约30小时、百元预算、键鼠；Blender与最终美术按中后期安排，暂无硬投递日期。
+- 普通开发我给完整代码 / 配置 / 短查，你手动实现；直接改工程须明确授权。方案B不重复搭Controller验收图。
+- 用户10/23新增约定：以后每份操作文档的建议Commit同步给出专业中文译文；如Break Pulse译为“破势”、lifecycle译为“生命周期”，不改历史Git提交。
 
 ## 证据与入口
 
-[D开发指南](M2_05D_BreakPulseHUD.md)、[C2-02报告](Reports/M2_05C2_02_Verification.md)、[C2-02指南](M2_05C2_02_BreakPulseRange.md)、[破势路线](M2_05_BreakPulseRoadmap.md)、[M2路线](M2_Roadmap.md)、[架构](Architecture.md)、[来源](AssetManifest.csv)、[任务板](Backlog.md)、[方案B](AcceptanceWorkflow_Options.md)、[版本管理](VersionControl.md)。
+[当前A指南](M2_06A_TargetSelection.md)、[锁定路线](M2_06_TargetLockRoadmap.md)、[D报告](Reports/M2_05D_Verification.md)、[M2-05总验收](Reports/M2_05_Verification.md)、[M2路线](M2_Roadmap.md)、[架构](Architecture.md)、[来源](AssetManifest.csv)、[任务板](Backlog.md)、[方案B](AcceptanceWorkflow_Options.md)、[版本管理](VersionControl.md)。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-当前实现基线为`36bb869`，Source / UE资产保持C2-02验收状态。本轮只提交新`Docs/M2_05D_BreakPulseHUD.md`、未提交的C2-02报告 / 来源收尾及本轮状态文档，建议`docs: prepare break pulse cooldown HUD and milestone closure`。D尚未实施，不先建空Source / WBP或生成D验收报告。完成后按D最后清单重新Stage五新 / 五旧Source、新WBP与原Controller实际差异及验收文档，建议`feat: show break pulse cooldown through lifecycle-aware HUD`。Raw / 生成物 / 日志 / 包体留本地；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。
+当前实现已由用户提交`c59291d`；实际Source / UE资产与该HEAD一致，助手未改索引或核验GitHub远端。本轮Stage D与M2-05总验收、新M2-06路线 / A指南、来源71项和本轮状态文档即可，不重复Stage无差异源码 / 资产。建议Commit（英文）：`docs: verify break pulse HUD and prepare target locking`。中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。未来A的实物提交按A最后清单；Raw / 日志 / 生成物 / 包体留本地，用户自行Stage最新完整内容 / Commit / Push。

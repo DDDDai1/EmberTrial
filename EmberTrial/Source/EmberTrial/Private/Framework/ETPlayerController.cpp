@@ -1,4 +1,7 @@
 #include "Framework/ETPlayerController.h"
+#include "TargetLock/ETTargetLockComponent.h"
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/Pawn.h"
 #include "InputCoreTypes.h"
@@ -24,6 +27,24 @@ constexpr float MaxHealingDebugAmount = 1000.0f;
 
 // ---- 原生输入意图；按键释放与暂停内输入的路由规则保持 ----
 
+AETPlayerController::AETPlayerController()
+{
+    TargetLockComponent = CreateDefaultSubobject<UETTargetLockComponent>(TEXT("TargetLock"));
+}
+
+UETTargetLockComponent* AETPlayerController::GetTargetLockComponent() const
+{
+    return TargetLockComponent.Get();
+}
+
+void AETPlayerController::HandleTargetLockStarted()
+{
+    if (IsValid(TargetLockComponent.Get()))
+    {
+        TargetLockComponent->ToggleTargetLock();
+    }
+}
+
 void AETPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
@@ -33,6 +54,19 @@ void AETPlayerController::SetupInputComponent()
             InputComponent->BindKey(EKeys::P, IE_Released, this, &ThisClass::HandlePauseReleased);
         PauseBinding.bConsumeInput = true;
         PauseBinding.bExecuteWhenPaused = false;
+
+        UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
+        if (EnhancedInput && IsValid(TargetLockAction.Get()) &&
+            TargetLockAction->ValueType == EInputActionValueType::Boolean)
+        {
+            EnhancedInput->BindAction(TargetLockAction.Get(), ETriggerEvent::Started,
+                                      this, &ThisClass::HandleTargetLockStarted);
+        }
+        else
+        {
+            UE_LOG(LogETPlayerController, Display,
+                   TEXT("[M2-06A] Target lock input unavailable Controller=%s"), *GetName());
+        }
     }
 }
 

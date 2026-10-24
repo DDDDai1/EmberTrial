@@ -157,7 +157,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 | --- | --- | --- |
 | 正式菜单 / Retry / Continue / P / Q / 攻击与闪避 | 输入、UI、真实交战和主流程 | 画面 / 焦点仍需实机；不重复搭临时Controller验收图 |
 | ET_Stamina / ET_Healing / ET_Poise及既有损伤入口 | 资源查询 / 最小复现 | PIE修改有上下文限制；保留入口不等于产品功能 |
-| 18项EmberTrial自动化 | Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 范围、闪避、连段、治疗与UI纯规则 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
+| 19项EmberTrial自动化 | Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 范围、闪避、连段、治疗、UI纯规则与冷却生命周期 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
 | 两套Editor Validator | 玩法配置、BT键绑定、UMG必需控件 | 只读结构，不证明导航、白线、Notify实触发或切图 |
 | Validate-ProjectConfig | 共享地图 / Cook / Cue配置与文件存在 | 不合并Saved / 平台配置，不解析地图；独立包仍需检查 |
 | Run-StageBuild | 按已有包启动并记录证据 / 性能口径 | WhatIf只预览；旧M1包不包含当前M2 |
@@ -191,10 +191,12 @@ C2-02跑新Range、旧BreakPulseAbility / PoiseReaction各一次；范围去重 
 
 Core16 / UI2共18项自动化保留；全部由WITH_DEV_AUTOMATION_TESTS隔离，普通Play不会自行运行，默认Shipping排除主体。Development的编译 / 代码体积 / 静态注册成本与游戏每帧玩法开销区分。后续只维护失效 / 重复用例或随真实功能删除同步调整，不定期清空旧阶段测试，不因目录叫Tests而删除正式引用资产。
 
-## D章影响范围（指南已下发、待实施）
+## D收尾与M2-06A影响范围
 
-[D](M2_05D_BreakPulseHUD.md)新增一个真实GAS / Presenter生命周期专项`EmberTrial.UI.BreakPulse.Lifecycle`，配套旧BreakPulseRange / BreakPulseAbility各一次；预计共19项，但当前仍18项。自动化覆盖计时 / 显示门控 / 暂停 / 换身体 / 旧来源与EndPlay，不生成屏幕Widget；人工8–12分钟只查四组：显示与P、既有控制台重建入口、敌人正式F / 四能力交战、Retry / Continue / Stop短基线。无需Controller临时接线，不重复旧训练目标矩阵，不强求撞指定攻击帧。若真实敌人未归零，反馈实际情况再定位，不用开发扣Poise代替正式命中证据。
+[D报告](Reports/M2_05D_Verification.md)：用户检查10分钟，三指定专项各Success、新WBP Valid，真实敌人F100→40→0 / 回填 / 恢复近战已有日志。实际共19项；其余16项本轮沿用，不把历史通过当成当次全组Success。重建日志样本位于就绪阶段，冷却中重建按用户反馈接受，计时 / 重启规则有专项交叉覆盖，不补造时序证据或新增重复手工图。
+
+[M2-06A](M2_06A_TargetSelection.md)只新增TargetLock.Selection专项，使用真实Overlap / 射线 / 生命周期夹具；旧19项沿用。人工8–12分钟只看真实Tab请求 / 长按、Neutral / 背向拒绝、死亡释放、P无补执行与Retry / Stop短基线。标记 / 镜头未接，暂不做相机手感验收；不搭Controller函数、不临时加第二敌人 / 挡板矩阵。实际新增规则或失败后才扩大相关检查。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-当前实现基线为`36bb869`，Source / UE资产保持C2-02验收状态。本轮只提交新`Docs/M2_05D_BreakPulseHUD.md`、未提交的C2-02报告 / 来源收尾及本轮状态文档，建议`docs: prepare break pulse cooldown HUD and milestone closure`。D尚未实施，不先建空Source / WBP或生成D验收报告。完成后按D最后清单重新Stage五新 / 五旧Source、新WBP与原Controller实际差异及验收文档，建议`feat: show break pulse cooldown through lifecycle-aware HUD`。Raw / 生成物 / 日志 / 包体留本地；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。
+当前实现已由用户提交`c59291d`；实际Source / UE资产与该HEAD一致，助手未改索引或核验GitHub远端。本轮Stage D与M2-05总验收、新M2-06路线 / A指南、来源71项和本轮状态文档即可，不重复Stage无差异源码 / 资产。建议Commit（英文）：`docs: verify break pulse HUD and prepare target locking`。中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。未来A的实物提交按A最后清单；Raw / 日志 / 生成物 / 包体留本地，用户自行Stage最新完整内容 / Commit / Push。

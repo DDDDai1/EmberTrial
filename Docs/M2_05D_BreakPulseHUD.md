@@ -1,6 +1,6 @@
 # M2-05D：破势冷却HUD与模块收口
 
-2026-10-23，固定UE5.5.4。前置[C2-02范围破势已验收](Reports/M2_05C2_02_Verification.md)，无阻断项。本章为**待手动实施**：五新 / 五旧共10份Source，一份新WBP及原Controller装配。完整代码与精确替换见下文；助手仅在忽略目录准备候选，未改实际Source / UE资产，未代Build / 自动化 / PIE或操作Git。
+2026-10-23，固定UE5.5.4。前置[C2-02范围破势已验收](Reports/M2_05C2_02_Verification.md)，无阻断项。**本章已于20:26反馈并验收通过**，见[D报告](Reports/M2_05D_Verification.md)与[模块总验收](Reports/M2_05_Verification.md)。以下保留原实施步骤，不必重做。本章：五新 / 五旧共10份Source，一份新WBP及原Controller装配。完整代码与精确替换见下文；助手仅在忽略目录准备候选，未改实际Source / UE资产，未代Build / 自动化 / PIE或操作Git。
 
 预计手动90–140分钟：代码50–80、Designer / 装配25–45、检查8–12；构建等待另列。原D60–90为粗估，现纳入只读快照、事件 / 可见性Timer和真实生命周期专项后增加30–50分钟，使用M2既有缓冲，不再叠加全项目预算。不要求做满预算，按实耗反馈。
 
@@ -37,7 +37,7 @@
 | 新 | EmberTrialUI/Public/Presenters/ETBreakPulsePresenter.h | 第3.1全文 |
 | 新 | EmberTrialUI/Private/Presenters/ETBreakPulsePresenter.cpp | 第3.2全文 |
 | 新 | EmberTrialUI/Public/Widgets/ETBreakPulseHUDWidget.h | 第4.1全文 |
-| 新 | EmberTrialUI/Private/Widgets/ETBreakPulseHUDWidget.cpp | 第4.2全文 |
+| 新 | EmberTrialUI/Private/Widgets/ETBreakPulseHUDWidgets.cpp | 第4.2全文 |
 | 新 | EmberTrialUI/Private/Tests/ETBreakPulseHUDTests.cpp | 第6全文 |
 | 旧 | EmberTrial/Public/Characters/EmberTrialCharacter.h | 只读接口 / 最小friend |
 | 旧 | EmberTrial/Private/Characters/EmberTrialCharacter.cpp | 只读接口实现 |
@@ -45,7 +45,7 @@
 | 旧 | EmberTrialUI/Private/Bootstrap/ETUIBootstrapComponent.cpp | 装配 / 退出 / 层级 |
 | 旧 | EmberTrialUI/EmberTrialUI.Build.cs | 私有GameplayTags直接依赖 |
 
-Core不依赖UI；UI公开头不暴露GAS类型定义，GameplayTags仅为私有直接依赖。Editor通用BindWidget校验已能检查新面板，不改Editor代码、Target、uproject或旧18项测试。当前真实规模仍139 / 75cpp / 18测试，后文144 / 78 / 19仅实施后的预期。
+Core不依赖UI；UI公开头不暴露GAS类型定义，GameplayTags仅为私有直接依赖。Editor通用BindWidget校验已能检查新面板，不改Editor代码、Target、uproject或旧18项测试。下发时139 / 75cpp / 18测试；现已实现144 / 78 / 19，后文操作步骤按该目标保留。
 
 ## 3. 新增破势Presenter
 
@@ -528,7 +528,7 @@ private:
 };
 ```
 
-### 4.2 `EmberTrialUI/Private/Widgets/ETBreakPulseHUDWidget.cpp`
+### 4.2 `EmberTrialUI/Private/Widgets/ETBreakPulseHUDWidgets.cpp`
 
 新文件全文：
 
@@ -1334,7 +1334,7 @@ CLion Reload CMake Project；预期**144 Source / 78cpp，Core55 / UI20 / Editor
 & 'D:\UE5\UE_5.5\Engine\Build\BatchFiles\Build.bat' EmberTrial Win64 Development '-Project=E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject' -WaitMutex -NoHotReloadFromIDE
 ```
 
-两目标成功后再打开工程做第8–9节。反射类 / 四控件还未建WBP时，不提前Play把Missing Class误当编译失败；无需清缓存。首条Error发文字 / 文件行号 / 前后上下文，不只发退出码6。本指南仅做文本 / 本机接口静态核对，助手未实际Build或执行新专项。
+两目标成功后再打开工程做第8–9节。反射类 / 四控件还未建WBP时，不提前Play把Missing Class误当编译失败；无需清缓存。首条Error发文字 / 文件行号 / 前后上下文，不只发退出码6。下发时仅做静态核对；现双构建与三项专项已由用户完成并在D报告核对，助手未代为执行。
 
 ## 8. 新建WBP_ETBreakPulseHUD（详细Designer步骤）
 
@@ -1487,7 +1487,7 @@ Source资产Save All；原数值 / AI / slomo1 / Debug False恢复或未改：
 EmberTrialUI/Public/Presenters/ETBreakPulsePresenter.h
 EmberTrialUI/Private/Presenters/ETBreakPulsePresenter.cpp
 EmberTrialUI/Public/Widgets/ETBreakPulseHUDWidget.h
-EmberTrialUI/Private/Widgets/ETBreakPulseHUDWidget.cpp
+EmberTrialUI/Private/Widgets/ETBreakPulseHUDWidgets.cpp
 EmberTrialUI/Private/Tests/ETBreakPulseHUDTests.cpp
 ```
 
@@ -1518,6 +1518,14 @@ EmberTrial/Content/EmberTrial/Blueprints/Framework/BP_ETPlayerController.uasset
 feat: show break pulse cooldown through lifecycle-aware HUD
 ```
 
+中文译文：
+
+```text
+feat: 通过具备生命周期管理的HUD展示破势技能冷却
+```
+
 CLion刷新Changes → Stage最新完整内容（已Stage后又修改必须再Stage）→ 检查Staged新文件含完整代码、Controller唯一组件 / 正确Class、WBP控件和LFS → Commit → Push。Raw / 日志 / 崩溃转储 / Saved / Binaries / Intermediate / CodeModel / IDE生成物 / 包体留本地，不Force Add。用户操作Git，助手未改索引、Commit或联网核验远端。
 
-本次移动前，错误Core路径已有暂存新增记录；提交前取消该旧路径的暂存新增，再Stage正确UI路径，确认最终Staged只有UI目录的一份完整测试。移动与文档修改已由助手执行，暂存区仍由用户更新。
+历史补修：测试曾误放Core，已按授权移动至UI且内容未变；用户后续c59291d已纳入正确路径，暂存路径问题关闭。无需重新移动或取消已经关闭的暂存新增。
+
+2026-10-23验收收尾：完整实现已由用户纳入`c59291d`，暂存路径问题关闭，无需重复提交无差异Source / 资产。当前只Stage本章 / 模块报告、来源71、状态文档与M2-06新指南。建议英文Commit：`docs: verify break pulse HUD and prepare target locking`；中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。后续每份操作文档同步提供英文建议与使用游戏开发术语的中文译文，不改写历史Git提交。

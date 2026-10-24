@@ -5,6 +5,8 @@
 #include "ETPlayerController.generated.h"
 
 class APawn;
+class UInputAction;
+class UETTargetLockComponent;
 
 DECLARE_MULTICAST_DELEGATE(FETPauseRequested);
 
@@ -15,6 +17,11 @@ class EMBERTRIAL_API AETPlayerController : public APlayerController
     GENERATED_BODY()
 
 public:
+    AETPlayerController();
+
+    UFUNCTION(BlueprintPure, Category = "EmberTrial|Target Lock")
+    UETTargetLockComponent* GetTargetLockComponent() const;
+
     // Core emits an intent; the UI module decides whether to present a menu.
     FETPauseRequested OnPauseRequested;
 
@@ -38,4 +45,12 @@ protected:
 
 private:
     void HandlePauseReleased();
+
+    // Controller跨Possess存在；目标身份由组件在换身体时主动清空。
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Target Lock",
+              meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UETTargetLockComponent> TargetLockComponent;
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock")
+    TObjectPtr<UInputAction> TargetLockAction;
+    void HandleTargetLockStarted();
 };

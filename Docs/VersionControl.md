@@ -2,7 +2,9 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-22最新现状：**[B2工作区已验收](Reports/M2_05B2_Verification.md)，131Source / 70cpp / 来源65。用户新提交HEAD `98be3e0`只新增三份空文件，未包含工作区完整实现；当前十二Source、GA和文档仍是待提交差异。请按B2末尾重新Stage最新内容并补交，无需回滚。C1三素材尚未创建；助手未操作索引或核验远端。
+**2026-10-24最新现状：**[D / M2-05已验收](Reports/M2_05D_Verification.md)，用户已提交完整实现`c59291d`，实际144 Source / 78cpp / 来源71；当前只需提交报告 / 清单与M2-06路线 / A指南等最新文档。没有未关闭的空文件或误放测试问题；助手未操作暂存区或联网核验远端。
+
+**Commit双语约定（10/23用户新增）：**后续每份操作文档同时给英文建议标题与专业中文译文。Break Pulse使用“破势”、cooldown使用“技能冷却”、lifecycle使用“生命周期”，不机械逐词翻译。英文可作标题，中文可作正文或理解参考，不需要拼成一条重复标题；不改写已存在的历史提交。
 
 ## 1. 已配置内容
 
@@ -10,7 +12,7 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
 - 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
-- 当前origin已配置为GitHub的DDDDai1/EmberTrial；本轮仅读取本机HEAD 5a340f5，未联网确认服务器或LFS状态。首次Push故障记录保留在第9节，上传完成以用户实际Push结果为准。
+- origin沿用GitHub的DDDDai1/EmberTrial配置；本轮读取本机HEAD c59291d，不据此声称已联网确认服务器或LFS状态。首次Push故障记录保留在第9节，上传完成以用户实际Push结果为准。
 
 ## 2. 第一个可恢复检查点
 
@@ -364,6 +366,8 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-10-23 D指南下发：五新 / 五旧Source、一新WBP与原Controller配置均待用户实施。当前源码 / 资产保持C2-02，无新Build / 测试 / Cook证据；只提交指南与状态文档。新WBP实物完成后才登记来源71，不能把静态候选或预计19项写成已运行Success。完整实施清单见[D末尾](M2_05D_BreakPulseHUD.md#12-本批-commit--push固定放在最后)，仍由用户Stage最新完整内容 / Commit / Push。
 
+2026-10-24 D验收收尾：实际144 / 78、来源71，三指定专项当次Success，真实敌人F归零 / 恢复后继续近战。完整实现已在用户提交c59291d，旧Core误放测试已移至UI，Widget实现文件实际名ETBreakPulseHUDWidgets.cpp保留，无需为复数命名制造源码差异。当前只提交D / 模块报告、清单 / 状态与M2-06路线 / A指南；A实物尚未创建，不预先提交空文件。自本轮起每份操作文档给出术语准确的中英Commit建议。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-当前实现基线为`36bb869`，Source / UE资产保持C2-02验收状态。本轮只提交新`Docs/M2_05D_BreakPulseHUD.md`、未提交的C2-02报告 / 来源收尾及本轮状态文档，建议`docs: prepare break pulse cooldown HUD and milestone closure`。D尚未实施，不先建空Source / WBP或生成D验收报告。完成后按D最后清单重新Stage五新 / 五旧Source、新WBP与原Controller实际差异及验收文档，建议`feat: show break pulse cooldown through lifecycle-aware HUD`。Raw / 生成物 / 日志 / 包体留本地；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。
+当前实现已由用户提交`c59291d`；实际Source / UE资产与该HEAD一致，助手未改索引或核验GitHub远端。本轮Stage D与M2-05总验收、新M2-06路线 / A指南、来源71项和本轮状态文档即可，不重复Stage无差异源码 / 资产。建议Commit（英文）：`docs: verify break pulse HUD and prepare target locking`。中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。未来A的实物提交按A最后清单；Raw / 日志 / 生成物 / 包体留本地，用户自行Stage最新完整内容 / Commit / Push。

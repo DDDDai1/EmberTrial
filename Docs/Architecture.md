@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-23。本文描述C2-02验收后的实际实现；F施放、真实冷却与唯一通知范围结算已接入，冷却UI反馈[D指南已下发](M2_05D_BreakPulseHUD.md)，尚未写入Source。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-24。本文描述M2-05验收后的实际实现：F施放 / 冷却 / 唯一通知范围结算与冷却HUD均已接入；[M2-06A锁定指南](M2_06A_TargetSelection.md)已下发，锁定尚未写入Source。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -92,9 +92,13 @@ Widget先订阅再取即时快照，晚创建可显示已有值。重建只换Vi
 
 Core Controller发布P意图，既有[FailureFlow](../EmberTrial/Source/EmberTrialUI/Private/Flow/ETFailureFlowComponent.cpp)统一协调Pause / Failure。Widget发继续 / Retry / 菜单意图；Flow维护焦点、输入刷新与自己取得的暂停。Failure优先且两页互斥；普通继续恢复同一世界，切图 / EndPlay只清自身资源，不擅自恢复另一个世界的输入。
 
-### D章计划接口（尚未实现）
+### 破势冷却HUD（D已实现）
 
-[D指南](M2_05D_BreakPulseHUD.md)增加Character只读冷却快照；Core不引用UI。UI私有依赖GameplayTags，Presenter绑定当前玩家身体Ready与冷却 / 施放 / 死亡Tag，一次NextTick避开GAS中间态和Ready早于能力授予；仅可见且冷却活动时每.10游戏秒重读真实剩余，隐藏 / 死亡 / 换身体 / 结束即停。Widget只渲染DTO / 报告根可见性，Bootstrap拥有单View，重建不重置GAS。新专项计划验证真实冷却 / 观察生命周期，不代替Viewport、Designer或交战画面检查。以上是待实施设计，不计入当前18项测试与139份Source。
+Character只读接口核对自有Spec / ASC并查询真实GE；[BreakPulsePresenter](../EmberTrial/Source/EmberTrialUI/Private/Presenters/ETBreakPulsePresenter.cpp)绑定本地Pawn / Ready与三个Tag，NextTick合并GAS中间态和Ready早于授予。可见且冷却活动时每.10游戏秒查询，隐藏 / 死亡 / 失去身体 / 结束即停。Widget仅渲染快照与报告根可见性，无Tick / Binding；Bootstrap换View不重置GAS，同Presenter重启隔离旧句柄 / 代次。冷却就绪只描述冷却，不复制CanActivate规则。新UI生命周期专项和真实画面边界见[D报告](Reports/M2_05D_Verification.md)。
+
+### 下一批锁定设计（尚未实现）
+
+[A指南](M2_06A_TargetSelection.md)计划由Controller原生组件拥有唯一目标；请求时Overlap、角度 / 距离量化评分与可见性筛选，之后只限频检查当前目标。弱来源、死亡封口 / Ready / EndPlay / Possess与代次负责清理。先不动镜头 / 攻击方向 / UI，后续标记和镜头观察同一身份；Core不依赖UI。新选择专项仍为候选，不计入当前19项。
 
 ## 7. 会话、菜单与出生
 
@@ -122,10 +126,10 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
-现有18项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项和UI纯规则两项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
+现有19项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含C HUD / A / B1 / B2，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D已下发最小冷却HUD指南，待手动实施。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
+清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含后来次数HUD / Poise / F / 冷却HUD，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D冷却HUD已验收；锁定A指南已下发、待手动实施。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-当前实现基线为`36bb869`，Source / UE资产保持C2-02验收状态。本轮只提交新`Docs/M2_05D_BreakPulseHUD.md`、未提交的C2-02报告 / 来源收尾及本轮状态文档，建议`docs: prepare break pulse cooldown HUD and milestone closure`。D尚未实施，不先建空Source / WBP或生成D验收报告。完成后按D最后清单重新Stage五新 / 五旧Source、新WBP与原Controller实际差异及验收文档，建议`feat: show break pulse cooldown through lifecycle-aware HUD`。Raw / 生成物 / 日志 / 包体留本地；Git由用户操作，助手未改索引、Commit、Push或联网核验远端。
+当前实现已由用户提交`c59291d`；实际Source / UE资产与该HEAD一致，助手未改索引或核验GitHub远端。本轮Stage D与M2-05总验收、新M2-06路线 / A指南、来源71项和本轮状态文档即可，不重复Stage无差异源码 / 资产。建议Commit（英文）：`docs: verify break pulse HUD and prepare target locking`。中文译文：`docs: 记录破势冷却界面验收并准备目标锁定开发`。未来A的实物提交按A最后清单；Raw / 日志 / 生成物 / 包体留本地，用户自行Stage最新完整内容 / Commit / Push。
