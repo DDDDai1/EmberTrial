@@ -1,6 +1,6 @@
 # M2-05：范围破势分批路线
 
-更新2026-10-24，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；M2-06A / B1也已验收，B2右肩镜头也已完成，见[B2报告](Reports/M2_06B2_Verification.md)；C已实施 / 用户报告检查完成，当前出生 / 近景收尾复核见[C指南](M2_06C_TargetSwitching.md#101-出生首帧与贴身镜头补修已直接实施)。
+更新2026-10-24，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；M2-06A / B1也已验收，B2右肩镜头也已完成，见[B2报告](Reports/M2_06B2_Verification.md)；M2-06也已[总验收](Reports/M2_06_Verification.md)，当前进入[M2-07A新版包](M2_07A_IntegratedPackage.md)。
 
 ## 1. 最终玩法与数值归属
 
@@ -43,4 +43,4 @@ A不加入常驻更新；范围能力不逐帧扫描关卡。必要效果和状�
 
 ## 5. 当前 Commit / Push（固定放在最后）
 
-本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。
+M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。

@@ -7,14 +7,14 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
-    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup')]
+    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A')]
     [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline
 )
 
 $ErrorActionPreference = 'Stop'
-## 保留M1默认包；Cleanup新包显式指定目录与阶段，避免混入历史M1证据。
+## 保留M1默认包；Cleanup / M2新包显式指定目录与阶段，避免混入历史证据。
 $stageRepo = Split-Path $PSScriptRoot -Parent
 if ([string]::IsNullOrWhiteSpace($BuildDirectory)) {
     $BuildDirectory = Join-Path $stageRepo 'Artifacts\Builds\M1_07A\Attempt01'

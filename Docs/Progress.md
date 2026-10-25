@@ -1,29 +1,32 @@
 # 当前开发进度
 
-更新2026-10-25。**M2-06C用户已报告检查完成；随后出生首帧陷地 / 贴身镜头侧转两项已按明确授权直接补修并复核。首次冷PIE创建等待仍存在，不能写成卡顿彻底消除。**本轮不进入下一章节；详细证据与限制见[C10.1](M2_06C_TargetSwitching.md#101-出生首帧与贴身镜头补修已直接实施)。
+更新2026-10-25。**M2-06已收尾通过，当前进入[M2-07A：新版独立包与战斗集成检查](M2_07A_IntegratedPackage.md)，待用户实施。**[C报告](Reports/M2_06C_Verification.md)与[M2-06总报告](Reports/M2_06_Verification.md)已保存。首次PIE创建等待按用户决定关闭，不再优化 / 计时 / 验收，也不作为阶段阻塞。
 
 ## 当前实际工程
 
-- 157 Source / 86cpp，Core60 / UI23 / Editor3，23项自动化；来源75 / 本地294份UE资产。两新IA已按实物和只读配置核对登记。
-- 已实现四能力 / 五HUD、近战AI、菜单 / Pause / Failure / 进程内检查点、Tab选择、屏幕标记、右肩平滑镜头及Z / C方向切换；空候选保留当前锁、.20游戏秒限频，不绕回 / 排队。
-- 当前镜头Shoulder(0,75,55)cm / Focus45 / Pitch-18° / Yaw0 / MaxShoulderYaw12°；原臂长400与碰撞保留。Camera / Core仍共用唯一目标，Pause / 解锁 / 换身体恢复协议不变。
-- 正式GameMode生成Pawn前按实际胶囊向下探测一次可走地面；原Entry / Checkpoint_A Z120、Mesh和FootIK保持，无新增逐帧吸地。
-- 旧Cleanup/Attempt01不含后来次数HUD / Poise / F / 冷却HUD / 锁定，不能代表当前功能；本轮无新包或帧率性能结论。
+- 157 Source / 86cpp，Core60 / UI23 / Editor3，23项自动化，来源75 / 本地294份UE资产。本地`2b62e6a`已包含C及右肩 / 出生补修，main与origin/main跟踪引用一致；本轮未联网核验远端。
+- 已实现四能力 / 五HUD、近战AI、菜单 / Pause / Failure / 进程内检查点、Tab筛选、屏幕标记、右肩镜头、Z / C方向切换。空侧保留目标、不绕回 / 排队，两方向共享.20游戏秒。
+- 当前镜头Shoulder(0,75,55)cm / Focus45 / Pitch-18° / Yaw0 / MaxShoulderYaw12°，原臂长400与碰撞保留；GameMode生成前按实际胶囊探测一次可走地面，原出生点 / Mesh / FootIK保持。
+- 旧Cleanup/Attempt01缺后来次数HUD / Poise / F / 冷却HUD / 锁定，不能代表当前功能。新版包尚待生成。
 
-## 本轮证据与保留项
+## 已完成与当前待办
 
-2026-10-24正常Editor185.25秒 / Game172.35秒、三模块索引完成；22:13:43北京时间CameraRules / Selection / MarkerRules / SpawnPlacement四Success，0警告 / 0失败，其余19项沿用。此前Selection无地板夹具补修保留，不删原断言。
+C最后Editor185.25秒 / Game172.35秒、三模块索引完成；2026-10-24 22:13:43北京时间CameraRules / Selection / MarkerRules / SpawnPlacement四Success，0警告 / 0失败，其余19项沿用。用户已报告原章节检查完成；出生与600 / 200 / 79cm镜头样本、10/25短复核正常结束，证据与限制见报告。
 
-实际前台两次Entry首可采样帧脚尖约+1.48 / +1.77cm，胶囊底+2.15cm；600 / 200 / 79cm取景成功，贴身约-21°俯角 / -12°偏航补偿。10/25短复核三距离再次完成并正常Stop。Content / Config / 索引相对本轮补修前不变，临时AI停止 / Teleport只在PIE；19Actor、单敌人 / 无Probe或临时挡板，UE为All Saved，CLion已打开。
+A下发前共享Config检查PASS / Errors0 / Warnings0；启动脚本新增M2_07A归档选项，语法与WhatIf通过，未启动旧包或创建Runtime假结果。**23项阶段全组、UAT新包与两轮包内流程均未执行**，由用户按指南完成，不把准备检查写成包验收通过。
 
-首次PIE创建仍采到约1.55秒，紧接第二次约0.10秒；受冷加载 / 内存压力干扰，不能说整体卡顿已经解决。没有关闭IK、取消碰撞或改系统 / 画质。Raw保留中断采样和最终正常完成的独立记录，不把脚本错误隐去；本次未另跑Retry / Continue的完整实机矩阵。
+A安排阶段全组一次、新Development包和10–15分钟相关人工样本，不搭验收蓝图 / 重做旧矩阵。随后B只采新版包稳定待机 / 真实交战的必要性能窗口，C由助手整理M2技术复盘；已关闭的PIE等待不重新开题。
 
 ## 工时与协作
 
-- 已量化M2-06为270 / 等待15，M2为1340 / 119，项目3351分钟（55小时51分）/ 明确等待304分钟（5小时4分）；C实际分项工时未提供，不用估算补账，助手补修不计入用户实耗。
-- 普通后续C++继续用户手动；本次按直接修改授权完成五旧一新Source。Stage / Commit / Push由用户操作，未改索引。
-- 方案B继续只查受影响专项和少量真实画面，不重复旧HUD / 临时Controller验收图。下一开发步骤另行进入M2-07新版包 / 必要性能与复盘，当前不提前下发。
+- 已量化M2-06为270 / 等待15，M2为1340 / 119，项目3351分钟（55小时51分）/ 明确等待304分钟（5小时4分），另有C未登记。A未实施，不把25–40分钟预计或助手准备成本补为用户实耗。
+- 普通后续C++继续用户手动；本轮只改已有脚本和文档，Source / Content / Config保持。Stage / Commit / Push仍由用户操作。
+- 方案B保持，阶段集成才跑全组一次；每周30小时 / 百元预算 / 键鼠 / 暂无硬期限不变。
+
+## 入口
+
+[当前A指南](M2_07A_IntegratedPackage.md)、[M2-06总报告](Reports/M2_06_Verification.md)、[C报告](Reports/M2_06C_Verification.md)、[M2路线](M2_Roadmap.md)、[架构](Architecture.md)、[任务板](Backlog.md)、[方案B](AcceptanceWorkflow_Options.md)、[版本管理](VersionControl.md)。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。
+M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。

@@ -66,7 +66,7 @@ private:
     TWeakObjectPtr<UAbilitySystemComponent> BoundASC;
     FDelegateHandle StaminaHandle;
     FDelegateHandle MaxStaminaHandle;
-    // 与cpp唯一的五项Tag列表顺序配对，注册和解绑共用同一列表。
+    // 与cpp的阻断Tag列表顺序配对，注册和解绑共用同一列表。
     TArray<FDelegateHandle> ActionTagHandles;
     FTimerHandle RecoveryTimer;
     // Observation隔离旧订阅；DecreaseRevision识别GE同步回调里的新消费。

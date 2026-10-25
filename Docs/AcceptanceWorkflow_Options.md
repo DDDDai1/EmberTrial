@@ -203,8 +203,14 @@ Core16 / UI2共18项自动化保留；全部由WITH_DEV_AUTOMATION_TESTS隔离�
 
 用户已报告C检查完成，随后两项体验补修按授权直接处理。保留原Selection / CameraRules / MarkerRules，并新增SpawnPlacement验证生成前胶囊贴地 / 回退；正常双Build、四Success / 0警告，旧19项沿用。原无地板夹具后置冻结修复保留，不扩大锁定距离掩盖失败。
 
-人工不再搭Controller验收图或重做旧HUD / 伤害矩阵；用实际PIE采首帧脚尖位置及600 / 200 / 79cm三距离取景，10/25短采样正常结束。中断脚本记录与有效样本分别保留；NullRHI测试、骨骼数值、真实画面与首次PIE创建等待不互相替代。首次等待仍约1.55秒，不能因脚陷地修好就宣称性能问题消失；本次无新版包 / 完整性能窗口，未另跑Retry / Continue整套实机矩阵。
+人工不再搭Controller验收图或重做旧HUD / 伤害矩阵；用实际PIE采首帧脚尖位置及600 / 200 / 79cm三距离取景，10/25短采样正常结束。中断脚本记录与有效样本分别保留；NullRHI测试、骨骼数值、真实画面与首次PIE创建等待不互相替代。首次PIE等待需求已按用户决定关闭，不追加优化或复验；脚陷地修复没有被宣传为帧率提升。C无新版包 / 完整性能窗口，未另跑Retry / Continue整套实机矩阵。
+
+## M2-07A阶段集成的最小范围
+
+[A指南](M2_07A_IntegratedPackage.md)安排23项全组一次，不升级为以后每小批要求；当前尚未执行。没有Source新改，不在UAT前重复Editor / Game Build或索引刷新。完整新Cook、人工10–15分钟，四能力 / HUD与真实敌人、一次死亡 / Retry / Continue、第二新进程短查。
+
+正式地图单敌人，包内Z / C只验证输入和空候选保持；双目标成功切换沿用C编辑器反馈与Selection，不为本章搭验收Graph或增临时敌人。A没有Trace / FPS对比，B只处理新版包稳定待机 / 真实交战必要性能；已关闭PIE等待不重新开题。反馈后助手读Runtime / UAT / 23项结果，写实际报告，不预建空报告或抄旧包成功。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。
+M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。

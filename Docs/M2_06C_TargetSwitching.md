@@ -1,6 +1,6 @@
 # M2-06C：左右切换目标与交战收口
 
-更新2026-10-25，UE5.5.4。用户已报告本章检查完成，随后发现出生首帧陷地与贴身镜头侧转，已明确授权助手直接补修。**本轮双Build / 四项相关自动化与实际PIE取景通过；首次冷PIE创建等待仍保留。**具体原因、证据和提交范围见10.1及11节，本轮不进入下一章节，也不把窄采样扩写成完整性能或独立包验收。普通后续C++仍按原手动协作约定。
+更新2026-10-25，UE5.5.4。**[C验收](Reports/M2_06C_Verification.md)与[M2-06总验收](Reports/M2_06_Verification.md)已通过，进入[M2-07A新版包 / 集成](M2_07A_IntegratedPackage.md)。**原章节检查后出生 / 近景补修已有双Build / 四Success与实际取景复核。首次PIE等待已按用户要求关闭，不再优化 / 验收。下文保留实现与历史操作，不必再次录入。
 
 预计手动60–100分钟：代码35–60、资产15–25、检查10–15，构建等待另记。代码长的部分给完整文件，Controller只给精准增量；不搭临时Controller函数或测试蓝图。
 
@@ -28,7 +28,7 @@ Core只拥有一份锁定目标；B1标记订阅既有OnTargetChanged，B2相机
 ## 2. 保存与五个文件
 
 1. Stop PIE → Save All → 关闭UE，CLion保存。新增枚举 / UFUNCTION / UPROPERTY后走正常UBT / UHT，不用Live Coding。
-2. 基线是**右肩补修后的当前工作区**，不要从63abd20还原或覆盖B2相机三个文件。右肩未提交也不阻止本章开发；Commit分批见最后一节。
+2. 下面是原实施步骤：当时基线为右肩补修后的工作区；现实现已在2b62e6a，不从63abd20还原或覆盖B2相机文件，也不重复录入。历史范围见最后一节。
 3. 下表均在`E:\UE_Project\Demo\EmberTrial\Source\EmberTrial`，是已有文件，不创建同名副本。
 
 | 文件 | 操作 |
@@ -1146,13 +1146,13 @@ Probe与临时挡板删除，原A位置 / AI恢复，导航 / 原配置 / slomo1
 | 截图 | 本地Artifacts/M2_06C_CameraStartup/CloseCombat.png；引擎HighResShot不含UMG，不能用它证明HUD / 标记 |
 | 恢复 | AI停止 / Teleport仅用于PIE取景，Stop后销毁；编辑器19Actor、单正式敌人、无Probe / 临时挡板，原地图仍All Saved |
 
-**首次Play等待保留。**前台修复后一次首次PIE从请求到可采样身体仍约1.55秒，紧接第二次约0.10秒；后续暖启动约0.14秒。样本受冷加载、编辑器和系统负载影响，不是纯游戏帧耗时，不能与旧样本直接比较并宣称帧率提升或卡顿完全消除。并开IDE / UE时曾内存98%、可用约210MB；临时保存关闭CLion后仍约90–91%，只能确认内存紧张是干扰因素，未证明它是唯一瓶颈。本轮没有改系统、电源、画质或全局加载策略。若后续独立包也持续出现首秒卡顿，再在M2-07用匹配新版包的Insights范围定位，不为本次两项补修重复完整性能采集。
+**首次PIE等待需求已关闭。**此前采到约1.55秒创建等待、随后约0.10秒，存在内存压力等干扰，不能保证完全消除。2026-10-25用户明确“如果不可以，直接忽略这个需求”，本项不再优化、计时或验收，不作为M2-07阻塞或性能采样目标。出生脚陷地修复与等待分开，没有宣传为帧率收益；保留历史原始记录，不继续投入该需求。
 
 Raw保留Baseline、构建 / 测试JSON、前后骨骼位置、相机数值和短复核。前两份补采含脚本清理超时 / 相机对象中断错误，未删改；不把它们称作无错误全程采集。`CameraReview_2026-10-25.json`另记本次三距离完成与正常Stop；截图和此前有效数值仍可独立对应。本轮Source相对补修前为五旧一新，Content / Config / Git索引保持；没有替用户Stage / Commit / Push。
 
 ## 11. 本章 Commit / Push（固定放在最后）
 
-当前C实现、未提交的B2右肩以及本节体验补修共享相机 / Controller依赖，建议这次合并提交最新完整版本。源码共十旧一新：
+**实现已在本地`2b62e6a`合并提交**，下方保留当时范围供复查，不要求本轮重复Stage未变玩法文件。当前新报告 / 脚本 / 文档按[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)提交。原实现源码十旧一新：
 
 ```text
 EmberTrial/Source/EmberTrial/Public/TargetLock/ETTargetLockComponent.h
@@ -1197,10 +1197,13 @@ README.md
 Introduction.md
 ```
 
-本轮没有创建C完整验收报告，C工时未报；不提交空报告或把助手操作计作用户实耗。
+[C报告](Reports/M2_06C_Verification.md)与[M2-06总报告](Reports/M2_06_Verification.md)已生成，按真实反馈 / 构建 / 专项 / 有限取景分别记录；C工时未报，不把助手操作计作用户实耗。
 
-建议Commit（英文）：`feat: add target switching and refine close-combat camera and spawning`。
+原实现Commit（已完成，英文）：`feat: add target switching and refine close-combat camera and spawning`。
 
 中文译文：`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。
 
 CLion Refresh Changes → Stage最新完整内容（已Stage后又改须再次Stage）→ Review Diff → Commit → Push。确认新IA不是空文件，Controller三Action引用正确，地图没有临时对象。Raw / 日志 / 采样脚本 / 截图 / Saved / Binaries / Intermediate / CMake索引 / 包体留本地，不Force Add。用户自行Stage / Commit / Push；助手未修改Git索引或联网核验远端。
+
+
+本轮新增报告 / 脚本 / 文档按M2-07A末尾提交；下发态建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`，不提前写作新包已经通过。

@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-25最新现状：**HEAD仍63abd20。C与未提交的B2右肩 / 本次近景和出生补修建议合并，157 Source / 86cpp / 来源75，双Build / 四专项与实际PIE采样已完成。完整十旧一新Source、两新 / 三旧资产与文档见[C末尾](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。助手未改Git索引、未Commit / Push或核验远端；原生继承配置正确时不制造资产重存。
+**2026-10-25最新现状：**本地HEAD为`2b62e6a`，包含C / 右肩 / 出生补修；main与origin/main跟踪引用一致，本轮未联网核验远端。当前新增C / M2-06报告与M2-07A准备材料，只改文档和Run-StageBuild日志阶段选项；范围见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。助手未Stage / Commit / Push，不重复提交未变Source / Content / Config。
 
 **Commit双语约定（10/23用户新增）：**后续每份操作文档同时给英文建议标题与专业中文译文。Break Pulse使用“破势”、cooldown使用“技能冷却”、lifecycle使用“生命周期”，不机械逐词翻译。英文可作标题，中文可作正文或理解参考，不需要拼成一条重复标题；不改写已存在的历史提交。
 
@@ -376,4 +376,4 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。
+M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。

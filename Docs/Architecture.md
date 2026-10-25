@@ -110,11 +110,11 @@ Controller原UpdateRotation调用唯一原生Camera组件，读取同一Core目�
 
 主动解除立即归还鼠标，原更新流程平滑回正；Deactivate / PawnChanged / EndPlay精确归还并清弱引用，Pawn观察成对解绑。Pause冻结跟随及回正；不改Actor旋转 / 伤害 / GA。CameraRules包含原角度规则及真实测试World中的肩位所有权 / 换控清理；Selected Viewport画面另外验证近景可读性，不把NullRHI当作图像。当前值与完整代码见[B2](M2_06B2_LockCamera.md)。
 
-### 目标切换（C已检查，体验补修已复核）
+### 目标切换（C已验收）
 
 [C指南](M2_06C_TargetSwitching.md)只扩Core的目标身份：GatherCandidates复用A资格 / Visibility，左右按同一视点的水平角相对当前目标线性选优；.20游戏秒共享门限在查询 / 广播前写入，失败也限频且不排队，空侧保持原目标。内部ResetTargetBindings解除旧目标 / 废弃旧Serial，Set装配新目标后只发布一次Previous→Current，不让标记 / 肩位看到中间None。
 
-Controller只绑定两个独立Boolean IA的Started；Z / C在原IMC配置。B1 / B2读取原单一目标，不改UI / Actor旋转 / GA；相机近景另由Camera层修正，原Selection扩真实切换 / 旧来源隔离 / Pause；无新测试文件 / 常驻扫描 / Tick / Timer。C实际代码已由用户写入；Selection无地板夹具改为World启动后冻结，避免PostInitializeComponents恢复运动后重力污染范围断言，新增位置断言。用户已报告章节检查完成；随后近景 / 出生补修双Build与四专项通过，真实采样边界见C10.1。
+Controller只绑定两个独立Boolean IA的Started；Z / C在原IMC配置。B1 / B2读取原单一目标，不改UI / Actor旋转 / GA；相机近景另由Camera层修正，原Selection扩真实切换 / 旧来源隔离 / Pause；无新测试文件 / 常驻扫描 / Tick / Timer。C实际代码已由用户写入；Selection无地板夹具改为World启动后冻结，避免PostInitializeComponents恢复运动后重力污染范围断言，新增位置断言。用户已报告章节检查完成；近景 / 出生补修双Build与四专项通过，真实采样边界见[C报告](Reports/M2_06C_Verification.md)。首次PIE创建等待需求关闭；当前M2-07A只验证新包集成，不更改架构。
 
 ## 7. 会话、菜单与出生
 
@@ -148,4 +148,4 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。
+M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。

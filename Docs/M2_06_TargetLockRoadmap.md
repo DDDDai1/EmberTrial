@@ -1,6 +1,6 @@
 # M2-06：目标锁定、标记与镜头路线
 
-更新2026-10-25，UE5.5.4。当前157 Source / 86cpp、23项自动化、来源75。A / B1 / B2已完成；[C方向切换](M2_06C_TargetSwitching.md)用户已报告检查完成，出生 / 近景补修双Build / 四专项与实际取景复核通过。首次冷PIE创建等待保留，本轮不进入下一章。
+更新2026-10-25，UE5.5.4。[M2-06总验收](Reports/M2_06_Verification.md)已完成，进入[M2-07A新版包与集成检查](M2_07A_IntegratedPackage.md)。实际157 Source / 86cpp、23项自动化、来源75；首次PIE创建等待需求关闭，不再追加优化或复验。
 
 ## 1. 要交付的体验
 
@@ -17,7 +17,7 @@ M2原模块预算12h保留作比较，覆盖学习 / 调试与缓冲；下面为
 | **[A：目标筛选 / 生命周期](M2_06A_TargetSelection.md)，已验收** | Controller唯一目标、Tab Started、评分 / 可见性与释放；本批无标记 / 自动镜头 | 原100–150；实际90 / 等待5 | Selection一次Success，实机检查10分钟 |
 | **[B1：锁定标记](M2_06B1_TargetMarker.md)，已验收** | 六新UI / 零旧Source、UMG菱形 / 玩家界面投影 / 边界与按需更新；不改Core目标 / 相机 | 原80–120；实际90 / 等待5 | MarkerRules Success、单标记 / 重建 / 清理；人工10分钟 |
 | **[B2：右肩镜头](M2_06B2_LockCamera.md)，已完成** | 基础三新 / 两旧、补修同三旧Core；右肩视线 / 插值、Socket所有权与释放，不改动作方向 | 原80–130；用户90 / 等待5，助手右肩补修不冒充用户工时 | 三相关专项Success，真实UE取景 / P / 解除；用户原检查10分钟 |
-| **[C：目标切换与交战收口](M2_06C_TargetSwitching.md)，收尾补修完成** | Z / C相机水平角切换、共享.20秒 / 3°、直接旧→新事件、双目标 / 遮挡及四能力短交战 | 60–100 | 扩原Selection及CameraRules / MarkerRules；补修新增SpawnPlacement共四Success，用户检查已报；C分项实耗未报，不搭临时BP |
+| **[C：目标切换与交战收口](Reports/M2_06C_Verification.md)，已验收** | Z / C相机水平角切换、共享.20秒 / 3°、直接旧→新事件、双目标 / 遮挡及四能力短交战 | 60–100 | 扩原Selection及CameraRules / MarkerRules；补修新增SpawnPlacement共四Success，用户检查已报；C分项实耗未报，不搭临时BP |
 | 当前模块估计 | 已用270 + C60–100；助手补修不计用户实耗 | **330–370** | 用户时间约5小时30分–6小时10分，构建等待另记 |
 
 B现拆为B1标记 / B2镜头，避免投影 / 可见性 / View生命周期与相机控制同批排错。原B100–160粗估改为合计160–250，增加60–90使用M2既有缓冲，不另叠加全项目预算；A / B1实际各90按实耗纳入。M2-07再安排最新独立包、新增负载对应的必要性能窗口和整章复盘，不能用旧Cleanup/Attempt01冒充新功能打包。
@@ -40,4 +40,4 @@ A默认1200cm获取 / 1500cm脱锁、视锥半角60°、视角权重.75、维持
 
 ## 5. 当前 Commit / Push（固定放在最后）
 
-本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。
+M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。

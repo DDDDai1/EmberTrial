@@ -129,12 +129,22 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
         return false;
     }
     TestTrue(TEXT("Recovery resumes after reset delay"), Value() > AfterSecondSpend);
-    // 四种可退出的正式动作都应立即停表；Dead由末尾真实Health归零覆盖。
-    for (const FGameplayTag Tag :
-         {FGameplayTag(ETGameplayTags::State_Attacking),
-          FGameplayTag(ETGameplayTags::State_HitReact), FGameplayTag(ETGameplayTags::State_Dodging),
-          FGameplayTag(ETGameplayTags::State_Healing)})
+    // 独立维护测试侧的完整订阅契约；不能由被测Handle数量反推预期值。
+    const FGameplayTag ExpectedActionTags[] = {ETGameplayTags::State_Attacking,
+                                               ETGameplayTags::State_HitReact,
+                                               ETGameplayTags::State_Dead,
+                                               ETGameplayTags::State_Dodging,
+                                               ETGameplayTags::State_Healing,
+                                               ETGameplayTags::State_Stunned,
+                                               ETGameplayTags::State_CastingBreakPulse};
+    const int32 ExpectedActionTagCount = static_cast<int32>(UE_ARRAY_COUNT(ExpectedActionTags));
+    // 可退出的动作都应立即停表；Dead由末尾真实Health归零覆盖。
+    for (const FGameplayTag Tag : ExpectedActionTags)
     {
+        if (Tag == ETGameplayTags::State_Dead)
+        {
+            continue;
+        }
         ASC->AddLooseGameplayTag(Tag);
         TestFalse(TEXT("Busy tag stops timer immediately"), Recovery->IsRecoveryScheduled());
         const float BusyValue = Value();
@@ -173,11 +183,7 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
     // 独立列出订阅契约，直接检查ASC委托，避免只凭本地Handle数组推断已解绑。
     const auto CheckActionTagBindings = [&](bool bExpected)
     {
-        for (const FGameplayTag Tag :
-             {FGameplayTag(ETGameplayTags::State_Attacking),
-              FGameplayTag(ETGameplayTags::State_HitReact),
-              FGameplayTag(ETGameplayTags::State_Dead), FGameplayTag(ETGameplayTags::State_Dodging),
-              FGameplayTag(ETGameplayTags::State_Healing)})
+        for (const FGameplayTag Tag : ExpectedActionTags)
         {
             TestEqual(FString::Printf(TEXT("Recovery subscription: %s"), *Tag.ToString()),
                       ASC->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::NewOrRemoved)
@@ -185,7 +191,8 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
                       bExpected);
         }
     };
-    TestEqual(TEXT("Five handles after repeated observation"), Recovery->ActionTagHandles.Num(), 5);
+    TestEqual(TEXT("One handle per action tag after repeated observation"),
+              Recovery->ActionTagHandles.Num(), ExpectedActionTagCount);
     CheckActionTagBindings(true);
     const uint64 OldSerial = Recovery->ObservationSerial;
     Recovery->Deactivate();
@@ -200,6 +207,8 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
     }
     Same(TEXT("Inactive component does not recover"), DisabledValue);
     Recovery->Activate(true);
+    TestEqual(TEXT("Reactivation restores exactly one handle per action tag"),
+              Recovery->ActionTagHandles.Num(), ExpectedActionTagCount);
     CheckActionTagBindings(true);
     const double NewDeadline = Recovery->RecoveryNotBefore;
     FOnAttributeChangeData StaleChange;
@@ -244,8 +253,7 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
     TestFalse(TEXT("EndPlay revokes Ready"), Body->IsGameplayReady());
     TestTrue(TEXT("EndPlay clears action handles"), Recovery->ActionTagHandles.IsEmpty());
     CheckActionTagBindings(false);
-    AddInfo(TEXT(
-        "Stamina recovery: four action blockers, five tag subscriptions and balanced cleanup"));
+    AddInfo(TEXT("Stamina recovery: all action blockers and balanced tag subscription cleanup"));
     TestWorld.ForwardErrorMessages(this);
     return !HasAnyErrors();
 }

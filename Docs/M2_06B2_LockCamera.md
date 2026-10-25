@@ -830,10 +830,8 @@ B2基础功能由用户完成，本次右肩补修由助手直接完成：无需
 
 ## 9. 本章 Commit / Push（固定放在最后）
 
-基础B2已在63abd20；之后右肩、C切换与近景 / 出生补修当前均未提交，完整精确范围以[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)为准，包含本指南三份相机Source。不要仅提交本页而漏掉GameMode / 新SpawnPlacement测试及C所需输入资产。
+基础B2在63abd20，之后右肩 / C / 近景与出生补修已合并在本地`2b62e6a`。完整历史范围见[C末尾](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)，不要重复Stage未变Source或重存资产。
 
-建议合并Commit（英文）：`feat: add target switching and refine close-combat camera and spawning`。
+当前新增C / M2-06报告与M2-07A准备材料，范围见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。下发态英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`。
 
-中文译文：`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。
-
-CLion Refresh Changes → 重新Stage最新内容 → Review Diff → Commit → Push，由用户操作。Raw / 日志 / 截图 / 采样脚本 / Saved / Binaries / Intermediate / CMake索引 / 包体留本地，不Force Add；助手未操作Git索引或远端。
+用户自行Stage / Review Diff / Commit / Push，助手未操作索引。Raw / 日志 / 截图 / 采样脚本 / Saved / Binaries / Intermediate / CMake索引 / 包体留本地，不Force Add。

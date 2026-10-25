@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-25。M2-06C用户已报告检查完成，随后出生首帧 / 贴身镜头两项已直接补修并正常复核；首次冷PIE等待保留。本轮不进入下一章，实时证据与工时见[Progress](Progress.md)。历史行保持当时口径。
+更新2026-10-25。M2-06已收尾通过，C与总报告已保存；当前[M2-07A新版包 / 集成检查](M2_07A_IntegratedPackage.md)待用户实施。首次PIE创建等待需求关闭，普通方案B保持。实时规模 / 已量化工时见[Progress](Progress.md)，历史行保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -109,7 +109,11 @@
 | M2-06A | [目标筛选与生命周期](M2_06A_TargetSelection.md) | 你实现，我核对 | 完成 | [报告](Reports/M2_06A_Verification.md)：六Source一致、双Build / 80cpp、Selection Success与实机死亡 / 换身体清理；手动90 / 等待5 |
 | M2-06B1 | [锁定屏幕标记](M2_06B1_TargetMarker.md) | 你实现，我核对 | 完成 | [报告](Reports/M2_06B1_Verification.md)：六新UI一致、双Build / 83cpp、MarkerRules Success、单标记 / 两次重建 / 清理；手动90 / 等待5 |
 | M2-06B2 | [镜头跟随](M2_06B2_LockCamera.md) | 你实现，我核对 | 完成 | [报告](Reports/M2_06B2_Verification.md)：156 / 85、正常双Build / 三Success，右肩 / 精确恢复 / UE取景通过；原用户90 / 5，助手补修不重复计时 |
-| M2-06C | [左右切换 / 交战收口](M2_06C_TargetSwitching.md) | 你实施 / 检查，我补修 / 审查 | 收尾补修完成 | 用户报告检查完成；出生脚尖不再陷地、近景-21° / 偏航上限12°；157 / 86、双Build / 四Success；冷PIE等待保留、用户工时未报 |
+| M2-06C | [左右切换 / 交战收口](Reports/M2_06C_Verification.md) | 你检查，我补修 / 审查 | 完成 | 用户检查与两项体验补修复核通过；双Build / 四Success；PIE等待需求关闭、C工时未登记 |
+| M2-06 | [锁定 / 标记 / 镜头总验收](Reports/M2_06_Verification.md) | 我整理证据 | 完成 | A / B1 / B2 / C收口；157 / 86、来源75，最新独立包留下一批 |
+| M2-07A | [新版独立包与集成检查](M2_07A_IntegratedPackage.md) | 你操作，我读证据 | 待用户操作 | 一次23项阶段回归、新Development包、两轮独立流程；准备检查通过，未打包 |
+| M2-07B | 新版包必要性能窗口 | 后续下发 | 待开始 | 稳定待机 / 真实交战，不采PIE创建等待 |
+| M2-07C | M2技术复盘与范围校准 | 我整理，你复盘 | 待开始 | 当前Source / 包 / 必要性能证据、简历候选素材与下一阶段范围 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为Cleanup/Attempt01；M1 C3 Attempt02只保留历史证据。
 
@@ -125,9 +129,9 @@
 | 待办 | 当前边界 / 完成条件 |
 | --- | --- |
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
-| 当前M2新Development包 | Cleanup/Attempt01已完成Build / 完整Cook / Stage / Package与两轮独立检查；输入方法 / 范围见Cleanup |
+| 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| 后续M2开发 | 用户已授权恢复；M2-05整章已验收，M2-06A / B1也已验收，B2右肩已收尾；下一开发章节再下发C |
+| 后续M2开发 | M2-05 / M2-06已验收，当前进入M2-07A新版包集成；阶段报告与实际包证据分开记录 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -135,4 +139,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。
+M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。
