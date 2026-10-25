@@ -1,6 +1,10 @@
 #include "Framework/ETGameMode.h"
 #include "Framework/ETPlayerController.h"
 #include "Characters/EmberTrialCharacter.h"
+#include "CollisionQueryParams.h"
+#include "CollisionShape.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -88,6 +92,71 @@ AActor* AETGameMode::ChoosePlayerStart_Implementation(AController* Player)
            *RequestedId.ToString(), *SelectedSpawnId.ToString(), *GetNameSafe(Chosen),
            *Chosen->GetActorLocation().ToCompactString());
     return Chosen;
+}
+
+// ---- 先按实际Pawn胶囊贴近可走地面，再生成 / 初始化动画，避免首帧IK追赶出生落差 ----
+APawn* AETGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer,
+                                                               const FTransform& SpawnTransform)
+{
+    const UClass* PawnClass = GetDefaultPawnClassForController(NewPlayer);
+    const ACharacter* DefaultBody =
+        PawnClass ? Cast<ACharacter>(PawnClass->GetDefaultObject()) : nullptr;
+    const FTransform Grounded = MakeGroundedSpawnTransform(SpawnTransform, DefaultBody);
+    if (!Grounded.GetLocation().Equals(SpawnTransform.GetLocation(), .01))
+    {
+        UE_LOG(LogETGameMode, Display, TEXT("[M2-06C] Spawn grounded StartZ=%.2f PawnZ=%.2f"),
+               SpawnTransform.GetLocation().Z, Grounded.GetLocation().Z);
+    }
+    return Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, Grounded);
+}
+
+FTransform AETGameMode::MakeGroundedSpawnTransform(const FTransform& SpawnTransform,
+                                                   const ACharacter* DefaultBody) const
+{
+    UWorld* World = GetWorld();
+    const UCapsuleComponent* Capsule =
+        IsValid(DefaultBody) ? DefaultBody->GetCapsuleComponent() : nullptr;
+    const UCharacterMovementComponent* Movement =
+        IsValid(DefaultBody) ? DefaultBody->GetCharacterMovement() : nullptr;
+    const FVector Origin = SpawnTransform.GetLocation();
+    const FVector Scale = SpawnTransform.GetScale3D();
+    const FRotator Rotation = SpawnTransform.Rotator().GetNormalized();
+    if (!IsValid(World) || World->bIsTearingDown || !IsValid(Capsule) || !IsValid(Movement) ||
+        !FMath::IsFinite(SpawnGroundProbeDistance) || SpawnGroundProbeDistance <= 0.0f ||
+        SpawnGroundProbeDistance > 500.0f || Origin.ContainsNaN() || Scale.ContainsNaN() ||
+        Scale.X <= 0.0 || !Scale.Equals(FVector(Scale.X), .001) || Rotation.ContainsNaN() ||
+        !FMath::IsNearlyZero(Rotation.Pitch) || !FMath::IsNearlyZero(Rotation.Roll))
+    {
+        return SpawnTransform;
+    }
+    float Radius = 0.0f;
+    float HalfHeight = 0.0f;
+    Capsule->GetScaledCapsuleSize(Radius, HalfHeight);
+    Radius *= static_cast<float>(Scale.X);
+    HalfHeight *= static_cast<float>(Scale.X);
+    if (!FMath::IsFinite(Radius) || !FMath::IsFinite(HalfHeight) || Radius <= 0.0f ||
+        HalfHeight < Radius)
+    {
+        return SpawnTransform;
+    }
+    FHitResult Hit;
+    const FCollisionQueryParams Params(SCENE_QUERY_STAT(ETSpawnGround), false);
+    if (!World->SweepSingleByChannel(Hit, Origin,
+                                     Origin - FVector::UpVector * SpawnGroundProbeDistance,
+                                     FQuat::Identity, Capsule->GetCollisionObjectType(),
+                                     FCollisionShape::MakeCapsule(Radius, HalfHeight), Params) ||
+        Hit.bStartPenetrating || !Movement->IsWalkable(Hit) ||
+        (Hit.GetActor() && Hit.GetActor()->IsA<APawn>()))
+    {
+        return SpawnTransform;
+    }
+    // 复用CharacterMovement原生地面间隙，不在地图或角色代码硬编码90 / 96cm。
+    const float FloorGap = (UCharacterMovementComponent::MIN_FLOOR_DIST +
+                            UCharacterMovementComponent::MAX_FLOOR_DIST) *
+                           .5f;
+    FTransform Result = SpawnTransform;
+    Result.SetLocation(Hit.Location + FVector::UpVector * FloorGap);
+    return Result;
 }
 
 // ---- 复用PIE负例命令；真正写入范围由Session的WITH_EDITOR门控负责 ----

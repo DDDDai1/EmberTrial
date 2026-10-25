@@ -11,6 +11,7 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/WorldSettings.h"
 #include "Misc/AutomationTest.h"
+#include "Misc/ScopeExit.h"
 #include "Tests/AutomationCommon.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETTargetLockSelectionTest, "EmberTrial.M2.TargetLock.Selection",
@@ -56,11 +57,16 @@ bool FETTargetLockSelectionTest::RunTest(const FString& Parameters)
     PC->Possess(Source);
     PC->SetControlRotation(FRotator::ZeroRotator);
     PC->SetViewTarget(Source);
-    Source->GetCharacterMovement()->DisableMovement();
     if (!Fixture.BeginPlayInTestWorld())
     {
         Fixture.ForwardErrorMessages(this);
         return false;
+    }
+    // 世界启动的PostInitializeComponents可能恢复默认移动模式。
+    // 这个无地板夹具只验证锁定：启动后冻结初始身体，保留碰撞 / Timer / 生命周期。
+    for (AEmberTrialCharacter* Body : {Source, Front, Side, Rear, Neutral})
+    {
+        Body->GetCharacterMovement()->DisableMovement();
     }
     auto Advance = [&Fixture](float Seconds)
     {
@@ -115,6 +121,123 @@ bool FETTargetLockSelectionTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Actual camera selects front"), Lock->GetLockedTarget() == Front);
     TestTrue(TEXT("One active target has monitor"),
              World->GetTimerManager().IsTimerActive(Lock->MonitorTimer));
+    // ---- C：只扩已有Selection专项；离开本作用域先解绑，失败返回也不留下悬空Lambda ----
+    {
+        const FVector SavedSideLocation = Side->GetActorLocation();
+        Side->SetActorLocation(FVector(3000, 400, 200));
+        AEmberTrialCharacter* Left = SpawnBody(FVector(600, -300, 200), EETCombatTeam::Enemy);
+        AEmberTrialCharacter* Right = SpawnBody(FVector(600, 300, 200), EETCombatTeam::Enemy);
+        if (!TestNotNull(TEXT("Switch left"), Left) || !TestNotNull(TEXT("Switch right"), Right))
+        {
+            return false;
+        }
+        TestTrue(TEXT("Find screen left"),
+                 Lock->FindSwitchTarget(Source, Front, View, FRotator::ZeroRotator,
+                                        EETTargetLockSwitchDirection::Left) == Left);
+        TestTrue(TEXT("Find screen right"),
+                 Lock->FindSwitchTarget(Source, Front, View, FRotator::ZeroRotator,
+                                        EETTargetLockSwitchDirection::Right) == Right);
+        TestNull(TEXT("No wrap from right edge"),
+                 Lock->FindSwitchTarget(Source, Right, View, FRotator::ZeroRotator,
+                                        EETTargetLockSwitchDirection::Right));
+        Left->SetActorLocation(FVector(600, 0, 350));
+        TestNull(TEXT("Same horizontal angle is not a left candidate"),
+                 Lock->FindSwitchTarget(Source, Front, View, FRotator::ZeroRotator,
+                                        EETTargetLockSwitchDirection::Left));
+        Left->SetActorLocation(FVector(600, -300, 200));
+
+        int32 Changes = 0;
+        AEmberTrialCharacter* LastPrevious = nullptr;
+        AEmberTrialCharacter* LastCurrent = nullptr;
+        bool bReentrantAccepted = false;
+        const FDelegateHandle ChangedHandle = Lock->OnTargetChanged.AddLambda(
+            [&](AEmberTrialCharacter* Previous, AEmberTrialCharacter* Current)
+            {
+                ++Changes;
+                LastPrevious = Previous;
+                LastCurrent = Current;
+                bReentrantAccepted |= Lock->SwitchTarget(EETTargetLockSwitchDirection::Left);
+            });
+        ON_SCOPE_EXIT
+        {
+            Lock->OnTargetChanged.Remove(ChangedHandle);
+        };
+
+        const uint64 BeforeSwitchSerial = Lock->LockSerial;
+        TestTrue(TEXT("Real right request accepted"),
+                 Lock->SwitchTarget(EETTargetLockSwitchDirection::Right));
+        TestTrue(TEXT("One direct old to new event"),
+                 Changes == 1 && LastPrevious == Front && LastCurrent == Right);
+        TestFalse(TEXT("Broadcast cannot reenter switch"), bReentrantAccepted);
+        TestTrue(TEXT("One new target monitor"),
+                 World->GetTimerManager().IsTimerActive(Lock->MonitorTimer));
+        TestFalse(TEXT("Both directions share throttle"),
+                  Lock->SwitchTarget(EETTargetLockSwitchDirection::Left));
+        Lock->MaintainLock(BeforeSwitchSerial);
+        Front->SetGameplayReady(false);
+        TestTrue(TEXT("Old serial and old Ready cannot clear new target"),
+                 Lock->GetLockedTarget() == Right);
+        Front->SetGameplayReady(true);
+        if (!Advance(.21f))
+        {
+            return false;
+        }
+        TestTrue(TEXT("Left chooses nearest intermediate target"),
+                 Lock->SwitchTarget(EETTargetLockSwitchDirection::Left));
+        TestTrue(TEXT("Nearest is original front"), Lock->GetLockedTarget() == Front);
+        if (!Advance(.21f))
+        {
+            return false;
+        }
+        Right->SetGameplayReady(false);
+        const int32 BeforeRejectedChanges = Changes;
+        TestFalse(TEXT("No candidate keeps current"),
+                  Lock->SwitchTarget(EETTargetLockSwitchDirection::Right));
+        TestTrue(TEXT("Failure has no None event"),
+                 Lock->GetLockedTarget() == Front && Changes == BeforeRejectedChanges);
+        Right->SetGameplayReady(true);
+        TestFalse(TEXT("Failed search also throttles"),
+                  Lock->SwitchTarget(EETTargetLockSwitchDirection::Right));
+        if (!Advance(.21f))
+        {
+            return false;
+        }
+        TestTrue(TEXT("Rejected input was not queued"), Lock->GetLockedTarget() == Front);
+        TestTrue(TEXT("Fresh request switches"),
+                 Lock->SwitchTarget(EETTargetLockSwitchDirection::Right));
+
+        APlayerState* SwitchPauser = World->SpawnActor<APlayerState>();
+        if (!TestNotNull(TEXT("Switch pauser"), SwitchPauser))
+        {
+            return false;
+        }
+        World->GetWorldSettings()->SetPauserPlayerState(SwitchPauser);
+        const double Deadline = Lock->NextSwitchAllowedAt;
+        TestFalse(TEXT("Pause rejects switch"),
+                  Lock->SwitchTarget(EETTargetLockSwitchDirection::Left));
+        if (!Advance(.25f))
+        {
+            return false;
+        }
+        TestTrue(TEXT("Pause does not alter switch deadline"),
+                 Lock->NextSwitchAllowedAt == Deadline);
+        World->GetWorldSettings()->SetPauserPlayerState(nullptr);
+        TestFalse(TEXT("Pause did not spend switch interval"),
+                  Lock->SwitchTarget(EETTargetLockSwitchDirection::Left));
+        if (!Advance(.21f))
+        {
+            return false;
+        }
+        TestTrue(TEXT("Resume does not replay request"), Lock->GetLockedTarget() == Right);
+        TestTrue(TEXT("Fresh left restores original target"),
+                 Lock->SwitchTarget(EETTargetLockSwitchDirection::Left));
+        TestTrue(TEXT("Front restored"), Lock->GetLockedTarget() == Front);
+        Left->Destroy();
+        Right->Destroy();
+        TestTrue(TEXT("Previous target EndPlay cannot clear current"),
+                 Lock->GetLockedTarget() == Front);
+        Side->SetActorLocation(SavedSideLocation);
+    }
     TestTrue(TEXT("Second toggle releases"), Lock->ToggleTargetLock());
     TestNull(TEXT("Released target"), Lock->GetLockedTarget());
     TestFalse(TEXT("Release stops timer"), Lock->MonitorTimer.IsValid());
@@ -171,7 +294,13 @@ bool FETTargetLockSelectionTest::RunTest(const FString& Parameters)
     TestNull(TEXT("Sustained occlusion releases"), Lock->GetLockedTarget());
     TestFalse(TEXT("Occlusion stops monitor"), Lock->MonitorTimer.IsValid());
     Wall->Destroy();
-    if (!Advance(.05f) || !TestTrue(TEXT("Acquire after wall removal"), Lock->ToggleTargetLock()))
+    if (!Advance(.05f))
+    {
+        return false;
+    }
+    TestTrue(TEXT("Stationary fixture target keeps its spawn position"),
+             Front->GetActorLocation().Equals(FVector(600, 0, 200), .01));
+    if (!TestTrue(TEXT("Acquire after wall removal"), Lock->ToggleTargetLock()))
     {
         return false;
     }

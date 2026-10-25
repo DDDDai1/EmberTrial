@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-24最新现状：**[M2-06B1已验收](Reports/M2_06B1_Verification.md)，实际153 Source / 83cpp / 来源73；用户最新提交c902dcc已纳入完整六新UI / 两资产、正确UI测试路径与先前文档。旧AD / AM问题已解决；当前仅新报告与最新文档收尾待提交。助手未操作索引或联网核验远端。
+**2026-10-25最新现状：**HEAD仍63abd20。C与未提交的B2右肩 / 本次近景和出生补修建议合并，157 Source / 86cpp / 来源75，双Build / 四专项与实际PIE采样已完成。完整十旧一新Source、两新 / 三旧资产与文档见[C末尾](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。助手未改Git索引、未Commit / Push或核验远端；原生继承配置正确时不制造资产重存。
 
 **Commit双语约定（10/23用户新增）：**后续每份操作文档同时给英文建议标题与专业中文译文。Break Pulse使用“破势”、cooldown使用“技能冷却”、lifecycle使用“生命周期”，不机械逐词翻译。英文可作标题，中文可作正文或理解参考，不需要拼成一条重复标题；不改写已存在的历史提交。
 
@@ -372,6 +372,8 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-10-24 B1收尾：六新UI / 零旧Source、双Build / MarkerRules Success / 两资产保存已核对；本轮文档整理期间用户提交c902dcc，源码 / 两资产与HEAD一致，误放路径已关闭，不重复提示取消旧暂存。当前只提交B1报告 / 清单 / 状态与B2指南修订；B2代码仍仅在忽略Raw候选与MD中，不提前Stage实际Source。
 
+2026-10-24 C指南下发：普通实现由用户手动，用户已写入C五旧Source / 两IA；本次“直接解决”仅授权助手修ETTargetLockTests.cpp，玩法 / 资产未再改。现有B2右肩未提交差异保留。C实施后五旧Core / 两新IA / 原IMC与Controller及实际文档清单见[C末尾](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)；当前不提前Stage未来文件 / 空报告，不改变Git索引。主张先提交B2，再做C；如合并，指南提供完整合并范围及中英文建议。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。
+本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。

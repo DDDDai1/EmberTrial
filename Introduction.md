@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-24，M0、M1、M2-01 / 02 / 03 / 04 / 05及06A / B1已验收，清理已关闭。**当前153 Source / 83cpp / 来源73，累计3261 / 明确等待299分钟，M2为1250 / 114、M2-06为180 / 10，M2-05已收口505 / 40。目标身份与屏幕标记已实现，镜头仍待[B2指南](Docs/M2_06B2_LockCamera.md)手动实施，预计80–130分钟未计实耗。旧包不含后来次数HUD / Poise / F / 冷却HUD / 锁定，最终作品未完成。手动C++ / 方案B / 用户自行Push保持，后续Commit同步专业中文译文。以下保留原M0起点：
+**截至2026-10-25，M0、M1、M2-01 / 02 / 03 / 04 / 05及06A / B1 / B2已验收，清理已关闭。**[C方向切换](Docs/M2_06C_TargetSwitching.md)用户已报告检查完成，随后出生 / 近景补修已完成双Build / 四Success与实际取景复核；首次冷PIE创建等待仍保留。当前157 Source / 86cpp / 来源75，已量化用户3351 / 明确等待304分钟，M2为1340 / 119、M2-06为270 / 15，C实耗未报，助手操作不冒充用户实耗。旧包不含后来次数HUD / Poise / F / 冷却HUD / 锁定，最终作品未完成，本轮不进入下一章。普通C++手动 / 方案B / 用户自行Push约定保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](Docs/M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。
+本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](Docs/M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。

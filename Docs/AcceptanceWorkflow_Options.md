@@ -157,7 +157,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 | --- | --- | --- |
 | 正式菜单 / Retry / Continue / P / Q / 攻击与闪避 | 输入、UI、真实交战和主流程 | 画面 / 焦点仍需实机；不重复搭临时Controller验收图 |
 | ET_Stamina / ET_Healing / ET_Poise及既有损伤入口 | 资源查询 / 最小复现 | PIE修改有上下文限制；保留入口不等于产品功能 |
-| 21项EmberTrial自动化 | Practice、资源、韧性 / F、闪避、连段、治疗、UI纯规则 / 冷却生命周期、目标选择 / 生命周期与标记边界 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
+| 23项EmberTrial自动化（含生成前贴地） | Practice、资源、韧性 / F、闪避、连段、治疗、UI纯规则 / 冷却生命周期、目标选择 / 生命周期、标记边界与镜头角度 | 只跑受影响项；公共生命周期 / 阶段收尾可跑全组；NullRHI不证明视觉与输入 |
 | 两套Editor Validator | 玩法配置、BT键绑定、UMG必需控件 | 只读结构，不证明导航、白线、Notify实触发或切图 |
 | Validate-ProjectConfig | 共享地图 / Cook / Cue配置与文件存在 | 不合并Saved / 平台配置，不解析地图；独立包仍需检查 |
 | Run-StageBuild | 按已有包启动并记录证据 / 性能口径 | WhatIf只预览；旧M1包不包含当前M2 |
@@ -197,8 +197,14 @@ Core16 / UI2共18项自动化保留；全部由WITH_DEV_AUTOMATION_TESTS隔离�
 
 [B1报告](Reports/M2_06B1_Verification.md)：人工检查10分钟，MarkerRules当次Success，旧20项沿用；两次真实View重建 / Pause / 切图 / Stop有日志。离屏 / 窗口缩放 / 失活恢复及死亡相关画面按用户反馈接受，PIE方式未注明，不扩充成完整DPI矩阵。早期LockMarker绑定Error已有后续保存 / Valid / 运行覆盖，关闭历史错误，不重复整章。
 
-[B2](M2_06B2_LockCamera.md)只新增CameraRules专项，验证有限值、最短角路径、指数收敛 / 帧率与Pitch目标边界；无Viewport夹具，不把纯规则冒充真实镜头。人工8–12分钟补鼠标所有权、Tab解除无回跳、动作方向、相机组件失活、Pause与死亡 / 切图释放，复用正式入口 / ke，不搭临时Controller图，旧21项按影响沿用。
+[B2报告](Reports/M2_06B2_Verification.md)：原专项 / 基础检查通过后用户发现近景遮挡；本轮明确授权助手直接改右肩，三既有Core文件与原CameraRules复用，正常双Build / CameraRules / Selection / MarkerRules三Success。新增肩位几何 / 真实Pawn换控 / 精确恢复断言，Selected Viewport补取景 / P与解除样本；工具用ke正式请求，不将它宣传为新物理Tab验收。旧19项沿用，不新搭Controller图 / 重做全套伤害矩阵；截图 / 电脑操作与NullRHI的证据边界分开。
+
+## C本批最小验收与体验补修
+
+用户已报告C检查完成，随后两项体验补修按授权直接处理。保留原Selection / CameraRules / MarkerRules，并新增SpawnPlacement验证生成前胶囊贴地 / 回退；正常双Build、四Success / 0警告，旧19项沿用。原无地板夹具后置冻结修复保留，不扩大锁定距离掩盖失败。
+
+人工不再搭Controller验收图或重做旧HUD / 伤害矩阵；用实际PIE采首帧脚尖位置及600 / 200 / 79cm三距离取景，10/25短采样正常结束。中断脚本记录与有效样本分别保留；NullRHI测试、骨骼数值、真实画面与首次PIE创建等待不互相替代。首次等待仍约1.55秒，不能因脚陷地修好就宣称性能问题消失；本次无新版包 / 完整性能窗口，未另跑Retry / Continue整套实机矩阵。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。
+本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。

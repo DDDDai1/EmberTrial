@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-24。本文描述M2-06B1验收后的实际实现：四能力 / 五HUD、Core目标锁定与UI标记已接；[B2镜头指南](M2_06B2_LockCamera.md)待手动实施，当前无自动镜头。实时规模 / 证据见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-25。当前包含四能力 / 五HUD、目标锁定 / 标记、方向切换与近景右肩镜头；正式GameMode增加生成前贴地。实时证据 / 工时见[Progress](Progress.md)，本轮范围见[C10.1](M2_06C_TargetSwitching.md#101-出生首帧与贴身镜头补修已直接实施)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -104,9 +104,17 @@ Character只读接口核对自有Spec / ASC并查询真实GE；[BreakPulsePresen
 
 [B1报告](Reports/M2_06B1_Verification.md)：六新UI与Controller独立表现组件读取Core同一目标，不修改Bootstrap / Core身份。Widget只渲染直接Canvas子级Border，根可见且目标合法时组件在PostUpdateWork投影；暂停不Tick、解锁即停，离屏只隐藏子控件以便转回重新出现。UMG投影 / 玩家界面几何负责DPI，不重复缩放；重建移除旧View / 引擎委托，不改变Core锁。MarkerRules为第21项纯规则专项，不替代真实Viewport。
 
-### 下一批镜头（B2尚未实现）
+### 锁定镜头（B2右肩已实现）
 
-[B2指南](M2_06B2_LockCamera.md)三新Core / 两旧Controller：原UpdateRotation调用独立Camera规则组件，不另建Tick / Timer / 目标缓存；最短角路径与指数插值，只替换锁定期间RotationInput，继续走Super / CameraManager。解锁从当前角度归还鼠标，不写Actor旋转 / GAS或UI；新的CameraRules尚不计入实际21项。
+Controller原UpdateRotation调用唯一原生Camera组件，读取同一Core目标；合法锁定帧替换RotationInput再走Super / CameraManager，不另建Tick / Timer。弱SpringArm保存取得时SocketOffset，以原值+(0,75,55)cm为肩位目标，解析补偿右移 / 抬高后的视线、注视目标中心上方45cm；PitchOffset=-18°、肩位偏航补偿上限12°，允许贴身目标略离中心以保持后侧俯视；不是反复累加偏移，也不依赖上帧相机坐标。
+
+主动解除立即归还鼠标，原更新流程平滑回正；Deactivate / PawnChanged / EndPlay精确归还并清弱引用，Pawn观察成对解绑。Pause冻结跟随及回正；不改Actor旋转 / 伤害 / GA。CameraRules包含原角度规则及真实测试World中的肩位所有权 / 换控清理；Selected Viewport画面另外验证近景可读性，不把NullRHI当作图像。当前值与完整代码见[B2](M2_06B2_LockCamera.md)。
+
+### 目标切换（C已检查，体验补修已复核）
+
+[C指南](M2_06C_TargetSwitching.md)只扩Core的目标身份：GatherCandidates复用A资格 / Visibility，左右按同一视点的水平角相对当前目标线性选优；.20游戏秒共享门限在查询 / 广播前写入，失败也限频且不排队，空侧保持原目标。内部ResetTargetBindings解除旧目标 / 废弃旧Serial，Set装配新目标后只发布一次Previous→Current，不让标记 / 肩位看到中间None。
+
+Controller只绑定两个独立Boolean IA的Started；Z / C在原IMC配置。B1 / B2读取原单一目标，不改UI / Actor旋转 / GA；相机近景另由Camera层修正，原Selection扩真实切换 / 旧来源隔离 / Pause；无新测试文件 / 常驻扫描 / Tick / Timer。C实际代码已由用户写入；Selection无地板夹具改为World启动后冻结，避免PostInitializeComponents恢复运动后重力污染范围断言，新增位置断言。用户已报告章节检查完成；随后近景 / 出生补修双Build与四专项通过，真实采样边界见C10.1。
 
 ## 7. 会话、菜单与出生
 
@@ -116,7 +124,7 @@ Character只读接口核对自有Spec / ASC并查询真实GE；[BreakPulsePresen
 
 Continue / Retry重载地图、创建新身体与新HUD，保留最近检查点ID；NewRun确认后重置Entry。普通交互目标激活、敌人生命、玩家资源不跨世界保存。真正退出进程后Continue资格消失，版本化磁盘存档尚未实现。
 
-正式AETGameMode负责出生 / 会话；菜单AETMenuGameMode不生成Pawn / Spectator / AHUD，只由蓝图装配菜单Controller。旧AEmberTrialGameMode仍被默认配置 / 类重定向引用，保留兼容模板出生；类 / 子对象 / 反射字段不能凭名称看旧就删除。
+正式AETGameMode负责出生 / 会话；生成前按实际Pawn胶囊向下Sweep一次，100cm内非穿透可走地面采用原生行走间隙，XY / 朝向不变；无地板 / 高空 / 非Character等保留原出生逻辑，避免首帧落差让FootIK追赶。没有逐帧吸地，也不改保存的PlayerStart / Mesh。菜单AETMenuGameMode不生成Pawn / Spectator / AHUD，只由蓝图装配菜单Controller。旧AEmberTrialGameMode仍被默认配置 / 类重定向引用，保留兼容模板出生；类 / 子对象 / 反射字段不能凭名称看旧就删除。
 
 ## 8. 蓝图、兼容入口与引用
 
@@ -134,10 +142,10 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
-现有21项自动化覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项、标记边界纯规则一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
+现有23项自动化（含新增SpawnPlacement生成前贴地 / 回退）覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项、标记边界纯规则一项及镜头角度规则一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含后来次数HUD / Poise / F / 冷却HUD，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D冷却HUD已验收；锁定A / B1标记已验收，B2镜头指南已下发、待手动实施。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
+清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含后来次数HUD / Poise / F / 冷却HUD，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D冷却HUD已验收；锁定A / B1标记已验收，B2右肩取景 / 偏移恢复已实现并检查。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。
+本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。

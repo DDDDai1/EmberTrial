@@ -105,16 +105,36 @@ bool UETTargetLockComponent::HasVisibility(const AEmberTrialCharacter* Source,
     return !bBlocked || Hit.GetActor() == Target;
 }
 
-// ---- 按请求Overlap一次；角度 / 距离归一评分，近似同分按稳定对象路径决胜 ----
-AEmberTrialCharacter* UETTargetLockComponent::FindBestTarget(const AEmberTrialCharacter* Source,
-                                                             const FVector& ViewLocation,
-                                                             const FVector& ViewForward) const
+// ---- 请求只读取当前世界 / 身体，不在暂停或菜单中保留输入 ----
+bool UETTargetLockComponent::ResolveRequestContext(AEmberTrialCharacter*& OutSource,
+                                                   APlayerController*& OutController) const
 {
+    OutSource = ResolveSource();
+    OutController = BoundController.Get();
+    const UWorld* World = GetWorld();
+    return HasBegunPlay() && !bEndingPlay && IsActive() && IsValid(World) &&
+           !World->bIsTearingDown && !World->IsPaused() && IsValid(OutController) &&
+           !OutController->bShowMouseCursor && IsValid(OutSource) && HasValidConfiguration();
+}
+
+bool UETTargetLockComponent::HasValidSwitchConfiguration() const
+{
+    return FMath::IsFinite(SwitchInterval) && SwitchInterval >= .05f && SwitchInterval <= 1.0f &&
+           FMath::IsFinite(SwitchMinAngle) && SwitchMinAngle >= 0.0f && SwitchMinAngle <= 20.0f;
+}
+
+// ---- 获取 / 切换复用同一候选资格，Overlap只在有效请求中执行一次 ----
+void UETTargetLockComponent::GatherCandidates(const AEmberTrialCharacter* Source,
+                                              const FVector& ViewLocation,
+                                              const FVector& ViewForward,
+                                              TArray<AEmberTrialCharacter*>& OutCandidates) const
+{
+    OutCandidates.Reset();
     UWorld* World = GetWorld();
     if (!IsValid(World) || !HasValidConfiguration() || !IsValid(Source) ||
         ViewLocation.ContainsNaN() || ViewForward.ContainsNaN() || ViewForward.IsNearlyZero())
     {
-        return nullptr;
+        return;
     }
     FCollisionObjectQueryParams Objects;
     Objects.AddObjectTypesToQuery(ECC_Pawn);
@@ -123,10 +143,6 @@ AEmberTrialCharacter* UETTargetLockComponent::FindBestTarget(const AEmberTrialCh
     World->OverlapMultiByObjectType(Hits, Source->GetActorLocation(), FQuat::Identity, Objects,
                                     FCollisionShape::MakeSphere(AcquireRadius), Params);
     TSet<AEmberTrialCharacter*> Seen;
-    AEmberTrialCharacter* Best = nullptr;
-    int64 BestScore = TNumericLimits<int64>::Max();
-    // 先量化为同分桶，再按路径决胜；避免近似相等关系导致遍历顺序影响结果。
-    constexpr double ScorePrecision = 10000.0;
     const double MinDot =
         FMath::Cos(FMath::DegreesToRadians(static_cast<double>(AcquireHalfAngle)));
     const FVector Forward = ViewForward.GetSafeNormal();
@@ -139,16 +155,33 @@ AEmberTrialCharacter* UETTargetLockComponent::FindBestTarget(const AEmberTrialCh
         }
         Seen.Add(Target);
         const FVector Offset = Target->GetActorLocation() - ViewLocation;
-        if (Offset.IsNearlyZero())
+        if (!Offset.IsNearlyZero() &&
+            FVector::DotProduct(Forward, Offset.GetSafeNormal()) >= MinDot &&
+            HasVisibility(Source, Target, ViewLocation))
         {
-            continue;
+            OutCandidates.Add(Target);
         }
+    }
+}
+
+// ---- 首次获取保持A的角度 / 距离评分 ----
+AEmberTrialCharacter* UETTargetLockComponent::FindBestTarget(const AEmberTrialCharacter* Source,
+                                                             const FVector& ViewLocation,
+                                                             const FVector& ViewForward) const
+{
+    TArray<AEmberTrialCharacter*> Candidates;
+    GatherCandidates(Source, ViewLocation, ViewForward, Candidates);
+    AEmberTrialCharacter* Best = nullptr;
+    int64 BestScore = TNumericLimits<int64>::Max();
+    constexpr double ScorePrecision = 10000.0;
+    const double MinDot =
+        FMath::Cos(FMath::DegreesToRadians(static_cast<double>(AcquireHalfAngle)));
+    const FVector Forward = ViewForward.GetSafeNormal();
+    for (AEmberTrialCharacter* Target : Candidates)
+    {
+        const FVector Offset = Target->GetActorLocation() - ViewLocation;
         const double Dot =
             FMath::Clamp(FVector::DotProduct(Forward, Offset.GetSafeNormal()), -1.0, 1.0);
-        if (Dot < MinDot || !HasVisibility(Source, Target, ViewLocation))
-        {
-            continue;
-        }
         const double AnglePenalty = (1.0 - Dot) / (1.0 - MinDot);
         const double DistancePenalty =
             FVector::Distance(Source->GetActorLocation(), Target->GetActorLocation()) /
@@ -166,13 +199,108 @@ AEmberTrialCharacter* UETTargetLockComponent::FindBestTarget(const AEmberTrialCh
     return Best;
 }
 
+// ---- 以同一视点的水平角排序：相对当前目标向左 / 右找最近一个，不从边缘绕回 ----
+AEmberTrialCharacter* UETTargetLockComponent::FindSwitchTarget(
+    const AEmberTrialCharacter* Source, const AEmberTrialCharacter* Current,
+    const FVector& ViewLocation, const FRotator& ViewRotation,
+    EETTargetLockSwitchDirection Direction) const
+{
+    if (!IsValid(Current) || !HasValidSwitchConfiguration() || ViewRotation.ContainsNaN() ||
+        (Direction != EETTargetLockSwitchDirection::Left &&
+         Direction != EETTargetLockSwitchDirection::Right))
+    {
+        return nullptr;
+    }
+    const FVector Forward = ViewRotation.Vector();
+    const FVector Right = ViewRotation.RotateVector(FVector::RightVector);
+    const FVector CurrentOffset = Current->GetActorLocation() - ViewLocation;
+    if (CurrentOffset.ContainsNaN() ||
+        FVector::DotProduct(CurrentOffset, Forward) <= UE_SMALL_NUMBER)
+    {
+        return nullptr;
+    }
+    auto HorizontalAngle = [&Forward, &Right](const FVector& Offset)
+    {
+        return FMath::RadiansToDegrees(
+            FMath::Atan2(FVector::DotProduct(Offset, Right), FVector::DotProduct(Offset, Forward)));
+    };
+    const double CurrentAngle = HorizontalAngle(CurrentOffset);
+    const double Sign = Direction == EETTargetLockSwitchDirection::Right ? 1.0 : -1.0;
+    TArray<AEmberTrialCharacter*> Candidates;
+    GatherCandidates(Source, ViewLocation, Forward, Candidates);
+    AEmberTrialCharacter* Best = nullptr;
+    int64 BestAngle = TNumericLimits<int64>::Max();
+    double BestDistance = TNumericLimits<double>::Max();
+    constexpr double AnglePrecision = 10000.0;
+    for (AEmberTrialCharacter* Target : Candidates)
+    {
+        if (Target == Current)
+        {
+            continue;
+        }
+        const double Gap =
+            Sign * (HorizontalAngle(Target->GetActorLocation() - ViewLocation) - CurrentAngle);
+        if (Gap <= SwitchMinAngle)
+        {
+            continue;
+        }
+        const int64 AngleScore = FMath::RoundToInt64(Gap * AnglePrecision);
+        const double Distance =
+            FVector::DistSquared(Source->GetActorLocation(), Target->GetActorLocation());
+        if (!Best || AngleScore < BestAngle ||
+            (AngleScore == BestAngle &&
+             (Distance < BestDistance || (Distance == BestDistance &&
+                                          Target->GetPathName().Compare(Best->GetPathName()) < 0))))
+        {
+            Best = Target;
+            BestAngle = AngleScore;
+            BestDistance = Distance;
+        }
+    }
+    return Best;
+}
+
+bool UETTargetLockComponent::SwitchTarget(EETTargetLockSwitchDirection Direction)
+{
+    AEmberTrialCharacter* Source = nullptr;
+    APlayerController* PC = nullptr;
+    AEmberTrialCharacter* Current = GetLockedTarget();
+    if (!ResolveRequestContext(Source, PC) || !HasValidSwitchConfiguration() ||
+        !IsTargetEligible(Source, Current, BreakRadius) ||
+        (Direction != EETTargetLockSwitchDirection::Left &&
+         Direction != EETTargetLockSwitchDirection::Right))
+    {
+        return false;
+    }
+    const double Now = GetWorld()->GetTimeSeconds();
+    if (!FMath::IsFinite(Now) || Now < NextSwitchAllowedAt)
+    {
+        return false;
+    }
+    // 搜索失败也消耗本次限频；先写门限，再查询 / 广播，拒绝同步重入与排队。
+    NextSwitchAllowedAt = Now + SwitchInterval;
+    FVector ViewLocation;
+    FRotator ViewRotation;
+    PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
+    AEmberTrialCharacter* Next =
+        FindSwitchTarget(Source, Current, ViewLocation, ViewRotation, Direction);
+    if (!Next)
+    {
+        UE_LOG(LogETTargetLock, Display,
+               TEXT("[M2-06C] Switch rejected Reason=NoCandidate Direction=%s Current=%s"),
+               Direction == EETTargetLockSwitchDirection::Right ? TEXT("Right") : TEXT("Left"),
+               *GetNameSafe(Current));
+        return false;
+    }
+    SetLockedTarget(Next);
+    return true;
+}
+
 bool UETTargetLockComponent::ToggleTargetLock()
 {
-    UWorld* World = GetWorld();
-    APlayerController* PC = BoundController.Get();
-    AEmberTrialCharacter* Source = ResolveSource();
-    if (bEndingPlay || !IsActive() || !IsValid(World) || World->IsPaused() || !IsValid(PC) ||
-        PC->bShowMouseCursor || !Source || !HasValidConfiguration())
+    AEmberTrialCharacter* Source = nullptr;
+    APlayerController* PC = nullptr;
+    if (!ResolveRequestContext(Source, PC))
     {
         return false;
     }
@@ -233,10 +361,15 @@ void UETTargetLockComponent::RebindSource()
 
 void UETTargetLockComponent::SetLockedTarget(AEmberTrialCharacter* Target)
 {
-    // 调用者只在无锁定状态进入；先提交身份、委托和Timer，再最后广播。
+    AEmberTrialCharacter* Previous = LockedTarget.Get();
+    if (!IsValid(Target) || Target == Previous)
+    {
+        return;
+    }
+    // 内部撤销旧代次 / 委托 / Timer，不向View广播中间的None。
+    ResetTargetBindings();
     LockedTarget = Target;
-    OccludedSince = -1.0;
-    const uint64 Serial = ++LockSerial;
+    const uint64 Serial = LockSerial;
     Target->OnGameplayReadyChanged.AddUniqueDynamic(this, &ThisClass::HandleBodyReadyChanged);
     Target->OnEndPlay.AddUniqueDynamic(this, &ThisClass::HandleBodyEndPlay);
     TargetLife = Target->FindComponentByClass<UETCombatLifeComponent>();
@@ -247,14 +380,21 @@ void UETTargetLockComponent::SetLockedTarget(AEmberTrialCharacter* Target)
     GetWorld()->GetTimerManager().SetTimer(
         MonitorTimer, FTimerDelegate::CreateUObject(this, &ThisClass::MaintainLock, Serial),
         MonitorInterval, true);
-    UE_LOG(LogETTargetLock, Display, TEXT("[M2-06A] Locked Source=%s Target=%s Timer=1"),
-           *GetNameSafe(BoundSource.Get()), *GetNameSafe(Target));
-    OnTargetChanged.Broadcast(nullptr, Target);
+    if (IsValid(Previous))
+    {
+        UE_LOG(LogETTargetLock, Display, TEXT("[M2-06C] Switched Previous=%s Target=%s Timer=1"),
+               *GetNameSafe(Previous), *GetNameSafe(Target));
+    }
+    else
+    {
+        UE_LOG(LogETTargetLock, Display, TEXT("[M2-06A] Locked Source=%s Target=%s Timer=1"),
+               *GetNameSafe(BoundSource.Get()), *GetNameSafe(Target));
+    }
+    OnTargetChanged.Broadcast(Previous, Target);
 }
 
-void UETTargetLockComponent::ClearTarget(const TCHAR* Reason)
+void UETTargetLockComponent::ResetTargetBindings()
 {
-    const bool bHadIdentity = LockedTarget.IsValid() || LockedTarget.IsStale();
     AEmberTrialCharacter* Previous = LockedTarget.Get();
     ++LockSerial;
     LockedTarget.Reset();
@@ -275,6 +415,14 @@ void UETTargetLockComponent::ClearTarget(const TCHAR* Reason)
     }
     TargetLife.Reset();
     TargetDeathHandle.Reset();
+}
+
+void UETTargetLockComponent::ClearTarget(const TCHAR* Reason)
+{
+    const bool bHadIdentity = LockedTarget.IsValid() || LockedTarget.IsStale();
+    AEmberTrialCharacter* Previous = LockedTarget.Get();
+    ResetTargetBindings();
+    NextSwitchAllowedAt = 0.0;
     if (bHadIdentity)
     {
         UE_LOG(LogETTargetLock, Display, TEXT("[M2-06A] Cleared Target=%s Reason=%s Timer=0"),

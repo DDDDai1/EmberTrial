@@ -56,6 +56,16 @@ private:
     TObjectPtr<UInputAction> TargetLockAction;
     void HandleTargetLockStarted();
 
+    // 仅转发左右意图，方向键位由现有IMC配置。
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock")
+    TObjectPtr<UInputAction> TargetSwitchLeftAction;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock")
+    TObjectPtr<UInputAction> TargetSwitchRightAction;
+
+    void HandleTargetSwitchLeftStarted();
+    void HandleTargetSwitchRightStarted();
+
     // 镜头规则不进入UI，也不让Character的动作状态接管相机所有权。
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Target Lock Camera",
               meta = (AllowPrivateAccess = "true"))

@@ -62,29 +62,65 @@ void AETPlayerController::HandleTargetLockStarted()
     }
 }
 
+void AETPlayerController::HandleTargetSwitchLeftStarted()
+{
+    if (IsValid(TargetLockComponent.Get()))
+    {
+        TargetLockComponent->SwitchTarget(EETTargetLockSwitchDirection::Left);
+    }
+}
+
+void AETPlayerController::HandleTargetSwitchRightStarted()
+{
+    if (IsValid(TargetLockComponent.Get()))
+    {
+        TargetLockComponent->SwitchTarget(EETTargetLockSwitchDirection::Right);
+    }
+}
+
 void AETPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
-    if (InputComponent)
+    if (!InputComponent)
     {
-        FInputKeyBinding& PauseBinding =
-            InputComponent->BindKey(EKeys::P, IE_Released, this, &ThisClass::HandlePauseReleased);
-        PauseBinding.bConsumeInput = true;
-        PauseBinding.bExecuteWhenPaused = false;
+        return;
+    }
+    FInputKeyBinding& PauseBinding =
+        InputComponent->BindKey(EKeys::P, IE_Released, this, &ThisClass::HandlePauseReleased);
+    PauseBinding.bConsumeInput = true;
+    PauseBinding.bExecuteWhenPaused = false;
 
-        UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
-        if (EnhancedInput && IsValid(TargetLockAction.Get()) &&
-            TargetLockAction->ValueType == EInputActionValueType::Boolean)
+    UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(InputComponent);
+    auto BindStarted = [this, EnhancedInput](UInputAction* Action,
+                                             void (AETPlayerController::*Handler)(),
+                                             const TCHAR* Purpose)
+    {
+        if (EnhancedInput && IsValid(Action) && Action->ValueType == EInputActionValueType::Boolean)
         {
-            EnhancedInput->BindAction(TargetLockAction.Get(), ETriggerEvent::Started,
-                                      this, &ThisClass::HandleTargetLockStarted);
+            EnhancedInput->BindAction(Action, ETriggerEvent::Started, this, Handler);
         }
         else
         {
             UE_LOG(LogETPlayerController, Display,
-                   TEXT("[M2-06A] Target lock input unavailable Controller=%s"), *GetName());
+                   TEXT("[M2-06C] Lock input unavailable Purpose=%s Controller=%s"), Purpose,
+                   *GetName());
         }
+    };
+    BindStarted(TargetLockAction.Get(), &ThisClass::HandleTargetLockStarted, TEXT("Toggle"));
+
+    // 同一IA不能同时变成切左 / 切右 / 解除。非法配置只停用切换，不破坏原Tab / P。
+    UInputAction* Left = TargetSwitchLeftAction.Get();
+    UInputAction* Right = TargetSwitchRightAction.Get();
+    if ((Left && (Left == Right || Left == TargetLockAction.Get())) ||
+        (Right && Right == TargetLockAction.Get()))
+    {
+        UE_LOG(LogETPlayerController, Warning,
+               TEXT("[M2-06C] Switch input rejected Reason=DuplicateAction Controller=%s"),
+               *GetName());
+        return;
     }
+    BindStarted(Left, &ThisClass::HandleTargetSwitchLeftStarted, TEXT("SwitchLeft"));
+    BindStarted(Right, &ThisClass::HandleTargetSwitchRightStarted, TEXT("SwitchRight"));
 }
 
 void AETPlayerController::HandlePauseReleased()

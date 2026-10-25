@@ -5,6 +5,13 @@
 #include "TimerManager.h"
 #include "ETTargetLockComponent.generated.h"
 
+UENUM(BlueprintType)
+enum class EETTargetLockSwitchDirection : uint8
+{
+    Left,
+    Right
+};
+
 class APawn;
 class APlayerController;
 class AEmberTrialCharacter;
@@ -27,6 +34,10 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "EmberTrial|Target Lock")
     AEmberTrialCharacter* GetLockedTarget() const;
+
+    // 只切换已有锁定；没有候选时保留当前目标，不缓存未来输入。
+    UFUNCTION(BlueprintCallable, Category = "EmberTrial|Target Lock")
+    bool SwitchTarget(EETTargetLockSwitchDirection Direction);
 
     FETLockTargetChanged OnTargetChanged;
     virtual void Deactivate() override;
@@ -58,6 +69,17 @@ private:
               meta = (ClampMin = "0.0", ClampMax = "3.0", Units = "s"))
     float OcclusionGrace = .35f;
 
+    // 两个方向共享同一个游戏时间门限；不添加输入Timer。
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock",
+              meta = (ClampMin = "0.05", ClampMax = "1.0", Units = "s"))
+    float SwitchInterval = .20f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock",
+              meta = (ClampMin = "0.0", ClampMax = "20.0", Units = "deg"))
+    float SwitchMinAngle = 3.0f;
+
+    double NextSwitchAllowedAt = 0.0;
+
     TWeakObjectPtr<APlayerController> BoundController;
     TWeakObjectPtr<AEmberTrialCharacter> BoundSource;
     TWeakObjectPtr<AEmberTrialCharacter> LockedTarget;
@@ -71,6 +93,9 @@ private:
     bool bEndingPlay = false;
 
     bool HasValidConfiguration() const;
+    bool ResolveRequestContext(AEmberTrialCharacter*& OutSource,
+                               APlayerController*& OutController) const;
+    bool HasValidSwitchConfiguration() const;
     AEmberTrialCharacter* ResolveSource() const;
     bool IsTargetEligible(const AEmberTrialCharacter* Source, const AEmberTrialCharacter* Target,
                           float Radius) const;
@@ -80,6 +105,17 @@ private:
                                          const FVector& ViewLocation,
                                          const FVector& ViewForward) const;
 
+    void GatherCandidates(const AEmberTrialCharacter* Source, const FVector& ViewLocation,
+                          const FVector& ViewForward,
+                          TArray<AEmberTrialCharacter*>& OutCandidates) const;
+    AEmberTrialCharacter* FindSwitchTarget(const AEmberTrialCharacter* Source,
+                                           const AEmberTrialCharacter* Current,
+                                           const FVector& ViewLocation,
+                                           const FRotator& ViewRotation,
+                                           EETTargetLockSwitchDirection Direction) const;
+
+    // 切换先解绑旧目标再装配新目标，外部只收到一次Previous -> Current。
+    void ResetTargetBindings();
     void RebindSource();
     void ClearSourceBindings();
     void SetLockedTarget(AEmberTrialCharacter* Target);

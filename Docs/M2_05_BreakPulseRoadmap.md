@@ -1,6 +1,6 @@
 # M2-05：范围破势分批路线
 
-更新2026-10-24，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；M2-06A / B1也已验收，下一批[B2镜头跟随](M2_06B2_LockCamera.md)已下发。
+更新2026-10-24，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；M2-06A / B1也已验收，B2右肩镜头也已完成，见[B2报告](Reports/M2_06B2_Verification.md)；C已实施 / 用户报告检查完成，当前出生 / 近景收尾复核见[C指南](M2_06C_TargetSwitching.md#101-出生首帧与贴身镜头补修已直接实施)。
 
 ## 1. 最终玩法与数值归属
 
@@ -43,4 +43,4 @@ A不加入常驻更新；范围能力不逐帧扫描关卡。必要效果和状�
 
 ## 5. 当前 Commit / Push（固定放在最后）
 
-B1完整实现已由用户提交`c902dcc`；正确UI测试路径、六新UI与两资产均已纳入，实际Source / 资产与HEAD一致，无需重复Stage，旧误放 / AM暂存问题已关闭。本轮Stage新B1报告、指南收尾、来源73、状态 / 架构 / 路线及B2指南最新修订。建议Commit（英文）：`docs: verify the target marker and prepare camera following`。中文译文：`docs: 记录锁定标记验收并准备镜头跟随`。B2三新Core / 两旧Controller尚未实施，完成后再按[B2清单](M2_06B2_LockCamera.md#9-本章-commit--push固定放在最后)提交。Raw / 日志 / 生成物 / 包体留本地，Git由用户操作；助手未改索引、Commit、Push或联网核验远端。
+本轮C检查后出生 / 近景补修已完成，首次冷PIE创建等待仍保留；没有进入下一章。精确Source、两新 / 三旧资产与文档范围见[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)。建议英文`feat: add target switching and refine close-combat camera and spawning`，中文译文`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。用户自行重新Stage最新内容 / Review Diff / Commit / Push；Raw、日志、截图、采样脚本、索引和包体留本地，助手未操作Git索引或核验远端。

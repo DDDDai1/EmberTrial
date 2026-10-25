@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06B1锁定标记已验收](Docs/Reports/M2_06B1_Verification.md)，[B2镜头指南](Docs/M2_06B2_LockCamera.md)已下发、待实施，尚未达到最终投递版本。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06B1锁定标记已验收](Docs/Reports/M2_06B1_Verification.md)，[B2右肩锁定镜头已完成](Docs/Reports/M2_06B2_Verification.md)，尚未达到最终投递版本。
 
 ## 已实现的体验
 
@@ -9,10 +9,10 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 - 近战敌人的感知、导航追击、转向 / 攻击、受击取消与失败重试。
 - Poise / MaxPoise及三组一次初始化；归零触发一次GAS破势、五动作取消 / 阻断、1.2秒状态与占位表现、存活结束恢复当前上限。
 - F站定施放与真实6游戏秒冷却，.4秒一次300cm / 60Poise范围结算；受击 / 破势 / 死亡取消不退款。
-- Tab按需选择 / 解除镜头前方存活敌人，带距离迟滞 / 遮挡宽限与死亡 / 换控清理；已有屏幕菱形标记 / 离屏隐藏再现，自动镜头后续接入。
+- Tab按需选择 / 解除镜头前方存活敌人，带距离迟滞 / 遮挡宽限与死亡 / 换控清理、Z / C方向切换；已有屏幕菱形标记 / 离屏隐藏再现，锁定时右肩镜头平滑跟随，解除后归还鼠标 / 肩位，换身体与结束恢复。
 - 生命 / 体力 / 治疗次数 / 破势冷却HUD，独立主菜单、暂停、失败重试和本次进程内的检查点继续。
 
-角色和动画仍使用UE模板及Control Rig占位资源。锁定镜头 / 切换、后续构筑和最终美术尚未完成；磁盘存档、多人及手柄交付不在当前已实现范围内。
+角色和动画仍使用UE模板及Control Rig占位资源。方向切换已实施并由用户报告检查完成；后续构筑和最终美术尚未完成；磁盘存档、多人及手柄交付不在当前已实现范围内。
 
 ## 获取与构建
 
@@ -39,18 +39,20 @@ Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说�
 | 闪避 | 顶部数字2 |
 | 治疗 | Q |
 | 范围破势 | F |
-| 目标锁定 / 解除 | Tab（已有菱形标记，自动镜头待接） |
+| 目标锁定 / 解除 | Tab（已有标记与镜头跟随；锁定时镜头接管，Tab解除归还鼠标） |
 | 范围交互 | E |
 | 暂停 / 继续 | P；菜单也支持鼠标与键盘 |
 
-数字1 / 3 / 4及PIE开发命令是现有兼容或诊断入口，作用与保留原因见[架构](Docs/Architecture.md)。Continue / Retry会重建世界与身体，只保留本次进程内的地图和检查点ID；普通交互Actor的激活状态不会跨世界保存。
+Z / C左右切换已接入，用户已报告检查完成；出生首帧 / 贴身镜头补修及采样限制见下方C指南，首次冷PIE创建等待仍保留。上表保留此前已验收输入。数字1 / 3 / 4及PIE开发命令是现有兼容或诊断入口，作用与保留原因见[架构](Docs/Architecture.md)。Continue / Retry会重建世界与身体，只保留本次进程内的地图和检查点ID；普通交互Actor的激活状态不会跨世界保存。
 
 ## 阅读入口
 
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M2-06B2镜头跟随](Docs/M2_06B2_LockCamera.md)：完整代码、Controller精确接入、设置与短查、中英Commit清单；[锁定路线](Docs/M2_06_TargetLockRoadmap.md)。
+- [当前开发：M2-06C左右切换目标](Docs/M2_06C_TargetSwitching.md)：Z / C方向切换的手动代码、两IA配置、最小验收和中英Commit清单；用户已报告检查完成，出生 / 近景补修复核通过；冷PIE创建等待保留。
+- [B2右肩镜头完整实现](Docs/M2_06B2_LockCamera.md)与[锁定路线](Docs/M2_06_TargetLockRoadmap.md)：当前可用镜头参数和恢复规则。
+- [最近完成：B2右肩镜头](Docs/Reports/M2_06B2_Verification.md)：双Build / 三专项及真实取景、偏移所有权 / 恢复证据。
 - [最近验收：B1锁定标记](Docs/Reports/M2_06B1_Verification.md)：纯规则专项、真实重建 / 清理与投影口径。
 - [目标基础：A目标筛选 / 生命周期](Docs/Reports/M2_06A_Verification.md)：真实请求 / 死亡清理与自动化证据。
 - [最近验收：D冷却HUD](Docs/Reports/M2_05D_Verification.md) / [M2-05整章](Docs/Reports/M2_05_Verification.md)：范围破势与真实敌人交战证据。
@@ -59,4 +61,4 @@ Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说�
 - [验收方案B](Docs/AcceptanceWorkflow_Options.md)：按影响范围测试、复用入口与阶段验收。
 - [资产来源清单](Docs/AssetManifest.csv)：来源、用途及授权记录；复用资产时需分别核对原授权。
 
-核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。已有21项自动化覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期与标记边界；它们不替代输入焦点、动画观感与独立包验收。
+核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。已有23项自动化（含出生贴地 / 回退）覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。

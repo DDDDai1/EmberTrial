@@ -1,40 +1,38 @@
 # M2-06B2：锁定镜头跟随
 
-2026-10-24，UE5.5.4。前置[B1标记验收通过](Reports/M2_06B1_Verification.md)，[锁定路线](M2_06_TargetLockRoadmap.md)。**本章待用户手动实施**：三新Core文件、两旧Controller文件；零UI源码、零新资产。候选仅放忽略的Raw目录，实际Source、UE资产与构建由你操作。
+更新2026-10-25，UE5.5.4。B2基础 / 右肩历史证据见[验收记录](Reports/M2_06B2_Verification.md)；用户在C收尾又反馈贴身侧转，已授权直接补修。下方三份完整代码已与当前工程同步：Pitch Offset=-18°、Max Shoulder Yaw=12°。最新出生 / 镜头数值与四专项记录见[C指南10.1](M2_06C_TargetSwitching.md#101-出生首帧与贴身镜头补修已直接实施)，不重复手动录入或整章验收。
 
-手动预计80–130分钟：代码55–90、配置10–20、人工短查8–12；构建等待另记。本批没有新动画 / 美术 / 插件，不增加临时Blueprint测试函数，不进入C的双目标切换。
+原B2用户手动90 / 等待5已登记，助手本次修改 / 构建 / computer-use不追加为用户手动工时。已存在的三份未提交YawOffset补修在忽略Raw中保留原始备份，再接入右肩实现，不改Git暂存或历史提交。
 
-下发前已对照本机UE5.5的UpdateRotation、CameraManager和输入清零流程，检查候选头文件路径 / 声明实现、文档代码及插值数学。属于静态核对，**尚未执行本章UBT / UHT、CameraRules或实机镜头检查**；第5–7节由你正常实施，不把候选检查当成Build成功。
+## 1. 最终取景与输入规则
 
-## 1. 做完后应看到什么
+Tab锁定同一个Core目标后，相机逐渐移到取景方向右侧75cm、抬高55cm，玩家在画面偏左处，敌人靠近中间；原臂长400cm和原FOV保持，能看清全身与敌人动作。目标注视点为敌人身体中心上方45cm。目标朝向根据当前肩位偏移作解析补偿，远景使敌人接近画面中心，近景限制肩位偏航补偿至12°以保持后侧视角，也不使用上一帧相机坐标造成反馈晃动。
 
-未锁定：鼠标和原来一样自由转镜头。Tab锁定：镜头平滑转向Core已有敌人，敌人移动时继续跟随；Yaw走最短角路径，不绕一整圈。水平同高时期望Pitch=-12°，高低目标加入两身体中心连线的仰角，再把期望Pitch限制在-35°至15°。旧SpringArm仍处理相机碰撞、原距离400cm不改，B1菱形仍在相机更新后投影。
+相机局部+Y代表右侧；这是镜头取景坐标中的右肩，角色仍按原移动 / 动作规则转身。本章不每帧把Actor扭向目标，攻击 / 闪避方向仍由能力在原时机采样 / 固定。W沿镜头控制Yaw移动，不等同自动走向敌人。
 
-**锁定期间Yaw / Pitch由跟随接管，鼠标转向输入当帧被覆盖，不留队列。**再按Tab解除后从当前位置立即恢复自由鼠标，不跳回锁定前角度。这是本章明确的输入规则，不是“鼠标失灵”；需要自由观察时先Tab解锁。P菜单继续使用现有焦点 / 输入清理；暂停不推进镜头，菜单移动鼠标不会在恢复后积攒一串视角变化。
+锁定时Yaw / Pitch由跟随接管，鼠标不争抢；主动解除后立即归还鼠标，肩位沿原Controller更新平滑回到取得时的原值，不跳回旧角度。P暂停冻结跟随和回正；相机失活、换身体、结束 / 切图时精确归还旧SpringArm偏移。死亡Failure保持暂停画面，Retry / 新Controller不会继承旧偏移。
 
-只跟随相机，**不自动转Character、修改移动模式或替攻击瞄准**。玩家仍按当前控制Yaw进行WASD，角色朝移动方向；攻击 / 闪避方向仍由原能力在既有时机采样 / 固定。动作中相机可以跟随，角色和RootMotion方向不能被镜头每帧拉向敌人。C再统一检查锁定交战与切换，不在此修改四能力。站在背对目标的姿态原地挥空，是本批不带自动起手转向的预期。
+保留-45°至15°期望Pitch范围。PitchOffset=-18°、YawOffset=0，肩位与目标高度参与视线求解；MaxShoulderYaw=12°限制贴身侧转，不再叠加早期25°偏航方案。FollowSpeed8是指数收敛速度，进入 / 退出肩位均平滑；没有新增Tick或Timer。
 
-进入锁定时从当前自由角度平滑收敛；-35° / 15°约束的是**期望角度**，最初几帧允许当前自由角度仍在范围外，避免突然跳镜头。指数插值参数8是收敛速度，不是8度/秒；静止目标的30 / 60 / 120等时长结果由规则测试比较，真实运动目标 / SpringArm碰撞手感仍需实机。
+视觉方向参考用户指定的第三人称动作游戏：[游戏科学《黑神话：悟空》产品页](https://store.steampowered.com/app/2358720/Black_Myth_Wukong/)。本项目使用自己的角色比例与参数；未取得该商业游戏内部相机配置，也未导入其素材。75 / 55 / 45为EmberTrial当前取景设定，不标成原作参数。
 
-## 2. 架构、文件与保存关闭
+## 2. 架构与实际修改范围
 
-Controller新增原生子对象TargetLockCamera；相机组件不建Tick / Timer / 委托、不缓存目标，每次由Controller原本的UpdateRotation调用一次。它只把Core目标转换成旋转增量；Controller把本帧RotationInput替换为增量后，仍让Super::UpdateRotation执行CameraManager约束、设置ControlRotation和原生FaceRotation流程。原角色三个Use Controller Rotation保持False，因此该流程不额外转身体。
+原三新Core / 两旧Controller已由用户在基础版实施；B2右肩与近景部分只涉及下表三个既有Core文件。C收尾另改GameMode并新增SpawnPlacement测试，完整范围见C11节；本页不重复列入相机实现表：
 
-本地来源不合法、没有目标、相机组件失活、换控 / 死亡 / World结束 / 暂停 / 视点不再是当前身体时，不接管输入。没有临时Target缓存或需恢复的Look Ignore计数；解锁没有旧角度快照可回跳。无锁仅做少量资格检查，不查询候选 / 射线 / GAS，本批无新性能采样，不宣称帧率提升。
-
-1. Stop PIE → Save All → 关闭UE编辑器，保存CLion文件。
-2. 以下三个**新文件均属于Core EmberTrial**。路径相对`E:\UE_Project\Demo\EmberTrial\Source`；与B1的UI测试不同，这次测试正确位置就是Core/Tests。
-
-| 新文件 | 完整代码 | 职责 |
+| 文件（相对EmberTrial/Source） | 完整代码 | 职责 |
 | --- | --- | --- |
-| EmberTrial/Public/TargetLock/ETTargetLockCameraComponent.h | 3.1 | 镜头配置与接口 |
-| EmberTrial/Private/TargetLock/ETTargetLockCameraComponent.cpp | 3.2 | 本帧资格、目标角与插值 |
-| EmberTrial/Tests/ETTargetLockCameraTests.cpp | 3.3 | 有限值、短角路径、帧率与Pitch规则 |
+| EmberTrial/Public/TargetLock/ETTargetLockCameraComponent.h | 3.1 | 肩位配置 / 观察与原值所有权 |
+| EmberTrial/Private/TargetLock/ETTargetLockCameraComponent.cpp | 3.2 | 资格 / 视线求解 / 插值 / 恢复 |
+| EmberTrial/Tests/ETTargetLockCameraTests.cpp | 3.3 | 原角度边界及肩位几何 / 真实换控清理 |
 
-3. 两个既有文件只按第4节增加内容：`EmberTrial/Public/Framework/ETPlayerController.h`与`EmberTrial/Private/Framework/ETPlayerController.cpp`。不要重建同名Controller，不删现有输入、Pause委托和资源诊断。
-4. 不修改Build.cs / Target / uproject、A锁定组件、B1六份UI、Character、GA、IMC或地图。全部保存后再第5节正常Build，不用Live Coding。
+Controller仍在原UpdateRotation中调用组件，替换合法锁定帧的RotationInput后执行一次Super，让CameraManager继续管理原生旋转约束。组件只缓存弱SpringArm和取得时的SocketOffset，不缓存目标；唯一目标仍由Core TargetLock持有。组件新增一份Pawn更换观察，EndPlay成对解绑；不扫描Actor / GAS、不新增逐帧日志。
 
-## 3. 三个新文件的完整代码
+右肩通过SpringArm的SocketOffset实现，沿用引擎对该位置的碰撞Sweep。首次取得保存原值，之后向“原值+配置偏移”插值，不在现值上反复加75。解除时不再依赖旧目标，原UpdateRotation完成归还；失活 / 换身体 / 结束立即恢复原值并清弱引用。没有永久改变玩家相机或地图变换。
+
+当前实现已在工程中，勿重复创建同名类或额外Add Component。首次学习可对照第3节；需要以后修改反射字段时仍先Save All / 关闭UE，再正常Build。A锁定、B1标记、UI、GA、Character源码、Build.cs / Target / Config保持。
+
+## 3. 三个文件的完整代码
 
 ### 3.1 ETTargetLockCameraComponent.h
 
@@ -46,8 +44,10 @@ Controller新增原生子对象TargetLockCamera；相机组件不建Tick / Timer
 #include "ETTargetLockCameraComponent.generated.h"
 
 class UETTargetLockComponent;
+class APawn;
+class USpringArmComponent;
 
-// Controller原生子对象：提供本帧镜头增量，不保存第二份目标、不改Actor朝向。
+// Controller拥有锁定镜头与临时肩位偏移；目标身份仍由Core锁定组件负责。
 UCLASS(ClassGroup = (EmberTrial))
 class EMBERTRIAL_API UETTargetLockCameraComponent : public UActorComponent
 {
@@ -58,7 +58,13 @@ public:
 
     // 由Controller::UpdateRotation调用；false表示本帧沿用原生自由视角输入。
     bool TryMakeRotationDelta(const UETTargetLockComponent* Lock, float DeltaSeconds,
-                              FRotator& OutDelta) const;
+                              FRotator& OutDelta);
+
+    virtual void Deactivate() override;
+
+protected:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
     friend class FETTargetLockCameraRulesTest;
@@ -71,7 +77,7 @@ private:
     // 限制期望俯仰；从自由镜头进入时平滑收敛，不把当前角度瞬移到边界。
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock Camera",
               meta = (ClampMin = "-80.0", ClampMax = "80.0", Units = "deg"))
-    float MinPitch = -35.0f;
+    float MinPitch = -45.0f;
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock Camera",
               meta = (ClampMin = "-80.0", ClampMax = "80.0", Units = "deg"))
@@ -79,11 +85,42 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock Camera",
               meta = (ClampMin = "-30.0", ClampMax = "30.0", Units = "deg"))
-    float PitchOffset = -12.0f;
+    float PitchOffset = -18.0f;
+
+    // 肩位已经参与取景求解；通常保持0，仅供构图微调。
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock Camera",
+              meta = (ClampMin = "-35.0", ClampMax = "35.0", Units = "deg"))
+    float YawOffset = 0.0f;
+
+    // 肩位补偿相对交战轴的偏航上限；贴身时不再为了居中绕到侧面。
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock Camera",
+              meta = (ClampMin = "0.0", ClampMax = "30.0", Units = "deg"))
+    float MaxShoulderYaw = 12.0f;
+
+    // 相机局部+Y为右侧。通过SpringArm SocketOffset参与原有碰撞检测。
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock Camera", meta = (Units = "cm"))
+    FVector ShoulderOffset = FVector(0.0, 75.0, 55.0);
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Target Lock Camera",
+              meta = (ClampMin = "0.0", ClampMax = "100.0", Units = "cm"))
+    float TargetFocusHeight = 45.0f;
+
+    // 只保存本组件临时取得的臂偏移，换身体 / 失活 / 结束时原值归还。
+    TWeakObjectPtr<USpringArmComponent> ShoulderBoom;
+    FVector SavedSocketOffset = FVector::ZeroVector;
+    bool bEndingPlay = false;
+
+    bool HasValidSettings() const;
+    void UpdateShoulderOffset(USpringArmComponent* Boom, float DeltaSeconds);
+    void ReturnShoulderOffset(float DeltaSeconds);
+    void RestoreShoulderOffset();
+
+    UFUNCTION()
+    void HandlePossessedPawnChanged(APawn* PreviousPawn, APawn* CurrentPawn);
 
     bool CalculateRotationDelta(const FRotator& Current, const FVector& SourceLocation,
-                                const FVector& TargetLocation, float DeltaSeconds,
-                                FRotator& OutDelta) const;
+                                const FVector& TargetLocation, const FVector& SocketOffset,
+                                float DeltaSeconds, FRotator& OutDelta) const;
 };
 ```
 
@@ -105,84 +142,214 @@ UETTargetLockCameraComponent::UETTargetLockCameraComponent()
     bAutoActivate = true;
 }
 
-// ---- 无Timer / Tick / 订阅 / 目标缓存；每帧只读取Controller已有的Core锁定身份 ----
+// ---- 只观察换身体，不复制锁定目标；退出先归还旧臂，再解除观察 ----
+void UETTargetLockCameraComponent::BeginPlay()
+{
+    Super::BeginPlay();
+    if (APlayerController* PC = Cast<APlayerController>(GetOwner()))
+    {
+        PC->OnPossessedPawnChanged.AddUniqueDynamic(this, &ThisClass::HandlePossessedPawnChanged);
+    }
+}
+
+void UETTargetLockCameraComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    bEndingPlay = true;
+    RestoreShoulderOffset();
+    if (APlayerController* PC = Cast<APlayerController>(GetOwner()))
+    {
+        PC->OnPossessedPawnChanged.RemoveDynamic(this, &ThisClass::HandlePossessedPawnChanged);
+    }
+    Super::EndPlay(EndPlayReason);
+}
+
+void UETTargetLockCameraComponent::Deactivate()
+{
+    Super::Deactivate();
+    RestoreShoulderOffset();
+}
+
+void UETTargetLockCameraComponent::HandlePossessedPawnChanged(APawn* PreviousPawn,
+                                                              APawn* CurrentPawn)
+{
+    (void)PreviousPawn;
+    (void)CurrentPawn;
+    RestoreShoulderOffset();
+}
+
+bool UETTargetLockCameraComponent::HasValidSettings() const
+{
+    return FMath::IsFinite(FollowSpeed) && FollowSpeed >= .1f && FollowSpeed <= 30.0f &&
+           FMath::IsFinite(MinPitch) && FMath::IsFinite(MaxPitch) && MinPitch >= -80.0f &&
+           MaxPitch <= 80.0f && MinPitch < MaxPitch && FMath::IsFinite(PitchOffset) &&
+           FMath::Abs(PitchOffset) <= 30.0f && FMath::IsFinite(YawOffset) &&
+           FMath::Abs(YawOffset) <= 35.0f && FMath::IsFinite(MaxShoulderYaw) &&
+           MaxShoulderYaw >= 0.0f && MaxShoulderYaw <= 30.0f && !ShoulderOffset.ContainsNaN() &&
+           ShoulderOffset.GetAbsMax() <= 150.0 && FMath::IsFinite(TargetFocusHeight) &&
+           TargetFocusHeight >= 0.0f && TargetFocusHeight <= 100.0f;
+}
+
+// ---- 沿Controller已有的UpdateRotation工作，无新增Tick / Timer / 目标缓存 ----
 bool UETTargetLockCameraComponent::TryMakeRotationDelta(const UETTargetLockComponent* Lock,
-                                                        float DeltaSeconds,
-                                                        FRotator& OutDelta) const
+                                                        float DeltaSeconds, FRotator& OutDelta)
 {
     OutDelta = FRotator::ZeroRotator;
     const UWorld* World = GetWorld();
     const APlayerController* PC = Cast<APlayerController>(GetOwner());
-    if (!HasBegunPlay() || !IsActive() || !IsValid(World) || World->bIsTearingDown ||
-        World->IsPaused() || !IsValid(PC) || !PC->IsLocalController() || !PC->GetLocalPlayer() ||
-        PC->IsLookInputIgnored() || !IsValid(PC->PlayerCameraManager.Get()) || !IsValid(Lock) ||
-        Lock->GetOwner() != PC || !Lock->HasBegunPlay() || !Lock->IsActive())
+    if (bEndingPlay || !HasBegunPlay() || !IsActive() || !IsValid(World) || World->bIsTearingDown ||
+        !HasValidSettings() || !FMath::IsFinite(DeltaSeconds) || DeltaSeconds <= 0.0f)
     {
+        RestoreShoulderOffset();
         return false;
     }
-
+    if (World->IsPaused())
+    {
+        // 暂停保留当前取景，既不追目标，也不推进解锁后的回正。
+        return false;
+    }
+    if (!IsValid(PC) || !PC->IsLocalController() || !PC->GetLocalPlayer() ||
+        PC->IsLookInputIgnored() || !IsValid(PC->PlayerCameraManager.Get()))
+    {
+        RestoreShoulderOffset();
+        return false;
+    }
     const AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(PC->GetPawn());
-    const AEmberTrialCharacter* Target = Lock->GetLockedTarget();
     if (!IsValid(Body) || !Body->IsGameplayReady() || Body->IsCombatDead() ||
-        PC->GetViewTarget() != Body || !IsValid(Target) || Target == Body ||
-        Target->GetWorld() != World)
+        PC->GetViewTarget() != Body)
     {
+        RestoreShoulderOffset();
         return false;
     }
-    const USpringArmComponent* Boom = Body->GetCameraBoom();
+    USpringArmComponent* Boom = Body->GetCameraBoom();
     const UCameraComponent* Camera = Body->GetFollowCamera();
     if (!IsValid(Boom) || !Boom->bUsePawnControlRotation || !IsValid(Camera) || !Camera->IsActive())
     {
+        RestoreShoulderOffset();
+        return false;
+    }
+    const AEmberTrialCharacter* Target =
+        IsValid(Lock) && Lock->GetOwner() == PC && Lock->HasBegunPlay() && Lock->IsActive()
+            ? Lock->GetLockedTarget()
+            : nullptr;
+    if (!IsValid(Target) || Target == Body || Target->GetWorld() != World)
+    {
+        // 立即归还鼠标，肩位沿原更新流程平滑回正；不再依赖旧目标。
+        ReturnShoulderOffset(DeltaSeconds);
         return false;
     }
 
-    // 用身体中心的连线，避免上一帧相机位置反过来影响下一帧的跟随目标角度。
-    return CalculateRotationDelta(PC->GetControlRotation(), Body->GetActorLocation(),
-                                  Target->GetActorLocation(), DeltaSeconds, OutDelta);
+    UpdateShoulderOffset(Boom, DeltaSeconds);
+    const FVector Pivot = Boom->GetComponentLocation() + Boom->TargetOffset;
+    const FVector Focus = Target->GetActorLocation() + FVector::UpVector * TargetFocusHeight;
+    if (!CalculateRotationDelta(PC->GetControlRotation(), Pivot, Focus, Boom->SocketOffset,
+                                DeltaSeconds, OutDelta))
+    {
+        RestoreShoulderOffset();
+        return false;
+    }
+    return true;
 }
 
-// ---- 有限数值 / 最短角路径 / 指数插值；纯规则由专项覆盖 ----
-bool UETTargetLockCameraComponent::CalculateRotationDelta(const FRotator& Current,
-                                                          const FVector& SourceLocation,
-                                                          const FVector& TargetLocation,
-                                                          float DeltaSeconds,
-                                                          FRotator& OutDelta) const
+// ---- 临时Socket所有权：按原值叠加一次，解锁缓回，硬退出精确还原 ----
+void UETTargetLockCameraComponent::UpdateShoulderOffset(USpringArmComponent* Boom,
+                                                        float DeltaSeconds)
+{
+    if (ShoulderBoom.Get() != Boom)
+    {
+        RestoreShoulderOffset();
+        ShoulderBoom = Boom;
+        SavedSocketOffset = Boom->SocketOffset;
+    }
+    const double Alpha = 1.0 - FMath::Exp(-static_cast<double>(FollowSpeed) * DeltaSeconds);
+    Boom->SocketOffset = FMath::Lerp(Boom->SocketOffset, SavedSocketOffset + ShoulderOffset, Alpha);
+}
+
+void UETTargetLockCameraComponent::ReturnShoulderOffset(float DeltaSeconds)
+{
+    USpringArmComponent* Boom = ShoulderBoom.Get();
+    if (!IsValid(Boom))
+    {
+        RestoreShoulderOffset();
+        return;
+    }
+    const double Alpha = 1.0 - FMath::Exp(-static_cast<double>(FollowSpeed) * DeltaSeconds);
+    Boom->SocketOffset = FMath::Lerp(Boom->SocketOffset, SavedSocketOffset, Alpha);
+    if (Boom->SocketOffset.Equals(SavedSocketOffset, .05))
+    {
+        RestoreShoulderOffset();
+    }
+}
+
+void UETTargetLockCameraComponent::RestoreShoulderOffset()
+{
+    USpringArmComponent* Boom = ShoulderBoom.Get();
+    ShoulderBoom.Reset();
+    if (IsValid(Boom))
+    {
+        Boom->SocketOffset = SavedSocketOffset;
+    }
+    SavedSocketOffset = FVector::ZeroVector;
+}
+
+// ---- 先解侧移 / 抬高后的目标视线，再沿最短角路径插值；不使用上一帧相机坐标 ----
+bool UETTargetLockCameraComponent::CalculateRotationDelta(
+    const FRotator& Current, const FVector& SourceLocation, const FVector& TargetLocation,
+    const FVector& SocketOffset, float DeltaSeconds, FRotator& OutDelta) const
 {
     OutDelta = FRotator::ZeroRotator;
-    if (Current.ContainsNaN() || SourceLocation.ContainsNaN() || TargetLocation.ContainsNaN() ||
-        !FMath::IsFinite(DeltaSeconds) || DeltaSeconds <= 0.0f || !FMath::IsFinite(FollowSpeed) ||
-        FollowSpeed < .1f || FollowSpeed > 30.0f || !FMath::IsFinite(MinPitch) ||
-        !FMath::IsFinite(MaxPitch) || MinPitch < -80.0f || MaxPitch > 80.0f ||
-        MinPitch >= MaxPitch || !FMath::IsFinite(PitchOffset) || FMath::Abs(PitchOffset) > 30.0f)
+    if (!HasValidSettings() || Current.ContainsNaN() || SourceLocation.ContainsNaN() ||
+        TargetLocation.ContainsNaN() || SocketOffset.ContainsNaN() ||
+        !FMath::IsFinite(DeltaSeconds) || DeltaSeconds <= 0.0f)
     {
         return false;
     }
     const FVector Direction = TargetLocation - SourceLocation;
-    if (Direction.ContainsNaN() || Direction.SizeSquared2D() <= UE_SMALL_NUMBER)
+    const double Distance2D = Direction.Size2D();
+    if (Direction.ContainsNaN() || !FMath::IsFinite(Distance2D) || Distance2D <= UE_SMALL_NUMBER)
     {
         return false;
     }
-    const FRotator Aim = Direction.Rotation();
+    // 接近肩位半径时限制反三角输入，防止数值越界及贴身180度翻转。
+    constexpr double MaxOffsetRatio = .95;
+    const double GeometricSideAngle = FMath::RadiansToDegrees(
+        FMath::Asin(FMath::Clamp(SocketOffset.Y / Distance2D, -MaxOffsetRatio, MaxOffsetRatio)));
+    // 近战优先保持交战轴与背后视角，允许目标略离中心；不能用完整反正弦补偿追求居中。
+    const double SideAngle = FMath::Clamp(GeometricSideAngle, -static_cast<double>(MaxShoulderYaw),
+                                          static_cast<double>(MaxShoulderYaw));
+    const double DesiredYaw = Direction.Rotation().Yaw - SideAngle + YawOffset;
+    const FVector Forward2D = FRotator(0.0, DesiredYaw, 0.0).Vector();
+    const double ForwardDistance = FMath::Max(FVector::DotProduct(Direction, Forward2D), 1.0);
+    const double FocusDistance =
+        FMath::Sqrt(FMath::Square(ForwardDistance) + FMath::Square(Direction.Z));
+    const double LiftAngle = FMath::RadiansToDegrees(
+        FMath::Asin(FMath::Clamp(SocketOffset.Z / FocusDistance, -MaxOffsetRatio, MaxOffsetRatio)));
     const double DesiredPitch =
-        FMath::Clamp(Aim.Pitch + static_cast<double>(PitchOffset), static_cast<double>(MinPitch),
-                     static_cast<double>(MaxPitch));
+        FMath::Clamp(FMath::RadiansToDegrees(FMath::Atan2(Direction.Z, ForwardDistance)) -
+                         LiftAngle + PitchOffset,
+                     static_cast<double>(MinPitch), static_cast<double>(MaxPitch));
     const FRotator NormalizedCurrent = Current.GetNormalized();
     const double Alpha = 1.0 - FMath::Exp(-static_cast<double>(FollowSpeed) * DeltaSeconds);
     OutDelta.Pitch = FRotator::NormalizeAxis(DesiredPitch - NormalizedCurrent.Pitch) * Alpha;
-    OutDelta.Yaw = FRotator::NormalizeAxis(Aim.Yaw - NormalizedCurrent.Yaw) * Alpha;
-    // Roll增量为0；不接管侧倾，也不直接SetControlRotation / SetActorRotation。
+    OutDelta.Yaw = FRotator::NormalizeAxis(DesiredYaw - NormalizedCurrent.Yaw) * Alpha;
     return !OutDelta.ContainsNaN();
 }
 ```
 
 ### 3.3 ETTargetLockCameraTests.cpp
 
-此测试不创建真实相机、World或Viewport；不替代第7节的鼠标、暂停、墙边碰撞与生命周期短查。使用TestTrue比较浮点容差，避免先前float / double的TestEqual重载歧义。
+该专项保留原角度 / 有限值 / 帧率规则，并使用FTestWorldWrapper中的真实Controller / 两个Pawn验证肩位不累加、平滑归还、Deactivate、Possess、Pause与EndPlay。它不创建Viewport或证明Mesh遮挡 / 墙边画面；本次取景另有computer-use与原生截图支持。
 
 ```cpp
 #if WITH_DEV_AUTOMATION_TESTS
 #include "TargetLock/ETTargetLockCameraComponent.h"
 #include "Misc/AutomationTest.h"
+#include "Characters/EmberTrialCharacter.h"
+#include "Engine/World.h"
+#include "Framework/ETPlayerController.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/WorldSettings.h"
+#include "Tests/AutomationCommon.h"
 #include <limits>
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETTargetLockCameraRulesTest,
@@ -198,6 +365,15 @@ bool FETTargetLockCameraRulesTest::RunTest(const FString& Parameters)
     {
         return false;
     }
+    // 保留原有零肩位角度基线，再单独验证新的右肩几何 / 生命周期。
+    Camera->PitchOffset = -25.0f;
+    Camera->YawOffset = 25.0f;
+    auto Calculate = [Camera](const FRotator& Current, const FVector& Source, const FVector& Target,
+                              float Seconds, FRotator& Out)
+    {
+        return Camera->CalculateRotationDelta(Current, Source, Target, FVector::ZeroVector, Seconds,
+                                              Out);
+    };
     const FVector Origin = FVector::ZeroVector;
     const FVector Right(0.0, 600.0, 0.0);
     FRotator Delta = FRotator::ZeroRotator;
@@ -208,16 +384,18 @@ bool FETTargetLockCameraRulesTest::RunTest(const FString& Parameters)
               Camera->TryMakeRotationDelta(nullptr, .016f, Delta));
     TestTrue(TEXT("Rejected context clears output"), Delta.IsZero());
     TestTrue(TEXT("Valid right target step"),
-             Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
-    TestTrue(TEXT("Yaw turns toward target without snapping"), Delta.Yaw > 0.0 && Delta.Yaw < 90.0);
+             Calculate(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
+    TestTrue(TEXT("Yaw approaches the framed angle without snapping"),
+             Delta.Yaw > 0.0 && Delta.Yaw < 115.0);
     TestTrue(TEXT("Level target applies negative framing pitch"),
-             Delta.Pitch < 0.0 && Delta.Pitch > -12.0);
+             Delta.Pitch < 0.0 && Delta.Pitch > -25.0);
     TestTrue(TEXT("Camera does not add roll"), Delta.Roll == 0.0);
 
     const FVector Across = FRotator(0.0, -179.0, 0.0).Vector() * 600.0;
     TestTrue(TEXT("Angle wrap step is valid"),
-             Camera->CalculateRotationDelta(FRotator(0.0, 179.0, 0.0), Origin, Across, .1f, Delta));
-    TestTrue(TEXT("179 to -179 takes positive shortest arc"), Delta.Yaw > 0.0 && Delta.Yaw < 2.0);
+             Calculate(FRotator(0.0, 179.0, 0.0), Origin, Across, .1f, Delta));
+    TestTrue(TEXT("Wrapped yaw plus framing takes the positive short arc"),
+             Delta.Yaw > 0.0 && Delta.Yaw < 27.0);
 
     // 同一静止目标、同一游戏秒；不是用纯规则冒充真实Viewport或运动目标手感。
     auto Simulate = [&](int32 Frames)
@@ -226,8 +404,7 @@ bool FETTargetLockCameraRulesTest::RunTest(const FString& Parameters)
         for (int32 I = 0; I < Frames; ++I)
         {
             FRotator Step = FRotator::ZeroRotator;
-            const bool bValid =
-                Camera->CalculateRotationDelta(Current, Origin, Right, 1.0f / Frames, Step);
+            const bool bValid = Calculate(Current, Origin, Right, 1.0f / Frames, Step);
             TestTrue(TEXT("Every simulation step is valid"), bValid);
             Current = (Current + Step).GetNormalized();
         }
@@ -238,19 +415,16 @@ bool FETTargetLockCameraRulesTest::RunTest(const FString& Parameters)
     const FRotator At120 = Simulate(120);
     TestTrue(TEXT("30 and 60 subdivisions converge equally"), At30.Equals(At60, .001));
     TestTrue(TEXT("60 and 120 subdivisions converge equally"), At60.Equals(At120, .001));
-    TestTrue(TEXT("One second approaches target"), FMath::Abs(At60.Yaw - 90.0) < .04);
+    TestTrue(TEXT("One second approaches target"), FMath::Abs(At60.Yaw - 115.0) < .05);
 
     TestTrue(TEXT("High target step"),
-             Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, FVector(600, 0, 10000),
-                                            1.0f, Delta));
+             Calculate(FRotator::ZeroRotator, Origin, FVector(600, 0, 10000), 1.0f, Delta));
     TestTrue(TEXT("Desired high pitch is clamped"), Delta.Pitch > 14.9 && Delta.Pitch <= 15.0);
     TestTrue(TEXT("Low target step"),
-             Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, FVector(600, 0, -10000),
-                                            1.0f, Delta));
-    TestTrue(TEXT("Desired low pitch is clamped"), Delta.Pitch < -34.9 && Delta.Pitch >= -35.0);
+             Calculate(FRotator::ZeroRotator, Origin, FVector(600, 0, -10000), 1.0f, Delta));
+    TestTrue(TEXT("Desired low pitch is clamped"), Delta.Pitch < -44.9 && Delta.Pitch >= -45.0);
     TestTrue(TEXT("Capture from free high pitch"),
-             Camera->CalculateRotationDelta(FRotator(70, 0, 0), Origin, FVector(600, 0, 0), .016f,
-                                            Delta));
+             Calculate(FRotator(70, 0, 0), Origin, FVector(600, 0, 0), .016f, Delta));
     TestTrue(TEXT("Capture approaches bounds smoothly"),
              70.0 + Delta.Pitch > 15.0 && Delta.Pitch < 0.0);
 
@@ -259,36 +433,198 @@ bool FETTargetLockCameraRulesTest::RunTest(const FString& Parameters)
     for (float BadTime : {0.0f, -1.0f, NaN, Infinity})
     {
         Delta = FRotator(1, 2, 3);
-        TestFalse(
-            TEXT("Invalid game delta is rejected"),
-            Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, Right, BadTime, Delta));
+        TestFalse(TEXT("Invalid game delta is rejected"),
+                  Calculate(FRotator::ZeroRotator, Origin, Right, BadTime, Delta));
         TestTrue(TEXT("Failed step clears output"), Delta.IsZero());
     }
     TestFalse(TEXT("Coincident targets have no yaw"),
-              Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, Origin, .1f, Delta));
+              Calculate(FRotator::ZeroRotator, Origin, Origin, .1f, Delta));
     TestFalse(TEXT("Directly vertical targets have no yaw"),
-              Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, FVector(0, 0, 100), .1f,
-                                             Delta));
+              Calculate(FRotator::ZeroRotator, Origin, FVector(0, 0, 100), .1f, Delta));
     TestFalse(TEXT("Nonfinite current is rejected"),
-              Camera->CalculateRotationDelta(FRotator(NaN, 0, 0), Origin, Right, .1f, Delta));
+              Calculate(FRotator(NaN, 0, 0), Origin, Right, .1f, Delta));
     TestFalse(TEXT("Nonfinite source is rejected"),
-              Camera->CalculateRotationDelta(FRotator::ZeroRotator, FVector(Infinity, 0, 0), Right,
-                                             .1f, Delta));
+              Calculate(FRotator::ZeroRotator, FVector(Infinity, 0, 0), Right, .1f, Delta));
     TestFalse(TEXT("Nonfinite target is rejected"),
-              Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, FVector(0, NaN, 0), .1f,
-                                             Delta));
+              Calculate(FRotator::ZeroRotator, Origin, FVector(0, NaN, 0), .1f, Delta));
     Camera->FollowSpeed = 0.0f;
     TestFalse(TEXT("Invalid speed rejected"),
-              Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
+              Calculate(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
     Camera->FollowSpeed = 8.0f;
     Camera->MinPitch = Camera->MaxPitch;
     TestFalse(TEXT("Invalid pitch range rejected"),
-              Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
-    Camera->MinPitch = -35.0f;
+              Calculate(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
+    Camera->MinPitch = -45.0f;
     Camera->PitchOffset = NaN;
     TestFalse(TEXT("Nonfinite framing offset rejected"),
-              Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
-    return true;
+              Calculate(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
+    Camera->PitchOffset = -25.0f;
+
+    // 左右构图均走同一最短角路径；0恢复原同轴算法，不创建额外模式。
+    Camera->YawOffset = -25.0f;
+    TestTrue(TEXT("Negative framing offset is supported"),
+             Calculate(FRotator::ZeroRotator, Origin, Right, 1.0f, Delta));
+    TestTrue(TEXT("Negative framing approaches 65 degrees"), Delta.Yaw > 64.9 && Delta.Yaw < 65.0);
+    Camera->YawOffset = 0.0f;
+    TestTrue(TEXT("Zero offset remains supported"),
+             Calculate(FRotator::ZeroRotator, Origin, Right, 1.0f, Delta));
+    TestTrue(TEXT("Zero offset approaches original 90 degrees"),
+             Delta.Yaw > 89.9 && Delta.Yaw < 90.0);
+    for (float BadYaw : {NaN, Infinity, 36.0f, -36.0f})
+    {
+        Camera->YawOffset = BadYaw;
+        Delta = FRotator(1, 2, 3);
+        TestFalse(TEXT("Invalid framing offset is rejected"),
+                  Calculate(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
+        TestTrue(TEXT("Invalid framing clears output"), Delta.IsZero());
+    }
+    Camera->YawOffset = 25.0f;
+    // ---- 远景精确注视 / 近景交战轴限幅；近景允许目标略离中心 ----
+    Camera->PitchOffset = 0.0f;
+    Camera->YawOffset = 0.0f;
+    const FVector Focus(600, 0, 45);
+    TestTrue(TEXT("Right shoulder geometry solved"),
+             Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, Focus,
+                                            Camera->ShoulderOffset, 10.0f, Delta));
+    const FRotator View = Delta.GetNormalized();
+    const FVector CameraPosition =
+        -View.Vector() * 400.0 + FRotationMatrix(View).TransformVector(Camera->ShoulderOffset);
+    const FVector FocusInView = View.UnrotateVector(Focus - CameraPosition);
+    const FVector PlayerInView = View.UnrotateVector(Origin - CameraPosition);
+    TestTrue(TEXT("Right-side camera puts player left of center"), PlayerInView.Y < -70.0);
+    TestTrue(TEXT("Focus remains forward and centered horizontally"),
+             FocusInView.X > 0.0 && FMath::Abs(FocusInView.Y) < .001);
+    TestTrue(TEXT("Height compensation centers the focus"), FMath::Abs(FocusInView.Z) < .001);
+    TestTrue(TEXT("Very close target remains finite"),
+             Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, FVector(10, 0, 45),
+                                            Camera->ShoulderOffset, .1f, Delta) &&
+                 !Delta.ContainsNaN());
+    TestFalse(TEXT("Nonfinite socket offset is rejected"),
+              Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin, Focus,
+                                             FVector(0, NaN, 0), .1f, Delta));
+
+    // 贴脸时保持背后小偏角与俯视；旧算法在70cm可补偿约72度。
+    Camera->PitchOffset = -18.0f;
+    TestEqual(TEXT("Native downward framing default"),
+              GetDefault<UETTargetLockCameraComponent>()->PitchOffset, -18.0f);
+    TestEqual(TEXT("Native shoulder yaw cap default"),
+              GetDefault<UETTargetLockCameraComponent>()->MaxShoulderYaw, 12.0f);
+    for (double Distance : {70.0, 84.0, 100.0, 200.0, 600.0})
+    {
+        TestTrue(TEXT("Melee framing solves"),
+                 Camera->CalculateRotationDelta(FRotator::ZeroRotator, Origin,
+                                                FVector(Distance, 0, 45), Camera->ShoulderOffset,
+                                                10.0f, Delta));
+        TestTrue(TEXT("Shoulder compensation stays within combat axis cap"),
+                 FMath::Abs(Delta.Yaw) <= 12.001);
+        TestTrue(TEXT("Level melee uses moderate downward pitch"),
+                 Delta.Pitch >= -35.0 && Delta.Pitch <= -18.0);
+        const FVector Position = -Delta.Vector() * 400.0 +
+                                 FRotationMatrix(Delta).TransformVector(Camera->ShoulderOffset);
+        const FVector InView = Delta.UnrotateVector(FVector(Distance, 0, 45) - Position);
+        TestTrue(TEXT("Melee focus remains forward inside a conservative frame"),
+                 InView.X > 0.0 && FMath::Abs(InView.Y / InView.X) < .35 &&
+                     FMath::Abs(InView.Z / InView.X) < .55);
+    }
+    for (float InvalidCap : {NaN, Infinity, -1.0f, 31.0f})
+    {
+        Camera->MaxShoulderYaw = InvalidCap;
+        TestFalse(TEXT("Invalid shoulder yaw cap rejected"),
+                  Calculate(FRotator::ZeroRotator, Origin, Right, .1f, Delta));
+        TestTrue(TEXT("Invalid shoulder cap clears output"), Delta.IsZero());
+    }
+    Camera->MaxShoulderYaw = 12.0f;
+
+    // ---- 真实Controller / Pawn换控与组件结束；不创建Viewport或冒充视觉验收 ----
+    FTestWorldWrapper Fixture;
+    if (!Fixture.CreateTestWorld(EWorldType::Game))
+    {
+        Fixture.ForwardErrorMessages(this);
+        return false;
+    }
+    UWorld* World = Fixture.GetTestWorld();
+    FActorSpawnParameters Spawn;
+    Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    AETPlayerController* PC = World->SpawnActor<AETPlayerController>();
+    AEmberTrialCharacter* First =
+        World->SpawnActor<AEmberTrialCharacter>(FVector(0, 0, 200), FRotator::ZeroRotator, Spawn);
+    AEmberTrialCharacter* Second =
+        World->SpawnActor<AEmberTrialCharacter>(FVector(600, 0, 200), FRotator::ZeroRotator, Spawn);
+    if (!TestNotNull(TEXT("Controller fixture"), PC) || !TestNotNull(TEXT("First body"), First) ||
+        !TestNotNull(TEXT("Second body"), Second))
+    {
+        return false;
+    }
+    PC->Possess(First);
+    if (!Fixture.BeginPlayInTestWorld())
+    {
+        Fixture.ForwardErrorMessages(this);
+        return false;
+    }
+    UETTargetLockCameraComponent* Rig = PC->FindComponentByClass<UETTargetLockCameraComponent>();
+    if (!TestNotNull(TEXT("Single native camera component"), Rig))
+    {
+        return false;
+    }
+    USpringArmComponent* FirstBoom = First->GetCameraBoom();
+    USpringArmComponent* SecondBoom = Second->GetCameraBoom();
+    const FVector FirstBase(11, 12, 13);
+    const FVector SecondBase(1, -2, 3);
+    FirstBoom->SocketOffset = FirstBase;
+    SecondBoom->SocketOffset = SecondBase;
+    Rig->UpdateShoulderOffset(FirstBoom, .1f);
+    TestTrue(TEXT("Entry smoothly moves toward the right shoulder"),
+             FirstBoom->SocketOffset.Y > FirstBase.Y &&
+                 FirstBoom->SocketOffset.Y < FirstBase.Y + Rig->ShoulderOffset.Y);
+    Rig->UpdateShoulderOffset(FirstBoom, 10.0f);
+    Rig->UpdateShoulderOffset(FirstBoom, 10.0f);
+    TestTrue(TEXT("Repeated updates never accumulate offset"),
+             FirstBoom->SocketOffset.Equals(FirstBase + Rig->ShoulderOffset, .001));
+    Rig->ReturnShoulderOffset(.05f);
+    TestTrue(TEXT("Unlock return is smooth"), FirstBoom->SocketOffset.Y > FirstBase.Y);
+    for (int32 I = 0; I < 30; ++I)
+    {
+        Rig->ReturnShoulderOffset(.05f);
+    }
+    TestTrue(TEXT("Unlock restores exact saved base"), FirstBoom->SocketOffset == FirstBase);
+    TestFalse(TEXT("Completed return releases old boom"), Rig->ShoulderBoom.IsValid());
+
+    Rig->UpdateShoulderOffset(FirstBoom, .1f);
+    Rig->Deactivate();
+    TestTrue(TEXT("Deactivate restores exact base immediately"),
+             FirstBoom->SocketOffset == FirstBase);
+    Rig->Activate(false);
+    Rig->UpdateShoulderOffset(FirstBoom, .1f);
+    PC->Possess(Second);
+    TestTrue(TEXT("Real possession restores old body's boom"),
+             FirstBoom->SocketOffset == FirstBase);
+    TestFalse(TEXT("New body cannot inherit old shoulder ownership"), Rig->ShoulderBoom.IsValid());
+
+    Rig->UpdateShoulderOffset(SecondBoom, .1f);
+    APlayerState* Pauser = World->SpawnActor<APlayerState>();
+    if (!TestNotNull(TEXT("Pause fixture"), Pauser))
+    {
+        return false;
+    }
+    World->GetWorldSettings()->SetPauserPlayerState(Pauser);
+    const FVector PausedOffset = SecondBoom->SocketOffset;
+    TestFalse(TEXT("Paused camera does not own rotation"),
+              Rig->TryMakeRotationDelta(PC->GetTargetLockComponent(), .5f, Delta));
+    TestTrue(TEXT("Pause freezes shoulder interpolation"),
+             SecondBoom->SocketOffset == PausedOffset);
+    World->GetWorldSettings()->SetPauserPlayerState(nullptr);
+    Rig->Deactivate();
+    Rig->Activate(false);
+    Rig->UpdateShoulderOffset(SecondBoom, .1f);
+    if (!Fixture.EndPlayInTestWorld())
+    {
+        Fixture.ForwardErrorMessages(this);
+        return false;
+    }
+    TestFalse(TEXT("EndPlay releases boom reference"), Rig->ShoulderBoom.IsValid());
+    TestTrue(TEXT("EndPlay restores second body's exact base"),
+             SecondBoom->SocketOffset == SecondBase);
+    return !HasAnyErrors();
 }
 #endif
 ```
@@ -376,7 +712,7 @@ Set-Location 'E:\UE_Project\Demo'
 .\Tools\Refresh-CLion.ps1
 ```
 
-等待Editor Build成功后，在CLion对原EmberTrial工程执行Reload CMake Project / 重新加载CMake项目，仍选已有CodeModel配置，不单独打开新cpp作为工程。预期Core CodeModel **59cpp**、UI23、Editor3；新增2cpp，不是3cpp。三个新文件含一个头文件；整体将从153 Source / 83cpp变为**156 / 85**，测试21→22，来源仍73 / UE资产仍292。这些是实施后的预期，当前未计完成。
+等待Editor Build成功后，在CLion对原EmberTrial工程执行Reload CMake Project / 重新加载CMake项目，仍选已有CodeModel配置，不单独打开新cpp作为工程。预期Core CodeModel **59cpp**、UI23、Editor3；新增2cpp，不是3cpp。三个新文件含一个头文件；首次B2实施已从153 Source / 83cpp达到**156 / 85**，测试21→22，来源73 / UE资产292。本次构图补修不增加文件或测试数量；只跑更新后的同一专项。
 
 接着在同一PowerShell执行Game Development：
 
@@ -398,9 +734,13 @@ Set-Location 'E:\UE_Project\Demo'
 | 字段 | 值 | 含义 |
 | --- | ---: | --- |
 | Follow Speed | 8.0 | 角度指数收敛速度 |
-| Min Pitch | -35.0 | 期望俯仰下限，度 |
+| Min Pitch | -45.0 | 期望俯仰下限，度 |
 | Max Pitch | 15.0 | 期望俯仰上限，度 |
-| Pitch Offset | -12.0 | 同高时基础俯视偏移，度 |
+| Pitch Offset | -18.0 | 解析视线后的额外俯视，度 |
+| Max Shoulder Yaw | 12.0 | 肩位补偿偏航上限，度；近景允许目标略离中心 |
+| Yaw Offset | 0.0 | 肩位已参与求解，额外偏航微调 |
+| Shoulder Offset X / Y / Z | 0 / 75 / 55 | 局部厘米偏移，+Y为右肩 |
+| Target Focus Height | 45.0 | 目标中心上方注视点，厘米 |
 | Activation → Auto Activate | True | 开始时提供镜头规则 |
 
 5. 该组件没有自己的Tick；不用打开Start with Tick Enabled / Tick Even when Paused。原TargetLock、TargetLockMarker、UIBootstrap、FailureFlow各一份；原六项锁定数值、Marker24 / 24与WBP Class、五HUD引用全部保留。
@@ -425,7 +765,7 @@ Set-Location 'E:\UE_Project\Demo'
 Automation RunTests EmberTrial.M2.TargetLock.CameraRules
 ```
 
-看到`Test Completed. Result={Success}`后进入实机。不跑旧21项全组；本批不改A目标选择或B1投影规则。专项覆盖默认角度、179°到-179°最短路径、30 / 60 / 120等时长、期望Pitch上下限、入锁时平滑捕获、非法时间 / 数值 / 配置与未绑定拒绝；不写成真实Viewport或全部生命周期自动通过。
+看到`Test Completed. Result={Success}`后进入实机。不跑旧21项全组；本批不改A目标选择或B1投影规则。专项覆盖原角度 / 有限值 / 等时长规则、右肩视线、贴身有限值，以及真实世界中的肩位所有权 / 归还 / 换控 / Pause / EndPlay；不写成真实Viewport / Mesh遮挡自动通过。
 
 ### 7.2 自由 / 锁定 / 解锁与目标移动（约3分钟）
 
@@ -458,47 +798,42 @@ ke ETTargetLockCameraComponent Activate false
 1. 保持锁定，按Tab主动解除并自由转镜头；再锁定后击杀敌人一次，目标死亡后菱形消失、镜头回自由。敌人仍使用原100生命与10伤害，不临时改数值。
 2. 新一轮锁定后，使用已有4开发伤害造成一次Failure，Retry后新双100、相机自由且无旧目标；不需要重建任何Controller测试图。P返回菜单→Continue后仍是新Controller的自由镜头，重新Tab才锁。
 3. 锁定中Stop，重新Play，默认未锁、五HUD与标记各自正常。只做一次左键 / 2 / E / Q或F、P与移动转向跳跃短基线；不重复旧全部自动化 / 伤害矩阵。
-4. Stop后核对TargetLockCamera AutoActivate=True、四数值8 / -35 / 15 / -12；Marker的AutoActivate与24 / 24保持、slomo=1、Debug False。Save All；没有临时配置可写“未改”。
+4. Stop后核对TargetLockCamera AutoActivate=True、速度 / 角度8 / -45 / 15 / -18 / 0，MaxShoulderYaw12，ShoulderOffset0 / 75 / 55、TargetFocusHeight45；Marker的AutoActivate与24 / 24保持、slomo=1、Debug False。Save All；没有临时配置可写“未改”。
 
 若平地同高的镜头上下抖动，给5–10秒视频和动作顺序；若只在贴墙发生，说明墙位置与是否SpringArm缩短。先记录，不为了消抖关闭碰撞或改全部镜头数值。
 
-## 8. 回报模板与当前证据边界
+## 8. 当前状态与后续试玩
 
-```text
-M2-06B2 完成
-三新 / 两旧Source；关闭UE后Editor Build / Core59-UI23-Editor3索引 / Game Build：
-Controller唯一继承TargetLockCamera、8 / -35 / 15 / -12 / AutoActivate；旧组件保持、Compile-Save：
-原CameraBoom / FollowCamera / 三Controller Rotation与角色移动设置核对：
-TargetLock.CameraRules一次：
-自由鼠标 / Tab平滑跟随 / 敌人移动 / 解锁无回跳 / 墙边碰撞：
-锁定鼠标不争抢 / 动作方向保持 / Camera失活与恢复时Core目标不变：
-P鼠标与键盘继续无积攒 / 敌人死亡释放 / Failure-Retry与Continue新自由：
-锁定中Stop再开 / 旧HUD与能力-E-P-移动跳跃短基线：
-实际PIE方式 / 最明显镜头问题（无填无）：
-Source资产Save All；默认值与临时设置恢复或未改：
-完成时分 / 手动代码与配置 / 检查 / 构建等待：
-```
+B2基础功能由用户完成，本次右肩补修由助手直接完成：无需再手动录入第3节或第4节代码，也无需重复整章验收。Editor / Game Development、CLion元数据和三项专项均已通过。真实Selected Viewport中看到了玩家偏左 / 敌人清楚、标记 / P冻结与键盘继续、组件正式入口解除后回正；实际取景截图保存在本地Artifacts。
 
-只给完成时分，日志由我提取。编译给首条Error与文件 / 行号及前后20行；组件设置给资产名 / Components / Details完整截图；镜头动态问题优先5–10秒视频并说明锁定、按键顺序与是否贴墙。C的目标切换尚未实现，当前只有单目标镜头；本轮不Cook，也不把旧包当作本功能实机证据。
+### 8.1 右肩补修最终配置与操作记录
+
+| 项目 | 当前值 / 结果 |
+| --- | --- |
+| Follow Speed / Min Pitch / Max Pitch | 8 / -45 / 15 |
+| Pitch Offset / Yaw Offset | 当前-18 / 0；原右肩历史值0 / 0由C收尾补修替代 |
+| Max Shoulder Yaw | 12°，限制贴身绕到侧面 |
+| Shoulder Offset | X0、Y75、Z55cm |
+| Target Focus Height | 45cm |
+| Auto Activate / 原臂长 | True / 400cm |
+| Editor / Game / 三模块索引 | 助手正常构建成功 / 已刷新 |
+| CameraRules / Selection / MarkerRules | 2026-10-24 15:01:15三项Success |
+| 原Controller | computer-use已核对上述继承值，Compile → Save；无额外相机组件 |
+| 实机截图 | Artifacts/M2_06B2_RightShoulder/RightShoulder_PIE.png，1359×754 |
+| 临时设置 | 本轮用slomo .05与运行时Teleport便于观察，已slomo1并Stop，地图 / 出生点未改 |
+
+当前相机保持动作游戏所需的全身空间；以后觉得过近 / 过远或偏移不足，反馈5–10秒视频和实际距离 / 动作即可，再按单一变量调整。贴墙时原SpringArm碰撞会优先缩短相机距离，不把普通墙边遮挡宣传成完全消除。此次没有新增包或性能采样。
+
+本次电脑工具短按Tab未形成可靠的Enhanced Input Started样本，实机镜头使用已有`ke ETTargetLockComponent ToggleTargetLock`正式组件入口请求 / 解除；没有硬写目标引用或绕过合法性过滤，不另宣称完成一次新的物理Tab验收。原用户B2的Tab / 输入反馈沿用，代码未改输入映射。后续试玩仍按正式Tab操作即可。
+
+本轮不要求新的完整回报模板。若继续微调，只报具体画面问题、PIE方式和额外手动时间；原90分钟不重复登记。右肩补修已交付；随后用户要求进入下一章，[C方向切换指南已实施](M2_06C_TargetSwitching.md)，本轮收尾镜头 / 出生补修与提交范围见C10.1 / 11节，B2源码以本指南为准。
 
 ## 9. 本章 Commit / Push（固定放在最后）
 
-**B2手动实施且验收通过后**Stage三新Source与两旧Controller，前缀均为EmberTrial/Source/：
+基础B2已在63abd20；之后右肩、C切换与近景 / 出生补修当前均未提交，完整精确范围以[C末尾清单](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)为准，包含本指南三份相机Source。不要仅提交本页而漏掉GameMode / 新SpawnPlacement测试及C所需输入资产。
 
-```text
-EmberTrial/Public/TargetLock/ETTargetLockCameraComponent.h
-EmberTrial/Private/TargetLock/ETTargetLockCameraComponent.cpp
-EmberTrial/Tests/ETTargetLockCameraTests.cpp
-EmberTrial/Public/Framework/ETPlayerController.h
-EmberTrial/Private/Framework/ETPlayerController.cpp
-```
+建议合并Commit（英文）：`feat: add target switching and refine close-combat camera and spawning`。
 
-UE资产预计只有原`EmberTrial/Content/EmberTrial/Blueprints/Framework/BP_ETPlayerController.uasset`保存Camera配置；新组件来自原生，不创建新uasset。如果6.2纠正过玩家相机设置，额外包含实际BP_ThirdPersonCharacter差异并说明，不制造其他重存。B2不改UI源码 / WBP / 输入 / GA / 地图 / Config，来源数量预计仍73，仅实际变化资产更新hash。
+中文译文：`feat: 新增锁定目标切换并优化贴身战斗镜头与出生贴地`。
 
-文档：本指南、完成后B2报告、Progress / Backlog / Architecture / 方案B / VersionControl / 两份M2路线 / README / Introduction和实际来源更新。B1完整源码与两资产已由用户提交c902dcc，正确UI测试路径和完整实现已纳入，无需重复Stage；当前B1验收报告与最新文档收尾若尚未提交可一起包含。后续Stage后又修改的文件需要重新Stage最新内容，不提前提交未实施的B2空骨架。
-
-建议Commit（英文）：`feat: follow the locked target with a smooth camera`。
-
-中文译文：`feat: 新增锁定目标的平滑镜头跟随`。
-
-英文可作标题，中文作正文；用户操作CLion Refresh Changes → Stage最新内容 → Review Diff → Commit → Push，助手不代Git。Raw / 日志 / Saved / Binaries / Intermediate / CMake索引 / 包体留本地，不Force Add。未实施的候选代码不提前创建空Source / Stage为完成。
+CLion Refresh Changes → 重新Stage最新内容 → Review Diff → Commit → Push，由用户操作。Raw / 日志 / 截图 / 采样脚本 / Saved / Binaries / Intermediate / CMake索引 / 包体留本地，不Force Add；助手未操作Git索引或远端。
