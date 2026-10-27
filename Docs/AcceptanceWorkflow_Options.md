@@ -162,7 +162,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 | Validate-ProjectConfig | 共享地图 / Cook / Cue配置与文件存在 | 不合并Saved / 平台配置，不解析地图；独立包仍需检查 |
 | Run-StageBuild | 按已有包启动并记录证据 / 性能口径 | WhatIf只预览；旧M1包不包含当前M2 |
 
-测试与工具代码入口见[架构](Architecture.md)，本次执行与原始证据见[Cleanup](Cleanup.md)。没有修改、失败或未解决风险时，沿用已接受基线；不要仅为每个文档批次重复启动同一组测试。每批记录“当次执行 / 沿用 / 尚未执行”，不把沿用写成新Success。
+测试与工具入口见[架构](Architecture.md)，当次证据见对应验收报告，历史清理见[Cleanup](Cleanup.md)。没有修改、失败或未解决风险时，沿用已接受基线；不要仅为每个文档批次重复启动同一组测试。每批记录“当次执行 / 沿用 / 尚未执行”，不把沿用写成新Success。
 
 ### 后续执行与遗漏风险
 
@@ -205,12 +205,12 @@ Core16 / UI2共18项自动化保留；全部由WITH_DEV_AUTOMATION_TESTS隔离�
 
 人工不再搭Controller验收图或重做旧HUD / 伤害矩阵；用实际PIE采首帧脚尖位置及600 / 200 / 79cm三距离取景，10/25短采样正常结束。中断脚本记录与有效样本分别保留；NullRHI测试、骨骼数值、真实画面与首次PIE创建等待不互相替代。首次PIE等待需求已按用户决定关闭，不追加优化或复验；脚陷地修复没有被宣传为帧率提升。C无新版包 / 完整性能窗口，未另跑Retry / Continue整套实机矩阵。
 
-## M2-07A阶段集成的最小范围
+## M2-07A已验收与B的最小范围
 
-[A指南](M2_07A_IntegratedPackage.md)安排23项全组一次，不升级为以后每小批要求；当前尚未执行。没有Source新改，不在UAT前重复Editor / Game Build或索引刷新。完整新Cook、人工10–15分钟，四能力 / HUD与真实敌人、一次死亡 / Retry / Continue、第二新进程短查。
+[A报告](Reports/M2_07A_Verification.md)：23项阶段全组Success、实际新包 / 两轮相关流程通过，用户人工30 / 等待10；不升级为每小批全组要求。包内单敌人Z / C只证明输入和空侧保持，双敌人成功切换仍沿用C，不编造包内正例。日志 / 画面 / 用户反馈分别注明证据边界。
 
-正式地图单敌人，包内Z / C只验证输入和空候选保持；双目标成功切换沿用C编辑器反馈与Selection，不为本章搭验收Graph或增临时敌人。A没有Trace / FPS对比，B只处理新版包稳定待机 / 真实交战必要性能；已关闭PIE等待不重新开题。反馈后助手读Runtime / UAT / 23项结果，写实际报告，不预建空报告或抄旧包成功。
+[B指南](M2_07B_PerformanceCapture.md)只采同一已验包的稳定待机与真实AI交战，1080p / Medium=1，截图辅助核对视口，不与A720p或M1High直接算优化收益。实际采样尚未执行。没有新增验收蓝图、Build / Cook、自动化重跑或Pause / Retry全套采集；已关闭PIE等待不重新开题。提前死亡保留有效部分、由助手按Runtime定位，不先要求整轮重采；分析完再进入C复盘。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。
+A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。

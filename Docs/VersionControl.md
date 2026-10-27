@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-25最新现状：**本地HEAD为`2b62e6a`，包含C / 右肩 / 出生补修；main与origin/main跟踪引用一致，本轮未联网核验远端。当前新增C / M2-06报告与M2-07A准备材料，只改文档和Run-StageBuild日志阶段选项；范围见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。助手未Stage / Commit / Push，不重复提交未变Source / Content / Config。
+**2026-10-25最新现状：**本地HEAD为183b80c，包含A相关实现 / 工具和下发材料；A报告本轮新生成，最新包M2_07A/Attempt01验收通过。当前B准备只改文档与Run-StageBuild日志路由 / Medium条件，具体范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。本地main / origin/main跟踪引用一致，未联网核验远端；助手未Stage / Commit / Push，不重复提交未变Source / Content / Config。
 
 **Commit双语约定（10/23用户新增）：**后续每份操作文档同时给英文建议标题与专业中文译文。Break Pulse使用“破势”、cooldown使用“技能冷却”、lifecycle使用“生命周期”，不机械逐词翻译。英文可作标题，中文可作正文或理解参考，不需要拼成一条重复标题；不改写已存在的历史提交。
 
@@ -376,4 +376,4 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。
+A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。

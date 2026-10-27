@@ -1,6 +1,6 @@
 # M2-07A：新版独立包与战斗集成检查
 
-2026-10-25，UE **5.5.4 / Win64 Development**。前置[M2-06总验收](Reports/M2_06_Verification.md)已收尾；当前开始M2-07集成，不新增玩法C++、动画、Widget或验收蓝图。普通代码仍由用户手动，后续发现复杂问题再按当次授权直接排错。
+更新2026-10-25，UE **5.5.4 / Win64 Development**。**[本章验收通过](Reports/M2_07A_Verification.md)，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)。**Attempt01新包、阶段23项与两轮运行已完成；用户手动30 / 等待10。下文保留实际操作供以后复查，本轮无需再次Build / Cook / 跑全组或重做流程。
 
 **首次PIE创建等待已按用户决定关闭，不再优化、计时或列为阻塞项。**本章检查当前独立包的功能，不采Trace、不比较FPS，也不重新设计旧功能验收逻辑。
 
@@ -12,8 +12,8 @@
 
 | M2-07批次 | 本批边界 | 进入条件 |
 | --- | --- | --- |
-| **A：当前章节** | 一次23项阶段回归、新Development包、两轮独立运行与相关交战 / UI短查 | 已开始；先完成本指南 |
-| B：必要性能窗口 | A通过后，只采新版包的稳定待机与真实交战；分析新增能力 / UI / 镜头开销 | 后续单独下发；不测已取消的PIE创建等待，不照搬M1全矩阵 |
+| **A：本章已验收** | 一次23项阶段回归、新Development包、两轮独立运行与相关交战 / UI短查 | 已通过，手动30 / 等待10 |
+| B：必要性能窗口 | A通过后，只采新版包的稳定待机与真实交战；分析新增能力 / UI / 镜头开销 | [B指南](M2_07B_PerformanceCapture.md)已下发；不测已关闭的PIE等待，不照搬M1全矩阵 |
 | C：M2复盘与下一阶段校准 | 助手汇总架构 / 生命周期、真实Bug、已有证据与限制，整理简历候选素材和后续范围 | 证据齐备后编写；不是最终投递或最终面试准备 |
 
 M2-07原7小时模块预算仍作上限规划比较，以上批次不另叠加到全项目预算，也不要求人为耗满。C分项实耗此前未报，当前仍保留“未登记”，不自动把估算记为实耗。
@@ -24,7 +24,7 @@ M2-07原7小时模块预算仍作上限规划比较，以上批次不另叠加�
 | 实际启动入口 | 上述目录下`Windows\EmberTrial.exe` |
 | 打包控制台记录 | `Attempt01\UAT_Console.log` |
 | Run01 / Run02独立日志与JSON | `E:\UE_Project\Demo\Artifacts\M2_07A\Runtime` |
-| 本批验收报告 | 完成反馈后由助手写入`Docs/Reports/M2_07A_Verification.md`，当前不创建空报告 |
+| 本批验收报告 | [实际报告](Reports/M2_07A_Verification.md)已保存，含新包指纹 / 两轮证据及覆盖限制 |
 
 下发时本地HEAD为`2b62e6a`，原C与镜头 / 出生补修已在该提交；本地main与origin/main跟踪引用一致，未联网核验远端。本轮只扩已有启动脚本的M2日志归档选项并写文档，实际玩法仍157 Source / 86cpp、Core60 / UI23 / Editor3、23项自动化、来源75。
 
@@ -39,7 +39,7 @@ M2-07原7小时模块预算仍作上限规划比较，以上批次不另叠加�
 
 ### 2.2 23项自动化只跑一次
 
-这是M2阶段集成前的一次全组回归，不把它改成后续每小章的固定要求；普通小批仍按方案B只跑受影响项。
+**本次阶段全组已于2026-10-25 18:38:10北京时间23项Success，无需重跑。**下面保留原执行方法；全组不升级成后续每小章固定要求。
 
 1. **非PIE**状态，在UE下方打开**Output Log**。若没有该页，用Window → Developer Tools → Output Log，或底部Output Log按钮。
 2. 在Output Log底部选择**Cmd**输入栏，不是Python；点击输入栏，输入下面一行并按Enter：
@@ -52,7 +52,7 @@ M2-07原7小时模块预算仍作上限规划比较，以上批次不另叠加�
 4. 若有Fail、Crash或完成数量不符，**先停在这里**，发送第一条失败断言 / 崩溃信息、完成时分和日志路径；不要继续Cook一个已知测试失败的候选，也不删断言来通过。
 5. 全部通过后，Save All并**关闭UE编辑器**。建议保存后也关闭CLion以留出内存，但不改IDE / 系统设置；PowerShell可以保留。后面的Cook会自行使用引擎命令行进程。
 
-本轮没有Source新改；不要为“刷新”再删Intermediate、重建工程文件或重复全组。自动化通过也不代表真实窗口 / 输入 / Cook已经通过，包内只补下面的相关样本。
+当前源码已完成正常编译 / 阶段全组；不要为“刷新”再删Intermediate、重建工程文件或重复全组。自动化通过也不代表真实窗口 / 输入 / Cook已经通过，包内只补下面的相关样本。
 
 ## 3. 用UAT生成新包（等待另计）
 
@@ -228,39 +228,10 @@ Run01正常退出 / Run02新进程Continue禁用与Entry短查：
 
 ## 9. 本章 Commit / Push（固定放在最后）
 
-上一批Source / 两新IA与旧资产已在本地`2b62e6a`，本轮不重复修改或提交未变Source / Content / Config。当前新增三份文档：
+本地183b80c已包含A相关实现 / 工具与下发材料，本轮新增[实际验收报告](Reports/M2_07A_Verification.md)，并生成B指南和更新当前入口；Source / Content / Config保持，不重存资产或重复Stage未变文件。完整本批清单见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。
 
-```text
-Docs/M2_07A_IntegratedPackage.md
-Docs/Reports/M2_06C_Verification.md
-Docs/Reports/M2_06_Verification.md
-```
+建议英文：`docs: record M2 package acceptance and prepare profiling`。
 
-本轮同步修改：
+中文译文：`docs: 记录M2开发包验收并准备性能采集`。
 
-```text
-Tools/Run-StageBuild.ps1
-Docs/M2_06C_TargetSwitching.md
-Docs/M2_06B2_LockCamera.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AssetManifest.csv
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_06_TargetLockRoadmap.md
-Docs/M2_Roadmap.md
-Docs/M2_05_BreakPulseRoadmap.md
-README.md
-Introduction.md
-```
-
-完成后再加入助手生成的实际`Docs/Reports/M2_07A_Verification.md`及上述文件的最新状态；没有报告时不要创建空文件凑清单。打包可能产生忽略项，包 / UAT日志 / Runtime / JSON / Trace / 截图 / Raw / Saved / Binaries / Intermediate / CMake索引都留本地，不Force Add。
-
-本章完成后的建议Commit（英文）：`chore: validate the integrated M2 development package`。
-
-中文译文：`chore: 验证M2阶段集成开发包并归档验收记录`。
-
-如果现在只提交下发材料，英文用`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`，不提前写成已验证。
-
-CLion Refresh Changes → Stage最新内容（Stage后又改要再次Stage）→ Review Diff → Commit → Push；用户操作Git，助手不修改索引、Commit / Push或联网核验远端。
+CLion Refresh Changes → 重新Stage最新内容 → Review Diff → Commit → Push，由用户操作。Raw / 包 / UAT与Runtime日志 / JSON / 截图 / Trace / Saved / Binaries / Intermediate / CMake索引留本地；助手未Stage / Commit / Push或联网核验远端。

@@ -1,6 +1,6 @@
 # M2-06：目标锁定、标记与镜头路线
 
-更新2026-10-25，UE5.5.4。[M2-06总验收](Reports/M2_06_Verification.md)已完成，进入[M2-07A新版包与集成检查](M2_07A_IntegratedPackage.md)。实际157 Source / 86cpp、23项自动化、来源75；首次PIE创建等待需求关闭，不再追加优化或复验。
+更新2026-10-25，UE5.5.4。[M2-06](Reports/M2_06_Verification.md)与[M2-07A新版包](Reports/M2_07A_Verification.md)均已验收，当前进入[B必要性能窗口](M2_07B_PerformanceCapture.md)。157 Source / 86cpp、23项自动化、来源75；首次PIE等待需求关闭，不再追加优化或复验。
 
 ## 1. 要交付的体验
 
@@ -40,4 +40,4 @@ A默认1200cm获取 / 1500cm脱锁、视锥半角60°、视角权重.75、维持
 
 ## 5. 当前 Commit / Push（固定放在最后）
 
-M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。
+A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。

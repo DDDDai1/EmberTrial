@@ -7,7 +7,7 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
-    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A')]
+    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B')]
     [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline
@@ -28,8 +28,9 @@ if (!$WhatIfPreference -and (Get-Process -Name UnrealEditor -ErrorAction Silentl
     throw 'Save and close Unreal Editor before checking the standalone package.'
 }
 ## 日志 / Trace / 元数据按同一唯一前缀关联；记录不是Gameplay验收结果。
-$stageEvidenceStage = ## 固定性能采集CVar与顺序属于可复现基线，本批不改采样口径。
-if ($PerformanceBaseline) { 'M1_07B' } else { $EvidenceStage }
+## 历史性能命令仍归档到M1；显式M2_07B使用自己的证据目录。
+$stageEvidenceStage =
+if ($PerformanceBaseline -and $EvidenceStage -ne 'M2_07B') { 'M1_07B' } else { $EvidenceStage }
 $stageOutput = Join-Path $stageRepo ("Artifacts\$stageEvidenceStage\Runtime")
 $stageStamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
 $stageBase = "${RunName}_${stageStamp}"
@@ -39,7 +40,9 @@ $stageTrace = Join-Path $stageOutput ($stageBase + '.utrace')
 $stageArguments = @('-windowed', "-ResX=$Width", "-ResY=$Height", '-log', ('"-abslog=' + $stageLog + '"'))
 $stageProfileCommands = $null
 if ($PerformanceBaseline) {
-    $stageProfileCommands = 't.MaxFPS 0,r.VSync 0,sg.ViewDistanceQuality 2,sg.AntiAliasingQuality 2,sg.ShadowQuality 2,sg.GlobalIlluminationQuality 2,sg.ReflectionQuality 2,sg.PostProcessQuality 2,sg.TextureQuality 2,sg.EffectsQuality 2,sg.FoliageQuality 2,sg.ShadingQuality 2,r.DynamicRes.OperationMode 0,r.ScreenPercentage 100'
+    ## M2按Introduction的中等画质目标采集；M1保持原High=2口径，禁止混作同条件对比。
+    $stageQualityLevel = if ($EvidenceStage -eq 'M2_07B') { 1 } else { 2 }
+    $stageProfileCommands = ('t.MaxFPS 0,r.VSync 0,sg.ViewDistanceQuality {0},sg.AntiAliasingQuality {0},sg.ShadowQuality {0},sg.GlobalIlluminationQuality {0},sg.ReflectionQuality {0},sg.PostProcessQuality {0},sg.TextureQuality {0},sg.EffectsQuality {0},sg.FoliageQuality {0},sg.ShadingQuality {0},r.DynamicRes.OperationMode 0,r.ScreenPercentage 100' -f $stageQualityLevel)
     $stageArguments += ('-ExecCmds="' + $stageProfileCommands + '"')
 }
 if ($Trace) {

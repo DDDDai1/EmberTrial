@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06锁定 / 镜头 / 切换已验收](Docs/Reports/M2_06_Verification.md)，正在进行[M2-07A新版独立包集成](Docs/M2_07A_IntegratedPackage.md)，尚未达到最终投递版本。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06锁定 / 镜头 / 切换已验收](Docs/Reports/M2_06_Verification.md)，[M2-07A新版包集成已通过](Docs/Reports/M2_07A_Verification.md)，当前准备[M2-07B必要性能采集](Docs/M2_07B_PerformanceCapture.md)，尚未达到最终投递版本。
 
 ## 已实现的体验
 
@@ -50,7 +50,8 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M2-07A新版包与集成](Docs/M2_07A_IntegratedPackage.md)：一次阶段回归、UAT新包、两轮独立短查与中英Commit清单，待用户实施。
+- [当前开发：M2-07B必要性能窗口](Docs/M2_07B_PerformanceCapture.md)：同一新版包、1080p Medium、稳定待机 / 真实AI交战两段，待采集。
+- [最近验收：M2-07A新版包](Docs/Reports/M2_07A_Verification.md)：23项全组与两轮独立运行通过；[打包步骤](Docs/M2_07A_IntegratedPackage.md)保留复查，当前无需重做。
 - [M2-06C方向切换实现](Docs/M2_06C_TargetSwitching.md) / [验收](Docs/Reports/M2_06C_Verification.md)：Z / C与出生 / 近景补修，首次PIE等待需求已关闭。
 - [B2右肩镜头完整实现](Docs/M2_06B2_LockCamera.md)与[锁定路线](Docs/M2_06_TargetLockRoadmap.md)：当前可用镜头参数和恢复规则。
 - [最近完成：B2右肩镜头](Docs/Reports/M2_06B2_Verification.md)：双Build / 三专项及真实取景、偏移所有权 / 恢复证据。
@@ -62,4 +63,4 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [验收方案B](Docs/AcceptanceWorkflow_Options.md)：按影响范围测试、复用入口与阶段验收。
 - [资产来源清单](Docs/AssetManifest.csv)：来源、用途及授权记录；复用资产时需分别核对原授权。
 
-核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。已有23项自动化（含出生贴地 / 回退）覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。
+核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。已有23项自动化（含出生贴地 / 回退），M2-07A阶段全组均Success，覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。

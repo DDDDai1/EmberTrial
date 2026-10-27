@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-25。M2-06已收尾通过，C与总报告已保存；当前[M2-07A新版包 / 集成检查](M2_07A_IntegratedPackage.md)待用户实施。首次PIE创建等待需求关闭，普通方案B保持。实时规模 / 已量化工时见[Progress](Progress.md)，历史行保留当时口径。
+更新2026-10-25。[M2-07A新版包已验收](Reports/M2_07A_Verification.md)，当前[B必要性能窗口](M2_07B_PerformanceCapture.md)待采集；首次PIE等待需求关闭。实时规模 / 已量化工时见[Progress](Progress.md)，历史行保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -111,11 +111,11 @@
 | M2-06B2 | [镜头跟随](M2_06B2_LockCamera.md) | 你实现，我核对 | 完成 | [报告](Reports/M2_06B2_Verification.md)：156 / 85、正常双Build / 三Success，右肩 / 精确恢复 / UE取景通过；原用户90 / 5，助手补修不重复计时 |
 | M2-06C | [左右切换 / 交战收口](Reports/M2_06C_Verification.md) | 你检查，我补修 / 审查 | 完成 | 用户检查与两项体验补修复核通过；双Build / 四Success；PIE等待需求关闭、C工时未登记 |
 | M2-06 | [锁定 / 标记 / 镜头总验收](Reports/M2_06_Verification.md) | 我整理证据 | 完成 | A / B1 / B2 / C收口；157 / 86、来源75，最新独立包留下一批 |
-| M2-07A | [新版独立包与集成检查](M2_07A_IntegratedPackage.md) | 你操作，我读证据 | 待用户操作 | 一次23项阶段回归、新Development包、两轮独立流程；准备检查通过，未打包 |
-| M2-07B | 新版包必要性能窗口 | 后续下发 | 待开始 | 稳定待机 / 真实交战，不采PIE创建等待 |
+| M2-07A | [新版独立包与集成检查](Reports/M2_07A_Verification.md) | 你操作，我核对 | 完成 | Attempt01 / 23项全Success、两轮Runtime / 四能力-HUD-AI及检查点 / 清理通过；手动30 / 等待10 |
+| M2-07B | [新版包必要性能窗口](M2_07B_PerformanceCapture.md) | 你采集，我分析 | 待用户采集 | 同一A包、1080p Medium、Idle / 真实交战；脚本WhatIf已过，实际采样 / 统计尚未产生 |
 | M2-07C | M2技术复盘与范围校准 | 我整理，你复盘 | 待开始 | 当前Source / 包 / 必要性能证据、简历候选素材与下一阶段范围 |
 
-表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为Cleanup/Attempt01；M1 C3 Attempt02只保留历史证据。
+表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
 ## 暂缓到中后期
 
@@ -131,7 +131,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| 后续M2开发 | M2-05 / M2-06已验收，当前进入M2-07A新版包集成；阶段报告与实际包证据分开记录 |
+| 后续M2开发 | M2-05 / M2-06已验收，M2-07A已验收，当前进入M2-07B必要性能采集；阶段报告与实际包证据分开记录 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -139,4 +139,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。
+A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。

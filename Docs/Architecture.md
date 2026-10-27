@@ -114,7 +114,7 @@ Controller原UpdateRotation调用唯一原生Camera组件，读取同一Core目�
 
 [C指南](M2_06C_TargetSwitching.md)只扩Core的目标身份：GatherCandidates复用A资格 / Visibility，左右按同一视点的水平角相对当前目标线性选优；.20游戏秒共享门限在查询 / 广播前写入，失败也限频且不排队，空侧保持原目标。内部ResetTargetBindings解除旧目标 / 废弃旧Serial，Set装配新目标后只发布一次Previous→Current，不让标记 / 肩位看到中间None。
 
-Controller只绑定两个独立Boolean IA的Started；Z / C在原IMC配置。B1 / B2读取原单一目标，不改UI / Actor旋转 / GA；相机近景另由Camera层修正，原Selection扩真实切换 / 旧来源隔离 / Pause；无新测试文件 / 常驻扫描 / Tick / Timer。C实际代码已由用户写入；Selection无地板夹具改为World启动后冻结，避免PostInitializeComponents恢复运动后重力污染范围断言，新增位置断言。用户已报告章节检查完成；近景 / 出生补修双Build与四专项通过，真实采样边界见[C报告](Reports/M2_06C_Verification.md)。首次PIE创建等待需求关闭；当前M2-07A只验证新包集成，不更改架构。
+Controller只绑定两个独立Boolean IA的Started；Z / C在原IMC配置。B1 / B2读取原单一目标，不改UI / Actor旋转 / GA；相机近景另由Camera层修正，原Selection扩真实切换 / 旧来源隔离 / Pause；无新测试文件 / 常驻扫描 / Tick / Timer。C实际代码已由用户写入；Selection无地板夹具改为World启动后冻结，避免PostInitializeComponents恢复运动后重力污染范围断言，新增位置断言。用户已报告章节检查完成；近景 / 出生补修双Build与四专项通过，真实采样边界见[C报告](Reports/M2_06C_Verification.md)。首次PIE创建等待需求关闭；M2-07A已验证新包集成，当前M2-07B只观察同一包的必要性能，不更改架构。
 
 ## 7. 会话、菜单与出生
 
@@ -142,10 +142,10 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
-现有23项自动化（含新增SpawnPlacement生成前贴地 / 回退）覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项、标记边界纯规则一项及镜头角度规则一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。具体哪些当次执行、哪些沿用，统一见[Cleanup](Cleanup.md)。
+现有23项自动化（含新增SpawnPlacement生成前贴地 / 回退）覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项、标记边界纯规则一项及镜头角度规则一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。当次执行 / 沿用范围见各批验收报告；[M2-07A](Reports/M2_07A_Verification.md)已阶段全组23Success，历史清理见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭，C HUD及A / B1 / B2韧性与反应实际编辑器版本均已验收。当前包Cleanup/Attempt01仍为清理后的B2，尚未包含后来次数HUD / Poise / F / 冷却HUD，不将新编辑器结果当成已打包。后续破势 / 锁定 / 构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批，C1 / C2均已通过，F施放 / 冷却 / 范围已进入实际Source；D冷却HUD已验收；锁定A / B1标记已验收，B2右肩取景 / 偏移恢复已实现并检查。现有测试全部受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
+清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新性能留B采样，不能由功能通过推出帧预算已达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M2-06实现已在本地`2b62e6a`，本轮新增C / M2-06验收报告并进入[M2-07A新版独立包](M2_07A_IntegratedPackage.md)。本批只改文档和已有Run-StageBuild脚本的日志阶段选项，没有新玩法Source / 资产 / Config。精确清单见[A末尾](M2_07A_IntegratedPackage.md#9-本章-commit--push固定放在最后)。当前下发材料建议英文`docs: prepare M2 package integration checks`，中文译文`docs: 准备M2阶段包内集成检查`；A尚未完成，不提前使用完成态Commit。Raw / 日志 / 索引 / 包体留本地，用户自行Stage最新内容 / Review Diff / Commit / Push，助手未操作Git索引或联网核验远端。
+A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。
