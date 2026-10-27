@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-25最新现状：**本地HEAD为183b80c，包含A相关实现 / 工具和下发材料；A报告本轮新生成，最新包M2_07A/Attempt01验收通过。当前B准备只改文档与Run-StageBuild日志路由 / Medium条件，具体范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。本地main / origin/main跟踪引用一致，未联网核验远端；助手未Stage / Commit / Push，不重复提交未变Source / Content / Config。
+**2026-10-27最新现状：**本地HEAD为92ace0c，已含A收尾 / B下发工具与材料；本轮新增实际B分析报告和C技术复盘，并同步11份当前入口，共13份文档，清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。Source / Content / Config / Tools / AssetManifest与原包保持；本地main / origin/main缓存跟踪引用一致，未联网核验服务器或LFS。用户自行Stage最新内容 / Commit / Push，助手未改索引，不重复提交无变化源码或资产。
 
 **Commit双语约定（10/23用户新增）：**后续每份操作文档同时给英文建议标题与专业中文译文。Break Pulse使用“破势”、cooldown使用“技能冷却”、lifecycle使用“生命周期”，不机械逐词翻译。英文可作标题，中文可作正文或理解参考，不需要拼成一条重复标题；不改写已存在的历史提交。
 
@@ -12,7 +12,7 @@ Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTria
 - `.gitattributes` 将 `.uasset` / `.umap` 交给 Git LFS，并为后续 Blender / FBX 等源资产预留规则。
 - 源码、共享Config、`.uproject`、`.vsconfig`、文档和完整Content进入版本管理；本机IDE选择与Content Browser选中路径两份配置留在本地，详见第5节。
 - World Partition 的 `__ExternalActors__` / `__ExternalObjects__` 也是地图内容的一部分，已保留。
-- origin沿用GitHub的DDDDai1/EmberTrial配置；本轮读取本机HEAD 5bd5354，不据此声称已联网确认服务器或LFS状态。首次Push故障记录保留在第9节，上传完成以用户实际Push结果为准。
+- origin沿用GitHub的DDDDai1/EmberTrial配置；本地当前HEAD见页首，不据缓存引用声称联网确认服务器或LFS状态。首次Push故障记录保留在第9节，上传完成以用户实际Push结果为准。
 
 ## 2. 第一个可恢复检查点
 
@@ -376,4 +376,6 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。
+[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+
+Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。

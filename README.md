@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06锁定 / 镜头 / 切换已验收](Docs/Reports/M2_06_Verification.md)，[M2-07A新版包集成已通过](Docs/Reports/M2_07A_Verification.md)，当前准备[M2-07B必要性能采集](Docs/M2_07B_PerformanceCapture.md)，尚未达到最终投递版本。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06锁定 / 镜头 / 切换已验收](Docs/Reports/M2_06_Verification.md)，[M2-07A新版包集成已通过](Docs/Reports/M2_07A_Verification.md)，[M2-07B性能样本已分析](Docs/Reports/M2_07B_Verification.md)，当前进入[M2-07C技术复盘](Docs/M2_07C_TechnicalReview.md)，尚未达到最终投递版本。
 
 ## 已实现的体验
 
@@ -27,7 +27,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 
 Refresh-CLion会正常构建Editor目标并生成三个模块各自的索引信息。随后打开[EmberTrial.uproject](EmberTrial/EmberTrial.uproject)；正式试玩从`/Game/EmberTrial/Maps/L_ET_MainMenu`开始，编辑器开发地图为`L_ET_VerticalSlice`。
 
-Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说明见[IDE配置 / 切换说明](Docs/CodeEditor_CLion_VS2022.md)与[源码创建 / 索引刷新](Docs/CLion_UEClassCreation.md)。这是源码工程入口，仓库未提供可下载Release。本地已生成当前M2验证包，入口为`Artifacts/Builds/Cleanup/Attempt01/Windows/EmberTrial.exe`；通过主菜单、治疗 / 闪避正式接口、AI致死、A点Retry / Continue及新进程清空检查，各批输入方法与用户真实键鼠确认见[Cleanup](Docs/Cleanup.md#cleanup-closure)；该包不含后来完成的次数HUD、Poise、F、冷却HUD与锁定。完整Windows目录留本地，旧M1包只代表历史版本。
+Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说明见[IDE配置 / 切换说明](Docs/CodeEditor_CLion_VS2022.md)与[源码创建 / 索引刷新](Docs/CLion_UEClassCreation.md)。这是源码工程入口，仓库未提供可下载Release。最新本地验证包为`Artifacts/Builds/M2_07A/Attempt01/Windows/EmberTrial.exe`，已包括四能力 / 五HUD、Poise / F、锁定 / 镜头与检查点；两轮独立运行及23项阶段回归见[A报告](Docs/Reports/M2_07A_Verification.md)。完整Windows目录留本地，Cleanup / M1包只代表历史版本。
 
 ## 默认操作
 
@@ -50,7 +50,8 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M2-07B必要性能窗口](Docs/M2_07B_PerformanceCapture.md)：同一新版包、1080p Medium、稳定待机 / 真实AI交战两段，待采集。
+- [当前开发：M2-07C技术复盘](Docs/M2_07C_TechnicalReview.md)：约15–25分钟理解真实链路 / 生命周期 / 性能边界，无新代码或测试。
+- [最近分析：M2-07B性能报告](Docs/Reports/M2_07B_Verification.md)：同包Medium待机 / 真实AI交战；保留PNG尺寸差异与完整区间孤立尖峰，不作严格1080p / Shipping认证。[采集步骤](Docs/M2_07B_PerformanceCapture.md)供复查，当前无需重采。
 - [最近验收：M2-07A新版包](Docs/Reports/M2_07A_Verification.md)：23项全组与两轮独立运行通过；[打包步骤](Docs/M2_07A_IntegratedPackage.md)保留复查，当前无需重做。
 - [M2-06C方向切换实现](Docs/M2_06C_TargetSwitching.md) / [验收](Docs/Reports/M2_06C_Verification.md)：Z / C与出生 / 近景补修，首次PIE等待需求已关闭。
 - [B2右肩镜头完整实现](Docs/M2_06B2_LockCamera.md)与[锁定路线](Docs/M2_06_TargetLockRoadmap.md)：当前可用镜头参数和恢复规则。

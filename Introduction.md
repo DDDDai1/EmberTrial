@@ -542,7 +542,7 @@ Shipping 关闭作弊与开发菜单。截图 / 视频清楚标注是否启用�
 
 ### 9.1 参考目标
 
-开发与首轮验收设备已记录为 Ryzen 7 7840H、RTX 4060 Laptop、约 16 GB 内存，性能目标按 1080p、中等画质规划。M2-07A新版包功能验证使用1280×720启动参数；M2-07B将采同一包的1080p / Medium必要窗口，尚无本轮性能结论。桌面 RTX 3060 级配置只保留为后续对照候选，不宣传未经测量的最低配置。
+开发与首轮验收设备已记录为 Ryzen 7 7840H、RTX 4060 Laptop、约 16 GB 内存，最终性能目标仍按1080p、中等画质规划。M2-07A新版包功能验证请求1280×720；[M2-07B](Docs/Reports/M2_07B_Verification.md)已完成同包Medium待机 / 真实交战分析：内窗主循环间隔P95约5.915 / 5.714ms，完整交战另有3次>16.7ms Tick、最大30.013ms，未唯一归因。请求1920×1080但原始PNG2048×1081，用户确认窗口未缩小 / 裁剪、电源档位未知；这是有效灰盒样本，不能直接称为严格1080p / Shipping认证或与M1 High算提升。桌面RTX3060级仅为后续对照候选，不宣传未经测量的最低配置。
 
 | 指标 | P1 目标 / 初始预算 | 测量要求 |
 |---|---|---|
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-25，M0、M1、M2-01 / 02 / 03 / 04 / 05 / 06及07A已验收，清理已关闭。**[M2-07A报告](Docs/Reports/M2_07A_Verification.md)记录23项全Success、当前Development新包和两轮独立流程；当前[B必要性能窗口](Docs/M2_07B_PerformanceCapture.md)待采集，之后C技术复盘单独整理。首次PIE等待需求已关闭。157 Source / 86cpp / 来源75，已量化项目3381 / 明确等待314分钟，M2为1370 / 129、M2-07为30 / 10，另有M2-06C未登记；助手工作不计作用户实耗。当前功能包M2_07A/Attempt01不等于最终美术 / Shipping / 招聘发布版本；B尚无Trace与性能结论。普通C++手动 / 方案B / 用户自行Push约定保持。以下保留原M0起点：
+**截至2026-10-27，M0、M1、M2-01至06及07A / B已验收，清理已关闭；整个M2待C用户复盘后总收口。**[A报告](Docs/Reports/M2_07A_Verification.md)记录23项全Success、当前Development新包和两轮独立流程；[B报告](Docs/Reports/M2_07B_Verification.md)已记录真实采样、统计与限制；当前[C技术复盘](Docs/M2_07C_TechnicalReview.md)材料生成，约15–25分钟阅读 / 简短反馈，无新Build或测试。首次PIE等待需求保持关闭。157 Source / 86cpp / 来源75，已量化项目3411 / 明确等待324分钟，M2为1400 / 139、M2-07为60 / 20，另有M2-06C未登记；C预计阅读和助手工作不计作用户实耗。当前M2_07A/Attempt01不等于最终美术 / Shipping / 招聘发布版本。M3将先定义6遗物 / 2槽的数据 / 装备状态与跨World语义，再用2件完成最小闭环；原基础70h在首批后再校准，最终简历 / 总复盘仍留M8共同完成。普通C++手动 / 方案B / 用户自行Push约定保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,4 +868,6 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Docs/Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](Docs/M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](Docs/M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。
+[M2-07B分析报告](Docs/Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](Docs/M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](Docs/M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+
+Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。

@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-25。[M2-07A新版包已验收](Reports/M2_07A_Verification.md)，当前[B必要性能窗口](M2_07B_PerformanceCapture.md)待采集；首次PIE等待需求关闭。实时规模 / 已量化工时见[Progress](Progress.md)，历史行保留当时口径。
+更新2026-10-27。[M2-07A新版包](Reports/M2_07A_Verification.md)与[B性能分析](Reports/M2_07B_Verification.md)已通过，当前[C技术复盘](M2_07C_TechnicalReview.md)材料已生成、待用户阅读 / 反馈。首次PIE等待需求关闭；实时规模 / 工时见[Progress](Progress.md)，历史行保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -80,7 +80,7 @@
 | M1-07C2 | [战斗引用与共享配置](M1_07C2_GameplayValidation.md) | 你手动实施，我核查 | 完成 | 75 / 37 / 48、九Valid / GA失败恢复 / 两Success / 配置0/0；20 / 5，无待补 |
 | M1-07C3 | [Attempt02与M1阶段收口](M1_07C3_UpdatedPackage.md) | 你打包 / 实机，我核查 / 复盘 | 完成 | [报告](Reports/M1_07C3_Verification.md)：UAT ExitCode0、两次Move90 / 二十次敌人10伤害、A点Retry / Continue、新进程Entry；手动10 / 等待10 |
 | M1 | 最小纵向闭环与阶段复盘 | 共同 | 完成 | [总验收](Reports/M1_Verification.md)与[复盘](M1_Review.md)，手动1338分钟；当前灰盒范围与最终作品差距明确 |
-| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 原基础预算65h，缓冲从全局预留；01 / 02 / 03 / 04 / 05均已验收，06A / B1已验收，B2右肩取景 / 恢复及专项通过 |
+| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 01–06及07A / B已通过；C技术复盘材料生成、待用户阅读后总收口，不提前声明M2关闭 |
 | M2-01 | [资源基础总验收](Reports/M2_01_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | A / B1 / B2全部通过，87 / 44 / 49；130 / 15分钟，治疗次数已定契约、实现留04 |
 | M2-01A | [体力属性、一次初始化与Ready](M2_01A_StaminaFoundation.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_01A_Verification.md)：78 / 39 / 48，三身体Valid / 测试Success / 两轮PIE，IsCombatDead补项关闭；60 / 5 |
 | M2-01B | 体力恢复与必要变化观察 / 显示 | 你手动实现，我设计 / 审查 | 完成 | B1恢复与B2体力HUD通过；70 / 10分钟，无正式成本 / 无敌 |
@@ -112,15 +112,15 @@
 | M2-06C | [左右切换 / 交战收口](Reports/M2_06C_Verification.md) | 你检查，我补修 / 审查 | 完成 | 用户检查与两项体验补修复核通过；双Build / 四Success；PIE等待需求关闭、C工时未登记 |
 | M2-06 | [锁定 / 标记 / 镜头总验收](Reports/M2_06_Verification.md) | 我整理证据 | 完成 | A / B1 / B2 / C收口；157 / 86、来源75，最新独立包留下一批 |
 | M2-07A | [新版独立包与集成检查](Reports/M2_07A_Verification.md) | 你操作，我核对 | 完成 | Attempt01 / 23项全Success、两轮Runtime / 四能力-HUD-AI及检查点 / 清理通过；手动30 / 等待10 |
-| M2-07B | [新版包必要性能窗口](M2_07B_PerformanceCapture.md) | 你采集，我分析 | 待用户采集 | 同一A包、1080p Medium、Idle / 真实交战；脚本WhatIf已过，实际采样 / 统计尚未产生 |
-| M2-07C | M2技术复盘与范围校准 | 我整理，你复盘 | 待开始 | 当前Source / 包 / 必要性能证据、简历候选素材与下一阶段范围 |
+| M2-07B | [新版包性能分析](Reports/M2_07B_Verification.md) | 你采集，我分析 | 完成 | 同一A包、真实AI / 四动作、正式导出；内窗与完整Region尖峰、实际PNG尺寸 / 环境限制均记录；手动30 / 等待10，无补采或工程修改 |
+| M2-07C | [M2技术复盘与范围校准](M2_07C_TechnicalReview.md) | 我整理，你复盘 | 待用户操作 | 材料已生成，阅读 / 简短反馈约15–25分钟；不重跑测试或搭图；完成后保存M2总报告并进入M3-01 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
 ## 暂缓到中后期
 
 - Blender 接入、关键武器 / 祭坛 / 角色模型的设计制作；先确定规格并完成一个模型试做再估量。
-- GAS四类能力深化、完整构筑UI、持久化与最终表现：按M2及后续阶段分批完成；当前Core / UI / Editor模块、玩家三段与恢复闪避取消已成立。
+- 完整构筑UI、持久化与最终表现：按后续阶段分批完成；当前四能力 / 三段、资源HUD与锁定已成立，M3先明确定义6遗物 / 2槽与最小装备事务。
 
 ## 清理关闭与当前开发
 
@@ -131,7 +131,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| 后续M2开发 | M2-05 / M2-06已验收，M2-07A已验收，当前进入M2-07B必要性能采集；阶段报告与实际包证据分开记录 |
+| M2收尾 / M3准备 | A独立包与B实际性能分析均通过，C复盘材料待用户阅读；当前不新增Source / 资产或重新执行旧矩阵 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -139,4 +139,6 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。
+[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+
+Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。

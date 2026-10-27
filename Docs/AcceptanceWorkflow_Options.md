@@ -1,6 +1,6 @@
 # EmberTrial 验收流程调整：方案比较与选择记录
 
-方案选择日期2026-10-05，维护更新2026-10-23。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前功能基线M2-05C2-02，清理进度见[Progress](Progress.md)；本页保留方案比较、最终选择与可复用的执行规则。
+方案选择日期2026-10-05，维护更新2026-10-27。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前M2-07A独立包与B性能分析已通过，C复盘材料待阅读；实时状态见[Progress](Progress.md)。本页保留方案比较、最终选择与可复用的执行规则。
 
 ## 1. 当前结论与需要解决的问题
 
@@ -130,7 +130,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 
 失败项明确列入待修，不以“下次再说”标为完成。阶段 / 打包 / 投递前仍检查完整作品，但复用固定工具与清单、已有自动测试和历史证据，不要求重新设计验收功能。没有新修改或风险，不扩大或反复执行同样检查。
 
-方案选择本身不授权接管代码或编辑器。一般功能开发仍先给操作文档、由用户实践；本轮清理已有用户明确授权，助手直接修改并保留快照 / 验证。用户决定何时进入下一功能章，当前只做清理。
+方案选择本身不授权接管代码或编辑器。一般功能开发仍先给操作文档、由用户实践；本轮清理已有用户明确授权，助手直接修改并保留快照 / 验证。用户已授权验收无问题时保存报告并直接下发下一章；当前按此约定进入C技术复盘，普通C++仍手动实现。
 
 ## 8. 最终选择记录
 
@@ -205,12 +205,16 @@ Core16 / UI2共18项自动化保留；全部由WITH_DEV_AUTOMATION_TESTS隔离�
 
 人工不再搭Controller验收图或重做旧HUD / 伤害矩阵；用实际PIE采首帧脚尖位置及600 / 200 / 79cm三距离取景，10/25短采样正常结束。中断脚本记录与有效样本分别保留；NullRHI测试、骨骼数值、真实画面与首次PIE创建等待不互相替代。首次PIE等待需求已按用户决定关闭，不追加优化或复验；脚陷地修复没有被宣传为帧率提升。C无新版包 / 完整性能窗口，未另跑Retry / Continue整套实机矩阵。
 
-## M2-07A已验收与B的最小范围
+## M2-07A / B收尾与C的最小范围
 
-[A报告](Reports/M2_07A_Verification.md)：23项阶段全组Success、实际新包 / 两轮相关流程通过，用户人工30 / 等待10；不升级为每小批全组要求。包内单敌人Z / C只证明输入和空侧保持，双敌人成功切换仍沿用C，不编造包内正例。日志 / 画面 / 用户反馈分别注明证据边界。
+[A报告](Reports/M2_07A_Verification.md)：23项阶段全组Success、实际新包 / 两轮相关流程通过，用户人工30 / 等待10；这不升级为每小批全组要求。包内单敌人Z / C只证明输入和空侧保持，双敌人成功切换沿用C，不编造包内正例。
 
-[B指南](M2_07B_PerformanceCapture.md)只采同一已验包的稳定待机与真实AI交战，1080p / Medium=1，截图辅助核对视口，不与A720p或M1High直接算优化收益。实际采样尚未执行。没有新增验收蓝图、Build / Cook、自动化重跑或Pause / Retry全套采集；已关闭PIE等待不重新开题。提前死亡保留有效部分、由助手按Runtime定位，不先要求整轮重采；分析完再进入C复盘。
+[B报告](Reports/M2_07B_Verification.md)：同包待机 / 真实AI交战、四动作与正式导出均有效，用户手动30 / 等待10。六查询符合，PNG2048×1081与1080p请求不同、未知电源档位、启动内存压力及完整交战3个孤立Tick尖峰透明记录；不把内窗平稳当作全程 / Shipping认证，不为此整轮重采或无依据改工程。
+
+B / C未改Source或资产，复用A的23项结果，无新增Build / Cook、旧矩阵、验收Blueprint或精确掐点要求。[C指南](M2_07C_TechnicalReview.md)由助手整理，用户约15–25分钟对照理解、只回不明白的节号 / 实际用时，不逐题写答案；有问题局部讲清，无问题后保存M2总报告并下发M3-01。首次PIE等待需求保持关闭。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。
+[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+
+Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。

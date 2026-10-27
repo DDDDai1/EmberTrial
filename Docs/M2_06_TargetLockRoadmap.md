@@ -1,6 +1,6 @@
 # M2-06：目标锁定、标记与镜头路线
 
-更新2026-10-25，UE5.5.4。[M2-06](Reports/M2_06_Verification.md)与[M2-07A新版包](Reports/M2_07A_Verification.md)均已验收，当前进入[B必要性能窗口](M2_07B_PerformanceCapture.md)。157 Source / 86cpp、23项自动化、来源75；首次PIE等待需求关闭，不再追加优化或复验。
+更新2026-10-27，UE5.5.4。[M2-06](Reports/M2_06_Verification.md)、[M2-07A新版包](Reports/M2_07A_Verification.md)与[B性能分析](Reports/M2_07B_Verification.md)均已通过，当前[C技术复盘](M2_07C_TechnicalReview.md)待用户阅读。157 Source / 86cpp、23项自动化、来源75；首次PIE等待需求关闭，运行架构本轮不变。
 
 ## 1. 要交付的体验
 
@@ -40,4 +40,6 @@ A默认1200cm获取 / 1500cm脱锁、视锥半角60°、视角权重.75、维持
 
 ## 5. 当前 Commit / Push（固定放在最后）
 
-A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。
+[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+
+Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。

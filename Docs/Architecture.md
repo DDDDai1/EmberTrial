@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-25。当前包含四能力 / 五HUD、目标锁定 / 标记、方向切换与近景右肩镜头；正式GameMode增加生成前贴地。实时证据 / 工时见[Progress](Progress.md)，本轮范围见[C10.1](M2_06C_TargetSwitching.md#101-出生首帧与贴身镜头补修已直接实施)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-27。四能力 / 五HUD、锁定 / 标记 / 右肩镜头与生成前贴地已由A新包验证，[B性能报告](Reports/M2_07B_Verification.md)已完成，当前[C技术复盘](M2_07C_TechnicalReview.md)待用户阅读；本轮运行架构不变。实时证据 / 工时见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -114,7 +114,7 @@ Controller原UpdateRotation调用唯一原生Camera组件，读取同一Core目�
 
 [C指南](M2_06C_TargetSwitching.md)只扩Core的目标身份：GatherCandidates复用A资格 / Visibility，左右按同一视点的水平角相对当前目标线性选优；.20游戏秒共享门限在查询 / 广播前写入，失败也限频且不排队，空侧保持原目标。内部ResetTargetBindings解除旧目标 / 废弃旧Serial，Set装配新目标后只发布一次Previous→Current，不让标记 / 肩位看到中间None。
 
-Controller只绑定两个独立Boolean IA的Started；Z / C在原IMC配置。B1 / B2读取原单一目标，不改UI / Actor旋转 / GA；相机近景另由Camera层修正，原Selection扩真实切换 / 旧来源隔离 / Pause；无新测试文件 / 常驻扫描 / Tick / Timer。C实际代码已由用户写入；Selection无地板夹具改为World启动后冻结，避免PostInitializeComponents恢复运动后重力污染范围断言，新增位置断言。用户已报告章节检查完成；近景 / 出生补修双Build与四专项通过，真实采样边界见[C报告](Reports/M2_06C_Verification.md)。首次PIE创建等待需求关闭；M2-07A已验证新包集成，当前M2-07B只观察同一包的必要性能，不更改架构。
+Controller只绑定两个独立Boolean IA的Started；Z / C在原IMC配置。B1 / B2读取原单一目标，不改UI / Actor旋转 / GA；相机近景另由Camera层修正，原Selection扩真实切换 / 旧来源隔离 / Pause；无新测试文件 / 常驻扫描 / Tick / Timer。C实际代码已由用户写入；Selection无地板夹具改为World启动后冻结，避免PostInitializeComponents恢复运动后重力污染范围断言，新增位置断言。用户已报告章节检查完成；近景 / 出生补修双Build与四专项通过，真实采样边界见[C报告](Reports/M2_06C_Verification.md)。首次PIE创建等待需求关闭；M2-07A已验证新包集成，B已完成同包性能分析，未发现需立即改架构的持续瓶颈；C汇总实际设计与证据。
 
 ## 7. 会话、菜单与出生
 
@@ -138,14 +138,16 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 清理将重复状态查询 / 名称与纯展示规则集中，注释说明所有权和时序；保持反射名、默认子对象名、资源路径、Tag、日志与关键判断顺序。可配置设计值保留配置，稳定标识符集中为契约，不把每个常数都变成新UPROPERTY。
 
-运行开销通过窗口内Trace Tick、缺额才运行的恢复Timer、事件驱动HUD与BB值变化去重控制。没有新测量就不宣称FPS提升，历史Insights仅代表当时包 / 环境，不代表最新M2性能。
+运行开销通过窗口内Trace Tick、缺额才运行的恢复Timer、事件驱动HUD与BB值变化去重控制。[M2-07B](Reports/M2_07B_Verification.md)实测待机 / 交战内窗主循环间隔P95约5.915 / 5.714ms，完整交战仍有3次>16.7ms Tick、最大30.013ms，保留未唯一归因限制。PNG2048×1081与1920×1080请求不同，不作严格1080p认证；Slate整体不能分摊成单HUD专属成本，无持续瓶颈证据就不先重写架构。
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
 现有23项自动化（含新增SpawnPlacement生成前贴地 / 回退）覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项、标记边界纯规则一项及镜头角度规则一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。当次执行 / 沿用范围见各批验收报告；[M2-07A](Reports/M2_07A_Verification.md)已阶段全组23Success，历史清理见[Cleanup](Cleanup.md)。
 
-清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新性能留B采样，不能由功能通过推出帧预算已达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
+清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新B性能报告对应同一A包；其短时Development / Medium观察不等于最终Shipping / 完整内容预算达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-A已验收，最新功能包为M2_07A/Attempt01，实际[A报告](Reports/M2_07A_Verification.md)已保存，当前进入[M2-07B必要性能窗口](M2_07B_PerformanceCapture.md)，尚未采集 / 分析。精确本批文档与Tools范围见[B末尾](M2_07B_PerformanceCapture.md#9-本批-commit--push固定放在最后)。当前建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。用户自行Stage最新内容 / Review Diff / Commit / Push；Source / Content / Config / AssetManifest本轮保持，Raw / 包 / 日志 / JSON / 截图 / Trace本地保留，助手未改Git索引或联网核验远端。
+[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+
+Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。

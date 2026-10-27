@@ -1,6 +1,6 @@
 # M2-07B：新版独立包的必要性能窗口
 
-2026-10-25，UE **5.5.4 / Win64 Development**。前置[A验收](Reports/M2_07A_Verification.md)通过，使用已验证的**M2_07A/Attempt01**。本批不改玩法C++、资产或共享Config，不重新Build / Cook、跑23项或搭验收蓝图。
+更新2026-10-27，UE **5.5.4 / Win64 Development**。本批同一**M2_07A/Attempt01**采集与正式分析已通过，[实际报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)。以下步骤保留作复查，不要求重新执行；本轮未改玩法C++、资产或共享Config，未重Build / Cook、跑23项或搭验收蓝图。
 
 **只采稳定待机与真实敌人交战两段。**不重做M1的Pause / Idle02 / Retry采集，不计已关闭需求的首次PIE创建等待。本阶段是灰盒负载观察，不是最终作品三轮固定路线达标或Shipping性能认证。
 
@@ -16,9 +16,11 @@
 | 新采集目录 | `E:\UE_Project\Demo\Artifacts\M2_07B\Runtime` |
 | Trace / Runtime / JSON | 同一`Trace01_日期_时间戳`前缀，脚本自动生成 |
 | 视口辅助截图 | `E:\UE_Project\Demo\Artifacts\M2_07B\Viewport01.png` |
-| 性能报告 | 采集并分析后由助手生成`Docs/Reports/M2_07B_Verification.md`，当前没有空报告 |
+| 性能报告 | [M2-07B实际分析](Reports/M2_07B_Verification.md)，已生成；包含有效窗口、完整区间尖峰与测量限制 |
 
-现有[Run-StageBuild.ps1](../Tools/Run-StageBuild.ps1)已由助手扩展M2_07B选项、独立输出目录及中等画质条件；语法 / WhatIf检查通过，**还没有实际采集或得出性能结论**。M1旧命令仍使用原High=2及M1目录。
+现有[Run-StageBuild.ps1](../Tools/Run-StageBuild.ps1)已实际用于本轮；M2输出与Medium=1独立，M1旧命令仍保留原High=2及M1目录。用户本批手动30 / 解析等待10分钟、19:58完成。窗口未自动缩小 / 裁剪，电源 / 风扇档位不清楚；本轮没有提前死亡，真实AI、左键 / 2 / F / Q日志均有效。
+
+请求1920×1080，原始PNG实际2048×1081；六项CVar查询符合。报告按实际证据记录，不把这次样本称为严格1080p认证，也不为此整轮重采。待机 / 交战内部主循环间隔P95约5.915 / 5.714ms；完整交战另有3次>16.7ms Tick、最大30.013ms，保留但未唯一归因，无持续瓶颈证据，不改工程。
 
 ## 2. 准备与固定条件（约5分钟）
 
@@ -196,13 +198,13 @@ Get-ChildItem -LiteralPath 'E:\UE_Project\Demo\Artifacts\M2_07B\Runtime' -Filter
 
 本批只需要能打开正确文件、看见相关轨道并找到两条区间。我会用正式导出处理有效帧 / 线程 / GPU统计，你不用抄All累计时间算FPS。
 
-## 7. 分析与后续安排
+## 7. 分析方法与后续安排（已完成）
 
-我收到反馈后核对原包7份指纹、157 Source / Content / Config输入、分辨率请求和截图 / CVar实际条件，确认真实AI时段，统计可用帧 / 主循环间隔、P50 / P95 / P99和尖峰，区分CPU / Render / GPU的重叠与等待。不会相加Inclusive或把同名GPU事件误当CPU耗时。
+已核对原包7份指纹、157 Source / 294份Content / 6份Config输入、分辨率请求和截图 / CVar实际条件；按真实AI时段导出主循环间隔、GPU场景范围、分位数与完整Region尖峰。具体样本数和计算边界见报告；不把场景包裹范围称为完整GPU帧，不相加Inclusive或将其直接换算显示FPS。
 
 当前Development / Trace / 业务日志均有开销；Medium与旧M1 High、A的720p条件不同，不直接宣称优化收益。只有发现可复现瓶颈才提出窄修复；未发现时如实记录。缺字段标未知，提前死亡保留有效部分，不补造电源档位、完整GPU帧或Shipping数字。
 
-采集有效后我生成分析 / 验收报告，并按约定进入M2-07C技术复盘；只有关键通道缺失或无真实交战等问题才补相关片段，不重新做A整章。
+采集有效、正式分析报告已保存，按约定进入C技术复盘；本次无补采、Source修改或额外测试要求。后续新增内容负载再按实际需要测量，不重新做A整章。
 
 ## 8. 最简反馈
 
@@ -226,32 +228,6 @@ CPU-GPU-Frames可见 / 找到两条Timing Regions：
 
 ## 9. 本批 Commit / Push（固定放在最后）
 
-A相关实现 / 工具 / 下发文档已在本地183b80c；本轮新增：
+[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
 
-```text
-Docs/Reports/M2_07A_Verification.md
-Docs/M2_07B_PerformanceCapture.md
-```
-
-同步修改：
-
-```text
-Tools/Run-StageBuild.ps1
-Docs/M2_07A_IntegratedPackage.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_Roadmap.md
-Docs/M2_06_TargetLockRoadmap.md
-Docs/M2_05_BreakPulseRoadmap.md
-README.md
-Introduction.md
-```
-
-当前只提交A收尾 / B准备材料时，建议英文`docs: record M2 package acceptance and prepare profiling`，中文译文`docs: 记录M2开发包验收并准备性能采集`。
-
-B采集并分析后，再加入实际`Docs/Reports/M2_07B_Verification.md`及上述最新文本；建议英文`perf: record the M2 runtime profiling baseline`，中文译文`perf: 记录M2阶段运行时性能基线`。报告未生成就不创建空文件、不提前写作性能已验证。
-
-Source / Content / Config / AssetManifest本轮保持，不重复Stage；包、Runtime / JSON、Trace、截图、CSV、Raw、Saved / Binaries / Intermediate / CMake索引留本地，不Force Add。CLion Refresh Changes → Stage最新内容 → Review Diff → Commit → Push，由用户操作，助手未改索引、Commit / Push或联网核验远端。
+Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。
