@@ -1,8 +1,8 @@
 # M2-07C：战斗系统技术复盘与下一阶段校准
 
-2026-10-27，UE **5.5.4**。[A新版包](Reports/M2_07A_Verification.md)与[B性能样本分析](Reports/M2_07B_Verification.md)已通过，当前进入C。**本章不用写代码、Build、重跑自动化、录视频或搭验收蓝图。**助手已整理材料，你用约15–25分钟对照理解；读完只需简短反馈，不要求逐题写报告。
+2026-10-27，UE **5.5.4**。本章复盘材料已交付，用户本轮要求继续下一章，已保存[C收尾](Reports/M2_07C_Verification.md)及[M2总报告](Reports/M2_Verification.md)，进入[M3-01](M3_01_RelicDefinitions.md)。原阅读材料保留供随时对照，不要求追补答卷、Build或旧测试；未报告的阅读用时保持未登记。
 
-本次是M2阶段学习复盘，服务于后续开发；最终简历定稿、整体作品总复盘和模拟面试仍在M8按实际成果一起完成。C材料已生成，用户阅读 / 反馈尚未完成，当前不提前声明整个M2关闭。
+本次是M2阶段学习材料复盘，最终简历定稿、整体作品总复盘和模拟面试仍在M8共同完成。M2功能 / 证据收尾不代表用户已独立讲解每一项；本轮没有逐项理解结果，不据继续开发推断已通过面试训练。
 
 ## 1. 当前真正完成了什么
 
@@ -118,7 +118,7 @@ M3原基础预算70h暂保留，按每周30h约2.3有效投入周，返工与理
 
 普通C++仍由你手动，复杂排错按当次授权；美术继续占位，重要模型中后期接Blender、先做一个试件；不强制采购新资产，不增加手柄交付。
 
-## 9. 你这次只需做的复盘
+## 9. 复盘自用（材料已交付）
 
 约15–25分钟读第2–7节；需要时打开源码链接看关键入口，不逐行抄代码。围绕下面问题检查自己能否用项目事实解释，**不要求逐题书面作答或录屏**：
 
@@ -130,7 +130,7 @@ M3原基础预算70h暂保留，按每周30h约2.3有效投入周，返工与理
 
 有不明白的部分直接指明节号，我针对该处解释，不加一套验收Graph。日志 / Insights已有实证；断点、变量观察和调用栈的独立调试案例可嵌入M3真实装备排错，不能只因IDE能运行就宣称已展示这项能力。
 
-完成后只需回复：
+原简短反馈模板供日后需要时使用；当前不要求追补：
 
 ```text
 M2-07C 复盘完成
@@ -138,37 +138,10 @@ M2-07C 复盘完成
 实际阅读 / 对照用时（未记录可填未记录）：
 ```
 
-我据此关闭M2阶段、保存总报告并下发M3-01。当前没有新Build / 功能测试需要你执行；正式最终简历和整体验收准备仍按后期安排一起做。
+本轮用户要求继续，阶段报告已保存、M3-01已下发。未登记用时不计为0；有概念问题可在下一批相关实现中继续讲解，正式最终简历与整体验收准备仍按后期安排。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-本地HEAD92ace0c已包含A收尾 / B下发材料；本轮新增：
+[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
 
-```text
-Docs/Reports/M2_07B_Verification.md
-Docs/M2_07C_TechnicalReview.md
-```
-
-同步修改：
-
-```text
-Docs/M2_07B_PerformanceCapture.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_Roadmap.md
-Docs/M2_06_TargetLockRoadmap.md
-Docs/M2_05_BreakPulseRoadmap.md
-README.md
-Introduction.md
-```
-
-建议英文：`docs: analyze M2 performance and prepare the technical review`。
-
-中文译文：`docs: 分析M2性能并准备阶段技术复盘`。
-
-C用户复盘反馈后，再加入实际M2 / M2-07总报告与上述最新文本，当前不创建空报告。Source / Content / Config / AssetManifest / Tools和原包本轮保持；Raw / Trace / CSV / 截图 / 日志 / 生成缓存留本地，不Force Add。
-
-CLion Refresh Changes → Stage最新文本（已经Stage后又改须再次Stage）→ Review Diff → Commit → Push，由用户操作。助手未Stage / Commit / Push或联网核验远端。
+实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。

@@ -19,6 +19,12 @@ public class EmberTrial : ModuleRules
             "GameplayTasks", "PhysicsCore"
         });
 
+        // 遗物目录集成测试只在Editor编译；Game不引入AssetRegistry依赖。
+        if (Target.bBuildEditor)
+        {
+            PrivateDependencyModuleNames.Add("AssetRegistry");
+        }
+
         PrivateIncludePaths.Add(ModuleDirectory);
     }
 }

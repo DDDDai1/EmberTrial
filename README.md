@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06锁定 / 镜头 / 切换已验收](Docs/Reports/M2_06_Verification.md)，[M2-07A新版包集成已通过](Docs/Reports/M2_07A_Verification.md)，[M2-07B性能样本已分析](Docs/Reports/M2_07B_Verification.md)，当前进入[M2-07C技术复盘](Docs/M2_07C_TechnicalReview.md)，尚未达到最终投递版本。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06锁定 / 镜头 / 切换已验收](Docs/Reports/M2_06_Verification.md)，[M2-07A新版包集成已通过](Docs/Reports/M2_07A_Verification.md)，[M2-07B性能样本已分析](Docs/Reports/M2_07B_Verification.md)，[M2阶段已收尾](Docs/Reports/M2_Verification.md)，当前下发[M3-01遗物静态定义](Docs/M3_01_RelicDefinitions.md)，待手动实现，尚未达到最终投递版本。
 
 ## 已实现的体验
 
@@ -50,7 +50,8 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M2-07C技术复盘](Docs/M2_07C_TechnicalReview.md)：约15–25分钟理解真实链路 / 生命周期 / 性能边界，无新代码或测试。
+- [当前开发：M3-01遗物静态定义](Docs/M3_01_RelicDefinitions.md)：四新Source / 扫描规则 / 两DataAsset，待用户手动；不提前声称已装备或有新数值。[M3路线](Docs/M3_Roadmap.md)。
+- [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。
 - [最近分析：M2-07B性能报告](Docs/Reports/M2_07B_Verification.md)：同包Medium待机 / 真实AI交战；保留PNG尺寸差异与完整区间孤立尖峰，不作严格1080p / Shipping认证。[采集步骤](Docs/M2_07B_PerformanceCapture.md)供复查，当前无需重采。
 - [最近验收：M2-07A新版包](Docs/Reports/M2_07A_Verification.md)：23项全组与两轮独立运行通过；[打包步骤](Docs/M2_07A_IntegratedPackage.md)保留复查，当前无需重做。
 - [M2-06C方向切换实现](Docs/M2_06C_TargetSwitching.md) / [验收](Docs/Reports/M2_06C_Verification.md)：Z / C与出生 / 近景补修，首次PIE等待需求已关闭。

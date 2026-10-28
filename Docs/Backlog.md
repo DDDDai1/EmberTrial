@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-27。[M2-07A新版包](Reports/M2_07A_Verification.md)与[B性能分析](Reports/M2_07B_Verification.md)已通过，当前[C技术复盘](M2_07C_TechnicalReview.md)材料已生成、待用户阅读 / 反馈。首次PIE等待需求关闭；实时规模 / 工时见[Progress](Progress.md)，历史行保留当时口径。
+更新2026-10-27。[M2阶段已收尾](Reports/M2_Verification.md)，用户要求继续下一章，当前[M3-01](M3_01_RelicDefinitions.md)待手动实现。C阅读用时未登记，不补造逐项掌握结果；首次PIE等待需求关闭。实时规模 / 工时见[Progress](Progress.md)，历史行保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -80,7 +80,7 @@
 | M1-07C2 | [战斗引用与共享配置](M1_07C2_GameplayValidation.md) | 你手动实施，我核查 | 完成 | 75 / 37 / 48、九Valid / GA失败恢复 / 两Success / 配置0/0；20 / 5，无待补 |
 | M1-07C3 | [Attempt02与M1阶段收口](M1_07C3_UpdatedPackage.md) | 你打包 / 实机，我核查 / 复盘 | 完成 | [报告](Reports/M1_07C3_Verification.md)：UAT ExitCode0、两次Move90 / 二十次敌人10伤害、A点Retry / Continue、新进程Entry；手动10 / 等待10 |
 | M1 | 最小纵向闭环与阶段复盘 | 共同 | 完成 | [总验收](Reports/M1_Verification.md)与[复盘](M1_Review.md)，手动1338分钟；当前灰盒范围与最终作品差距明确 |
-| M2 | [四类战斗能力、资源与锁定](M2_Roadmap.md) | 共同 | 进行中 | 01–06及07A / B已通过；C技术复盘材料生成、待用户阅读后总收口，不提前声明M2关闭 |
+| M2 | [四类战斗能力、资源与锁定](Reports/M2_Verification.md) | 共同 | 完成 | 01–06、07A包 / B分析与C材料交付收尾；不代表最终美术 / Shipping / 面试能力认证 |
 | M2-01 | [资源基础总验收](Reports/M2_01_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | A / B1 / B2全部通过，87 / 44 / 49；130 / 15分钟，治疗次数已定契约、实现留04 |
 | M2-01A | [体力属性、一次初始化与Ready](M2_01A_StaminaFoundation.md) | 你手动实现，我审查 | 完成 | [验收](Reports/M2_01A_Verification.md)：78 / 39 / 48，三身体Valid / 测试Success / 两轮PIE，IsCombatDead补项关闭；60 / 5 |
 | M2-01B | 体力恢复与必要变化观察 / 显示 | 你手动实现，我设计 / 审查 | 完成 | B1恢复与B2体力HUD通过；70 / 10分钟，无正式成本 / 无敌 |
@@ -113,7 +113,9 @@
 | M2-06 | [锁定 / 标记 / 镜头总验收](Reports/M2_06_Verification.md) | 我整理证据 | 完成 | A / B1 / B2 / C收口；157 / 86、来源75，最新独立包留下一批 |
 | M2-07A | [新版独立包与集成检查](Reports/M2_07A_Verification.md) | 你操作，我核对 | 完成 | Attempt01 / 23项全Success、两轮Runtime / 四能力-HUD-AI及检查点 / 清理通过；手动30 / 等待10 |
 | M2-07B | [新版包性能分析](Reports/M2_07B_Verification.md) | 你采集，我分析 | 完成 | 同一A包、真实AI / 四动作、正式导出；内窗与完整Region尖峰、实际PNG尺寸 / 环境限制均记录；手动30 / 等待10，无补采或工程修改 |
-| M2-07C | [M2技术复盘与范围校准](M2_07C_TechnicalReview.md) | 我整理，你复盘 | 待用户操作 | 材料已生成，阅读 / 简短反馈约15–25分钟；不重跑测试或搭图；完成后保存M2总报告并进入M3-01 |
+| M2-07C | [技术复盘交付 / 收尾](Reports/M2_07C_Verification.md) | 我整理，你后续可查阅 | 完成（材料） | 用户要求继续下一章，M2 / 07总报告保存；无逐项理解答卷 / C实耗，不追加旧测试 |
+| M3 | [遗物装备、构筑界面与设置](M3_Roadmap.md) | 共同 | 进行中（下发） | 6遗物 / 2槽目标，先2件最小事务；当前无实物代码或装备 / 页面效果 |
+| M3-01 | [静态遗物定义与ID契约](M3_01_RelicDefinitions.md) | 你手动实现，我审查 | 待用户操作 | 四新Source / Core依赖 / 扫描规则，两DataAsset、单项Definitions / 两Valid / 短基线；不修改正式战斗数值 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -131,7 +133,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M2收尾 / M3准备 | A独立包与B实际性能分析均通过，C复盘材料待用户阅读；当前不新增Source / 资产或重新执行旧矩阵 |
+| M3当前开发 | M2材料已收尾；M3-01下发静态定义 / 状态合同，用户手动实现后核验，当前不提前登记资产或Success |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -139,6 +141,6 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
 
-Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。
+实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。

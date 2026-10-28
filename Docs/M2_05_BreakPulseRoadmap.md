@@ -1,6 +1,6 @@
 # M2-05：范围破势分批路线
 
-更新2026-10-27，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；M2-06A / B1也已验收，B2右肩镜头也已完成，见[B2报告](Reports/M2_06B2_Verification.md)；M2-06也已[总验收](Reports/M2_06_Verification.md)，M2-07A[新版包已验收](Reports/M2_07A_Verification.md)，[B性能分析](Reports/M2_07B_Verification.md)也已完成，当前[C技术复盘](M2_07C_TechnicalReview.md)待用户阅读。模块原验收规模与工时保留，不当作实时总量。
+更新2026-10-27，UE5.5.4。**[M2-05整章已验收](Reports/M2_05_Verification.md)**，实际144 Source / 78cpp / 来源71；本模块手动505 / 等待40。F输入 / 施放 / 冷却 / 范围 / HUD已落地，真实敌人归零 / 回填 / 恢复近战样本已补齐；M2-06A / B1也已验收，B2右肩镜头也已完成，见[B2报告](Reports/M2_06B2_Verification.md)；M2-06也已[总验收](Reports/M2_06_Verification.md)，M2-07A[新版包已验收](Reports/M2_07A_Verification.md)，[B性能分析](Reports/M2_07B_Verification.md)也已完成，[M2总报告](Reports/M2_Verification.md)已收尾，当前[M3-01](M3_01_RelicDefinitions.md)待手动实现。模块原验收规模与工时保留，不当作实时总量。
 
 ## 1. 最终玩法与数值归属
 
@@ -43,6 +43,6 @@ A不加入常驻更新；范围能力不逐帧扫描关卡。必要效果和状�
 
 ## 5. 当前 Commit / Push（固定放在最后）
 
-[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
 
-Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。
+实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。

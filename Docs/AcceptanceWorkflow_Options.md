@@ -1,6 +1,6 @@
 # EmberTrial 验收流程调整：方案比较与选择记录
 
-方案选择日期2026-10-05，维护更新2026-10-27。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前M2-07A独立包与B性能分析已通过，C复盘材料待阅读；实时状态见[Progress](Progress.md)。本页保留方案比较、最终选择与可复用的执行规则。
+方案选择日期2026-10-05，维护更新2026-10-27。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前M2阶段收尾、M3-01静态定义待手动实现；实时状态见[Progress](Progress.md)。本页保留方案比较、最终选择与可复用的执行规则。
 
 ## 1. 当前结论与需要解决的问题
 
@@ -130,7 +130,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 
 失败项明确列入待修，不以“下次再说”标为完成。阶段 / 打包 / 投递前仍检查完整作品，但复用固定工具与清单、已有自动测试和历史证据，不要求重新设计验收功能。没有新修改或风险，不扩大或反复执行同样检查。
 
-方案选择本身不授权接管代码或编辑器。一般功能开发仍先给操作文档、由用户实践；本轮清理已有用户明确授权，助手直接修改并保留快照 / 验证。用户已授权验收无问题时保存报告并直接下发下一章；当前按此约定进入C技术复盘，普通C++仍手动实现。
+方案选择本身不授权接管代码或编辑器。一般功能开发仍先给操作文档、由用户实践；本轮清理已有用户明确授权，助手直接修改并保留快照 / 验证。用户已授权验收无问题时保存报告并直接下发下一章；当前按用户本轮要求收尾M2并进入M3-01，普通C++仍手动实现。
 
 ## 8. 最终选择记录
 
@@ -211,10 +211,12 @@ Core16 / UI2共18项自动化保留；全部由WITH_DEV_AUTOMATION_TESTS隔离�
 
 [B报告](Reports/M2_07B_Verification.md)：同包待机 / 真实AI交战、四动作与正式导出均有效，用户手动30 / 等待10。六查询符合，PNG2048×1081与1080p请求不同、未知电源档位、启动内存压力及完整交战3个孤立Tick尖峰透明记录；不把内窗平稳当作全程 / Shipping认证，不为此整轮重采或无依据改工程。
 
-B / C未改Source或资产，复用A的23项结果，无新增Build / Cook、旧矩阵、验收Blueprint或精确掐点要求。[C指南](M2_07C_TechnicalReview.md)由助手整理，用户约15–25分钟对照理解、只回不明白的节号 / 实际用时，不逐题写答案；有问题局部讲清，无问题后保存M2总报告并下发M3-01。首次PIE等待需求保持关闭。
+B / C未改Source或资产，复用A的23项结果，无新增Build / Cook、旧矩阵、验收Blueprint或精确掐点要求。用户本轮要求继续，C材料与阶段报告收尾；没有逐项理解 / 阅读实耗，不补造或要求追补答卷。首次PIE等待需求保持关闭。
+
+M3-01只新增静态定义与扫描配置：正常Editor / Game Build、索引，一项Inventory.Definitions、两份原生IsDataValid、一次旧数值短基线。测试枚举磁盘目录再查ID唯一性 / 自动注册，不在测试中补注册掩盖坏Config；两资产保存后一次正常重启验证真实启动扫描，不清缓存、不重Build。尚无装备效果，不跑旧23项或旧多Pawn / HUD矩阵。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
 
-Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。
+实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。

@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-27。四能力 / 五HUD、锁定 / 标记 / 右肩镜头与生成前贴地已由A新包验证，[B性能报告](Reports/M2_07B_Verification.md)已完成，当前[C技术复盘](M2_07C_TechnicalReview.md)待用户阅读；本轮运行架构不变。实时证据 / 工时见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-27。[M2阶段收尾](Reports/M2_Verification.md)，当前[M3-01静态遗物定义](M3_01_RelicDefinitions.md)待手动实现。以下Runtime为已验收M2架构，M3规划明确标待实施，本轮未修改运行工程。实时证据 / 工时见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
 
 ## 1. 模块与构建边界
 
@@ -146,8 +146,14 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新B性能报告对应同一A包；其短时Development / Medium观察不等于最终Shipping / 完整内容预算达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
+### M3-01下发：静态定义与后续状态合同（待实施）
+
+原生UETRelicDefinition计划保存稳定ID / FText / 可空图标软引用、两槽资格、类型化加法参数，PrimaryAssetId为ETRelic:RelicId。单资产原生校验 + 目录重复ID / AssetManager注册专项，Core仅在Editor条件增加AssetRegistry测试依赖；未新增UI / Editor反向依赖。当前还没有实际四新Source / Config / 两资产或自动化结果。
+
+后续GameInstance库存域只存拥有 / 已提交两槽ID，Character装备组件只拥有当前ASC效果句柄，Presenter只拥有临时选择 / 预览。Controller销毁不丢进程内逻辑装备，GI不保留旧ASC / Widget。存活换装不免费回血、上限下降夹限；新身体先基础 / 装备、再按最终上限恢复资源与开放输入。原Ready含义不提前扩大，M3-02才实现装备事务 / 就绪，磁盘快照仍M5。完整合同见[M3路线](M3_Roadmap.md)。
+
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[M2-07B分析报告](Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
 
-Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。
+实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。

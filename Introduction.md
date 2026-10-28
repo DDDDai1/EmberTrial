@@ -216,11 +216,11 @@ P0 退出条件：能构建打包；能连续完成 3 次闭环；没有阻断�
 
 ### 4.6 遗物、装备与数据驱动
 
-用 `UPrimaryDataAsset` 定义静态遗物数据：稳定 ID、`FText` 名称 / 说明、图标软引用、可用槽位、Gameplay Effect / 参数、排序类别。运行时实例与静态定义分离。
+用 `UPrimaryDataAsset` 定义静态遗物数据：稳定 ID、`FText` 名称 / 说明、图标软引用、可用槽位、Gameplay Effect / 参数、排序类别。运行时实例与静态定义分离。M3-01先下发类型化加法参数、两槽与AssetManager契约；M3-02再统一用受约束的原生GAS效果应用，不提前提供任意GE引用 / 运行句柄字段。第一批两件为最大生命+20、每段轻击基础加成+5，当前仍待用户实现，无正式数值变化。
 
 6 个遗物的初始设计：最大生命提升、体力恢复提升、攻击提升、破势效率提升、治疗效果提升、生命与攻击的取舍型组合。数值是调参数据，不写死在 Widget 或角色蓝图里。
 
-规则约束：最多 2 件；同类实例不重复装备；安全祭坛内可换装；背包满、无效物品、槽位不兼容等情况返回结构化结果。
+规则约束：最多 2 件；同一RelicId不同时占两槽；安全祭坛内可换装；背包满、无效物品、槽位不兼容等情况返回结构化结果。M3的拥有 / 已提交装备ID计划由GameInstance库存域跨World保留，当前身体只持GAS句柄，UI选择 / 预览独立；存活换装不免费补血，上限下降夹限。Retry / 本进程Continue重建装备后按最终上限恢复新身体，NewRun确认后初始拥有 / 空槽；M5再与检查点快照统一。这是后续合同，本章尚未修改原会话。
 
 装备请求由组件完成校验、预备、替换和通知：保存旧效果句柄，确认新效果可应用后提交；失败保持原状或完整回滚。不能先让 UI 显示成功再补业务规则。遗物效果由 GAS 统一影响属性，UI 不维护第二份战斗数值。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-27，M0、M1、M2-01至06及07A / B已验收，清理已关闭；整个M2待C用户复盘后总收口。**[A报告](Docs/Reports/M2_07A_Verification.md)记录23项全Success、当前Development新包和两轮独立流程；[B报告](Docs/Reports/M2_07B_Verification.md)已记录真实采样、统计与限制；当前[C技术复盘](Docs/M2_07C_TechnicalReview.md)材料生成，约15–25分钟阅读 / 简短反馈，无新Build或测试。首次PIE等待需求保持关闭。157 Source / 86cpp / 来源75，已量化项目3411 / 明确等待324分钟，M2为1400 / 139、M2-07为60 / 20，另有M2-06C未登记；C预计阅读和助手工作不计作用户实耗。当前M2_07A/Attempt01不等于最终美术 / Shipping / 招聘发布版本。M3将先定义6遗物 / 2槽的数据 / 装备状态与跨World语义，再用2件完成最小闭环；原基础70h在首批后再校准，最终简历 / 总复盘仍留M8共同完成。普通C++手动 / 方案B / 用户自行Push约定保持。以下保留原M0起点：
+**截至2026-10-27，M0、M1、M2功能 / 集成与材料收尾完成，清理已关闭。**[M2总报告](Docs/Reports/M2_Verification.md)汇总四能力 / 资源 / 锁定、23项阶段回归、当前新包两进程及B性能分析。用户要求继续下一章，当前[M3-01](Docs/M3_01_RelicDefinitions.md)下发四新Source / 两DataAsset / 扫描规则，待手动实施；本轮只写文档，运行工程仍157 Source / 86cpp / 来源75，生命100 / 原25伤害保持。项目已量化3411 / 明确等待324分钟，M2为1400 / 139、07为60 / 20，另有06C及07C阅读未登记，不计助手或预计为实耗。M3目标6遗物 / 2槽、先两件最小闭环，原70h待首批后校准；当前无装备 / 新页面 / 磁盘存档实物。M2_07A/Attempt01仍为阶段Development包，不等于最终美术 / Shipping / 招聘发布；最终总复盘 / 简历与模拟面试留M8共同完成，首次PIE等待需求保持关闭。普通C++手动 / 方案B / 用户自行Git约定保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,6 +868,6 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-[M2-07B分析报告](Docs/Reports/M2_07B_Verification.md)已保存，当前进入[M2-07C技术复盘](Docs/M2_07C_TechnicalReview.md)，待用户阅读 / 简短反馈。本轮仅两份新文档与11份当前入口同步，精确13文件清单见[C末尾](Docs/M2_07C_TechnicalReview.md#10-本批-commit--push固定放在最后)。建议英文`docs: analyze M2 performance and prepare the technical review`，中文译文`docs: 分析M2性能并准备阶段技术复盘`。
+[M2总报告](Docs/Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](Docs/M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](Docs/M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
 
-Source / Content / Config / AssetManifest / Tools与原包保持，Raw / Trace / CSV / 截图 / 日志留本地。CLion刷新后Stage最新文本、Review Diff、Commit / Push由用户操作；助手未改索引或联网核验远端。
+实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。
