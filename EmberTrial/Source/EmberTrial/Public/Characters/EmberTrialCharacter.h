@@ -29,6 +29,7 @@ class UETPoiseAttributeSet;
 class UETCombatAttributeSet;
 class UETStaminaRecoveryComponent;
 class UETHealingResourceComponent;
+class UETRelicEquipmentComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -117,6 +118,10 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     UPROPERTY(VisibleAnywhere, Category = "EmberTrial|Combat")
     TObjectPtr<UETCombatAttributeSet> CombatAttributes;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Relics",
+              meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UETRelicEquipmentComponent> RelicEquipmentComponent;
+
     // ---- 出生配置；不是运行值副本，同身体换控不会再次写入 ----
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "1.0"))
     float InitialMaxHealth = 100.0f;
@@ -151,6 +156,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETBreakPulseRangeTest;
     friend class FETBreakPulseHUDTest;
     friend class FETTargetLockSelectionTest;
+    friend class FETRelicEquipmentOwnershipTest;
 
     // Ready只表示四组属性链初始化成功；不代表存活、受控、装备就绪或能力已授予。
     bool bStartupAttributesInitialized = false;

@@ -34,6 +34,7 @@
 #include "Combat/ETCombatPoiseComponent.h"
 #include "Resources/ETStaminaRecoveryComponent.h"
 #include "Resources/ETHealingResourceComponent.h"
+#include "Inventory/ETRelicEquipmentComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -63,6 +64,9 @@ AEmberTrialCharacter::AEmberTrialCharacter()
 
     HealingResourceComponent =
         CreateDefaultSubobject<UETHealingResourceComponent>(TEXT("HealingResource"));
+
+    RelicEquipmentComponent =
+        CreateDefaultSubobject<UETRelicEquipmentComponent>(TEXT("RelicEquipment"));
 
     // 以下为既有模板配置，均可在组件 / Blueprint中覆盖；本次保留数值。
     // Set size for collision capsule
