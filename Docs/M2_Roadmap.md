@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-10-27。[M2阶段已收尾](Reports/M2_Verification.md)，01–06、07A / B证据与C复盘材料交付完成；用户要求继续，当前[M3-01](M3_01_RelicDefinitions.md)待手动实现。实际157 Source / 86cpp / 来源75；项目3411 / 等待324分钟，M2为1400 / 139，06C及07C阅读未登记。首次PIE等待需求关闭。以下65h等预算保留为原规划比较。
+更新2026-10-28。[M2阶段已收尾](Reports/M2_Verification.md)，01–06、07A / B证据与C复盘材料交付完成；用户要求继续，[M3-01](Reports/M3_01_Verification.md)已验收，当前[M3-02A](M3_02A_LoadoutRules.md)待手动。实际161 Source / 88cpp / 来源77；项目3453 / 等待329分钟，M2仍1400 / 139，06C及07C阅读未登记。首次PIE等待需求关闭。以下65h等预算保留为原规划比较。
 
 ## 1. 本阶段交付
 
@@ -53,12 +53,12 @@ M1登记手动22h18不同于全项目设计 /理解总成本，不能将后续�
 
 [M2总报告](Reports/M2_Verification.md)、[07总报告](Reports/M2_07_Verification.md)与[C材料收尾](Reports/M2_07C_Verification.md)已保存，用户本轮要求继续下一章。A的23项与两进程包、B真实性能分析沿用，无新执行；C没有逐项理解答卷或实耗，不将继续开发当成独立面试能力认证。
 
-当前进入[M3-01遗物静态定义](M3_01_RelicDefinitions.md)，四新Source / 一个Build.cs / 一个Config及两DataAsset均待用户手动。M3先最大生命与轻击加成两件、再装备事务 / 页面 / 祭坛 / 设置，完整6件 / 2槽目标保持；本章不改变原100生命 / 25伤害。
+[M3-01静态定义](Reports/M3_01_Verification.md)已验收；当前进入[M3-02A](M3_02A_LoadoutRules.md)，先两槽方案 / 纯预览，再B属性 / 原生GE、C库存 / 身体事务与会话，后续页面 / 祭坛 / 设置。完整6件 / 2槽目标保持，当前仍100生命 / 原25伤害。
 
-M2实际1400 / 等待139分钟，06C与07C阅读未登记；全项目3411 / 明确324。M3预计不计实耗，原70h待首个真实装备闭环后再校准。B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
+M2实际1400 / 等待139分钟，06C与07C阅读未登记；全项目3453 / 明确329；M3实耗42 / 5。后续预计不计实耗，原70h待首个真实装备闭环后再校准。B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
+[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
 
-实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。
+实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。

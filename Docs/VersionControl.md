@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-27最新现状：**本地HEAD2a9dc1e已含B实际报告 / C复盘；本轮只新增5份M2收尾 / M3路线指南并同步11份入口。M3代码 / Config / 两资产仍待用户实施；不提前提交空文件或假登记来源。精确16份当前文档与未来实现范围见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。用户自行Stage最新内容 / Review Diff / Commit / Push；助手未改索引或联网核验远端。
+**2026-10-28最新现状：**本地81a32c7已含01完整Source / Config / 两DataAsset，起点工作区干净，两新LFS OID匹配本机；未联网核验远端。本轮只新增01报告 / 02A指南，更新来源两行与当前入口，共13文件，清单见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。未来三新 / 一旧Source待用户实施，不提前提交空文件，原实现无差异不重复Stage。Git由用户操作。
 
 **Commit双语约定（10/23用户新增）：**后续每份操作文档同时给英文建议标题与专业中文译文。Break Pulse使用“破势”、cooldown使用“技能冷却”、lifecycle使用“生命周期”，不机械逐词翻译。英文可作标题，中文可作正文或理解参考，不需要拼成一条重复标题；不改写已存在的历史提交。
 
@@ -376,6 +376,6 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
+[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
 
-实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。
+实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。

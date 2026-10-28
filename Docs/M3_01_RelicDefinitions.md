@@ -1,8 +1,8 @@
 # M3-01：遗物静态定义、稳定ID与状态契约
 
-2026-10-27，固定UE **5.5.4**。[M2总验收](Reports/M2_Verification.md)已收尾，当前开始M3。**本章由你手动输入代码 / 配置、创建两份DataAsset；我尚未修改Source、Config或UE资产，也未运行本章Build / 自动化。**本批只交付可校验的静态定义与可查找的资源，不接装备效果或新UI。
+更新2026-10-28，固定UE **5.5.4**。**本章已验收**，用户17:21全项完成、无失败 / 不理解处；代码配置40 / 检查2 / 等待5分钟，[实际报告](Reports/M3_01_Verification.md)已保存。当前进入[M3-02A两槽方案与纯预览](M3_02A_LoadoutRules.md)，下面代码 / 操作保留作参考，不要求重新执行。
 
-预计手动代码 / 配置45–75分钟，检查5–10分钟，Build / 索引等待另计。代码可按完整文件复制；需要理解时优先看第2节分工及第4节注释，不要求逐字符敲入或重搭Controller验收图。
+原预计手动代码 / 配置45–75分钟、检查5–10分钟；实际手动合计42 / 等待5，已登记，不重复执行。代码可按完整文件复制；需要理解时优先看第2节分工及第4节注释，不要求逐字符敲入或重搭Controller验收图。
 
 ## 1. 本批目标、影响与保留基线
 
@@ -10,7 +10,7 @@
 - 用UPrimaryDataAsset保存静态定义，ID与资产名 / 中文名分离；文本FText、图标软引用、排序值、槽位与类型化加法参数。
 - 原生IsDataValid检查单资产；一个新自动化检查规则、跨资产重复ID、实际目录加载及AssetManager注册。四个新文件、Core Build.cs一个Editor条件依赖、DefaultGame.ini一个扫描条目。
 - 玩家 / 敌人 / 训练目标、GAS / Character Ready、原HUD / 输入 / Flow均不改。本章不重跑旧23项，不新建GE蓝图、库存组件、装备组件、Presenter、Widget或地图。
-- 当前工程157 Source / 86cpp，Core60 / UI23 / Editor3、23测试 / 来源75。**实施后预计**161 / 88、Core62 / UI23 / Editor3、24测试、两新资产 / 来源预计77；这些数字尚未验收。
+- 当前已验收161 Source / 88cpp、Core62 / UI23 / Editor3、24测试、296 Content / 来源77。仅静态定义 / 注册已落地，正式Play仍100 / 原25，装备效果留02后续批次。
 
 ## 2. 先明确“定义 / 拥有 / 装备 / 选择 / 预览”
 
@@ -605,49 +605,6 @@ Source / Config / 两资产Save All；失败或不理解处（无填无）：
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-本地HEAD2a9dc1e已含B分析 / C复盘材料。本轮助手只新增以下5份文档：
+[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
 
-```text
-Docs/Reports/M2_07C_Verification.md
-Docs/Reports/M2_07_Verification.md
-Docs/Reports/M2_Verification.md
-Docs/M3_Roadmap.md
-Docs/M3_01_RelicDefinitions.md
-```
-
-同步修改11份已有入口：
-
-```text
-Docs/M2_07C_TechnicalReview.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_Roadmap.md
-Docs/M2_06_TargetLockRoadmap.md
-Docs/M2_05_BreakPulseRoadmap.md
-README.md
-Introduction.md
-```
-
-当前只提交文档时，建议英文`docs: close M2 and prepare relic data definitions`。
-
-中文译文：`docs: 完成M2阶段收尾并准备遗物数据定义`。
-
-**你实际实施并验收后**，再提交这四新Source、一旧Build.cs、一共享Config与两新资产；当前它们还没有被助手写入：
-
-```text
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicTypes.h
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicDefinition.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicDefinition.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicDefinitionsTests.cpp
-EmberTrial/Source/EmberTrial/EmberTrial.Build.cs
-EmberTrial/Config/DefaultGame.ini
-EmberTrial/Content/EmberTrial/Items/Relics/DA_ET_Relic_LifeEmber.uasset
-EmberTrial/Content/EmberTrial/Items/Relics/DA_ET_Relic_KeenEdge.uasset
-```
-
-届时由助手核实并更新`Docs/AssetManifest.csv`、生成实际M3-01报告 / 最新状态，一并Stage；不提前创建空报告或假登记两条SHA。实现建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`。中英文可分别作标题 / 正文，无须拼成重复一行。
-
-CLion Refresh Changes → Stage最新完整文件（已Stage后又改必须再Stage）→ Review Diff → Commit → Push，由你操作。Source / Content / Config / Tools / AssetManifest本轮助手未改，Raw候选 / 日志 / Trace / 生成索引 / Binaries / 包留本地，不Force Add；不重复提交无差异旧资产。助手未改Git索引、Commit / Push或联网核验远端。
+实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。

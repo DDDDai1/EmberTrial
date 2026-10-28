@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-27。[M2阶段已收尾](Reports/M2_Verification.md)，用户要求继续下一章，当前[M3-01](M3_01_RelicDefinitions.md)待手动实现。C阅读用时未登记，不补造逐项掌握结果；首次PIE等待需求关闭。实时规模 / 工时见[Progress](Progress.md)，历史行保留当时口径。
+更新2026-10-28。[M3-01已验收](Reports/M3_01_Verification.md)，当前[M3-02A](M3_02A_LoadoutRules.md)待手动实现；实时规模 / 实耗见[Progress](Progress.md)。首次PIE等待需求关闭，旧行保留对应历史规模。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -114,8 +114,9 @@
 | M2-07A | [新版独立包与集成检查](Reports/M2_07A_Verification.md) | 你操作，我核对 | 完成 | Attempt01 / 23项全Success、两轮Runtime / 四能力-HUD-AI及检查点 / 清理通过；手动30 / 等待10 |
 | M2-07B | [新版包性能分析](Reports/M2_07B_Verification.md) | 你采集，我分析 | 完成 | 同一A包、真实AI / 四动作、正式导出；内窗与完整Region尖峰、实际PNG尺寸 / 环境限制均记录；手动30 / 等待10，无补采或工程修改 |
 | M2-07C | [技术复盘交付 / 收尾](Reports/M2_07C_Verification.md) | 我整理，你后续可查阅 | 完成（材料） | 用户要求继续下一章，M2 / 07总报告保存；无逐项理解答卷 / C实耗，不追加旧测试 |
-| M3 | [遗物装备、构筑界面与设置](M3_Roadmap.md) | 共同 | 进行中（下发） | 6遗物 / 2槽目标，先2件最小事务；当前无实物代码或装备 / 页面效果 |
-| M3-01 | [静态遗物定义与ID契约](M3_01_RelicDefinitions.md) | 你手动实现，我审查 | 待用户操作 | 四新Source / Core依赖 / 扫描规则，两DataAsset、单项Definitions / 两Valid / 短基线；不修改正式战斗数值 |
+| M3 | [遗物装备、构筑界面与设置](M3_Roadmap.md) | 共同 | 进行中 | 01定义 / 校验已验收；02A纯方案下发，装备 / 页面效果仍待后续，6件 / 2槽目标保持 |
+| M3-01 | [静态遗物定义与ID契约](Reports/M3_01_Verification.md) | 你实现，我审查 | 完成 | 161 / 88 / 来源77，双Build / 三索引、两Valid / Definitions Success与短基线；代码40 / 检查2 / 等待5，无待补 |
+| M3-02A | [两槽方案与纯数值预览](M3_02A_LoadoutRules.md) | 你手动实现，我审查 | 待用户操作 | 三新 / 一旧Source，资格 / 替换 / 卸下与无副作用预览；两库存专项与短基线，无新资产或GAS效果 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -133,7 +134,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | M2材料已收尾；M3-01下发静态定义 / 状态合同，用户手动实现后核验，当前不提前登记资产或Success |
+| M3当前开发 | 01两定义 / 目录契约已验收，02A规则 / 纯预览待手动；属性 / 装备事务 / 跨World恢复和UI尚未实现 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -141,6 +142,6 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
+[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
 
-实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。
+实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。

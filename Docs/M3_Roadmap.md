@@ -1,6 +1,6 @@
 # M3：遗物装备、构筑界面与设置
 
-2026-10-27，UE **5.5.4**。[M2阶段已收尾](Reports/M2_Verification.md)，当前下发[M3-01遗物静态定义](M3_01_RelicDefinitions.md)，待用户手动实现。当前工程仍157 Source / 86cpp / 23测试 / 来源75；不能把本页范围草案算成已实现。
+更新2026-10-28，UE **5.5.4**。[M3-01已验收](Reports/M3_01_Verification.md)，当前[M3-02A](M3_02A_LoadoutRules.md)待手动实现。实际161 Source / 88cpp、24测试 / 来源77；本批手动42 / 等待5。后续装备 / 页面合同仍为计划，不写成已有效果。
 
 ## 1. 体验目标与分批
 
@@ -8,8 +8,8 @@
 
 | 顺序 | 核心交付 | 检查边界 |
 | --- | --- | --- |
-| **[M3-01 静态定义 / 状态契约](M3_01_RelicDefinitions.md)** | 原生PrimaryDataAsset、稳定ID、FText / 图标软引用、槽位 / 类型化效果参数、AssetManager扫描与实际目录校验 | 一项新自动化 + 两资产Valid + 一次短基线；无装备效果 |
-| M3-02 最小装备闭环，可拆小批 | 两件 / 两槽、Session逻辑状态、身体效果归属；预检 / 替换 / 卸下 / 失败处理，真实最大生命和轻击加成 | 新事务 / 所有权专项 + 最小真实数值；不重搭旧多Pawn图 |
+| **[M3-01 静态定义 / 状态契约](Reports/M3_01_Verification.md)，完成** | 原生定义、稳定ID / 参数、原生校验 / 实物注册，两资产已保存 | Definitions Success / 两Valid与短基线；实际42 / 等待5，无装备效果 |
+| M3-02 最小装备闭环，A已下发 | A纯方案 / 预览；B真实加成属性 / 装备GE；C库存 / 身体事务 / 会话与受限入口，过大再拆 | A只两库存项与短基线；B / C才检查真实数值 / 世界恢复，不重搭旧多Pawn图 |
 | M3-03 列表 / 详情 / 预览 | Presenter、ListView / TileView条目复用、选择 / 排序 / 筛选与两槽；预览不应用真实GE | 复用 / 旧条目解绑与一次真实装备；合成500条仅测列表 |
 | M3-04 祭坛入口与页面输入 | 将旧练习交互扩成通用入口；安全换装、页面层 / 焦点 / 返回与战斗输入互斥 | 正式入口 / 开关 / 世界结束短查，不复制一套Pause所有者 |
 | M3-05 设置与导航 | 音量、窗口 / 分辨率 / 画质、灵敏度 / 镜头选项、应用 / 取消 / 默认与键盘路径 | 仅受影响显示 / 输入 / 保存；分辨率要核对实际值与回退 |
@@ -26,7 +26,7 @@ M3-01只提供类型化效果参数，不提前提供可随意引用任意GE的�
 | Character装备组件 | 对当前ASC应用后的句柄、装备就绪 / 提交协议 | 当前身体，结束精确移除自己效果 |
 | LocalPlayer UI Presenter / View | 列表、临时选择 / 预览、焦点；发意图、显示业务结果 | 当前页面 / 本地玩家，不提交伪造成功 |
 
-Controller会随切图销毁，不能单靠Controller字段保存Continue装备。原RunSession仍只负责地图 / 检查点 / 切图；后续独立库存域与其确认点协作，不把所有东西都塞进RunSession。以上生命周期合同尚未落地，本批不新增组件或修改Character Ready。
+Controller会随切图销毁，不能单靠Controller字段保存Continue装备。原RunSession仍只负责地图 / 检查点 / 切图；后续独立库存域与其确认点协作，不把所有东西都塞进RunSession。以上生命周期合同尚未落地，01未新增组件或修改Character Ready；02A也只下发纯计算，无状态持有者。
 
 ## 3. 本阶段装备与资源语义
 
@@ -39,7 +39,7 @@ Controller会随切图销毁，不能单靠Controller字段保存Continue装备�
 
 ## 4. 工期、美术与学习
 
-原M3基础70h保持，按每周30h约2.3有效投入周；缓冲沿用全局规划，不重复增加。01预计手动代码 / 配置45–75分钟、检查5–10分钟，Build / 索引等待另计；这是下发估计，未加入实际工时。02完成首个真实装备事务后再校准后续页面工作量。
+原M3基础70h保持，按每周30h约2.3有效投入周；缓冲沿用全局规划，不重复增加。01实际代码 / 配置40、检查2、等待5分钟。02A预计代码35–55 / 检查3–5，等待另记，预估不计实耗；真实装备事务与页面工作量仍在后续批次再校准。
 
 图标先允许空引用，后续View用统一占位，不购买资源；FText与图标路径不当作逻辑ID。重要模型中后期接Blender，当前无新模型 / 骨架要求。普通C++由用户手动，复杂排错按当次授权。
 
@@ -47,4 +47,6 @@ Controller会随切图销毁，不能单靠Controller字段保存Continue装备�
 
 ## 5. Commit / Push（固定放在最后）
 
-当前只有路线 / 指南与收尾文档，精确清单及未来四新Source、一个Build.cs与一份共享Config、两资产的实施范围见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。实现后建议`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`。助手未修改运行工程 / Git索引，Raw与包本地。
+[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
+
+实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。

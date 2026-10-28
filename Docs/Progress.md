@@ -1,36 +1,36 @@
 # 当前开发进度
 
-更新2026-10-27。[M2阶段收尾完成](Reports/M2_Verification.md)，当前下发[M3-01遗物静态定义](M3_01_RelicDefinitions.md)，待用户手动实现。用户本轮要求继续下一章；C逐项理解 / 阅读用时未报告，不以答卷作为门槛，也不声称已独立掌握全部系统。
+更新2026-10-28。[M3-01遗物静态定义已通过](Reports/M3_01_Verification.md)，当前下发[M3-02A两槽方案与纯预览](M3_02A_LoadoutRules.md)，待用户手动实现。没有新增验收问题，不重复Build / 测试。
 
-## 当前实际工程与包
+## 当前实际工程
 
-- 157 Source / 86cpp，Core60 / UI23 / Editor3，23自动化，来源75 / 本地294份UE资产；当前本地HEAD2a9dc1e，已含B报告 / C材料，未联网核验远端。
-- 最新可运行包M2_07A/Attempt01，23项阶段全Success、两进程真实玩法与Retry / Continue通过；[M2-07总验收](Reports/M2_07_Verification.md)汇总A / B / C，不增加一次执行。
-- 四类主动能力、五HUD、真实近战AI、锁定 / 标记 / 后侧俯视镜头、Z / C切换、Pause / Failure与当前进程检查点已完成。装备 / 构筑界面、设置、磁盘存档及最终美术尚未完成。
-- 本轮助手只写文档 / 忽略目录候选；Source / Content / Config / Tools / AssetManifest及原包保持。
+- 161 Source / 88cpp，Core62 / UI23 / Editor3、24自动化、296 Content / 来源77；本地HEAD81a32c7已含01完整实现 / 两资产，未联网核验远端。
+- 两件原生RelicDefinition、ETRelic稳定ID / FText / 图标软引用 / 槽位 / 参数、IsDataValid与AssetManager扫描规则已落地。01代码与指南一致，既有玩法 / UI未变。
+- 最新独立包仍M2_07A/Attempt01，四能力 / 五HUD、真实AI、锁定 / 标记 / 右肩镜头、菜单 / 检查点等已有证据；该包不包含M3定义，不据AlwaysCook配置宣称本轮已验证Cook。
+- 本轮助手只写报告 / 清单与A指南，Source / Content / Config / Tools及原包保持。
 
-## M3-01本批下发
+## 01当次验收证据
 
-四个新文件：RelicTypes、RelicDefinition.h / cpp、一项Definitions测试；Core Build.cs只增加Editor条件AssetRegistry依赖，共享DefaultGame.ini增加ETRelic扫描规则。两件DataAsset为生息余烬（MaxHealth +20）与砺锋残片（LightAttackBonus +5），图标允许空。
+17:20:20两资产Valid，17:20:51.999 Inventory.Definitions实际Success；Editor / Game receipt及三索引对应最终Source，用户确认双Build与短基线通过。日志有生命100、轻击请求25与闪避150.05cm / .3001秒，具体命中 / E / P输入体验按用户反馈；不将攻击配置数字冒充本轮真实命中日志。
 
-本批只定义数据、校验与注册，不改Character / GAS / HUD / 输入；正式Play仍生命100、基础轻击25。装备生效与跨World状态在M3-02实现。预计完成后161 Source / 88cpp、24测试 / 来源77，当前不能记成实物或Success。
+两份DataAsset SHA与HEAD LFS一致；实际20 / 5、槽位 / 文本字段按用户确认，原生合法性与ID注册由专项支持，不声称逐一独立读取Details。编辑器图标 / EOS等环境Warning不当作新玩法故障。
 
-预计手动代码 / 配置45–75分钟、检查5–10分钟，Build / 索引另记。只跑新Definitions一次、两资产Valid与一次短基线，不重跑旧23项、不新搭Controller验收图。详细文件 / 配置 / DataAsset每字段及Push边界见指南。
+## 当前02A下发边界
 
-## 沿用证据与限制
+三新Source（Loadout.h / cpp / Tests）与Definition头一条friend，生成两槽Before / After方案与基础属性预览。拥有 / 定义 / 槽位 / 重复 / 有限数值校验供后续真实装备服务与UI共用；失败 / NoChange清输出，无GAS / 库存提交 / 事件 / 运行输入。
 
-[B分析](Reports/M2_07B_Verification.md)同包真实待机 / AI交战有效：内窗主循环间隔P95约5.915 / 5.714ms；完整交战3个>16.7ms Tick、最大30.013ms，未唯一归因。请求1080p但PNG2048×1081、未知电源档位、启动内存快照等限制保留，无持续瓶颈证据不改工程。首次PIE等待需求保持关闭。
+预计实施后164 Source / 90cpp、25测试，当前仍161 / 88 / 24。只跑Inventory.Definitions / LoadoutRules各一次及一分钟短基线；没有新资产 / Config / Build.cs / Controller图，Play仍100生命 / 原25。B再接属性消费者 / 原生装备GE，C接库存 / 身体事务 / 会话；页面在03。
 
-M3目标6遗物 / 2槽，先2件最小事务，再列表 / 详情 / 比较、祭坛入口与设置；库存ID跨World、效果句柄属身体、UI选择 / 预览独立。具体合同见[M3路线](M3_Roadmap.md)，当前没有装备或磁盘恢复实现。
+## 工时、后续与限制
 
-## 工时与协作
+01代码 / 配置40、检查2、等待5：M3累计42 / 5分钟；项目3453分钟（57小时33分）/ 明确等待329分钟（5小时29分）。M2仍1400 / 139，06C及07C阅读未登记。02A预计35–55 / 检查3–5与助手工作不计用户实耗。
 
-M2已量化1400 / 等待139分钟，M2-07为60 / 20，项目3411分钟（56小时51分）/ 明确等待324分钟（5小时24分）；M2-06C与07C阅读未登记。M3预计与助手工作不计用户实耗。
+原70h M3预算待首个真实装备闭环后再校准；6遗物 / 2槽目标保持。普通C++手动、复杂排错按当次授权、方案B / 双语Commit / 用户自行Git保持；Blender重要模型与最终简历 / 面试总复盘仍留后期。
 
-普通C++继续手动、复杂排错按当次授权、方案B与用户自行Git保持。每周30小时 / 百元预算 / 键鼠 / 无硬期限；模板 / Control Rig仍占位，重要模型中后期接Blender，最终总复盘与简历 / 模拟面试留M8。
+M2性能样本 / 尺寸差异 / 孤立尖峰沿用[B报告](Reports/M2_07B_Verification.md)，本轮无新性能结论；首次PIE等待需求关闭。装备 / 页面 / 设置、磁盘存档与最终美术仍未完成。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
+[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
 
-实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。
+实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。

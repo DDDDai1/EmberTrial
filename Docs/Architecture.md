@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-27。[M2阶段收尾](Reports/M2_Verification.md)，当前[M3-01静态遗物定义](M3_01_RelicDefinitions.md)待手动实现。以下Runtime为已验收M2架构，M3规划明确标待实施，本轮未修改运行工程。实时证据 / 工时见[Progress](Progress.md)，历史清理见[Cleanup](Cleanup.md)。
+更新2026-10-28。[M3-01定义 / 注册已验收](Reports/M3_01_Verification.md)，当前[M3-02A](M3_02A_LoadoutRules.md)纯规则待手动。Runtime仍保留已验收M2状态 / 所有权，M3未来装备 / 页面明确标为计划；本轮未修改运行工程。实际证据 / 工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -146,14 +146,16 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新B性能报告对应同一A包；其短时Development / Medium观察不等于最终Shipping / 完整内容预算达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
-### M3-01下发：静态定义与后续状态合同（待实施）
+### M3：静态定义已落地，装备 / 页面待接
 
-原生UETRelicDefinition计划保存稳定ID / FText / 可空图标软引用、两槽资格、类型化加法参数，PrimaryAssetId为ETRelic:RelicId。单资产原生校验 + 目录重复ID / AssetManager注册专项，Core仅在Editor条件增加AssetRegistry测试依赖；未新增UI / Editor反向依赖。当前还没有实际四新Source / Config / 两资产或自动化结果。
+UETRelicDefinition已保存稳定ID、FText / 可空软图标、两槽资格 / 两种加法参数，PrimaryAssetId为ETRelic:RelicId；原生单资产校验与实际目录 / ID自动注册专项通过。Core仅Editor条件依赖AssetRegistry测试，不增加UI / Editor反向依赖。两份DataAsset与来源已核实，尚无新Cook。
 
-后续GameInstance库存域只存拥有 / 已提交两槽ID，Character装备组件只拥有当前ASC效果句柄，Presenter只拥有临时选择 / 预览。Controller销毁不丢进程内逻辑装备，GI不保留旧ASC / Widget。存活换装不免费回血、上限下降夹限；新身体先基础 / 装备、再按最终上限恢复资源与开放输入。原Ready含义不提前扩大，M3-02才实现装备事务 / 就绪，磁盘快照仍M5。完整合同见[M3路线](M3_Roadmap.md)。
+02A计划把两槽ID快照、资格 / 汇总、基值与最终值校验、替换 / 卸下方案集中为无状态纯函数。Plan不保存UObject / ASC，不加载图标 / 应用GE，不代表已提交；只有Success输出可用，NoChange / 失败清空。它既供后续装备预检，也供UI比较，基值须排除已有装备，且只承诺已建模的两种加法。
+
+后续GI库存域拥有ID / 已提交两槽，Character组件拥有当前ASC效果句柄，Presenter拥有临时选择 / 预览。B接真实攻击加成消费者 / 装备GE，C接版本 / 上下文重验、失败处理和会话；当前还没有装备恢复 / 新EquipmentReady。原GameplayReady含义不扩张，磁盘快照仍M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
+[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
 
-实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。
+实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。

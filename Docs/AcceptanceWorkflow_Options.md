@@ -1,6 +1,6 @@
 # EmberTrial 验收流程调整：方案比较与选择记录
 
-方案选择日期2026-10-05，维护更新2026-10-27。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前M2阶段收尾、M3-01静态定义待手动实现；实时状态见[Progress](Progress.md)。本页保留方案比较、最终选择与可复用的执行规则。
+方案选择日期2026-10-05，维护更新2026-10-28。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前M3-01已验收、02A纯规则待手动实现；实时状态见[Progress](Progress.md)。本页保留方案比较、最终选择与可复用的执行规则。
 
 ## 1. 当前结论与需要解决的问题
 
@@ -130,7 +130,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 
 失败项明确列入待修，不以“下次再说”标为完成。阶段 / 打包 / 投递前仍检查完整作品，但复用固定工具与清单、已有自动测试和历史证据，不要求重新设计验收功能。没有新修改或风险，不扩大或反复执行同样检查。
 
-方案选择本身不授权接管代码或编辑器。一般功能开发仍先给操作文档、由用户实践；本轮清理已有用户明确授权，助手直接修改并保留快照 / 验证。用户已授权验收无问题时保存报告并直接下发下一章；当前按用户本轮要求收尾M2并进入M3-01，普通C++仍手动实现。
+方案选择本身不授权接管代码或编辑器。一般功能开发仍先给操作文档、由用户实践；本轮清理已有用户明确授权，助手直接修改并保留快照 / 验证。用户已授权验收无问题时保存报告并直接下发下一章；当前按约定验收01后同轮进入02A，普通C++仍手动实现。
 
 ## 8. 最终选择记录
 
@@ -215,8 +215,14 @@ B / C未改Source或资产，复用A的23项结果，无新增Build / Cook、旧
 
 M3-01只新增静态定义与扫描配置：正常Editor / Game Build、索引，一项Inventory.Definitions、两份原生IsDataValid、一次旧数值短基线。测试枚举磁盘目录再查ID唯一性 / 自动注册，不在测试中补注册掩盖坏Config；两资产保存后一次正常重启验证真实启动扫描，不清缓存、不重Build。尚无装备效果，不跑旧23项或旧多Pawn / HUD矩阵。
 
+## M3-01收尾与02A最小范围
+
+01用户检查2分钟、代码配置40 / 等待5；双Build / 三索引、两Valid、Definitions当次Success / 事件无Error与短基线已核对。原23项沿用，没有为报告重启UE或重新执行；真实命中 / 焦点等按用户反馈与旧实现未变接受，日志覆盖不扩大。
+
+02A只三新 / 一旧Source：新LoadoutRules加原Definitions各一次、一分钟短基线。夹具不Spawn World / Actor、不Apply GE、不改磁盘资产或建Controller图；真正库存 / 身体失败事务、Retry / Continue留接入批次验证。静态代码审查不写作本章已经Build / Success。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-[M2总报告](Reports/M2_Verification.md)与07 / C收尾已保存，当前[M3-01遗物静态定义](M3_01_RelicDefinitions.md)待用户实施。当前仅5份新文档 / 11份入口同步，精确16文件与未来实施清单见[M3-01末尾](M3_01_RelicDefinitions.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: close M2 and prepare relic data definitions`，中文译文`docs: 完成M2阶段收尾并准备遗物数据定义`。
+[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
 
-实现后建议英文`feat: add validated relic data definitions`，中文译文`feat: 新增可校验的遗物数据定义`；当前不提交尚不存在的Source / 资产或空报告。运行工程 / AssetManifest / Tools与原包本轮保持，Raw留本地。CLion Stage最新文本 / Review Diff / Commit / Push由用户操作，助手未改索引或核验远端。
+实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。
