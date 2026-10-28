@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-28，M0、M1、M2与清理已收尾，M3-01及02A / B已验收。**[B报告](Docs/Reports/M3_02B_Verification.md)核对五新 / 七旧源码、四相关Success、双Build与短基线；原生Combat基础0 / 双幅度Infinite装备GE / 整链加成快照成立，正向装备暂由自动化施加。当前[C1会话库存 / 版本方案](Docs/M3_02C1_SessionInventory.md)待手动；实际169 Source / 93cpp / 26测试 / 来源77。B实际代码50 / 检查2 / 等待5，M3累计136 / 20，项目3547 / 明确等待344分钟；M2仍1400 / 139、06C及07C未登记。普通Play仍100 / 原25，库存 / 身体装备事务、跨World恢复、页面 / 设置、磁盘存档与最终美术留后续。M2_07A/Attempt01仅M2阶段包，M3未新Cook，性能按B旧报告限制；首次PIE等待需求关闭。M3目标6件 / 2槽、原70h待真实闭环后校准，最终简历 / 模拟面试留M8，普通C++手动 / 方案B / 用户Git约定保持。以下保留原M0起点：
+**截至2026-10-28，M0、M1、M2与清理已收尾，M3-01及02A / B / C1已验收。**[C1报告](Docs/Reports/M3_02C1_Verification.md)核对三新 / 两旧Source与Config、三库存Success / 双Build，真实同一库存确认版本1→6；非空逻辑装备模型保留与实际空槽日志分别记证。当前[C2-01身体GE所有权](Docs/M3_02C2_01_EquipmentEffectOwnership.md)待手动；实际172 Source / 95cpp / 27测试 / 来源77。C1代码50 / 检查2 / 等待5，M3累计188 / 25，项目3599 / 明确等待349分钟；M2仍1400 / 139、06C及07C未登记。普通Play仍原100 / 25，GE正向加成只在自动化；身体装备事务 / 恢复、页面 / 设置、磁盘存档与最终美术仍后续。M2_07A/Attempt01仅M2阶段包，M3未新Cook，性能按B旧报告限制；首次PIE等待需求关闭。M3目标6件 / 2槽、原70h待真实闭环后校准，最终简历 / 模拟面试留M8，普通C++手动 / 方案B / 用户Git约定保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,6 +868,6 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-[M3-02B验收报告](Docs/Reports/M3_02B_Verification.md)已保存，四相关项Success，当前[C1会话库存 / 版本方案](Docs/M3_02C1_SessionInventory.md)待手动。当前本地156835b中的五个B新文件为空壳，工作区12份B源码已完整，必须重新Stage最新内容；本轮两新报告 / 指南与当前入口合计待提交14文档、12源码。精确当前清单及未来C1三新 / 两旧Source + 一Config见[C1末尾](Docs/M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。
+[C1验收报告](Docs/Reports/M3_02C1_Verification.md)已保存，当前[C2-01身体装备GE所有权](Docs/M3_02C2_01_EquipmentEffectOwnership.md)待手动。本地8dbd243已包含完整B / C1源码，起点工作区干净；本轮只新增报告 / 指南并同步入口，共13文档，精确清单与未来三新 / 两旧Source、可能的三身体重存见[C2-01末尾](Docs/M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)。
 
-完整B实现连同文档建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`；C1实施后建议英文`feat: add session inventory and versioned loadout plans`，中文译文`feat: 新增会话库存与带版本校验的装备方案`。助手本轮仅改文档，Source / Config / Content / 清单 / Tools保持；Raw与日志本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`；实现后英文`feat: manage body owned relic equipment effects`，中文译文`feat: 新增遗物装备效果的身体所有权管理`。助手本轮未改Source / Config / Content / 清单 / Tools / Git索引，也未重跑Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

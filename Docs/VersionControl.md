@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-28最新现状：**本地156835b已提交五个B新增空壳，实际完整B五新 / 七旧Source仍在工作区，必须重新Stage最新实现；B四测试与双Build已通过，验收与Git是否提交分开。当前14文档 / 12源码待提交，C1候选尚未写入工程，77来源与资产保持。精确范围见[C1末尾](M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。未核验远端，Stage / Commit / Push由用户操作。
+**2026-10-28最新现状：**本地8dbd243已含完整B / C1实现，之前五个B新文件空壳已解决；本轮起点工作区干净。C1双Build / 三库存Success与真实版本往返已验收，本轮只新增报告 / C2-01指南并同步入口，共13文档；C2-01 Source尚未写入，77来源 / 资产保持。精确清单见[C2-01末尾](M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)。未核验远端，Stage / Commit / Push由用户操作。
 
 **Commit双语约定（10/23用户新增）：**后续每份操作文档同时给英文建议标题与专业中文译文。Break Pulse使用“破势”、cooldown使用“技能冷却”、lifecycle使用“生命周期”，不机械逐词翻译。英文可作标题，中文可作正文或理解参考，不需要拼成一条重复标题；不改写已存在的历史提交。
 
@@ -376,6 +376,6 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-[M3-02B验收报告](Reports/M3_02B_Verification.md)已保存，四相关项Success，当前[C1会话库存 / 版本方案](M3_02C1_SessionInventory.md)待手动。当前本地156835b中的五个B新文件为空壳，工作区12份B源码已完整，必须重新Stage最新内容；本轮两新报告 / 指南与当前入口合计待提交14文档、12源码。精确当前清单及未来C1三新 / 两旧Source + 一Config见[C1末尾](M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。
+[C1验收报告](Reports/M3_02C1_Verification.md)已保存，当前[C2-01身体装备GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)待手动。本地8dbd243已包含完整B / C1源码，起点工作区干净；本轮只新增报告 / 指南并同步入口，共13文档，精确清单与未来三新 / 两旧Source、可能的三身体重存见[C2-01末尾](M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)。
 
-完整B实现连同文档建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`；C1实施后建议英文`feat: add session inventory and versioned loadout plans`，中文译文`feat: 新增会话库存与带版本校验的装备方案`。助手本轮仅改文档，Source / Config / Content / 清单 / Tools保持；Raw与日志本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`；实现后英文`feat: manage body owned relic equipment effects`，中文译文`feat: 新增遗物装备效果的身体所有权管理`。助手本轮未改Source / Config / Content / 清单 / Tools / Git索引，也未重跑Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

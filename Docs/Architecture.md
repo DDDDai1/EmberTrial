@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-28。01静态定义、02A纯方案与[B真实属性 / 装备效果](Reports/M3_02B_Verification.md)均已验收，当前[C1会话库存](M3_02C1_SessionInventory.md)待手动；本页现有Runtime与未来C分开描述，实际证据 / 工时见[Progress](Progress.md)。
+更新2026-10-28。01静态定义、02A纯方案、B属性 / 装备效果与[C1会话库存](Reports/M3_02C1_Verification.md)均已验收，当前[C2-01身体GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)待手动；本页现有Runtime与未来身体事务分开描述，实际证据 / 工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -34,7 +34,8 @@ flowchart LR
 | UIBootstrap | 当前Presenter与HUD View的强引用和创建 / 移除 | 不控制暂停或写玩法属性 |
 | Presenter / Widget | 弱数据源订阅与展示快照 / 只读渲染和按钮意图 | 不用Text Binding或Tick轮询玩法 |
 | FailureFlow / MainMenuController | 当前互斥面板、输入 / 焦点、自己的暂停及切图意图 | 不把暂停状态复制到Pawn布尔变量 |
-| RunSessionSubsystem | 本进程已确认地图 / 检查点ID、待定切图请求 | 不持有旧Pawn / ASC，不保存交互Actor状态 |
+| RunSessionSubsystem | 本进程已确认地图 / 检查点ID、待定切图请求 / 成功确认事件 | 不持有旧Pawn / ASC，不保存交互Actor状态或库存域 |
+| RelicInventorySubsystem | 主资产配置 / 定义GC引用、拥有ID / 两槽、版本方案 / 逻辑提交与切图语义 | 不持有World / ASC / Widget或GE句柄，未接身体事务 |
 
 共享Character沿用模板原生类名，避免复制移动实现，取舍见[ADR-001](ADR/ADR_001_FrameworkReuse.md)。ASC放在Character，Owner=Avatar=Character；控制权变化刷新ActorInfo，身体换成新对象则资源重新初始化，取舍见[ADR-002](ADR/ADR_002_ASCOnCharacter.md)。
 
@@ -146,7 +147,7 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新B性能报告对应同一A包；其短时Development / Medium观察不等于最终Shipping / 完整内容预算达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
-### M3：静态定义、纯方案与装备效果已落地，库存 / 身体提交待接
+### M3：静态定义、纯方案、装备效果与库存已落地，身体提交待接
 
 UETRelicDefinition已保存稳定ID、FText / 可空软图标、两槽资格 / 两种加法参数，PrimaryAssetId为ETRelic:RelicId；原生单资产校验与实际目录 / ID自动注册专项通过。Core仅Editor条件依赖AssetRegistry测试，不增加UI / Editor反向依赖。两份DataAsset与来源已核实，尚无新Cook。
 
@@ -154,12 +155,14 @@ UETRelicDefinition已保存稳定ID、FText / 可空软图标、两槽资格 / �
 
 B已新增Combat属性集基础0与第四组Ready、双幅度Infinite GE。GA每条轻击激活捕获一次基础 / 加成，所有段按(基础+加成)×倍率；ClearStageResources不清整链缓存，EndAbility在Super前清理。MaxHealth / 加成的Base与Current分开保护；效果精确移除不删除别人的GE，正向装备目前只在自动化。
 
-C1待实现：GI库存以Config主资产ID加载 / 校验，UPROPERTY持有定义，逻辑快照只给拥有ID / 两槽 / Revision。不可随意改写的Plan带来源弱引用 / 版本 / 前态，提交前重算静态参数，广播期间拒绝重入写。RunSession只新增已确认切图通知，不反向依赖Inventory；NewRun重置、Retry / Continue / MainMenu保留，但均推进版本。当前Source尚无该Subsystem。
+C1已验收：GI库存以Config主资产ID加载 / 校验，UPROPERTY持有定义，逻辑快照只给拥有ID / 两槽 / Revision。不可随意改写的Plan带来源弱引用 / 版本 / 前态，提交前重算静态参数，广播期间拒绝重入写。RunSession只新增已确认切图通知，不反向依赖Inventory；NewRun重置、Retry / Continue / MainMenu保留，但均推进版本。当前Source已含Subsystem，逻辑提交只被模型专项调用；实机尚无换装入口。
 
-C2才接Character身体效果句柄、上下文重验与失败边界；新身体BeginPlay早于PostLoad确认时须等Pending解除再恢复，不能拿上轮ID提前套用。最大值变化造成资源夹取的归因 / 恢复需一起处理，不声称GAS天然原子。当前没有装备恢复 / 新EquipmentReady，Presenter / View与祭坛页面仍后续；原GameplayReady仍指基础初始化，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
+C2-01待实现：Character继承唯一RelicEquipment组件，只有玩家Ready后创建一份原生零幅度GE，以SourceObject和精确Handle识别所有权；正常换加成更新同一GE，避免先移除导致临时上限下降。原生只读查询核对真实Spec，外部移除 / 篡改后不可用；失活 / Ready撤销 / EndPlay清自己的句柄，不按类清除。无Tick / Timer，敌人与Neutral休眠。批聚合通知不是任意世界回调的原子事务，也不将低层Applied冒充库存提交成功。
+
+C2-02才接上下文重验、库存 / 身体提交点与失败边界；新身体BeginPlay早于PostLoad确认时须等Pending解除再恢复，不能拿上轮ID提前套用。最大值变化造成资源夹取的归因 / 恢复需一起处理，不声称GAS天然原子。当前没有装备恢复 / 新EquipmentReady，Presenter / View与祭坛页面仍后续；原GameplayReady仍指基础初始化，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[M3-02B验收报告](Reports/M3_02B_Verification.md)已保存，四相关项Success，当前[C1会话库存 / 版本方案](M3_02C1_SessionInventory.md)待手动。当前本地156835b中的五个B新文件为空壳，工作区12份B源码已完整，必须重新Stage最新内容；本轮两新报告 / 指南与当前入口合计待提交14文档、12源码。精确当前清单及未来C1三新 / 两旧Source + 一Config见[C1末尾](M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。
+[C1验收报告](Reports/M3_02C1_Verification.md)已保存，当前[C2-01身体装备GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)待手动。本地8dbd243已包含完整B / C1源码，起点工作区干净；本轮只新增报告 / 指南并同步入口，共13文档，精确清单与未来三新 / 两旧Source、可能的三身体重存见[C2-01末尾](M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)。
 
-完整B实现连同文档建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`；C1实施后建议英文`feat: add session inventory and versioned loadout plans`，中文译文`feat: 新增会话库存与带版本校验的装备方案`。助手本轮仅改文档，Source / Config / Content / 清单 / Tools保持；Raw与日志本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`；实现后英文`feat: manage body owned relic equipment effects`，中文译文`feat: 新增遗物装备效果的身体所有权管理`。助手本轮未改Source / Config / Content / 清单 / Tools / Git索引，也未重跑Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

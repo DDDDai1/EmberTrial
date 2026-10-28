@@ -1004,6 +1004,6 @@ EquipmentEffects / Combo.Flow / StaminaFoundation / PoiseFoundation各一次：
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-本批五新 / 七旧Source已在工作区完整实现并通过检查；本地156835b的五个新文件仍是空壳，必须重新Stage完整12份源码。当前还需同批提交最新14文档，精确清单见[C1末尾](M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。没有新资产 / Config / AssetManifest变化；C1候选尚未应用。
+完整B与C1实现已在本地8dbd243提交，之前空文件问题已解决；本轮运行源码 / Config / 资产保持，只同步文档。当前C1已验收、C2-01待手动，最新文档 / 实现清单见[C2-01末尾](M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)。
 
-建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`。CLion刷新Changes → Stage最新内容 → Review Diff → Commit / Push由你操作；Raw / 日志 / 包留本地，助手未改索引或核验远端。
+当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`。Stage最新内容 / Review Diff / Commit / Push由你操作，Raw / 日志 / 包保持本地；助手未改索引或核验远端。

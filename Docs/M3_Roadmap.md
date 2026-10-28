@@ -1,6 +1,6 @@
 # M3：遗物装备、构筑界面与设置
 
-更新2026-10-28，UE **5.5.4**。M3-01 / 02A及[02B](Reports/M3_02B_Verification.md)已验收，当前[C1会话库存](M3_02C1_SessionInventory.md)待手动。实际169 Source / 93cpp、26测试 / 来源77，M3已量化136 / 等待20分钟；身体装备提交与页面仍为后续。
+更新2026-10-28，UE **5.5.4**。M3-01 / 02A / B及[C1会话库存](Reports/M3_02C1_Verification.md)已验收，当前[C2-01身体GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)待手动。实际172 Source / 95cpp、27测试 / 来源77，M3已量化188 / 等待25分钟；身体装备提交与页面仍为后续。
 
 ## 1. 体验目标与分批
 
@@ -9,7 +9,7 @@
 | 顺序 | 核心交付 | 检查边界 |
 | --- | --- | --- |
 | **[M3-01 静态定义 / 状态契约](Reports/M3_01_Verification.md)，完成** | 原生定义、稳定ID / 参数、原生校验 / 实物注册，两资产已保存 | Definitions Success / 两Valid与短基线；实际42 / 等待5，无装备效果 |
-| M3-02 最小装备闭环，A / B完成、C1下发 | A纯方案、B属性 / GE / 整链快照通过；C1库存 / 版本与切图确认，C2身体事务 / 恢复 | B四项已过；C1三库存项与菜单往返，C2才做真实入口 / 带装备恢复，不重搭旧多Pawn图 |
+| M3-02 最小装备闭环，A / B / C1完成、C2-01下发 | 纯方案、属性 / GE / 整链快照与会话库存已过；C2-01自有句柄，C2-02提交 / 恢复 | C1三Success与版本往返；C2-01三相关项 / 身体短查，C2-02才做真实入口 / 带装备恢复 |
 | M3-03 列表 / 详情 / 预览 | Presenter、ListView / TileView条目复用、选择 / 排序 / 筛选与两槽；预览不应用真实GE | 复用 / 旧条目解绑与一次真实装备；合成500条仅测列表 |
 | M3-04 祭坛入口与页面输入 | 将旧练习交互扩成通用入口；安全换装、页面层 / 焦点 / 返回与战斗输入互斥 | 正式入口 / 开关 / 世界结束短查，不复制一套Pause所有者 |
 | M3-05 设置与导航 | 音量、窗口 / 分辨率 / 画质、灵敏度 / 镜头选项、应用 / 取消 / 默认与键盘路径 | 仅受影响显示 / 输入 / 保存；分辨率要核对实际值与回退 |
@@ -19,14 +19,14 @@ M3-01只提供类型化效果参数，不提前提供可随意引用任意GE的�
 
 ## 2. 静态数据、逻辑状态与身体效果分开
 
-| 所有者（后续实现计划） | 内容 | 寿命 |
+| 所有者与交付边界 | 内容 | 寿命 |
 | --- | --- | --- |
 | UETRelicDefinition | 稳定ID、文本、图标软引用、槽位资格、加法参数 | 静态资源，不记录拥有 / 当前数值 |
 | GameInstance层遗物库存域 | 拥有ID集合、已提交的两槽ID；不存ASC / Widget或GE句柄 | 当前进程，跨OpenLevel；NewRun确认后重置 |
 | Character装备组件 | 对当前ASC应用后的句柄、装备就绪 / 提交协议 | 当前身体，结束精确移除自己效果 |
 | LocalPlayer UI Presenter / View | 列表、临时选择 / 预览、焦点；发意图、显示业务结果 | 当前页面 / 本地玩家，不提交伪造成功 |
 
-Controller会随切图销毁，不能单靠Controller字段保存Continue装备。原RunSession仍只负责地图 / 检查点 / 切图；后续独立库存域与其确认点协作，不把所有东西都塞进RunSession。01 / 02A静态与纯计算、B实际属性 / GE已验收；GI库存合同由C1下发，身体持有者与事务留C2。普通Play尚无装备；原GameplayReady现在包含四组基础属性，未扩为装备完成。
+Controller会随切图销毁，不能单靠Controller字段保存Continue装备。原RunSession仍只负责地图 / 检查点 / 切图；后续独立库存域与其确认点协作，不把所有东西都塞进RunSession。01 / 02A静态与纯计算、B实际属性 / GE已验收；GI库存合同已由C1验收，身体持有者由C2-01下发、完整事务留C2-02。普通Play尚无装备；原GameplayReady现在包含四组基础属性，未扩为装备完成。
 
 ## 3. 本阶段装备与资源语义
 
@@ -39,7 +39,7 @@ Controller会随切图销毁，不能单靠Controller字段保存Continue装备�
 
 ## 4. 工期、美术与学习
 
-原M3基础70h保持，按每周30h约2.3有效投入周；缓冲沿用全局规划，不重复增加。01实际42 / 等待5，02A实际42 / 等待10，02B实际52 / 等待5，M3累计136 / 20；C1预计代码50–80 / 检查5–10，等待另记，不计实耗。真实装备事务完成后再校准页面工作量。
+原M3基础70h保持，按每周30h约2.3有效投入周；缓冲沿用全局规划，不重复增加。01实际42 / 等待5，02A实际42 / 等待10，02B实际52 / 等待5，C1实际52 / 等待5，M3累计188 / 25；C2-01预计代码50–80 / 配置检查5–10，等待另记，不计实耗。真实装备事务完成后再校准页面工作量。
 
 图标先允许空引用，后续View用统一占位，不购买资源；FText与图标路径不当作逻辑ID。重要模型中后期接Blender，当前无新模型 / 骨架要求。普通C++由用户手动，复杂排错按当次授权。
 
@@ -47,6 +47,6 @@ Controller会随切图销毁，不能单靠Controller字段保存Continue装备�
 
 ## 5. Commit / Push（固定放在最后）
 
-[M3-02B验收报告](Reports/M3_02B_Verification.md)已保存，四相关项Success，当前[C1会话库存 / 版本方案](M3_02C1_SessionInventory.md)待手动。当前本地156835b中的五个B新文件为空壳，工作区12份B源码已完整，必须重新Stage最新内容；本轮两新报告 / 指南与当前入口合计待提交14文档、12源码。精确当前清单及未来C1三新 / 两旧Source + 一Config见[C1末尾](M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。
+[C1验收报告](Reports/M3_02C1_Verification.md)已保存，当前[C2-01身体装备GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)待手动。本地8dbd243已包含完整B / C1源码，起点工作区干净；本轮只新增报告 / 指南并同步入口，共13文档，精确清单与未来三新 / 两旧Source、可能的三身体重存见[C2-01末尾](M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)。
 
-完整B实现连同文档建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`；C1实施后建议英文`feat: add session inventory and versioned loadout plans`，中文译文`feat: 新增会话库存与带版本校验的装备方案`。助手本轮仅改文档，Source / Config / Content / 清单 / Tools保持；Raw与日志本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`；实现后英文`feat: manage body owned relic equipment effects`，中文译文`feat: 新增遗物装备效果的身体所有权管理`。助手本轮未改Source / Config / Content / 清单 / Tools / Git索引，也未重跑Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

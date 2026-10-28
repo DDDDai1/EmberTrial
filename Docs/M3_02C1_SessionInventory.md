@@ -1,6 +1,6 @@
 # M3-02C1：会话库存、版本方案与切图确认
 
-2026-10-28，固定UE **5.5.4**。[M3-02B已验收](Reports/M3_02B_Verification.md)。**本指南待你手动实现；助手只写文档，未将下列代码写入运行工程，也未编译 / 运行C1。**预计手动代码50–80分钟、检查5–10分钟，Build / 索引等待另记。第3–6节全部完成、保存后再正常Build。
+2026-10-28，固定UE **5.5.4**。本批已由你手动实现并验收；[C1报告](Reports/M3_02C1_Verification.md)记录三库存Success、双Build与真实版本往返，无待补。实际代码50 / 检查2 / 等待5分钟，当前进入[C2-01身体装备GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)。以下代码保留供复查，本轮助手未重写运行工程或重复执行测试。
 
 ## 1. 本批得到什么
 
@@ -16,7 +16,7 @@ RunSession新增**到达确认事件**。NewRun真正到达后恢复初始拥有
 | 不新增资产 / Graph | 无组件挂载、输入、Widget或临时Controller验收函数 |
 | 实机预期 | 原100 / 25保持；尚无实际换装入口，不期待120 / 30 |
 
-当前169 Source / 93cpp、Core67 / UI23 / Editor3、26测试；实施后预计**172 / 95、Core69 / UI23 / Editor3、27测试**，Content296 / 来源77保持。
+已验收实际**172 Source / 95cpp、Core69 / UI23 / Editor3、27测试**，Content296 / 来源77保持；正式Play仍空槽，身体效果提交 / 恢复待后续。
 
 ## 2. 所有权与提交边界
 
@@ -725,61 +725,6 @@ Source / Config保存，恢复常用地图；失败或不理解处（无填无�
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-本轮在B实物完成后新增验收报告 / C1指南并同步入口。**Source是你刚录入的完整实现，助手本轮未改运行代码、Config、资产、索引或重跑构建 / 测试。**本地HEAD `156835b` 的五个B新增文件仍为空壳；请重新Stage下面12份完整源码，再Review Diff，不能仅提交文档。未联网核验远端。
+完整B / C1源码与配置已在本地8dbd243提交，之前B空文件问题已解决。当前只新增C1报告 / C2-01指南并同步入口，共13文档，精确清单及未来实现范围见[C2-01末尾](M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)；Source / Config / Content / 清单保持。
 
-```text
-EmberTrial/Source/EmberTrial/Public/Attributes/ETCombatAttributeSet.h
-EmberTrial/Source/EmberTrial/Private/Attributes/ETCombatAttributeSet.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETRelicEquipmentEffect.h
-EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETRelicEquipmentEffect.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentEffectsTests.cpp
-EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h
-EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_LightAttack.h
-EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_LightAttack.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/ETGameplayTags.h
-EmberTrial/Source/EmberTrial/Private/Abilities/ETGameplayTags.cpp
-EmberTrial/Source/EmberTrial/Tests/ETLightComboFlowTests.cpp
-```
-
-当前同批文档共14份（含上次尚未提交的A报告 / B指南与入口）：
-
-```text
-Docs/Reports/M3_02A_Verification.md
-Docs/Reports/M3_02B_Verification.md
-Docs/M3_02A_LoadoutRules.md
-Docs/M3_02B_CombatEquipmentEffects.md
-Docs/M3_02C1_SessionInventory.md
-Docs/M3_Roadmap.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_Roadmap.md
-README.md
-Introduction.md
-```
-
-当前共26份实际待提交文件；建议一并提交完整B实现与交接文档：
-
-- 英文：`feat: add GAS equipment modifiers and light attack snapshots`
-- 中文译文：`feat: 新增GAS装备属性修饰与轻攻击快照`
-
-若完整B源码另行提交，后续纯文档建议英文`docs: verify equipment effects and prepare session inventory`，中文译文`docs: 记录装备效果验收并准备会话库存`；不要先留空壳源码、只提交“验收通过”报告。
-
-**C1由你实施后**，再将以下六份实际变化与当时最新验收 / 入口文档一起Stage；这些不是本轮已经实现的文件：
-
-```text
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicInventorySubsystem.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicInventorySubsystem.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicInventorySessionTests.cpp
-EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
-EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
-EmberTrial/Config/DefaultGame.ini
-```
-
-- 英文：`feat: add session inventory and versioned loadout plans`
-- 中文译文：`feat: 新增会话库存与带版本校验的装备方案`
-
-CLion Refresh Changes → Stage最新内容（已Stage后又改必须再次Stage）→ Review Diff → Commit / Push由你操作。B与C1均无计划资产修改；旧资产无差异不重复Stage，AssetManifest保持77行。Raw候选 / 日志 / 缓存 / 索引生成物 / Trace / 包留本地，不Force Add。
+当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`。CLion刷新Changes → Stage最新内容 → Review Diff → Commit / Push由你操作，Raw / 日志 / 包本地；助手未改索引或核验远端。

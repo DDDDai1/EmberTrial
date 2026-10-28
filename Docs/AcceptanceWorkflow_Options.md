@@ -229,10 +229,14 @@ B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原
 
 ## M3-02C1最小范围
 
-三新 / 两旧Source + 一Config，只跑Inventory.Session / Definitions / LoadoutRules各一次。Session以内存GI / 真实配置验证模型，私有逻辑提交不代表ASC装备；不改正式DataAsset / World / Actor。一次菜单NewRun→Pause返回→Continue→再NewRun与Stop新GI查真实委托 / 版本；Retry保留语义模型已覆盖，带装备真实Retry留C2集中验。无临时Controller图 / 掐时点 / 旧全组 / 新Cook；C1文档候选尚未Build / Success。
+三新 / 两旧Source + 一Config，只跑Inventory.Session / Definitions / LoadoutRules各一次。Session以内存GI / 真实配置验证模型，私有逻辑提交不代表ASC装备；不改正式DataAsset / World / Actor。一次菜单NewRun→Pause返回→Continue→再NewRun与Stop新GI查真实委托 / 版本；Retry保留语义模型已覆盖，带装备真实Retry留C2集中验。无临时Controller图 / 掐时点 / 旧全组 / 新Cook；C1本轮已实际完成三Success / 双Build / 真实版本往返，检查2分钟；模型非空两槽保留与实机空槽日志分开，Stop新GI短查按用户反馈接受，不补跑旧矩阵。
+
+## M3-02C2-01最小范围
+
+三新 / 两旧Source只接身体GE所有权：Ownership新专项加既有EquipmentEffects / Combo.Flow各一次。自有World / 身体夹具验证同句柄无临时上限回落、夹限来源 / 重入、同类外部效果隔离、失活 / 结束与外部移除；不改GI模型或正式资产配置。三身体唯一继承组件 / Valid与两分钟正式零槽短查，不造临时输入 / Blueprint图；真正带装备Retry / Continue留C2-02集中验。候选代码尚未进入运行工程，不记作已Build / Success。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-[M3-02B验收报告](Reports/M3_02B_Verification.md)已保存，四相关项Success，当前[C1会话库存 / 版本方案](M3_02C1_SessionInventory.md)待手动。当前本地156835b中的五个B新文件为空壳，工作区12份B源码已完整，必须重新Stage最新内容；本轮两新报告 / 指南与当前入口合计待提交14文档、12源码。精确当前清单及未来C1三新 / 两旧Source + 一Config见[C1末尾](M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。
+[C1验收报告](Reports/M3_02C1_Verification.md)已保存，当前[C2-01身体装备GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)待手动。本地8dbd243已包含完整B / C1源码，起点工作区干净；本轮只新增报告 / 指南并同步入口，共13文档，精确清单与未来三新 / 两旧Source、可能的三身体重存见[C2-01末尾](M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)。
 
-完整B实现连同文档建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`；C1实施后建议英文`feat: add session inventory and versioned loadout plans`，中文译文`feat: 新增会话库存与带版本校验的装备方案`。助手本轮仅改文档，Source / Config / Content / 清单 / Tools保持；Raw与日志本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`；实现后英文`feat: manage body owned relic equipment effects`，中文译文`feat: 新增遗物装备效果的身体所有权管理`。助手本轮未改Source / Config / Content / 清单 / Tools / Git索引，也未重跑Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
