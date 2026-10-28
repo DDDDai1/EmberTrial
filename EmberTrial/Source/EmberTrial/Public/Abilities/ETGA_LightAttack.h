@@ -5,6 +5,7 @@
 #include "TimerManager.h"
 #include "ETGA_LightAttack.generated.h"
 
+class AEmberTrialCharacter;
 class UAnimMontage;
 class UAnimNotifyState;
 class UAnimSequenceBase;
@@ -41,6 +42,9 @@ public:
         return bEnableCombo;
     }
     bool HasValidComboConfiguration() const;
+    // 同时供真实段启动和数值专项使用，结果必须有限且为正。
+    static bool TryCalculateStageDamage(float BaseDamage, float Bonus, float Multiplier,
+                                        float& OutDamage);
     // 输入只更新一个有世界时间期限的槽位，不为连点建立队列。
     bool TryBufferComboInput();
     bool CanCancelIntoDodge() const;
@@ -107,6 +111,9 @@ private:
     int32 ActiveStageIndex = INDEX_NONE;
     int32 ActiveMontageInstanceID = INDEX_NONE;
     float ActiveStageDamage = 0.0f;
+    // 仅本次整链的快照；ClearStageResources不清，EndAbility在Super前清。
+    float ActiveBaseAttackDamage = 0.0f;
+    float ActiveLightAttackBonus = 0.0f;
     // 输入 / 窗口状态与推进重入保护，只在当前激活内有效。
     double BufferedInputExpiresAt = 0.0;
     bool bHasBufferedInput = false;
@@ -119,6 +126,7 @@ private:
     // 查询与推进不对外暴露内部状态；两个玩家请求共用同一身份门控。
     const FAnimMontageInstance* FindPlayerStageMontageInstance() const;
     bool HasValidDamageConfiguration() const;
+    bool TryCaptureDamageBonus(const AEmberTrialCharacter* Body, float& OutBonus) const;
     bool HasNextStage() const;
     bool CanAcceptComboInput() const;
     bool StartStage(int32 Index);

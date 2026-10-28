@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-28。[M3-01定义 / 注册已验收](Reports/M3_01_Verification.md)，当前[M3-02A](M3_02A_LoadoutRules.md)纯规则待手动。Runtime仍保留已验收M2状态 / 所有权，M3未来装备 / 页面明确标为计划；本轮未修改运行工程。实际证据 / 工时见[Progress](Progress.md)。
+更新2026-10-28。01静态定义、02A纯方案与[B真实属性 / 装备效果](Reports/M3_02B_Verification.md)均已验收，当前[C1会话库存](M3_02C1_SessionInventory.md)待手动；本页现有Runtime与未来C分开描述，实际证据 / 工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -26,7 +26,7 @@ flowchart LR
 
 | 拥有者 | 持有内容 | 不负责的内容 |
 | --- | --- | --- |
-| AEmberTrialCharacter | 原生ASC、Health / Stamina / Poise属性集、Recovery / HealingResource、自己授予的能力Handle | 不持有Widget或跨世界存档 |
+| AEmberTrialCharacter | 原生ASC、Health / Stamina / Poise / Combat属性集、Recovery / HealingResource、自己授予的能力Handle | 不持有Widget或跨世界存档 |
 | CombatTrace / CombatLife | 当前检测窗口与命中去重 / 本身体生命观察、受击Handle和死亡封锁 | 不由HUD扣血，不共用敌人运行状态 |
 | 各GameplayAbility / Task | 本次激活的Tag、Montage实例、计时 / 位移源、回调与代次 | 不撤销别人的Handle或复用另一激活的运行数据 |
 | AIController / BT Task | 本敌人的目标、距离决策、移动 / 攻击请求及结束观察 | 不复制伤害规则，不持有UI |
@@ -40,9 +40,9 @@ flowchart LR
 
 ## 3. 初始化、Ready与清理
 
-[Character](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)先校验生命 / 体力 / 韧性的六个出生配置，再一次性写入属性并发布Ready；非法配置不能只初始化一半。重复Ensure或同身体重新Possess不会补满资源。
+[Character](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)先校验生命 / 体力 / 韧性的六个出生配置与四组依赖，再初始化资源及Combat轻击加成基础0，最后发布Ready；非法配置不能只初始化一半。重复Ensure或同身体重新Possess不会补满资源或重置活动装备加成。
 
-ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表示当前三组属性链成功初始化；死亡时仍可Ready且Health为0，UI不应把它显示成Waiting。各能力还有自己的配置 / Spec / 状态检查，不能仅看Ready。
+ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表示当前四组属性基础成功初始化；死亡时仍可Ready且Health为0，UI不应把它显示成Waiting。各能力还有自己的配置 / Spec / 状态检查，不能仅看Ready；未来EquipmentReady另行表达身体装备恢复状态。
 
 观察者先解绑旧源，再绑定新源，并立即读取当前快照，兼顾“先Ready后订阅”和“先订阅后Ready”。异步装备 / 能力就绪尚未接入，不能把现有同步测试扩写成已覆盖全部未来时序。
 
@@ -146,16 +146,20 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新B性能报告对应同一A包；其短时Development / Medium观察不等于最终Shipping / 完整内容预算达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
-### M3：静态定义已落地，装备 / 页面待接
+### M3：静态定义、纯方案与装备效果已落地，库存 / 身体提交待接
 
 UETRelicDefinition已保存稳定ID、FText / 可空软图标、两槽资格 / 两种加法参数，PrimaryAssetId为ETRelic:RelicId；原生单资产校验与实际目录 / ID自动注册专项通过。Core仅Editor条件依赖AssetRegistry测试，不增加UI / Editor反向依赖。两份DataAsset与来源已核实，尚无新Cook。
 
-02A计划把两槽ID快照、资格 / 汇总、基值与最终值校验、替换 / 卸下方案集中为无状态纯函数。Plan不保存UObject / ASC，不加载图标 / 应用GE，不代表已提交；只有Success输出可用，NoChange / 失败清空。它既供后续装备预检，也供UI比较，基值须排除已有装备，且只承诺已建模的两种加法。
+02A已把两槽ID快照、资格 / 汇总、基值与最终值校验、替换 / 卸下方案集中为无状态纯函数。Plan不保存UObject / ASC，不加载图标 / 应用GE，不代表已提交；只有Success输出可用，NoChange / 失败清空。它既供后续装备预检，也供UI比较，基值须排除已有装备，且只承诺已建模的两种加法。
 
-后续GI库存域拥有ID / 已提交两槽，Character组件拥有当前ASC效果句柄，Presenter拥有临时选择 / 预览。B接真实攻击加成消费者 / 装备GE，C接版本 / 上下文重验、失败处理和会话；当前还没有装备恢复 / 新EquipmentReady。原GameplayReady含义不扩张，磁盘快照仍M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
+B已新增Combat属性集基础0与第四组Ready、双幅度Infinite GE。GA每条轻击激活捕获一次基础 / 加成，所有段按(基础+加成)×倍率；ClearStageResources不清整链缓存，EndAbility在Super前清理。MaxHealth / 加成的Base与Current分开保护；效果精确移除不删除别人的GE，正向装备目前只在自动化。
+
+C1待实现：GI库存以Config主资产ID加载 / 校验，UPROPERTY持有定义，逻辑快照只给拥有ID / 两槽 / Revision。不可随意改写的Plan带来源弱引用 / 版本 / 前态，提交前重算静态参数，广播期间拒绝重入写。RunSession只新增已确认切图通知，不反向依赖Inventory；NewRun重置、Retry / Continue / MainMenu保留，但均推进版本。当前Source尚无该Subsystem。
+
+C2才接Character身体效果句柄、上下文重验与失败边界；新身体BeginPlay早于PostLoad确认时须等Pending解除再恢复，不能拿上轮ID提前套用。最大值变化造成资源夹取的归因 / 恢复需一起处理，不声称GAS天然原子。当前没有装备恢复 / 新EquipmentReady，Presenter / View与祭坛页面仍后续；原GameplayReady仍指基础初始化，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
+[M3-02B验收报告](Reports/M3_02B_Verification.md)已保存，四相关项Success，当前[C1会话库存 / 版本方案](M3_02C1_SessionInventory.md)待手动。当前本地156835b中的五个B新文件为空壳，工作区12份B源码已完整，必须重新Stage最新内容；本轮两新报告 / 指南与当前入口合计待提交14文档、12源码。精确当前清单及未来C1三新 / 两旧Source + 一Config见[C1末尾](M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。
 
-实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。
+完整B实现连同文档建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`；C1实施后建议英文`feat: add session inventory and versioned loadout plans`，中文译文`feat: 新增会话库存与带版本校验的装备方案`。助手本轮仅改文档，Source / Config / Content / 清单 / Tools保持；Raw与日志本地，Stage / Commit / Push由用户操作，未核验远端。

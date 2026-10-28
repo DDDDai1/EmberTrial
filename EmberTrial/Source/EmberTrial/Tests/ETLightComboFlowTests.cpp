@@ -2,6 +2,7 @@
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_HitReact.h"
 #include "Abilities/ETGameplayTags.h"
+#include "Abilities/Effects/ETRelicEquipmentEffect.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "UObject/StrongObjectPtr.h"
 #include "Animation/ETANS_ComboWindow.h"
@@ -468,6 +469,50 @@ bool FETLightComboFlowTest::RunTest(const FString& Parameters)
             return false;
         }
         CheckDamage(2); // Only the valid pre-pause input survives; menu input adds no third stage.
+
+        // 装备正例复用真实Montage / Notify / Sweep / GE，不伪造命中回调。
+        Reset();
+        FGameplayEffectSpecHandle EquipmentSpec = ASC->MakeOutgoingSpec(
+            UETRelicEquipmentEffect::StaticClass(), 1.0f, ASC->MakeEffectContext());
+        if (!TestTrue(TEXT("Equipment spec created"), EquipmentSpec.IsValid()))
+        {
+            return false;
+        }
+        EquipmentSpec.Data->SetSetByCallerMagnitude(
+            ETGameplayTags::SetByCaller_EquipmentMaxHealth, 20.0f);
+        EquipmentSpec.Data->SetSetByCallerMagnitude(
+            ETGameplayTags::SetByCaller_EquipmentLightAttackBonus, 5.0f);
+        const FActiveGameplayEffectHandle EquipmentHandle =
+            ASC->ApplyGameplayEffectSpecToSelf(*EquipmentSpec.Data.Get());
+        if (!TestTrue(TEXT("Equipment effect active"), EquipmentHandle.IsValid()) ||
+            !Start() || !Until([&Position]() { return Position() >= .48f; }, 1.0f))
+        {
+            return false;
+        }
+        TestEqual(TEXT("First stage includes equipment"), Attack->ActiveStageDamage, 30.0f);
+        // 中途撤效果后，这一整链仍使用开始时快照；下一链才读取新的0加成。
+        if (!TestTrue(TEXT("Remove only equipment handle"),
+                      ASC->RemoveActiveGameplayEffect(EquipmentHandle)) ||
+            !Body->RequestLightAttack() ||
+            !Until([Attack]() { return Attack->ActiveStageIndex == 1; }, .6f) ||
+            !Until([&Position]() { return Position() >= .48f; }, 1.0f) ||
+            !Body->RequestLightAttack() ||
+            !Until([Attack]() { return Attack->ActiveStageIndex == 2; }, .6f) || !Idle())
+        {
+            return false;
+        }
+        TestEqual(TEXT("Equipment combo has three unique serials"), Candidates.Num(), 3);
+        TestEqual(TEXT("Equipment combo real current health"),
+                  TargetASC->GetNumericAttribute(Health), 910.0f);
+        TestEqual(TEXT("Equipment combo real base health"),
+                  TargetASC->GetNumericAttributeBase(Health), 910.0f);
+        Reset();
+        if (!Start() || !Idle())
+        {
+            return false;
+        }
+        CheckDamage(1);
+        AddInfo(TEXT("[M3-02B] Real GE combo: three times30; next activation returns25"));
 
         UAnimMontage* Saved = Attack->ComboFollowUps[0].Montage;
         Attack->ComboFollowUps[0].Montage = nullptr;

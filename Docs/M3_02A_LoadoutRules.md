@@ -1,8 +1,8 @@
 # M3-02A：两槽装备方案与纯数值预览
 
-2026-10-28，固定UE **5.5.4**。[M3-01已验收](Reports/M3_01_Verification.md)，当前进入M3-02第一批。**本页代码由你手动实现，助手当前只写文档 / 候选；本章Build、测试与新Source尚未执行 / 落地。**完成后先有可复用的规则，B再接GAS属性 / 效果，C把库存、身体与会话串起来，页面留03。
+更新2026-10-28，UE **5.5.4**。**本章已验收**，用户19:20全项完成 / 无问题，代码40 / 检查2 / 等待10分钟，[实际报告](Reports/M3_02A_Verification.md)已保存。当前进入[M3-02B](M3_02B_CombatEquipmentEffects.md)；原操作 / 代码保留复查，不重复执行。
 
-预计代码35–55分钟，检查3–5分钟，Build / 索引等待另计。本章没有蓝图节点、资产配置或临时按键，不要求搭Controller验收Graph。
+原预计代码35–55 / 检查3–5分钟；本批实际42 / 等待10已登记，不将估计重复计入。本章没有蓝图节点、资产配置或临时按键，不要求搭Controller验收Graph。
 
 ## 1. 新增行为与本批边界
 
@@ -12,7 +12,7 @@
 - 两槽快照只保存RelicId；计算接受调用方提供的已拥有集合与借用目录，生成Before / After及两组属性预览。
 - 拒绝无效槽、不拥有、缺定义、非法配置、不兼容、跨槽重复及非法最终数值。重复装备同物同槽返回NoChange，不产生新方案。
 - 本章没有库存提交、GAS效果、组件 / Subsystem、UI / 输入 / 会话变化；Play仍100生命、原25伤害。
-- 当前161 Source / 88cpp、Core62 / UI23 / Editor3、24测试 / 来源77；**实施后预计164 / 90、Core64 / UI23 / Editor3、25测试，资产不变**，不能把预计记作已成功。
+- 当前已验收164 Source / 90cpp、Core64 / UI23 / Editor3、25测试 / 来源77，资产未变；本批是纯方案，实际装备仍待B / C。
 
 ## 2. 用几组例子理解规则
 
@@ -520,44 +520,6 @@ M3-02B先接轻击加成的真实属性 / 统一消费者和受约束装备GE；
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-本地81a32c7已含01源码 / Config / 两资产。本轮助手只新增：
+[M3-02A报告](Reports/M3_02A_Verification.md)已保存，当前[B战斗属性 / 原生装备效果](M3_02B_CombatEquipmentEffects.md)待用户手动。本地411c6e0已含A完整实现；本轮只新增报告 / B指南并同步入口，共12文档，精确清单及未来五新 / 七旧Source见[B末尾](M3_02B_CombatEquipmentEffects.md#11-本批-commit--push固定放在最后)。建议英文`docs: verify loadout rules and prepare combat equipment effects`，中文译文`docs: 记录装备方案规则验收并准备战斗装备效果`。
 
-```text
-Docs/Reports/M3_01_Verification.md
-Docs/M3_02A_LoadoutRules.md
-```
-
-同步修改：
-
-```text
-Docs/AssetManifest.csv
-Docs/M3_01_RelicDefinitions.md
-Docs/M3_Roadmap.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_Roadmap.md
-README.md
-Introduction.md
-```
-
-当前共13份实际文件变化。仅提交本轮文档 / 清单时，建议英文`docs: verify relic definitions and prepare loadout rules`。
-
-中文译文：`docs: 记录遗物定义验收并准备装备方案规则`。
-
-**你实施并验收后**，再提交三新 / 一旧Source与最新报告 / 文档：
-
-```text
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicLoadout.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicLoadout.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicLoadoutTests.cpp
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicDefinition.h
-```
-
-实现建议英文`feat: add relic loadout planning and stat previews`。
-
-中文译文：`feat: 新增遗物装备方案与属性预览`。
-
-没有新Content / Config / Build.cs变化，不为本章人为重存旧资产；01已提交实现不重复Stage。先CLion Refresh Changes → Stage最新完整内容（已Stage后又改需再次Stage）→ Review Diff → Commit / Push，由你操作。Raw候选 / 日志 / 生成缓存 / Trace / 包留本地，不Force Add；助手未改Git索引或核验远端。
+实现后建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`。当前运行工程 / AssetManifest / Tools / 原包保持，Raw与日志本地；无差异旧资产不重复Stage，用户Stage最新内容 / Review Diff / Commit / Push，助手未改索引或核验远端。

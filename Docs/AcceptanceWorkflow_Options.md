@@ -1,6 +1,6 @@
 # EmberTrial 验收流程调整：方案比较与选择记录
 
-方案选择日期2026-10-05，维护更新2026-10-28。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前M3-01已验收、02A纯规则待手动实现；实时状态见[Progress](Progress.md)。本页保留方案比较、最终选择与可复用的执行规则。
+方案选择日期2026-10-05，维护更新2026-10-28。适用工程：UE 5.5.4 / EmberTrial，个人开发、每周约30小时、键鼠交付。**用户已选择方案B并持续执行。**当前01 / 02A已验收、B战斗属性 / 效果待手动；实时状态见[Progress](Progress.md)。本页保留方案比较、最终选择与可复用的执行规则。
 
 ## 1. 当前结论与需要解决的问题
 
@@ -130,7 +130,7 @@ CI可以后续再接；本地脚本与Session Frontend已能执行测试，无�
 
 失败项明确列入待修，不以“下次再说”标为完成。阶段 / 打包 / 投递前仍检查完整作品，但复用固定工具与清单、已有自动测试和历史证据，不要求重新设计验收功能。没有新修改或风险，不扩大或反复执行同样检查。
 
-方案选择本身不授权接管代码或编辑器。一般功能开发仍先给操作文档、由用户实践；本轮清理已有用户明确授权，助手直接修改并保留快照 / 验证。用户已授权验收无问题时保存报告并直接下发下一章；当前按约定验收01后同轮进入02A，普通C++仍手动实现。
+方案选择本身不授权接管代码或编辑器。一般功能开发仍先给操作文档、由用户实践；本轮清理已有用户明确授权，助手直接修改并保留快照 / 验证。用户已授权验收无问题时保存报告并直接下发下一章；当前按约定验收A后同轮进入B，普通C++仍手动实现。
 
 ## 8. 最终选择记录
 
@@ -221,8 +221,18 @@ M3-01只新增静态定义与扫描配置：正常Editor / Game Build、索引�
 
 02A只三新 / 一旧Source：新LoadoutRules加原Definitions各一次、一分钟短基线。夹具不Spawn World / Actor、不Apply GE、不改磁盘资产或建Controller图；真正库存 / 身体失败事务、Retry / Continue留接入批次验证。静态代码审查不写作本章已经Build / Success。
 
+## M3-02A收尾与B影响范围
+
+A实际代码40 / 检查2 / 等待10，两项库存Success、双Build与短基线通过；旧23项沿用，不重复执行。主动打断时66.67cm不是位移回归失败，用户具体输入 / 画面反馈与日志分别登记。
+
+B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原Combo.Flow、StaminaFoundation / PoiseFoundation各一次；原Flow保留旧基线并复用真实Montage / Notify / Sweep验证3×30、下一链25，不另造命中台或手抄长日志。短实机只看默认0 / 旧能力与Stop新身体，正向装备事务 / 世界恢复留C。B本轮用户已完成，四项当次Success与短基线通过，实际检查2分钟，见[B报告](Reports/M3_02B_Verification.md)。不为报告重复执行。
+
+## M3-02C1最小范围
+
+三新 / 两旧Source + 一Config，只跑Inventory.Session / Definitions / LoadoutRules各一次。Session以内存GI / 真实配置验证模型，私有逻辑提交不代表ASC装备；不改正式DataAsset / World / Actor。一次菜单NewRun→Pause返回→Continue→再NewRun与Stop新GI查真实委托 / 版本；Retry保留语义模型已覆盖，带装备真实Retry留C2集中验。无临时Controller图 / 掐时点 / 旧全组 / 新Cook；C1文档候选尚未Build / Success。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
+[M3-02B验收报告](Reports/M3_02B_Verification.md)已保存，四相关项Success，当前[C1会话库存 / 版本方案](M3_02C1_SessionInventory.md)待手动。当前本地156835b中的五个B新文件为空壳，工作区12份B源码已完整，必须重新Stage最新内容；本轮两新报告 / 指南与当前入口合计待提交14文档、12源码。精确当前清单及未来C1三新 / 两旧Source + 一Config见[C1末尾](M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。
 
-实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。
+完整B实现连同文档建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`；C1实施后建议英文`feat: add session inventory and versioned loadout plans`，中文译文`feat: 新增会话库存与带版本校验的装备方案`。助手本轮仅改文档，Source / Config / Content / 清单 / Tools保持；Raw与日志本地，Stage / Commit / Push由用户操作，未核验远端。

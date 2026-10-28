@@ -12,6 +12,9 @@ namespace ETGameplayTags
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_HealthDelta);
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_StaminaDelta);
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_PoiseDelta);
+    // ---- Infinite装备GE的两个聚合幅度，不是Instant资源增量 ----
+    EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_EquipmentMaxHealth);
+    EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_EquipmentLightAttackBonus);
     // ---- 受击与死亡状态 ----
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_HitReact);
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_HitReact);

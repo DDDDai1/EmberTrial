@@ -26,6 +26,7 @@ class UETCombatLifeComponent;
 class UETCombatPoiseComponent;
 class UETStaminaAttributeSet;
 class UETPoiseAttributeSet;
+class UETCombatAttributeSet;
 class UETStaminaRecoveryComponent;
 class UETHealingResourceComponent;
 struct FInputActionValue;
@@ -113,6 +114,9 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     UPROPERTY(VisibleAnywhere, Category = "EmberTrial|Poise")
     TObjectPtr<UETPoiseAttributeSet> PoiseAttributes;
 
+    UPROPERTY(VisibleAnywhere, Category = "EmberTrial|Combat")
+    TObjectPtr<UETCombatAttributeSet> CombatAttributes;
+
     // ---- 出生配置；不是运行值副本，同身体换控不会再次写入 ----
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Startup", meta = (ClampMin = "1.0"))
     float InitialMaxHealth = 100.0f;
@@ -148,7 +152,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETBreakPulseHUDTest;
     friend class FETTargetLockSelectionTest;
 
-    // Ready只表示三组属性链初始化成功；不代表存活、受控或能力已授予。
+    // Ready只表示四组属性链初始化成功；不代表存活、受控、装备就绪或能力已授予。
     bool bStartupAttributesInitialized = false;
     bool bGameplayReady = false;
 
@@ -223,6 +227,9 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "EmberTrial|Gameplay")
     bool GetGameplayPoiseSnapshot(float& OutPoise, float& OutMaxPoise) const;
+
+    UFUNCTION(BlueprintPure, Category = "EmberTrial|Combat")
+    bool GetGameplayLightAttackBonusSnapshot(float& OutBonus) const;
 
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Gameplay")
     bool EnsureGameplayInitialized();

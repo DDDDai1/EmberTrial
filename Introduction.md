@@ -216,7 +216,7 @@ P0 退出条件：能构建打包；能连续完成 3 次闭环；没有阻断�
 
 ### 4.6 遗物、装备与数据驱动
 
-用 `UPrimaryDataAsset` 定义静态遗物数据：稳定 ID、`FText` 名称 / 说明、图标软引用、可用槽位、Gameplay Effect / 参数、排序类别。运行时实例与静态定义分离。M3-01类型化加法参数、两槽与AssetManager契约已验收，第一批最大生命+20、每段轻击基础加成+5仍只是静态定义。当前02A下发无状态方案 / 预览，B接受约束的原生GAS效果与消费者、C接库存 / 身体事务，不提前暴露任意GE引用 / 运行句柄。当前正式生命 / 伤害没有装备变化。
+用 `UPrimaryDataAsset` 定义静态遗物数据：稳定 ID、`FText` 名称 / 说明、图标软引用、可用槽位、Gameplay Effect / 参数、排序类别。运行时实例与静态定义分离。M3-01类型化加法参数、两槽与AssetManager契约已验收，第一批最大生命+20、每段轻击基础加成+5仍只是静态定义。02A无状态方案 / 预览已验收，当前B下发受约束的原生GAS效果与整链伤害快照，C接库存 / 身体事务，不提前暴露任意GE引用 / 运行句柄。当前正式生命 / 伤害没有装备变化。
 
 6 个遗物的初始设计：最大生命提升、体力恢复提升、攻击提升、破势效率提升、治疗效果提升、生命与攻击的取舍型组合。数值是调参数据，不写死在 Widget 或角色蓝图里。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-28，M0、M1、M2与清理已收尾，M3-01静态定义已验收。**[01报告](Docs/Reports/M3_01_Verification.md)核对四Source / 依赖 / 扫描规则、两Valid / Definitions Success；当前[M3-02A](Docs/M3_02A_LoadoutRules.md)下发纯两槽方案与预览，待用户手动。实际161 Source / 88cpp / 24测试 / 来源77，01代码配置40 / 检查2 / 等待5；M3累计42 / 5，项目3453 / 明确等待329分钟，M2仍1400 / 139、另有06C及07C阅读未登记。正式Play仍100生命 / 原25；装备 / 跨World恢复、构筑页面 / 设置、磁盘存档及最终美术尚未完成。M2_07A/Attempt01只为M2 Development阶段包，M3静态资源未新Cook；最新性能边界沿用B，不追加首次PIE等待。M3目标6遗物 / 2槽、原70h待首个真实装备闭环后校准；最终总复盘 / 简历与模拟面试留M8，普通C++手动 / 方案B / 用户自行Git保持。以下保留原M0起点：
+**截至2026-10-28，M0、M1、M2与清理已收尾，M3-01及02A / B已验收。**[B报告](Docs/Reports/M3_02B_Verification.md)核对五新 / 七旧源码、四相关Success、双Build与短基线；原生Combat基础0 / 双幅度Infinite装备GE / 整链加成快照成立，正向装备暂由自动化施加。当前[C1会话库存 / 版本方案](Docs/M3_02C1_SessionInventory.md)待手动；实际169 Source / 93cpp / 26测试 / 来源77。B实际代码50 / 检查2 / 等待5，M3累计136 / 20，项目3547 / 明确等待344分钟；M2仍1400 / 139、06C及07C未登记。普通Play仍100 / 原25，库存 / 身体装备事务、跨World恢复、页面 / 设置、磁盘存档与最终美术留后续。M2_07A/Attempt01仅M2阶段包，M3未新Cook，性能按B旧报告限制；首次PIE等待需求关闭。M3目标6件 / 2槽、原70h待真实闭环后校准，最终简历 / 模拟面试留M8，普通C++手动 / 方案B / 用户Git约定保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,6 +868,6 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-[M3-01报告](Docs/Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](Docs/M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](Docs/M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
+[M3-02B验收报告](Docs/Reports/M3_02B_Verification.md)已保存，四相关项Success，当前[C1会话库存 / 版本方案](Docs/M3_02C1_SessionInventory.md)待手动。当前本地156835b中的五个B新文件为空壳，工作区12份B源码已完整，必须重新Stage最新内容；本轮两新报告 / 指南与当前入口合计待提交14文档、12源码。精确当前清单及未来C1三新 / 两旧Source + 一Config见[C1末尾](Docs/M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。
 
-实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。
+完整B实现连同文档建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`；C1实施后建议英文`feat: add session inventory and versioned loadout plans`，中文译文`feat: 新增会话库存与带版本校验的装备方案`。助手本轮仅改文档，Source / Config / Content / 清单 / Tools保持；Raw与日志本地，Stage / Commit / Push由用户操作，未核验远端。

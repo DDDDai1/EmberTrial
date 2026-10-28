@@ -15,6 +15,9 @@ namespace ETGameplayTags
                                "Signed stamina change carried by an Instant effect spec.");
     UE_DEFINE_GAMEPLAY_TAG_COMMENT(SetByCaller_PoiseDelta, "SetByCaller.PoiseDelta",
                                    "Signed poise change carried by an Instant effect spec.");
+    // ---- 聚合装备加法，所有Spec均须显式写入两项（可为0） ----
+    UE_DEFINE_GAMEPLAY_TAG(SetByCaller_EquipmentMaxHealth, "SetByCaller.Equipment.MaxHealth");
+    UE_DEFINE_GAMEPLAY_TAG(SetByCaller_EquipmentLightAttackBonus, "SetByCaller.Equipment.LightAttackBonus");
     // ---- 受击与死亡状态 ----
     UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_HitReact, "Ability.HitReact",
                                "Identifies the formal hit reaction ability.");

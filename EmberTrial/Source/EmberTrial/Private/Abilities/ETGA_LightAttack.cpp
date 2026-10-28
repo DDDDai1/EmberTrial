@@ -18,6 +18,7 @@
 #include "GameplayEffect.h"
 #include "AIController.h"
 #include "Engine/World.h"
+#include "Math/NumericLimits.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETLightAttack, Log, All);
 
@@ -152,6 +153,53 @@ bool UETGA_LightAttack::HasValidComboConfiguration() const
 }
 
 // ---- 初次激活与当前玩家段身份查询 ----
+bool UETGA_LightAttack::TryCalculateStageDamage(
+    const float BaseDamage, const float Bonus, const float Multiplier, float& OutDamage)
+{
+    OutDamage = 0.0f;
+    if (!FMath::IsFinite(BaseDamage) || BaseDamage <= 0.0f || !FMath::IsFinite(Bonus) ||
+        !FMath::IsFinite(Multiplier) || Multiplier <= 0.0f)
+    {
+        return false;
+    }
+    const double Resolved = (static_cast<double>(BaseDamage) + Bonus) * Multiplier;
+    if (!FMath::IsFinite(Resolved) || Resolved <= 0.0 || Resolved > TNumericLimits<float>::Max())
+    {
+        return false;
+    }
+    const float Damage = static_cast<float>(Resolved);
+    if (!FMath::IsFinite(Damage) || Damage <= 0.0f)
+    {
+        return false;
+    }
+    OutDamage = Damage;
+    return true;
+}
+
+bool UETGA_LightAttack::TryCaptureDamageBonus(
+    const AEmberTrialCharacter* Body, float& OutBonus) const
+{
+    OutBonus = 0.0f;
+    float Bonus = 0.0f;
+    float Damage = 0.0f;
+    if (!IsValid(Body) || !Body->GetGameplayLightAttackBonusSnapshot(Bonus) ||
+        !TryCalculateStageDamage(AttackDamage, Bonus, 1.0f, Damage))
+    {
+        return false;
+    }
+    if (bEnableCombo)
+    {
+        for (const FETLightAttackStage& Stage : ComboFollowUps)
+        {
+            if (!TryCalculateStageDamage(AttackDamage, Bonus, Stage.DamageMultiplier, Damage))
+            {
+                return false;
+            }
+        }
+    }
+    OutBonus = Bonus;
+    return true;
+}
 
 bool UETGA_LightAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                            const FGameplayAbilityActorInfo* ActorInfo,
@@ -234,6 +282,11 @@ bool UETGA_LightAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
 
     const UETCombatTraceComponent* Trace =
         BodyCharacter->FindComponentByClass<UETCombatTraceComponent>();
+    float CapturedBonus = 0.0f;
+    if (!TryCaptureDamageBonus(BodyCharacter, CapturedBonus))
+    {
+        return false;
+    }
     UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
     return !ActorInfo->AbilitySystemComponent->HasMatchingGameplayTag(
                ETGameplayTags::State_Healing) &&
@@ -545,7 +598,11 @@ bool UETGA_LightAttack::StartStage(int32 Index)
     }
     ActiveStageIndex = Index;
     ActiveMontage = Montage;
-    ActiveStageDamage = AttackDamage * RuntimeStages[Index].DamageMultiplier;
+    if (!TryCalculateStageDamage(ActiveBaseAttackDamage, ActiveLightAttackBonus,
+                                  RuntimeStages[Index].DamageMultiplier, ActiveStageDamage))
+    {
+        return false;
+    }
     UAbilityTask_PlayMontageAndWait* Task =
         UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
             this, NAME_None, Montage, 1.0f, NAME_None, true, 1.0f, 0.0f, true);
@@ -618,12 +675,16 @@ void UETGA_LightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     ClearBufferedInput();
     ActiveStageIndex = INDEX_NONE;
     RuntimeStages.Reset();
+    ActiveBaseAttackDamage = 0.0f;
+    ActiveLightAttackBonus = 0.0f;
     AEmberTrialCharacter* Body =
         ActorInfo ? Cast<AEmberTrialCharacter>(ActorInfo->AvatarActor.Get()) : nullptr;
     UETCombatTraceComponent* Trace =
         IsValid(Body) ? Body->FindComponentByClass<UETCombatTraceComponent>() : nullptr;
+    float CapturedBonus = 0.0f;
     if (!IsValid(Body) || Body->IsCombatDead() || !IsValid(Trace) || !Trace->CanStartAttack() ||
-        !HasValidDamageConfiguration() || !HasValidComboConfiguration() || !IsValid(AttackMontage))
+        !HasValidDamageConfiguration() || !HasValidComboConfiguration() || !IsValid(AttackMontage) ||
+        !TryCaptureDamageBonus(Body, CapturedBonus))
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
@@ -636,6 +697,8 @@ void UETGA_LightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     {
         RuntimeStages.Append(ComboFollowUps);
     }
+    ActiveBaseAttackDamage = AttackDamage;
+    ActiveLightAttackBonus = CapturedBonus;
     const bool bCommitted = CommitAbility(Handle, ActorInfo, ActivationInfo);
     if (!IsActive() || Activation != ActivationSerial)
     {
@@ -718,6 +781,8 @@ void UETGA_LightAttack::EndAbility(const FGameplayAbilitySpecHandle Handle,
     ActiveTrace.Reset();
     ActiveStageIndex = INDEX_NONE;
     RuntimeStages.Reset();
+    ActiveBaseAttackDamage = 0.0f;
+    ActiveLightAttackBonus = 0.0f;
     const FString BodyName = GetNameSafe(ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr);
     const TWeakObjectPtr<UAbilitySystemComponent> ASC =
         ActorInfo ? ActorInfo->AbilitySystemComponent : TWeakObjectPtr<UAbilitySystemComponent>();

@@ -1,36 +1,34 @@
 # 当前开发进度
 
-更新2026-10-28。[M3-01遗物静态定义已通过](Reports/M3_01_Verification.md)，当前下发[M3-02A两槽方案与纯预览](M3_02A_LoadoutRules.md)，待用户手动实现。没有新增验收问题，不重复Build / 测试。
+更新2026-10-28。[M3-02B已通过](Reports/M3_02B_Verification.md)，当前下发[M3-02C1会话库存 / 版本方案](M3_02C1_SessionInventory.md)，待用户手动。没有待补验收，不重复刚完成的构建 / 测试。
 
 ## 当前实际工程
 
-- 161 Source / 88cpp，Core62 / UI23 / Editor3、24自动化、296 Content / 来源77；本地HEAD81a32c7已含01完整实现 / 两资产，未联网核验远端。
-- 两件原生RelicDefinition、ETRelic稳定ID / FText / 图标软引用 / 槽位 / 参数、IsDataValid与AssetManager扫描规则已落地。01代码与指南一致，既有玩法 / UI未变。
-- 最新独立包仍M2_07A/Attempt01，四能力 / 五HUD、真实AI、锁定 / 标记 / 右肩镜头、菜单 / 检查点等已有证据；该包不包含M3定义，不据AlwaysCook配置宣称本轮已验证Cook。
-- 本轮助手只写报告 / 清单与A指南，Source / Content / Config / Tools及原包保持。
+- 169 Source / 93cpp，Core67 / UI23 / Editor3，26自动化，296 Content / 来源77。B五新 / 七旧完整实现已在工作区；本地156835b仍含五个空壳新文件，需重新Stage完整源码，未核验远端。
+- 原生遗物定义、两槽规则 / 预览、Combat基础0、双幅度Infinite GE与真实轻击整链快照均已验收。正向装备仅自动化临时施加，普通Play仍100 / 原25 / 敌人配置10；没有库存提交或正式装备入口。
+- 最新包仍M2_07A/Attempt01，不含M3；原四能力 / 五HUD、AI / 锁定 / 镜头 / 检查点沿用，本轮无新Cook / 性能采集。
+- 助手本轮只写B报告 / C1指南及入口，Source / Content / Config / AssetManifest / Tools / 索引保持用户完成后的状态。
 
-## 01当次验收证据
+## B当次证据
 
-17:20:20两资产Valid，17:20:51.999 Inventory.Definitions实际Success；Editor / Game receipt及三索引对应最终Source，用户确认双Build与短基线通过。日志有生命100、轻击请求25与闪避150.05cm / .3001秒，具体命中 / E / P输入体验按用户反馈；不将攻击配置数字冒充本轮真实命中日志。
+20:25:13.853 EquipmentEffects、32.710 Combo.Flow、54.222 StaminaFoundation，20:26:07.856 PoiseFoundation四项实际Success，事件区间无Warning / Error。真实连段目标1000→970→940→910，中途撤GE本链仍各30、下一链25；Editor / Game receipt为20:22:26 / 20:23:55，三模块索引按用户确认。
 
-两份DataAsset SHA与HEAD LFS一致；实际20 / 5、槽位 / 文本字段按用户确认，原生合法性与ID注册由专项支持，不声称逐一独立读取Details。编辑器图标 / EOS等环境Warning不当作新玩法故障。
+三身体Combat0在Ready前、正式目标100→75有日志。2被3打断时116.67cm / .2333秒为主动取消，不要求150cm。E / P / 4→Q及Stop新身体按用户反馈；本轮未独立采到敌人10命中，指南原为可选观察，不补造或阻塞验收。全部77来源SHA与实物相符。
 
-## 当前02A下发边界
+## C1下发边界（尚未实施）
 
-三新Source（Loadout.h / cpp / Tests）与Definition头一条friend，生成两槽Before / After方案与基础属性预览。拥有 / 定义 / 槽位 / 重复 / 有限数值校验供后续真实装备服务与UI共用；失败 / NoChange清输出，无GAS / 库存提交 / 事件 / 运行输入。
+三新 / 两旧Source + DefaultGame.ini：GI拥有稳定ID / 两槽与定义GC引用；两主资产启动配置、无副作用预览、来源 / 版本 / 前态重验与同步重入保护。RunSession在成功到达且释放Pending后发确认事件；NewRun重置、Retry / Continue / MainMenu保留，四者均推进版本。C1无ASC / GE / Widget / 输入修改，不宣称身体装备事务已完成。
 
-预计实施后164 Source / 90cpp、25测试，当前仍161 / 88 / 24。只跑Inventory.Definitions / LoadoutRules各一次及一分钟短基线；没有新资产 / Config / Build.cs / Controller图，Play仍100生命 / 原25。B再接属性消费者 / 原生装备GE，C接库存 / 身体事务 / 会话；页面在03。
+实施后预计172 Source / 95cpp、Core69 / UI23 / Editor3、27测试；当前仍169 / 93 / 26。C2再接身体效果句柄、存活换装 / 失败边界与新身体恢复，页面 / 祭坛 / 设置按M3路线推进。新身体可能先BeginPlay再确认切图，C2必须等Pending解除，避免读到上轮装备。
 
-## 工时、后续与限制
+## 工时与协作
 
-01代码 / 配置40、检查2、等待5：M3累计42 / 5分钟；项目3453分钟（57小时33分）/ 明确等待329分钟（5小时29分）。M2仍1400 / 139，06C及07C阅读未登记。02A预计35–55 / 检查3–5与助手工作不计用户实耗。
+B代码50 / 检查2 / 等待5；M3累计136 / 20分钟，项目3547分钟（59小时07分）/ 明确等待344分钟（5小时44分）。M2仍1400 / 139，06C / 07C阅读未登记；助手工作与C1预计不计用户实耗。
 
-原70h M3预算待首个真实装备闭环后再校准；6遗物 / 2槽目标保持。普通C++手动、复杂排错按当次授权、方案B / 双语Commit / 用户自行Git保持；Blender重要模型与最终简历 / 面试总复盘仍留后期。
-
-M2性能样本 / 尺寸差异 / 孤立尖峰沿用[B报告](Reports/M2_07B_Verification.md)，本轮无新性能结论；首次PIE等待需求关闭。装备 / 页面 / 设置、磁盘存档与最终美术仍未完成。
+普通C++手动、复杂排错按当次授权。方案B本轮四项一次 / 短查已完成，C1只三库存专项与一次菜单往返，不搭验收Graph或重跑战斗全组。6遗物 / 2槽、M3原70h、Blender中后期与M8最终复盘约定保持；首次PIE等待需求关闭，M2性能边界沿用原报告。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-[M3-01报告](Reports/M3_01_Verification.md)已保存，当前[M3-02A两槽方案 / 纯预览](M3_02A_LoadoutRules.md)待用户手动实现。本地81a32c7已含01实现 / 两资产；本轮只新增报告 / A指南并同步清单 / 入口，精确13文件及未来三新 / 一旧Source范围见[A末尾](M3_02A_LoadoutRules.md#11-本批-commit--push固定放在最后)。文档建议英文`docs: verify relic definitions and prepare loadout rules`，中文译文`docs: 记录遗物定义验收并准备装备方案规则`。
+[M3-02B验收报告](Reports/M3_02B_Verification.md)已保存，四相关项Success，当前[C1会话库存 / 版本方案](M3_02C1_SessionInventory.md)待手动。当前本地156835b中的五个B新文件为空壳，工作区12份B源码已完整，必须重新Stage最新内容；本轮两新报告 / 指南与当前入口合计待提交14文档、12源码。精确当前清单及未来C1三新 / 两旧Source + 一Config见[C1末尾](M3_02C1_SessionInventory.md#10-本批-commit--push固定放在最后)。
 
-实现后建议英文`feat: add relic loadout planning and stat previews`，中文译文`feat: 新增遗物装备方案与属性预览`。运行工程 / Config / Tools与原包本轮保持；无差异旧实现 / 资产不重复Stage，Raw / 日志 / 包留本地。用户在CLion Stage最新完整内容 / Review Diff / Commit / Push，助手未改索引或核验远端。
+完整B实现连同文档建议英文`feat: add GAS equipment modifiers and light attack snapshots`，中文译文`feat: 新增GAS装备属性修饰与轻攻击快照`；C1实施后建议英文`feat: add session inventory and versioned loadout plans`，中文译文`feat: 新增会话库存与带版本校验的装备方案`。助手本轮仅改文档，Source / Config / Content / 清单 / Tools保持；Raw与日志本地，Stage / Commit / Push由用户操作，未核验远端。
