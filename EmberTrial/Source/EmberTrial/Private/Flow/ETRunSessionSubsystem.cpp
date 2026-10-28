@@ -45,6 +45,7 @@ void UETRunSessionSubsystem::Deinitialize()
     ResetPendingTravel();
     OnTravelFailed.Clear();
     OnCheckpointChanged.Clear();
+    OnTravelConfirmed.Clear();
     GameplayPackage.Reset();
     ActiveCheckpointId = NAME_None;
     UE_LOG(LogETRunSession, Display, TEXT("[M1-06C] Session end Session=%s"), *GetNameSafe(this));
@@ -324,7 +325,11 @@ void UETRunSessionSubsystem::HandlePostLoadMap(UWorld* LoadedWorld)
            TEXT("[M1-06C] Travel arrived Intent=%s Map=%s Expected=%d Confirmed=%d Pending=0"),
            GetIntentName(CompletedIntent), *LoadedPackage, bExpectedMap ? 1 : 0,
            bConfirmed ? 1 : 0);
-    if (!bConfirmed)
+    if (bConfirmed)
+    {
+        OnTravelConfirmed.Broadcast(LoadedWorld, CompletedIntent);
+    }
+    else
     {
         OnTravelFailed.Broadcast(
             LoadedWorld, FText::FromString(TEXT("未确认试炼地图与出生配置，请检查后重试。")));

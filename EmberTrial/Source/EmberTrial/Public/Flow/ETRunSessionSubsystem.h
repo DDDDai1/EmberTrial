@@ -22,6 +22,9 @@ enum class EETRunTravelIntent : uint8
     MainMenu
 };
 
+// 只有本GI、目标地图与出生报告确认后才发布；失败请求不发布成功。
+DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunTravelConfirmed, UWorld*, EETRunTravelIntent);
+
 // 当前进程的地图 / 检查点快照；不保存Actor / ASC，不负责Widget或磁盘存档。
 UCLASS()
 class EMBERTRIAL_API UETRunSessionSubsystem : public UGameInstanceSubsystem
@@ -58,6 +61,7 @@ public:
 
     FETRunTravelFailed OnTravelFailed;
     FETRunCheckpointChanged OnCheckpointChanged;
+    FETRunTravelConfirmed OnTravelConfirmed;
 
 private:
     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
