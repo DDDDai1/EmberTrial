@@ -375,7 +375,6 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 2026-10-24 C指南下发：普通实现由用户手动，用户已写入C五旧Source / 两IA；本次“直接解决”仅授权助手修ETTargetLockTests.cpp，玩法 / 资产未再改。现有B2右肩未提交差异保留。C实施后五旧Core / 两新IA / 原IMC与Controller及实际文档清单见[C末尾](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)；当前不提前Stage未来文件 / 空报告，不改变Git索引。主张先提交B2，再做C；如合并，指南提供完整合并范围及中英文建议。
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
+[03B验收检查报告](Reports/M3_03B_Verification.md)已保存：主体实现和三份资产已在本地897b9fa，当前待列表Never Tick Ensure窄补修，不进入下一章。当前Stage报告、操作指南、AssetManifest与状态文档；补修后再加入有变化的ListEntry资产及新SHA。无需重复Stage无变化Source，未联网核验远端。
 
-[03A验收报告](Reports/M3_03A_Verification.md)已保存，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动。本地4ed704b已有03A实现；本轮只更新13份文档，未来七新 / 四旧Source、两新Widget / 原Pause布局与来源范围见[03B末尾](M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。
-
-当前建议英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；实现后英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。运行Source / Config / Content / 来源 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`。实际修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。

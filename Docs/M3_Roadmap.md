@@ -1,6 +1,6 @@
 # M3：遗物装备、构筑界面与设置
 
-更新2026-10-29，UE **5.5.4**。M3-01及[M3-02最小装备闭环](Reports/M3_02C2_02_Verification.md)已验收，[03A列表模型与预览](Reports/M3_03A_Verification.md)也已验收，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动。实际179 Source / 100cpp、30测试 / 来源77，M3已量化372 / 等待39分钟；正式页面 / 祭坛仍后续。
+更新2026-10-29，UE **5.5.4**。M3-01 / 02 / 03A已验收，[03B暂停页遗物浏览](Reports/M3_03B_Verification.md)主体完成，实际Slate显示时发现Never Tick Ensure，最终验收待[9.3窄补修](M3_03B_RelicPausePanel.md)。当前186 Source / 104cpp、31测试 / 来源79，M3已量化507 / 等待44分钟；本轮不进入下一章。
 
 ## 1. 体验目标与分批
 
@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | **[M3-01 静态定义 / 状态契约](Reports/M3_01_Verification.md)，完成** | 原生定义、稳定ID / 参数、原生校验 / 实物注册，两资产已保存 | Definitions Success / 两Valid与短基线；实际42 / 等待5，无装备效果 |
 | M3-02 最小装备闭环，完成 | 纯方案 / 装备GE / 会话库存 / 自有句柄 / 提交点 / EquipmentReady / 新身体恢复 / PIE入口 | C2-02四Success；真实装备与资源恢复按用户反馈通过，无待补 |
-| M3-03 列表 / 详情 / 预览，A完成、B下发 | A模型 / 预览已过；B Presenter / 条目 / 详情 / 槽位比较嵌入暂停页；确认与查询控件后续 | B两相关项、真实只读列表与P / Continue快照；500行与图标后续集中验 |
+| M3-03 列表 / 详情 / 预览，A完成、B待补修 | B已接入Presenter / 列表 / 详情 / 槽位比较，两个专项通过 | 主体实机反馈通过，首次列表显示有Tick Ensure；先关闭该问题，500行与图标后续集中验 |
 | M3-04 祭坛入口与页面输入 | 将旧练习交互扩成通用入口；安全换装、页面层 / 焦点 / 返回与战斗输入互斥 | 正式入口 / 开关 / 世界结束短查，不复制一套Pause所有者 |
 | M3-05 设置与导航 | 音量、窗口 / 分辨率 / 画质、灵敏度 / 镜头选项、应用 / 取消 / 默认与键盘路径 | 仅受影响显示 / 输入 / 保存；分辨率要核对实际值与回退 |
 | M3-06 集成与首轮试玩 | 当前新包、构筑可见差异、世界重建 / 页面与设置；一次阶段回归 | 沿用未改旧专项，相关真实键鼠与独立包，不重复整套旧矩阵 |
@@ -39,14 +39,13 @@ Controller会随切图销毁，不能单靠Controller字段保存Continue装备�
 
 ## 4. 工期、美术与学习
 
-原M3基础70h保持，按每周30h约2.3有效投入周；缓冲沿用全局规划，不重复增加。01实际42 / 等待5，02A实际42 / 等待10，02B实际52 / 等待5，C1实际52 / 等待5，C2-01实际42 / 等待5，C2-02实际80 / 等待5，03A实际62 / 等待4，M3累计372 / 39；03B预计代码90–130 / Designer30–45 / 检查5–10，等待另记，不计实耗。真实闭环已完成，页面预算仍按学习 / 实际操作校准，不按填码速度线性压缩。
+原M3基础70h保持，按每周30h约2.3有效投入周；缓冲沿用全局规划。01至03A累计372 / 等待39分钟；03B实际代码90 / Designer40 / 检查5 / 等待5，人工135，M3累计507 / 等待44。Tick窄补修额外操作待登记，不提前计入预计用时。
 
 图标先允许空引用，后续View用统一占位，不购买资源；FText与图标路径不当作逻辑ID。重要模型中后期接Blender，当前无新模型 / 骨架要求。普通C++由用户手动，复杂排错按当次授权。
 
 学习重点是能说明状态来源、软引用 / AssetManager注册与Cook的区别、预览与真实提交、GE句柄所有权，以及列表复用解绑。断点 / Watch / 调用栈结合真实02排错记录，不为“面试材料”虚构故障或新增重复验收。
 
 ## 5. Commit / Push（固定放在最后）
+[03B验收检查报告](Reports/M3_03B_Verification.md)已保存：主体实现和三份资产已在本地897b9fa，当前待列表Never Tick Ensure窄补修，不进入下一章。当前Stage报告、操作指南、AssetManifest与状态文档；补修后再加入有变化的ListEntry资产及新SHA。无需重复Stage无变化Source，未联网核验远端。
 
-[03A验收报告](Reports/M3_03A_Verification.md)已保存，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动。本地4ed704b已有03A实现；本轮只更新13份文档，未来七新 / 四旧Source、两新Widget / 原Pause布局与来源范围见[03B末尾](M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。
-
-当前建议英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；实现后英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。运行Source / Config / Content / 来源 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`。实际修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。

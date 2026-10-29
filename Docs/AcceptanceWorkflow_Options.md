@@ -251,10 +251,9 @@ B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原
 
 新UI.Relics.Presenter与旧Inventory.EquipmentTransactions各一次。无屏幕夹具验证先观察后Ready、零幅度完成通知、稳定Item、同Presenter重启、NoPawn / 换身体与失活 / 结束；没有额外Viewport或第二份GI初始化。真实两新UMG / 原Pause布局按完整Designer步骤装配，不搭临时蓝图业务图。
 
-5–10分钟实机确认两件列表 / 中文 / 详情 / 只读比较无副作用、实际装备徽记、P在列表焦点下关闭、原继续按钮与一次Continue快照。31项全组、500件手造和新Cook均不纳入本批；条目释放代码接入不等于已经完成大列表压力测试。当前候选未写运行工程，不记作03B Build / Success。
+5–10分钟实机确认两件列表 / 中文 / 详情 / 只读比较无副作用、实际装备徽记、P在列表焦点下关闭、原继续按钮与一次Continue快照。31项全组、500件手造和新Cook均不纳入本批；条目释放代码接入不等于已经完成大列表压力测试。本批已两项Success与双Build，实际Slate首次显示发现Never Tick Ensure，按9.3窄补修；数据专项不能替代屏幕列表验证。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
+[03B验收检查报告](Reports/M3_03B_Verification.md)已保存：主体实现和三份资产已在本地897b9fa，当前待列表Never Tick Ensure窄补修，不进入下一章。当前Stage报告、操作指南、AssetManifest与状态文档；补修后再加入有变化的ListEntry资产及新SHA。无需重复Stage无变化Source，未联网核验远端。
 
-[03A验收报告](Reports/M3_03A_Verification.md)已保存，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动。本地4ed704b已有03A实现；本轮只更新13份文档，未来七新 / 四旧Source、两新Widget / 原Pause布局与来源范围见[03B末尾](M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。
-
-当前建议英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；实现后英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。运行Source / Config / Content / 来源 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`。实际修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。

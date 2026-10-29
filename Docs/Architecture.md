@@ -166,12 +166,11 @@ C2-02已验收：预检当前本地身体 / 观察版本 / 暂停 / Pending / Id
 
 M3-03A已验收：UI列表行是稳定ID / 文本 / 图标软引用的值快照，UObject Item为ListView承载数据，未来池化Widget先解绑旧Item再绑定新Item。投影按全部拥有数据校验后排序 / 筛选，失败清空；不加载图标或把数组下标当ID。身体TryBuildPreview与TryEquip共用预检，读可在动作 / 暂停期间执行，确认仍重验当前版本 / Idle / 非暂停；反复比较不Apply / Remove GE或治疗。
 
-M3-03B现下发、尚未实施：Core装备完成通知在bChanging撤销后发布，Presenter忽略本次写入中间属性通知，零幅度恢复也有事件。页面Presenter弱观察LocalPlayer身份 / GI库存 / 当前身体与ASC，稳定ID持有Item并去重；条目分配 / 释放精确解绑，Panel构造 / 结束启动 / 关闭自己的Presenter。
+M3-03B主体已实现：Core装备完成通知在bChanging撤销后发布，Presenter忽略本次写入中间属性通知，零幅度恢复也有事件。页面Presenter弱观察LocalPlayer身份 / GI库存 / 当前身体与ASC，稳定ID持有Item并去重；条目分配 / 释放精确解绑，Panel构造 / 结束启动 / 关闭自己的Presenter。换控后角色Restart补查装备恢复，避免PossessedBy早于SetPawn导致Waiting。两项无屏幕专项已通过；真实列表绘制的Never Tick Ensure待条目Auto配置窄补修，不能用数据专项代替Slate生命周期验证。
 
 只读面板嵌入已有P暂停页，不复制Flow、输入模式或世界暂停；比较可在暂停读取，页面不调用TryEquip。选中 / 槽位与展示快照归UI，领域拥有 / 配装与确认权限不迁入Widget。两件列表的真实检查与500条压力 / 异步图标边界分开；正式确认 / 祭坛后续。
 
 ## 10. 本批 Commit / Push（固定放在最后）
+[03B验收检查报告](Reports/M3_03B_Verification.md)已保存：主体实现和三份资产已在本地897b9fa，当前待列表Never Tick Ensure窄补修，不进入下一章。当前Stage报告、操作指南、AssetManifest与状态文档；补修后再加入有变化的ListEntry资产及新SHA。无需重复Stage无变化Source，未联网核验远端。
 
-[03A验收报告](Reports/M3_03A_Verification.md)已保存，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动。本地4ed704b已有03A实现；本轮只更新13份文档，未来七新 / 四旧Source、两新Widget / 原Pause布局与来源范围见[03B末尾](M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。
-
-当前建议英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；实现后英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。运行Source / Config / Content / 来源 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`。实际修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。

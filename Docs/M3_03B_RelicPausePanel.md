@@ -2,6 +2,8 @@
 
 2026-10-29，UE **5.5.4**。[M3-03A已验收](Reports/M3_03A_Verification.md)。本章主体C++由你手动输入，Designer按步骤装配；后续助手直接处理的检查与补修见对应章节记录。
 
+**当前状态（21:08完成反馈后复核）：主体完成，待9.3的Tick兼容窄补修。**两项自动化与功能反馈已通过，但本次运行日志有首次列表显示的Never Tick Ensure，详见[验收检查报告](Reports/M3_03B_Verification.md)；本轮不进入下一章。
+
 ## 1. 完成本章后看到什么
 
 按P打开原暂停页，左侧仍是继续 / 返回菜单，右侧新增遗物面板：真实两件拥有项、已装备槽位徽记、选中名称 / 说明、槽A / B比较按钮与数值变化。默认生息余烬预览最大生命100→120，选择砺锋残片预览首段轻击25→30。切换选择与比较槽位不会装备、扣血或治疗。
@@ -1381,7 +1383,7 @@ EntrySize (SizeBox，Height64)
 ### 6.2 设置正确原生父类
 
 1. 三个命名控件完成后，Class Settings→Reparent Blueprint，搜索并选择**ETRelicListEntryWidget**。核对Parent Class指向`/Script/EmberTrialUI.ETRelicListEntryWidget`，不要选择Panel父类。
-2. Class Defaults：Is Focusable=False，Tick Frequency=Never。继承的UserObjectListEntry接口由原生父类提供，不再手工添加另一份接口 / 蓝图事件。
+2. Class Defaults：Is Focusable=False，**Tick Frequency=Auto**（2026-10-29实际列表Tick兼容补修，替代初稿的Never）。原生父类保留DisableNativeTick，Graph不添加Tick；Auto允许引擎管理条目包装的更新，不添加业务轮询。继承的UserObjectListEntry接口由原生父类提供，不再手工添加另一份接口 / 蓝图事件。
 3. Compile→Save。三个BindWidget名称 / 类型必须准确，不能用Text代替Border；required widget binding与Native Tick警告均应消失。若有残留，优先查Is Variable和父类，不靠改控件显示文字修复绑定。
 
 ## 7. 创建WBP_ETRelicPanel
@@ -1497,6 +1499,27 @@ Automation RunTests EmberTrial.M3.Inventory.EquipmentTransactions
 
 本批真实只检查两件列表 / 详情 / 订阅和原焦点边界；EntryReleased代码已接入，但不把两行显示宣传为完成500条池化压力测试。大列表 / 图标异步和正式确认入口后续集中验证，不让你手动创建几百件假遗物。
 
+### 9.3 验收日志发现的Tick兼容补修（2026-10-29，待手动）
+
+主体反馈已收到，[验收检查报告](Reports/M3_03B_Verification.md)记录了两项Success和正常列表结果。但本次日志21:04:19有`TickFrequency != EWidgetTickFrequency::Never`及`SObjectWidget and UUserWidget have mismatching tick states`的Handled Ensure，调用栈经过列表绘制。初稿对列表条目统一要求Never不适合继续作为本机验证配置，先进行以下最小兼容调整。
+
+1. 在新打开的UE编辑器进程中，Content Browser进入`/Game/EmberTrial/ui/Inventory`，双击**WBP_ETRelicListEntry**。选择顶部**Class Defaults**；若按钮在Graph界面，先点右上Graph，再点Class Defaults。
+2. 在Details搜索`Tick Frequency`，将**Never改为Auto**。这里修改的是整个列表条目UserWidget的类默认值，不是SelectionBorder或两个Text的属性。Is Focusable仍为False；C++的DisableNativeTick保持，不新增Event Tick / Timer。
+3. 点击Compile，确认绿色；点击当前资产Save。其他普通Widget（Panel、Pause和旧HUD）先保持原配置。本修补不改C++，不需要重新Build或刷新索引。
+4. 回正式地图Play，第一次按P打开，等待约2秒；分别点击两行、槽A / B，再按P关闭。重复打开 / 关闭两次，最后确认能继续移动并Stop。只复验本处，不重新装备或重做Continue / 所有旧能力矩阵。
+5. 若当前编辑器进程已经出现过该Ensure，先正常保存并关闭UE再启动，然后执行第4步。Ensure可能每个进程只报告一次，同一失败进程第二次没有红字不能作为通过证据。
+6. 回复下面短结果即可，长日志由我读取。如果仍出现Ensure，保留编辑器状态和新日志；需要继续定位具体Widget与包装的Tick状态，不能标为已解决。
+
+```text
+M3-03B Tick窄补修
+ListEntry Tick Frequency=Auto / Compile-Save：
+新编辑器进程首次P / 两行与槽位切换 / 三轮开关：
+无新Tick Ensure / 最后移动与Stop：
+完成时分 / 额外手动用时：
+```
+
+本项通过前M3-03B状态为待补修，不进入下一章。原代码 / Designer / 真实检查人工135分钟、等待5分钟已登记；本次额外操作单列。
+
 ## 10. 简短反馈
 
 ```text
@@ -1562,10 +1585,12 @@ EmberTrial/Source/EmberTrialUI/Tests/ETRelicPresenterTests.cpp
 EmberTrial/Content/EmberTrial/ui/Inventory/WBP_ETRelicListEntry.uasset（新）
 EmberTrial/Content/EmberTrial/ui/Inventory/WBP_ETRelicPanel.uasset（新）
 EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset（布局修改）
-Docs/AssetManifest.csv（由我验收时补两份来源和实际SHA，更新旧Pause SHA）
+Docs/AssetManifest.csv（已登记两新来源和三份实际SHA；补修后更新ListEntry SHA）
 ```
 
 - 实现建议英文：`feat: add event driven relic browsing to the pause menu`
 - 中文译文：`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`
 
 CLion刷新Changes→Stage最新修改（已Stage后再改需再次Stage）→Review Diff→Commit / Push由你操作。Raw候选 / 日志 / 缓存 / Trace / 包留本地，不Force Add；Source / UE资产 / 文档与清单按实际本章差异提交。
+
+**本地主体已提交897b9fa。**当前新增[验收检查报告](Reports/M3_03B_Verification.md)、9.3补修步骤、来源清单与进度文档；未变化源码无需重复提交。实际补修后再Stage最新ListEntry资产及其SHA。当前文档记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`；配置修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。
