@@ -473,18 +473,20 @@ bool UETRelicEquipmentComponent::ReadPreviewBases(float& OutMaxHealth, float& Ou
 }
 
 // ---- 同步提交：先完成所有拒绝判断；提交点之后只执行预检过的原生写入 ----
-FETRelicInventoryReply UETRelicEquipmentComponent::TryEquip(
-    const EETRelicSlot Slot, const FName RelicId, const uint64 ExpectedRevision)
+// ---- 只读方案预检：比较与提交共用规则，但读操作不要求Idle / 非暂停 ----
+FETRelicInventoryReply UETRelicEquipmentComponent::TryMakePlan(
+    const EETRelicSlot Slot, const FName RelicId, const uint64 ExpectedRevision,
+    FETRelicInventoryPlan& OutPlan) const
 {
-    UETRelicInventorySubsystem* Inventory = InventorySource.Get();
-    if (bChanging || (IsValid(Inventory) && Inventory->bChanging))
+    OutPlan = {};
+    if (bChanging)
     {
         return {EETRelicInventoryResult::Busy};
     }
+    UETRelicInventorySubsystem* Inventory = InventorySource.Get();
     AEmberTrialCharacter* Body = nullptr;
     UAbilitySystemComponent* ASC = nullptr;
-    if (!ReadBody(Body, ASC) || !IsEquipmentReady() || !IsCurrentPlayerBody() ||
-        !IsValid(Inventory) || !Body->IsFormalActionIdle() || UGameplayStatics::IsGamePaused(this))
+    if (!ReadBody(Body, ASC) || Body->IsCombatDead() || !IsEquipmentReady() || !IsValid(Inventory))
     {
         return {EETRelicInventoryResult::NotReady};
     }
@@ -498,18 +500,57 @@ FETRelicInventoryReply UETRelicEquipmentComponent::TryEquip(
     {
         return {EETRelicInventoryResult::RuleRejected, EETRelicLoadoutResult::InvalidBaseValues};
     }
-    FETRelicInventoryPlan Plan;
-    const FETRelicInventoryReply Reply = Inventory->TryBuildPlan(Slot, RelicId, BaseMax, BaseDamage, Plan);
+    FETRelicInventoryPlan Candidate;
+    const FETRelicInventoryReply Reply = Inventory->TryBuildPlan(
+        Slot, RelicId, BaseMax, BaseDamage, Candidate);
     if (Reply.Result != EETRelicInventoryResult::Success)
     {
         return Reply;
     }
-    const FETRelicModifierTotals& Totals = Plan.GetLoadoutPlan().AfterModifiers;
+    const FETRelicModifierTotals& Totals = Candidate.GetLoadoutPlan().AfterModifiers;
     if (!AreModifiersValid(ASC, Totals) || !IsFinalDamageValid(Totals))
     {
         return {EETRelicInventoryResult::RuleRejected, EETRelicLoadoutResult::InvalidFinalValues};
     }
-    // 此前均为无副作用读取；无异步间隙。库存内部还会重验来源 / 版本 / 定义。
+    OutPlan = Candidate;
+    return Reply;
+}
+
+FETRelicInventoryReply UETRelicEquipmentComponent::TryBuildPreview(
+    const EETRelicSlot Slot, const FName RelicId, const uint64 ExpectedRevision,
+    FETRelicLoadoutPlan& OutPreview) const
+{
+    OutPreview = {};
+    FETRelicInventoryPlan Plan;
+    const FETRelicInventoryReply Reply = TryMakePlan(Slot, RelicId, ExpectedRevision, Plan);
+    if (Reply.Result == EETRelicInventoryResult::Success)
+    {
+        OutPreview = Plan.GetLoadoutPlan();
+    }
+    return Reply;
+}
+
+// ---- 写入仍要求当前身体Idle / 非暂停；只读预览不能绕过确认的版本重验 ----
+FETRelicInventoryReply UETRelicEquipmentComponent::TryEquip(
+    const EETRelicSlot Slot, const FName RelicId, const uint64 ExpectedRevision)
+{
+    UETRelicInventorySubsystem* Inventory = InventorySource.Get();
+    if (bChanging || (IsValid(Inventory) && Inventory->bChanging))
+    {
+        return {EETRelicInventoryResult::Busy};
+    }
+    const AEmberTrialCharacter* Body = BodyOwner.Get();
+    if (!IsValid(Body) || !Body->IsFormalActionIdle() || UGameplayStatics::IsGamePaused(this))
+    {
+        return {EETRelicInventoryResult::NotReady};
+    }
+    FETRelicInventoryPlan Plan;
+    const FETRelicInventoryReply Reply = TryMakePlan(Slot, RelicId, ExpectedRevision, Plan);
+    if (Reply.Result != EETRelicInventoryResult::Success)
+    {
+        return Reply;
+    }
+    // 所有业务拒绝均已完成。提交回调保持C2-02协议，不先Apply再伪造回滚。
     return Inventory->TryCommitPlan(Plan,
         [this](const FETRelicLoadoutPlan& Committed, const uint64 Revision)
         {

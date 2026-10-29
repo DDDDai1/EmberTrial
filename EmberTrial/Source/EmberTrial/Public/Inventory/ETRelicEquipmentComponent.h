@@ -41,6 +41,9 @@ public:
     // 本章唯一交互调用者是受限PIE开发命令，不暴露BlueprintCallable。
     FETRelicInventoryReply TryEquip(EETRelicSlot Slot, FName RelicId, uint64 ExpectedRevision);
 
+    // 只构建比较结果：暂停 / 动作中可读，不应用GE、不改库存或当前连段快照。
+    FETRelicInventoryReply TryBuildPreview(EETRelicSlot Slot, FName RelicId,
+        uint64 ExpectedRevision, FETRelicLoadoutPlan& OutPreview) const;
 
 protected:
     virtual void BeginPlay() override;
@@ -57,6 +60,8 @@ private:
     void HandleInventoryChanged(const FETRelicInventorySnapshot& Snapshot);
     void HandleTravelFailed(UWorld* FailedWorld, const FText& Error);
     bool ReadPreviewBases(float& OutMaxHealth, float& OutAttackDamage) const;
+    FETRelicInventoryReply TryMakePlan(EETRelicSlot Slot, FName RelicId,
+        uint64 ExpectedRevision, FETRelicInventoryPlan& OutPlan) const;
     bool IsFinalDamageValid(const FETRelicModifierTotals& Modifiers) const;
     void WriteModifiersUnchecked(const FETRelicModifierTotals& Modifiers);
 

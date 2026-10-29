@@ -2,6 +2,7 @@
 
 #include "Inventory/ETRelicEquipmentComponent.h"
 #include "Abilities/ETGA_LightAttack.h"
+#include "Abilities/ETGameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "Attributes/ETCombatAttributeSet.h"
 #include "Attributes/ETHealthAttributeSet.h"
@@ -85,6 +86,27 @@ bool FETRelicEquipmentTransactionTest::RunTest(const FString& Parameters)
     Equipment->RefreshEquipmentState();
     TestTrue(TEXT("Restored empty inventory ready"), Equipment->IsEquipmentReady());
     const FActiveGameplayEffectHandle Handle = Equipment->OwnedEffect;
+    // ---- 预览反复执行没有属性 / GE / 库存副作用，失败与NoChange清空输出 ----
+    const uint64 PreviewRevision = Inventory->GetSnapshot().Revision;
+    const int32 EffectsBeforePreview = ASC->GetActiveEffects(FGameplayEffectQuery()).Num();
+    FETRelicLoadoutPlan Preview;
+    for (int32 Index = 0; Index < 20; ++Index)
+    {
+        TestTrue(TEXT("Life preview succeeds"), Equipment->TryBuildPreview(
+            EETRelicSlot::First, LifeId, PreviewRevision, Preview).Result == EResult::Success);
+    }
+    TestEqual(TEXT("Preview max120"), Preview.AfterPreview.MaxHealth, 120.0f);
+    TestEqual(TEXT("Preview attack25"), Preview.AfterPreview.LightAttackBaseDamage, 25.0f);
+    TestTrue(TEXT("Preview leaves slots and revision unchanged"),
+        Inventory->GetSnapshot().Revision == PreviewRevision && Inventory->GetSnapshot().Equipped.SlotA.IsNone());
+    TestEqual(TEXT("Preview leaves real max100"), ASC->GetNumericAttribute(Max), 100.0f);
+    TestEqual(TEXT("Preview leaves real health100"), ASC->GetNumericAttribute(Health), 100.0f);
+    TestEqual(TEXT("Preview adds no effects"), ASC->GetActiveEffects(FGameplayEffectQuery()).Num(), EffectsBeforePreview);
+    TestTrue(TEXT("Preview preserves owned handle"), Equipment->OwnedEffect == Handle);
+    TestTrue(TEXT("Unowned preview rejected"), Equipment->TryBuildPreview(
+        EETRelicSlot::First, FName(TEXT("missing")), PreviewRevision, Preview).Result == EResult::RuleRejected);
+    TestTrue(TEXT("Rejected preview clears previous success"), Preview.After.SlotA.IsNone() &&
+        Preview.AfterPreview.MaxHealth == 0.0f);
     auto Equip = [&](EETRelicSlot Slot, FName Id)
     {
         return Equipment->TryEquip(Slot, Id, Inventory->GetSnapshot().Revision).Result;
@@ -119,6 +141,19 @@ bool FETRelicEquipmentTransactionTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Live equip does not heal"), ASC->GetNumericAttribute(Health), 100.0f);
     TestEqual(TEXT("Max120"), ASC->GetNumericAttribute(Max), 120.0f);
     TestEqual(TEXT("Max Base100"), ASC->GetNumericAttributeBase(Max), 100.0f);
+    TestTrue(TEXT("Preview existing life plus edge"), Equipment->TryBuildPreview(
+        EETRelicSlot::Second, EdgeId, Inventory->GetSnapshot().Revision, Preview).Result == EResult::Success);
+    TestEqual(TEXT("Existing equipment not counted twice"), Preview.AfterPreview.MaxHealth, 120.0f);
+    TestEqual(TEXT("Edge preview30"), Preview.AfterPreview.LightAttackBaseDamage, 30.0f);
+    TestTrue(TEXT("Same item preview NoChange"), Equipment->TryBuildPreview(
+        EETRelicSlot::First, LifeId, Inventory->GetSnapshot().Revision, Preview).Result == EResult::NoChange);
+    TestEqual(TEXT("NoChange clears preview output"), Preview.AfterPreview.MaxHealth, 0.0f);
+    ASC->AddLooseGameplayTag(ETGameplayTags::State_Attacking);
+    TestTrue(TEXT("Busy body may read preview"), Equipment->TryBuildPreview(
+        EETRelicSlot::Second, EdgeId, Inventory->GetSnapshot().Revision, Preview).Result == EResult::Success);
+    TestTrue(TEXT("Busy body cannot commit"), Equipment->TryEquip(
+        EETRelicSlot::Second, EdgeId, Inventory->GetSnapshot().Revision).Result == EResult::NotReady);
+    ASC->RemoveLooseGameplayTag(ETGameplayTags::State_Attacking);
     TestTrue(TEXT("Same exact GE handle"), Equipment->OwnedEffect == Handle);
     TestTrue(TEXT("Stale UI version rejected"),
         Equipment->TryEquip(EETRelicSlot::Second, EdgeId, OldRevision).Result == EResult::StalePlan);
