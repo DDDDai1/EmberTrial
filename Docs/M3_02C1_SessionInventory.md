@@ -1,6 +1,6 @@
 # M3-02C1：会话库存、版本方案与切图确认
 
-2026-10-28，固定UE **5.5.4**。本批已由你手动实现并验收；[C1报告](Reports/M3_02C1_Verification.md)记录三库存Success、双Build与真实版本往返，无待补。实际代码50 / 检查2 / 等待5分钟，当前进入[C2-01身体装备GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)。以下代码保留供复查，本轮助手未重写运行工程或重复执行测试。
+2026-10-28，固定UE **5.5.4**。本批已由你手动实现并验收；[C1报告](Reports/M3_02C1_Verification.md)记录三库存Success、双Build与真实版本往返，无待补。实际代码50 / 检查2 / 等待5分钟，C2-01也已验收，当前进入[C2-02真实换装提交与恢复](M3_02C2_02_EquipmentTransactions.md)。以下代码保留供复查，本轮助手未重写运行工程或重复执行测试。
 
 ## 1. 本批得到什么
 
@@ -725,6 +725,6 @@ Source / Config保存，恢复常用地图；失败或不理解处（无填无�
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-完整B / C1源码与配置已在本地8dbd243提交，之前B空文件问题已解决。当前只新增C1报告 / C2-01指南并同步入口，共13文档，精确清单及未来实现范围见[C2-01末尾](M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)；Source / Config / Content / 清单保持。
+C1及C2-01源码均已本地提交，当前HEAD5462f49。当前13份文档 / 后续一新九旧Source清单见[C2-02末尾](M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)；本轮不重写或重测C1实现。
 
-当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`。CLion刷新Changes → Stage最新内容 → Review Diff → Commit / Push由你操作，Raw / 日志 / 包本地；助手未改索引或核验远端。
+当前建议英文`docs: verify equipment ownership and prepare equipment transactions`，中文译文`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`。Stage / Review Diff / Commit / Push由用户操作，Raw / 日志 / 包本地，助手未改索引或联网核验远端。

@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-28。01静态定义、02A纯方案、B属性 / 装备效果与[C1会话库存](Reports/M3_02C1_Verification.md)均已验收，当前[C2-01身体GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)待手动；本页现有Runtime与未来身体事务分开描述，实际证据 / 工时见[Progress](Progress.md)。
+更新2026-10-29。静态定义、纯方案、装备效果 / 会话库存与[C2-01身体GE所有权](Reports/M3_02C2_01_Verification.md)已验收，当前[C2-02真实提交与恢复](M3_02C2_02_EquipmentTransactions.md)待手动；本页现有Runtime与未来身体事务分开描述，实际证据 / 工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -36,6 +36,7 @@ flowchart LR
 | FailureFlow / MainMenuController | 当前互斥面板、输入 / 焦点、自己的暂停及切图意图 | 不把暂停状态复制到Pawn布尔变量 |
 | RunSessionSubsystem | 本进程已确认地图 / 检查点ID、待定切图请求 / 成功确认事件 | 不持有旧Pawn / ASC，不保存交互Actor状态或库存域 |
 | RelicInventorySubsystem | 主资产配置 / 定义GC引用、拥有ID / 两槽、版本方案 / 逻辑提交与切图语义 | 不持有World / ASC / Widget或GE句柄，未接身体事务 |
+| RelicEquipmentComponent | 当前身体弱引用、ASC / 精确自有GE句柄、已应用加法 | 不持有Widget、不按GE类清整张ASC；库存提交 / 恢复待C2-02 |
 
 共享Character沿用模板原生类名，避免复制移动实现，取舍见[ADR-001](ADR/ADR_001_FrameworkReuse.md)。ASC放在Character，Owner=Avatar=Character；控制权变化刷新ActorInfo，身体换成新对象则资源重新初始化，取舍见[ADR-002](ADR/ADR_002_ASCOnCharacter.md)。
 
@@ -157,12 +158,14 @@ B已新增Combat属性集基础0与第四组Ready、双幅度Infinite GE。GA每
 
 C1已验收：GI库存以Config主资产ID加载 / 校验，UPROPERTY持有定义，逻辑快照只给拥有ID / 两槽 / Revision。不可随意改写的Plan带来源弱引用 / 版本 / 前态，提交前重算静态参数，广播期间拒绝重入写。RunSession只新增已确认切图通知，不反向依赖Inventory；NewRun重置、Retry / Continue / MainMenu保留，但均推进版本。当前Source已含Subsystem，逻辑提交只被模型专项调用；实机尚无换装入口。
 
-C2-01待实现：Character继承唯一RelicEquipment组件，只有玩家Ready后创建一份原生零幅度GE，以SourceObject和精确Handle识别所有权；正常换加成更新同一GE，避免先移除导致临时上限下降。原生只读查询核对真实Spec，外部移除 / 篡改后不可用；失活 / Ready撤销 / EndPlay清自己的句柄，不按类清除。无Tick / Timer，敌人与Neutral休眠。批聚合通知不是任意世界回调的原子事务，也不将低层Applied冒充库存提交成功。
+C2-01已验收：Character继承唯一RelicEquipment组件，只有玩家Ready后创建一份原生零幅度GE，以SourceObject和精确Handle识别所有权；正常换加成更新同一GE，避免先移除导致临时上限下降。原生只读查询核对真实Spec，外部移除 / 篡改后不可用；失活 / Ready撤销 / EndPlay清自己的句柄，不按类清除。无Tick / Timer，敌人与Neutral休眠。批聚合通知不是任意世界回调的原子事务，也不将低层Applied冒充库存提交成功。
 
-C2-02才接上下文重验、库存 / 身体提交点与失败边界；新身体BeginPlay早于PostLoad确认时须等Pending解除再恢复，不能拿上轮ID提前套用。最大值变化造成资源夹取的归因 / 恢复需一起处理，不声称GAS天然原子。当前没有装备恢复 / 新EquipmentReady，Presenter / View与祭坛页面仍后续；原GameplayReady仍指基础初始化，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
+C2-02现下发、尚未实施：预检当前本地身体 / 观察版本 / 暂停 / Pending / Idle / 最终伤害；所有拒绝发生在副作用前。库存提交ID / 版本后执行预检过的同步原生写入器，身体更新同句柄后才发布领域事件；属性回调可读新ID，重入写Busy。同步死亡 / 结束是提交后的世界变化，不伪造资源回滚。
+
+新身体等待切图最终库存，首次恢复后回满最终生命上限；活体换装、重复观察与组件重激活不治疗。EquipmentReady另行门控受控玩家输入，不改GameplayReady；ET_Relic仅PIE开发入口，正式祭坛权限仍后续。新身体BeginPlay早于PostLoad确认时须等Pending解除再恢复，不能拿上轮ID提前套用。最大值变化造成资源夹取的归因 / 恢复需一起处理，不声称GAS天然原子。当前没有装备恢复 / 新EquipmentReady，Presenter / View与祭坛页面仍后续；原GameplayReady仍指基础初始化，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[C1验收报告](Reports/M3_02C1_Verification.md)已保存，当前[C2-01身体装备GE所有权](M3_02C2_01_EquipmentEffectOwnership.md)待手动。本地8dbd243已包含完整B / C1源码，起点工作区干净；本轮只新增报告 / 指南并同步入口，共13文档，精确清单与未来三新 / 两旧Source、可能的三身体重存见[C2-01末尾](M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)。
+[C2-01验收报告](Reports/M3_02C2_01_Verification.md)已保存，当前[C2-02换装提交与恢复](M3_02C2_02_EquipmentTransactions.md)待手动。本地5462f49已有C2-01实现；本轮只更新13份文档，精确清单与未来一新 / 九旧Source见[C2-02末尾](M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)。
 
-当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`；实现后英文`feat: manage body owned relic equipment effects`，中文译文`feat: 新增遗物装备效果的身体所有权管理`。助手本轮未改Source / Config / Content / 清单 / Tools / Git索引，也未重跑Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify equipment ownership and prepare equipment transactions`，中文译文`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`；实现后英文`feat: commit relic loadouts and restore equipment on new bodies`，中文译文`feat: 提交遗物配装并在新角色身体上恢复装备效果`。Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

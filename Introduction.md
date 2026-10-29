@@ -1,10 +1,10 @@
 # 《烬火试炼》Ember Trial — UE5 求职 Demo 开发计划
 
-版本：v1.4 · 更新日期：2026-10-23 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
+版本：v1.4 · 更新日期：2026-10-29 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M2-05C2-02唯一通知与真实范围破势已验收；F施放 / 6秒冷却 / 300cm与60Poise结算成立，冷却反馈UI留D。最新规模与证据见[Progress](Docs/Progress.md)和[C2-02报告](Docs/Reports/M2_05C2_02_Verification.md)；保留现有自动化，不把源码测试数量当成普通Play运行负担。
+当前进度：M3-02C2-01身体装备GE所有权已验收；当前[C2-02真实换装提交与新身体恢复](Docs/M3_02C2_02_EquipmentTransactions.md)待手动。实际175 Source / 97cpp、28自动化；正式Play仍100 / 25。最新证据与实耗见[Progress](Docs/Progress.md)，原生句柄管理不代表装备UI或跨世界恢复已经完成。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -216,7 +216,7 @@ P0 退出条件：能构建打包；能连续完成 3 次闭环；没有阻断�
 
 ### 4.6 遗物、装备与数据驱动
 
-用 `UPrimaryDataAsset` 定义静态遗物数据：稳定 ID、`FText` 名称 / 说明、图标软引用、可用槽位、Gameplay Effect / 参数、排序类别。运行时实例与静态定义分离。M3-01类型化加法参数、两槽与AssetManager契约已验收，第一批最大生命+20、每段轻击基础加成+5仍只是静态定义。02A无状态方案 / 预览已验收，当前B下发受约束的原生GAS效果与整链伤害快照，C接库存 / 身体事务，不提前暴露任意GE引用 / 运行句柄。当前正式生命 / 伤害没有装备变化。
+用 `UPrimaryDataAsset` 定义静态遗物数据：稳定 ID、`FText` 名称 / 说明、图标软引用、可用槽位、Gameplay Effect / 参数、排序类别。运行时实例与静态定义分离。M3-01类型化加法参数、两槽与AssetManager契约已验收，第一批最大生命+20、每段轻击基础加成+5已有原生GE / 整链快照与纯方案验证；GI会话库存和身体自有零幅度句柄已验收，当前C2-02下发真实提交与恢复，构筑UI仍后续，不暴露任意GE引用 / 运行句柄。当前正式生命 / 伤害没有装备变化。
 
 6 个遗物的初始设计：最大生命提升、体力恢复提升、攻击提升、破势效率提升、治疗效果提升、生命与攻击的取舍型组合。数值是调参数据，不写死在 Widget 或角色蓝图里。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-28，M0、M1、M2与清理已收尾，M3-01及02A / B / C1已验收。**[C1报告](Docs/Reports/M3_02C1_Verification.md)核对三新 / 两旧Source与Config、三库存Success / 双Build，真实同一库存确认版本1→6；非空逻辑装备模型保留与实际空槽日志分别记证。当前[C2-01身体GE所有权](Docs/M3_02C2_01_EquipmentEffectOwnership.md)待手动；实际172 Source / 95cpp / 27测试 / 来源77。C1代码50 / 检查2 / 等待5，M3累计188 / 25，项目3599 / 明确等待349分钟；M2仍1400 / 139、06C及07C未登记。普通Play仍原100 / 25，GE正向加成只在自动化；身体装备事务 / 恢复、页面 / 设置、磁盘存档与最终美术仍后续。M2_07A/Attempt01仅M2阶段包，M3未新Cook，性能按B旧报告限制；首次PIE等待需求关闭。M3目标6件 / 2槽、原70h待真实闭环后校准，最终简历 / 模拟面试留M8，普通C++手动 / 方案B / 用户Git约定保持。以下保留原M0起点：
+**截至2026-10-29，M0、M1、M2与清理已收尾，M3至C2-01已验收。**[C2-01报告](Docs/Reports/M3_02C2_01_Verification.md)核对五个Source、三相关Success / 双Build、正式玩家零幅度GE创建与精确释放；第二轮Play按用户确认，未扩写为独立日志。当前[C2-02真实提交与新身体恢复](Docs/M3_02C2_02_EquipmentTransactions.md)待手动；实际175 Source / 97cpp / 28测试 / 来源77。C2-01代码配置40 / 检查2 / 等待5，M3累计230 / 30，项目3641 / 明确等待354分钟；M2仍1400 / 139、06C及07C阅读未登记。普通Play仍原100 / 25，正向加成只在专项；真实事务 / 恢复、页面 / 设置、磁盘存档与最终美术后续。M2_07A/Attempt01只代表M2包，M3未新Cook；性能沿用对应旧报告边界，首次PIE等待需求关闭。M3目标6件 / 2槽、原70h待闭环后校准，最终简历 / 模拟面试留M8；普通C++手动、方案B与用户Git约定保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,6 +868,6 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-[C1验收报告](Docs/Reports/M3_02C1_Verification.md)已保存，当前[C2-01身体装备GE所有权](Docs/M3_02C2_01_EquipmentEffectOwnership.md)待手动。本地8dbd243已包含完整B / C1源码，起点工作区干净；本轮只新增报告 / 指南并同步入口，共13文档，精确清单与未来三新 / 两旧Source、可能的三身体重存见[C2-01末尾](Docs/M3_02C2_01_EquipmentEffectOwnership.md#10-本批-commit--push固定放在最后)。
+[C2-01验收报告](Docs/Reports/M3_02C2_01_Verification.md)已保存，当前[C2-02换装提交与恢复](Docs/M3_02C2_02_EquipmentTransactions.md)待手动。本地5462f49已有C2-01实现；本轮只更新13份文档，精确清单与未来一新 / 九旧Source见[C2-02末尾](Docs/M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)。
 
-当前建议英文`docs: verify session inventory and prepare equipment ownership`，中文译文`docs: 记录会话库存验收并准备装备效果句柄管理`；实现后英文`feat: manage body owned relic equipment effects`，中文译文`feat: 新增遗物装备效果的身体所有权管理`。助手本轮未改Source / Config / Content / 清单 / Tools / Git索引，也未重跑Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify equipment ownership and prepare equipment transactions`，中文译文`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`；实现后英文`feat: commit relic loadouts and restore equipment on new bodies`，中文译文`feat: 提交遗物配装并在新角色身体上恢复装备效果`。Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

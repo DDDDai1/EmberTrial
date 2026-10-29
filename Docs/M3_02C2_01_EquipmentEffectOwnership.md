@@ -1,6 +1,6 @@
 # M3-02C2-01：身体装备GE的句柄所有权
 
-2026-10-28，固定UE **5.5.4**。[C1已验收](Reports/M3_02C1_Verification.md)。**本批待你手动实现；助手只下发代码，未写入运行工程、Build或执行新测试。**预计代码50–80分钟、资产 / 检查5–10分钟，构建等待另记；第3–6节全部完成后再正常Build。
+2026-10-29复核，固定UE **5.5.4**。本批已手动实施并[验收通过](Reports/M3_02C2_01_Verification.md)，三相关Success、双Build与玩家GE清理已核对，无待补。实际代码配置40 / 检查2 / 等待5分钟；当前进入[C2-02真实提交与新身体恢复](M3_02C2_02_EquipmentTransactions.md)。以下保留本批历史实现供复查，不用重新覆盖后续修改或重跑验收。
 
 ## 1. 本批效果与范围
 
@@ -11,7 +11,7 @@
 - 复用B原生双SetByCaller GE与现有属性，不新增GE蓝图、IA、UI、Config或临时验收图。
 - 正向20 / 5等效果只由自动化临时写入；正式Play仍空槽 / 原100 / 25，本批尚无真实换装按钮或命令。
 
-当前172 Source / 95cpp、Core69 / UI23 / Editor3、27测试；完成后预计**175 / 97、Core71 / UI23 / Editor3、28测试**。Content仍296 / 来源77；旧身体如合法重存，只记录实际字节差异，不新增资产。
+已验收实际**175 Source / 97cpp、Core71 / UI23 / Editor3、28测试**。Content仍296 / 来源77；旧身体如合法重存，只记录实际字节差异，不新增资产。
 
 ## 2. 为什么先做句柄，再接库存事务
 
@@ -703,50 +703,10 @@ Source / 资产Save All；失败或不理解处（无填无）：
 完成时分 / 手动代码与配置 / 检查 / 构建等待：
 ```
 
-成功长日志我读取；报错优先给第一条错误文字 / 路径 / 行号。界面找不到组件或出现重复时才补截图；不要删除旧ASC / 属性集来“消除重复”。本批代码尚未在运行工程编译，新专项Success只能在你实际执行后登记。
+成功长日志我读取；报错优先给第一条错误文字 / 路径 / 行号。界面找不到组件或出现重复时才补截图；不要删除旧ASC / 属性集来“消除重复”。本批代码已正常编译，三项Success与正式GE清理见验收报告；此处为历史反馈模板，不重复执行。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-本地`8dbd243`已含完整B / C1实现，起点工作区干净，之前五个B空文件的问题已解决；助手未联网核验远端。本轮只写文档，当前共13份实际变化：
+C2-01实现已在本地5462f49提交，远端未重新核验。当前验收报告 / 下一批指南及入口共13份文档，精确清单与未来C2-02源码范围见[C2-02末尾](M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)。Source / Config / Content / 来源清单保持用户完成后的状态。
 
-```text
-Docs/Reports/M3_02C1_Verification.md
-Docs/M3_02C2_01_EquipmentEffectOwnership.md
-Docs/M3_02C1_SessionInventory.md
-Docs/M3_02B_CombatEquipmentEffects.md
-Docs/M3_Roadmap.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_Roadmap.md
-README.md
-Introduction.md
-```
-
-- 当前文档建议英文：`docs: verify session inventory and prepare equipment ownership`
-- 中文译文：`docs: 记录会话库存验收并准备装备效果句柄管理`
-
-**你实施本批后**，提交以下三新 / 两旧Source与当时最新验收 / 入口文档：
-
-```text
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicEquipmentComponent.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicEquipmentComponent.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentOwnershipTests.cpp
-EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h
-EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp
-```
-
-第7节三个身体如果产生合法重存差异，仅纳入有变化者；不强制提交无差异旧资产，来源SHA由我验收时核对。可能涉及：
-
-```text
-EmberTrial/Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset
-EmberTrial/Content/EmberTrial/Characters/Enemies/BP_ETMeleeEnemy.uasset
-EmberTrial/Content/EmberTrial/Tests/Blueprints/BP_ETCombatTrainingTarget.uasset
-```
-
-- 实现建议英文：`feat: manage body owned relic equipment effects`
-- 中文译文：`feat: 新增遗物装备效果的身体所有权管理`
-
-本批不改库存 / RunSession、DefaultGame.ini、GA / GE资产、输入或地图；不把C1已提交源码重复列为当前修改。CLion Refresh Changes → Stage最新内容（已经Stage后又改，需要再次Stage）→ Review Diff → Commit / Push由你操作。Raw候选 / 日志 / 缓存 / Trace / 包保持本地，不Force Add；助手本轮未改Git索引 / Source / Config / Content / AssetManifest或执行Build / 测试。
+当前建议英文`docs: verify equipment ownership and prepare equipment transactions`，中文译文`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`。下一批实现建议英文`feat: commit relic loadouts and restore equipment on new bodies`，中文译文`feat: 提交遗物配装并在新角色身体上恢复装备效果`。CLion刷新Changes→Stage最新修改→Review Diff→Commit / Push由你操作；Raw / 日志 / 包本地，助手未改索引。
