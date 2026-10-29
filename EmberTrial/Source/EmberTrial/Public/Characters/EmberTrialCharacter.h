@@ -157,6 +157,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETBreakPulseHUDTest;
     friend class FETTargetLockSelectionTest;
     friend class FETRelicEquipmentOwnershipTest;
+    friend class FETRelicEquipmentTransactionTest;
 
     // Ready只表示四组属性链初始化成功；不代表存活、受控、装备就绪或能力已授予。
     bool bStartupAttributesInitialized = false;
@@ -285,6 +286,13 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "EmberTrial|Combat")
     bool IsFormalActionIdle() const;
+
+    const UETGA_LightAttack* GetLightAttackConfiguration() const;
+    bool IsRelicEquipmentReadyForInput() const;
+
+    // 0仅查询，1 / 2为槽位；None表示卸下。写入仅允许Editor的PIE。
+    UFUNCTION(Exec)
+    void ET_Relic(int32 Slot = 0, FName RelicId = NAME_None);
 
     UFUNCTION(BlueprintPure, Category = "EmberTrial|Combat")
     bool IsCombatDead() const;

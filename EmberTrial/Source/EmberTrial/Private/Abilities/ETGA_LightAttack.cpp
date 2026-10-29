@@ -181,9 +181,19 @@ bool UETGA_LightAttack::TryCaptureDamageBonus(
 {
     OutBonus = 0.0f;
     float Bonus = 0.0f;
-    float Damage = 0.0f;
     if (!IsValid(Body) || !Body->GetGameplayLightAttackBonusSnapshot(Bonus) ||
-        !TryCalculateStageDamage(AttackDamage, Bonus, 1.0f, Damage))
+        !IsDamageBonusValid(Bonus))
+    {
+        return false;
+    }
+    OutBonus = Bonus;
+    return true;
+}
+
+bool UETGA_LightAttack::IsDamageBonusValid(const float Bonus) const
+{
+    float Damage = 0.0f;
+    if (!TryCalculateStageDamage(AttackDamage, Bonus, 1.0f, Damage))
     {
         return false;
     }
@@ -197,7 +207,6 @@ bool UETGA_LightAttack::TryCaptureDamageBonus(
             }
         }
     }
-    OutBonus = Bonus;
     return true;
 }
 

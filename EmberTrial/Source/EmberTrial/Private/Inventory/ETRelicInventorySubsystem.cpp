@@ -180,7 +180,15 @@ FETRelicInventoryReply UETRelicInventorySubsystem::TryBuildPlan(
 }
 
 // ---- 私有逻辑提交；C2还必须先核对身体 / 世界与效果，不能把它直接暴露给UI ----
-FETRelicInventoryReply UETRelicInventorySubsystem::TryCommitPlan(const FETRelicInventoryPlan& Plan)
+FETRelicInventoryReply UETRelicInventorySubsystem::TryCommitPlan(
+    const FETRelicInventoryPlan& Plan)
+{
+    // 仅供既有纯模型专项；生产身体使用下方带写入器的重载。
+    return TryCommitPlan(Plan, [](const FETRelicLoadoutPlan&, uint64) {});
+}
+
+FETRelicInventoryReply UETRelicInventorySubsystem::TryCommitPlan(const FETRelicInventoryPlan& Plan,
+    TFunctionRef<void(const FETRelicLoadoutPlan&, uint64)> CommitEffects)
 {
     if (!bReady || bClosing)
     {
@@ -224,10 +232,12 @@ FETRelicInventoryReply UETRelicInventorySubsystem::TryCommitPlan(const FETRelicI
         return {EETRelicInventoryResult::StalePlan};
     }
 
-    // 先提交再同步广播；回调可以读 / 预览，但重入写请求会得到Busy。
+    // 此处之前均可拒绝且没有属性副作用。此处之后是提交点：先记录ID，
+    // 再执行已经预检的同句柄更新，最后发布完整领域事件；不伪造资源回滚。
     TGuardValue<bool> ChangeGuard(bChanging, true);
     Equipped = A.After;
     AdvanceRevision();
+    CommitEffects(A, Revision);
     PublishSnapshot();
     return {EETRelicInventoryResult::Success};
 }

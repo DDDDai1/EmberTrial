@@ -36,6 +36,10 @@ class EMBERTRIAL_API UETGA_LightAttack : public UGameplayAbility
     GENERATED_BODY()
 
 public:
+    // 只读配置供装备预检；不授予能力、不改变当前连段的已捕获快照。
+    float GetBaseAttackDamage() const { return AttackDamage; }
+    bool IsDamageBonusValid(float Bonus) const;
+
     UETGA_LightAttack();
     bool IsComboEnabled() const
     {

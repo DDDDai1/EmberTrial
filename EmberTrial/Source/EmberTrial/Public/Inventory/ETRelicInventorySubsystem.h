@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Templates/Function.h"
 #include "Inventory/ETRelicLoadout.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "UObject/PrimaryAssetId.h"
@@ -78,10 +79,14 @@ private:
     // C2的身体装备服务才有提交权限；UI只有读 / 预览，不可直接提交逻辑成功。
     friend class UETRelicEquipmentComponent;
     friend class FETRelicInventorySessionTest;
+    friend class FETRelicEquipmentTransactionTest;
 
     bool InitializeDataFromConfig();
     ETRelicLoadoutRules::FDefinitionMap MakeDefinitionMap() const;
     FETRelicInventoryReply TryCommitPlan(const FETRelicInventoryPlan& Plan);
+    // 身体预检完成后使用；回调只执行不会再业务拒绝的原生提交写入。
+    FETRelicInventoryReply TryCommitPlan(const FETRelicInventoryPlan& Plan,
+        TFunctionRef<void(const FETRelicLoadoutPlan&, uint64)> CommitEffects);
     void HandleTravelConfirmed(UWorld* LoadedWorld, EETRunTravelIntent Intent);
     void ApplyConfirmedIntent(EETRunTravelIntent Intent);
     void AdvanceRevision();

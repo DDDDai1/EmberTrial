@@ -64,6 +64,8 @@ public:
     FETRunTravelConfirmed OnTravelConfirmed;
 
 private:
+    friend class FETRelicEquipmentTransactionTest;
+
     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
     bool BeginTravel(UWorld* RequestWorld, const FString& TargetPackage, FName SpawnId,
                      EETRunTravelIntent Intent, FText& OutError);

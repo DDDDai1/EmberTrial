@@ -35,6 +35,7 @@
 #include "Resources/ETStaminaRecoveryComponent.h"
 #include "Resources/ETHealingResourceComponent.h"
 #include "Inventory/ETRelicEquipmentComponent.h"
+#include "Engine/GameInstance.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -151,7 +152,7 @@ void AEmberTrialCharacter::GrantDodgeAbility()
 
 bool AEmberTrialCharacter::RequestDodge()
 {
-    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
+    if (!IsRelicEquipmentReadyForInput() || !IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
         !DodgeAbilityHandle.IsValid())
     {
         UE_LOG(LogETAbilityFoundation, Display,
@@ -237,7 +238,7 @@ void AEmberTrialCharacter::GrantLightAttackAbility()
 
 bool AEmberTrialCharacter::RequestLightAttack()
 {
-    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
+    if (!IsRelicEquipmentReadyForInput() || !IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
         !LightAttackAbilityHandle.IsValid() ||
         AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Stunned) ||
          AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_CastingBreakPulse))
@@ -379,7 +380,7 @@ void AEmberTrialCharacter::ET_Poise(float Delta)
 
 bool AEmberTrialCharacter::IsFormalActionIdle() const
 {
-    return !bAbilitySystemShuttingDown && IsGameplayReady() && !IsCombatDead() &&
+    return !bAbilitySystemShuttingDown && IsGameplayReady() && !IsCombatDead() && IsRelicEquipmentReadyForInput() &&
            IsValid(AbilitySystemComponent) &&
            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Dead) &&
            !AbilitySystemComponent->HasMatchingGameplayTag(ETGameplayTags::State_Attacking) &&
@@ -597,6 +598,10 @@ void AEmberTrialCharacter::RefreshEmberAbilityActorInfo(const TCHAR* Reason)
            *GetNameSafe(AbilitySystemComponent->GetOwnerActor()),
            *GetNameSafe(AbilitySystemComponent->GetAvatarActor()),
            *GetNameSafe(AbilitySystemComponent->AbilityActorInfo->PlayerController.Get()));
+    if (IsValid(RelicEquipmentComponent))
+    {
+        RelicEquipmentComponent->RefreshEquipmentState();
+    }
 }
 
 void AEmberTrialCharacter::PossessedBy(AController* NewController)
@@ -792,7 +797,7 @@ void AEmberTrialCharacter::GrantHealAbility()
 
 bool AEmberTrialCharacter::RequestHeal()
 {
-    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
+    if (!IsRelicEquipmentReadyForInput() || !IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
         !IsValid(AbilitySystemComponent) || !HealAbilityHandle.IsValid())
     {
         return false;
@@ -835,7 +840,7 @@ void AEmberTrialCharacter::GrantBreakPulseAbility()
 
 bool AEmberTrialCharacter::RequestBreakPulse()
 {
-    if (!IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
+    if (!IsRelicEquipmentReadyForInput() || !IsGameplayReady() || IsCombatDead() || bAbilitySystemShuttingDown ||
         !IsValid(AbilitySystemComponent) || !BreakPulseAbilityHandle.IsValid())
     {
         return false;
@@ -909,4 +914,56 @@ bool AEmberTrialCharacter::GetBreakPulseCooldownSnapshot(bool& bOutCooling, floa
     OutDuration = Duration;
     OutRemaining = FMath::Clamp(Remaining, 0.0f, Duration);
     return true;
+}
+
+// ---- 装备读取与开发命令：正式输入只读Ready，换装策略不散落到Widget ----
+const UETGA_LightAttack* AEmberTrialCharacter::GetLightAttackConfiguration() const
+{
+    return !bAbilitySystemShuttingDown && IsValid(LightAttackAbilityClass.Get())
+        ? LightAttackAbilityClass->GetDefaultObject<UETGA_LightAttack>() : nullptr;
+}
+
+bool AEmberTrialCharacter::IsRelicEquipmentReadyForInput() const
+{
+    // 这里只门控受玩家控制的输入；无人控制身体的原生能力专项仍可独立运行。
+    // 真正换装入口另外严格检查当前本地PlayerController与库存身份。
+    return CombatTeam != EETCombatTeam::Player || !IsPlayerControlled() ||
+           (IsValid(RelicEquipmentComponent) && RelicEquipmentComponent->IsEquipmentReady());
+}
+
+void AEmberTrialCharacter::ET_Relic(const int32 Slot, const FName RelicId)
+{
+#if WITH_EDITOR
+    UWorld* World = GetWorld();
+    UETRelicInventorySubsystem* Inventory = IsValid(World) && World->GetGameInstance()
+        ? World->GetGameInstance()->GetSubsystem<UETRelicInventorySubsystem>() : nullptr;
+    if (!IsValid(World) || World->WorldType != EWorldType::PIE || !IsValid(Inventory) ||
+        !IsValid(RelicEquipmentComponent) || Slot < 0 || Slot > 2)
+    {
+        return;
+    }
+    FETRelicInventoryReply Reply{EETRelicInventoryResult::NoChange};
+    if (Slot != 0)
+    {
+        Reply = RelicEquipmentComponent->TryEquip(
+            Slot == 1 ? EETRelicSlot::First : EETRelicSlot::Second, RelicId,
+            Inventory->GetSnapshot().Revision);
+    }
+    const FETRelicInventorySnapshot Snapshot = Inventory->GetSnapshot();
+    float Health = 0.0f;
+    float MaxHealth = 0.0f;
+    float Bonus = 0.0f;
+    GetGameplayHealthSnapshot(Health, MaxHealth);
+    GetGameplayLightAttackBonusSnapshot(Bonus);
+    UE_LOG(LogETAbilityFoundation, Display,
+           TEXT("[M3-02C2-02] Relic dev Slot=%d Result=%d Rule=%d Ready=%d Revision=%llu "
+                "A=%s B=%s Health=%.1f/%.1f Bonus=%.1f"),
+           Slot, static_cast<int32>(Reply.Result), static_cast<int32>(Reply.Rule),
+           RelicEquipmentComponent->IsEquipmentReady() ? 1 : 0,
+           static_cast<unsigned long long>(Snapshot.Revision), *Snapshot.Equipped.SlotA.ToString(),
+           *Snapshot.Equipped.SlotB.ToString(), Health, MaxHealth, Bonus);
+#else
+    (void)Slot;
+    (void)RelicId;
+#endif
 }
