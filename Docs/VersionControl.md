@@ -2,7 +2,7 @@
 
 Git 仓库根目录：`E:\UE_Project\Demo`。UE 工程位于其中的 `EmberTrial` 子目录。
 
-**2026-10-29最新现状：**本地5462f49已含C2-01实现，审查起点工作区干净；双Build / 三相关Success与身体GE精确清理已验收，77来源SHA一致。本轮只更新13文档，C2-02一新 / 九旧Source待手动，精确范围见[C2-02末尾](M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)。未核验远端，Stage / Commit / Push由用户操作。
+**2026-10-29最新现状：**本地a3ae8ca已含C2-02实现，起点工作区干净；四Success / 双Build与用户真实换装 / 切图反馈已验收，来源77 SHA一致。本轮只更新13份文档，03A三新UI / 三旧Core Source待手动，精确范围见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。未核验远端，Stage / Commit / Push由用户操作。
 
 **Commit双语约定（10/23用户新增）：**后续每份操作文档同时给英文建议标题与专业中文译文。Break Pulse使用“破势”、cooldown使用“技能冷却”、lifecycle使用“生命周期”，不机械逐词翻译。英文可作标题，中文可作正文或理解参考，不需要拼成一条重复标题；不改写已存在的历史提交。
 
@@ -376,6 +376,6 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-[C2-01验收报告](Reports/M3_02C2_01_Verification.md)已保存，当前[C2-02换装提交与恢复](M3_02C2_02_EquipmentTransactions.md)待手动。本地5462f49已有C2-01实现；本轮只更新13份文档，精确清单与未来一新 / 九旧Source见[C2-02末尾](M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)。
+[C2-02验收报告](Reports/M3_02C2_02_Verification.md)已保存，M3-02最小装备闭环完成，当前[M3-03A列表数据模型与只读预览](M3_03A_RelicViewModels.md)待手动。本地a3ae8ca已有C2-02实现；本轮只更新13份文档，精确清单与未来三新UI / 三旧Core Source见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。
 
-当前建议英文`docs: verify equipment ownership and prepare equipment transactions`，中文译文`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`；实现后英文`feat: commit relic loadouts and restore equipment on new bodies`，中文译文`feat: 提交遗物配装并在新角色身体上恢复装备效果`。Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`；实现后英文`feat: add relic list models and side effect free equipment previews`，中文译文`feat: 新增遗物列表数据模型与无副作用装备预览`。运行Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

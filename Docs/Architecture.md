@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-29。静态定义、纯方案、装备效果 / 会话库存与[C2-01身体GE所有权](Reports/M3_02C2_01_Verification.md)已验收，当前[C2-02真实提交与恢复](M3_02C2_02_EquipmentTransactions.md)待手动；本页现有Runtime与未来身体事务分开描述，实际证据 / 工时见[Progress](Progress.md)。
+更新2026-10-29。M3静态定义至[C2-02真实提交与恢复](Reports/M3_02C2_02_Verification.md)已验收，当前[M3-03A列表模型 / 预览](M3_03A_RelicViewModels.md)待手动；本页区分现有Runtime和待实施展示层，实际证据 / 工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -35,8 +35,8 @@ flowchart LR
 | Presenter / Widget | 弱数据源订阅与展示快照 / 只读渲染和按钮意图 | 不用Text Binding或Tick轮询玩法 |
 | FailureFlow / MainMenuController | 当前互斥面板、输入 / 焦点、自己的暂停及切图意图 | 不把暂停状态复制到Pawn布尔变量 |
 | RunSessionSubsystem | 本进程已确认地图 / 检查点ID、待定切图请求 / 成功确认事件 | 不持有旧Pawn / ASC，不保存交互Actor状态或库存域 |
-| RelicInventorySubsystem | 主资产配置 / 定义GC引用、拥有ID / 两槽、版本方案 / 逻辑提交与切图语义 | 不持有World / ASC / Widget或GE句柄，未接身体事务 |
-| RelicEquipmentComponent | 当前身体弱引用、ASC / 精确自有GE句柄、已应用加法 | 不持有Widget、不按GE类清整张ASC；库存提交 / 恢复待C2-02 |
+| RelicInventorySubsystem | 主资产配置 / 定义GC引用、拥有ID / 两槽、版本方案 / 逻辑提交与切图语义 | 不持有World / ASC / Widget或GE句柄，私有同步写入器连接身体事务 |
+| RelicEquipmentComponent | 当前身体 / 会话弱引用、精确GE句柄、同步版本 / 槽位与初次恢复标记 | 不拥有另一个库存或Widget、不按GE类清整张ASC；提交前拒绝，提交后观察世界变化 |
 
 共享Character沿用模板原生类名，避免复制移动实现，取舍见[ADR-001](ADR/ADR_001_FrameworkReuse.md)。ASC放在Character，Owner=Avatar=Character；控制权变化刷新ActorInfo，身体换成新对象则资源重新初始化，取舍见[ADR-002](ADR/ADR_002_ASCOnCharacter.md)。
 
@@ -44,7 +44,7 @@ flowchart LR
 
 [Character](../EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp)先校验生命 / 体力 / 韧性的六个出生配置与四组依赖，再初始化资源及Combat轻击加成基础0，最后发布Ready；非法配置不能只初始化一半。重复Ensure或同身体重新Possess不会补满资源或重置活动装备加成。
 
-ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表示当前四组属性基础成功初始化；死亡时仍可Ready且Health为0，UI不应把它显示成Waiting。各能力还有自己的配置 / Spec / 状态检查，不能仅看Ready；未来EquipmentReady另行表达身体装备恢复状态。
+ActorInfo有效、GameplayReady、受控和存活是不同条件。Ready只表示当前四组属性基础成功初始化；死亡时仍可Ready且Health为0，UI不应把它显示成Waiting。各能力还有自己的配置 / Spec / 状态检查，不能仅看Ready；EquipmentReady已另行表达装备同步 / 当前控制与Pending状态，受控玩家输入据此门控。
 
 观察者先解绑旧源，再绑定新源，并立即读取当前快照，兼顾“先Ready后订阅”和“先订阅后Ready”。异步装备 / 能力就绪尚未接入，不能把现有同步测试扩写成已覆盖全部未来时序。
 
@@ -148,24 +148,26 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新B性能报告对应同一A包；其短时Development / Medium观察不等于最终Shipping / 完整内容预算达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
-### M3：静态定义、纯方案、装备效果与库存已落地，身体提交待接
+### M3：最小装备闭环已落地，展示层待接
 
 UETRelicDefinition已保存稳定ID、FText / 可空软图标、两槽资格 / 两种加法参数，PrimaryAssetId为ETRelic:RelicId；原生单资产校验与实际目录 / ID自动注册专项通过。Core仅Editor条件依赖AssetRegistry测试，不增加UI / Editor反向依赖。两份DataAsset与来源已核实，尚无新Cook。
 
 02A已把两槽ID快照、资格 / 汇总、基值与最终值校验、替换 / 卸下方案集中为无状态纯函数。Plan不保存UObject / ASC，不加载图标 / 应用GE，不代表已提交；只有Success输出可用，NoChange / 失败清空。它既供后续装备预检，也供UI比较，基值须排除已有装备，且只承诺已建模的两种加法。
 
-B已新增Combat属性集基础0与第四组Ready、双幅度Infinite GE。GA每条轻击激活捕获一次基础 / 加成，所有段按(基础+加成)×倍率；ClearStageResources不清整链缓存，EndAbility在Super前清理。MaxHealth / 加成的Base与Current分开保护；效果精确移除不删除别人的GE，正向装备目前只在自动化。
+B已新增Combat属性集基础0与第四组Ready、双幅度Infinite GE。GA每条轻击激活捕获一次基础 / 加成，所有段按(基础+加成)×倍率；ClearStageResources不清整链缓存，EndAbility在Super前清理。MaxHealth / 加成的Base与Current分开保护；效果精确移除不删除别人的GE。C2-02已提供受限PIE入口验证真实正向装备。
 
-C1已验收：GI库存以Config主资产ID加载 / 校验，UPROPERTY持有定义，逻辑快照只给拥有ID / 两槽 / Revision。不可随意改写的Plan带来源弱引用 / 版本 / 前态，提交前重算静态参数，广播期间拒绝重入写。RunSession只新增已确认切图通知，不反向依赖Inventory；NewRun重置、Retry / Continue / MainMenu保留，但均推进版本。当前Source已含Subsystem，逻辑提交只被模型专项调用；实机尚无换装入口。
+C1已验收：GI库存以Config主资产ID加载 / 校验，UPROPERTY持有定义，逻辑快照只给拥有ID / 两槽 / Revision。不可随意改写的Plan带来源弱引用 / 版本 / 前态，提交前重算静态参数，广播期间拒绝重入写。RunSession只新增已确认切图通知，不反向依赖Inventory；NewRun重置、Retry / Continue / MainMenu保留，但均推进版本。当前Source已含Subsystem，逻辑提交已由身体服务连接，实机仅受限PIE入口可换装；正式祭坛 / 页面后续。
 
 C2-01已验收：Character继承唯一RelicEquipment组件，只有玩家Ready后创建一份原生零幅度GE，以SourceObject和精确Handle识别所有权；正常换加成更新同一GE，避免先移除导致临时上限下降。原生只读查询核对真实Spec，外部移除 / 篡改后不可用；失活 / Ready撤销 / EndPlay清自己的句柄，不按类清除。无Tick / Timer，敌人与Neutral休眠。批聚合通知不是任意世界回调的原子事务，也不将低层Applied冒充库存提交成功。
 
-C2-02现下发、尚未实施：预检当前本地身体 / 观察版本 / 暂停 / Pending / Idle / 最终伤害；所有拒绝发生在副作用前。库存提交ID / 版本后执行预检过的同步原生写入器，身体更新同句柄后才发布领域事件；属性回调可读新ID，重入写Busy。同步死亡 / 结束是提交后的世界变化，不伪造资源回滚。
+C2-02已验收：预检当前本地身体 / 观察版本 / 暂停 / Pending / Idle / 最终伤害；所有拒绝发生在副作用前。库存提交ID / 版本后执行预检过的同步原生写入器，身体更新同句柄后才发布领域事件；属性回调可读新ID，重入写Busy。同步死亡 / 结束是提交后的世界变化，不伪造资源回滚。
 
-新身体等待切图最终库存，首次恢复后回满最终生命上限；活体换装、重复观察与组件重激活不治疗。EquipmentReady另行门控受控玩家输入，不改GameplayReady；ET_Relic仅PIE开发入口，正式祭坛权限仍后续。新身体BeginPlay早于PostLoad确认时须等Pending解除再恢复，不能拿上轮ID提前套用。最大值变化造成资源夹取的归因 / 恢复需一起处理，不声称GAS天然原子。当前没有装备恢复 / 新EquipmentReady，Presenter / View与祭坛页面仍后续；原GameplayReady仍指基础初始化，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
+新身体等待切图最终库存，首次恢复后回满最终生命上限；活体换装、重复观察与组件重激活不治疗。EquipmentReady另行门控受控玩家输入，不改GameplayReady；ET_Relic仅PIE开发入口，正式祭坛权限仍后续。新身体BeginPlay早于PostLoad确认时等Pending解除再恢复，避免提前套用上轮ID。最大值变化造成资源夹取的归因 / 恢复一起处理，不声称GAS天然原子。Presenter / View与祭坛页面后续，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
+
+M3-03A现下发、尚未实施：UI列表行是稳定ID / 文本 / 图标软引用的值快照，UObject Item为ListView承载数据，未来池化Widget先解绑旧Item再绑定新Item。投影按全部拥有数据校验后排序 / 筛选，失败清空；不加载图标或把数组下标当ID。身体TryBuildPreview与TryEquip共用预检，读可在动作 / 暂停期间执行，确认仍重验当前版本 / Idle / 非暂停；反复比较不Apply / Remove GE或治疗。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[C2-01验收报告](Reports/M3_02C2_01_Verification.md)已保存，当前[C2-02换装提交与恢复](M3_02C2_02_EquipmentTransactions.md)待手动。本地5462f49已有C2-01实现；本轮只更新13份文档，精确清单与未来一新 / 九旧Source见[C2-02末尾](M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)。
+[C2-02验收报告](Reports/M3_02C2_02_Verification.md)已保存，M3-02最小装备闭环完成，当前[M3-03A列表数据模型与只读预览](M3_03A_RelicViewModels.md)待手动。本地a3ae8ca已有C2-02实现；本轮只更新13份文档，精确清单与未来三新UI / 三旧Core Source见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。
 
-当前建议英文`docs: verify equipment ownership and prepare equipment transactions`，中文译文`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`；实现后英文`feat: commit relic loadouts and restore equipment on new bodies`，中文译文`feat: 提交遗物配装并在新角色身体上恢复装备效果`。Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`；实现后英文`feat: add relic list models and side effect free equipment previews`，中文译文`feat: 新增遗物列表数据模型与无副作用装备预览`。运行Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

@@ -239,10 +239,16 @@ B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原
 
 一新 / 九旧Source：新EquipmentTransactions加旧Ownership / Session / Combo.Flow各一次。新专项直接使用FTestWorldWrapper(Game)创建的真实GI子系统，检查提交时序、重入 / 旧版本拒绝、活体夹限、当前身体隔离、Pending / 确认恢复与结束；模拟确认意图不替代真实切图。
 
-实机用原生PIE命令验证真实100/120、30伤害、无免费回血、暂停拒绝与带装备Retry / Continue / NewRun，约10–15分钟。没有临时Controller图、长日志抄写、旧29项全组、精准掐时点或新Cook。编写本指南时未实施，不记作新Build / Success；收到完成反馈后再读实物和日志。
+实机用原生PIE命令验证真实100/120、30伤害、无免费回血、暂停拒绝与带装备Retry / Continue / NewRun，约10–15分钟。没有临时Controller图、长日志抄写、旧29项全组、精准掐时点或新Cook。C2-02本轮已实际四Success / 双Build，用户检查10分钟；正式短日志和用户确认切图反馈分开，不把模型模拟意图当真实OpenLevel，也不为报告重跑。
+
+## M3-03A最小范围
+
+三新UI / 三旧Core：UI.Relics.ViewModels新专项和扩充的EquipmentTransactions各一次。投影用真实目录 / 捕获快照，检查排序筛选、失败清空、Item去重解绑；事务追加反复预览无GE / 属性 / 版本副作用、已装备不重复计算与活动身体可读不可写。原四Success沿用，无临时蓝图验收图。
+
+一分钟真实装备100/120 / Bonus5与左键30、旧2-E-P和基本输入短查；刚过的Retry / Continue / NewRun不重跑，不新Cook。当前只是候选与指南，尚未记作03A Build / Success；实际列表池化 / 500条性能等到真实UI接入再验。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-[C2-01验收报告](Reports/M3_02C2_01_Verification.md)已保存，当前[C2-02换装提交与恢复](M3_02C2_02_EquipmentTransactions.md)待手动。本地5462f49已有C2-01实现；本轮只更新13份文档，精确清单与未来一新 / 九旧Source见[C2-02末尾](M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)。
+[C2-02验收报告](Reports/M3_02C2_02_Verification.md)已保存，M3-02最小装备闭环完成，当前[M3-03A列表数据模型与只读预览](M3_03A_RelicViewModels.md)待手动。本地a3ae8ca已有C2-02实现；本轮只更新13份文档，精确清单与未来三新UI / 三旧Core Source见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。
 
-当前建议英文`docs: verify equipment ownership and prepare equipment transactions`，中文译文`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`；实现后英文`feat: commit relic loadouts and restore equipment on new bodies`，中文译文`feat: 提交遗物配装并在新角色身体上恢复装备效果`。Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`；实现后英文`feat: add relic list models and side effect free equipment previews`，中文译文`feat: 新增遗物列表数据模型与无副作用装备预览`。运行Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

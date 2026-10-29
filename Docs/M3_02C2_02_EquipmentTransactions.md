@@ -1,6 +1,6 @@
 # M3-02C2-02：真实换装提交与新身体装备恢复
 
-2026-10-29，UE **5.5.4**。[C2-01验收通过](Reports/M3_02C2_01_Verification.md)。本章仍由你手动输入代码；助手只整理文档和本地候选，**运行工程尚未实施、未Build、未宣称新测试Success**。按第3→6节完成全部源码后再统一Build，中途缺少声明出现红线先完成配套修改。
+2026-10-29，UE **5.5.4**。本章已由你手动实现并[验收通过](Reports/M3_02C2_02_Verification.md)，四Success / 双Build与用户真实流程反馈已核对，无待补。实际代码60 / 阅读10 / 检查10 / 等待5分钟；当前进入[M3-03A列表模型与预览](M3_03A_RelicViewModels.md)。以下保留历史实现供复查，不重新覆盖后续代码或重复本章验收。
 
 ## 1. 目标、范围与时间
 
@@ -8,7 +8,7 @@
 
 一新 / 九旧Source，没有新资产、输入Action、蓝图图表或配置。预计手动代码 **80–120分钟**，阅读 / 配置 **10–15分钟**，相关自动化与真实检查 **10–15分钟**，构建等待另记。不要把估计登记为已用时间；可以分两次完成源码，但只在全部配套完成后正常Build。
 
-当前实际175 Source / 97cpp、Core71 / UI23 / Editor3、28测试；实施后预计**176 / 98、Core72 / UI23 / Editor3、29测试**。Content296 / 来源77；最新独立包仍是M2_07A/Attempt01，本章不Cook。
+已验收实际**176 Source / 98cpp、Core72 / UI23 / Editor3、29测试**。Content296 / 来源77；最新独立包仍是M2_07A/Attempt01，本章不Cook。
 
 | 所有者 | 本章职责 |
 | --- | --- |
@@ -1374,58 +1374,10 @@ Source / 必要重存资产Save All；失败或不理解处（无填无）：
 完成时分（完整时分）/ 手动代码 / 阅读配置 / 检查 / 构建等待：
 ```
 
-成功日志我读取；错误优先文字，界面 / HUD位置或控件不明才补截图。未实施阶段的完整候选只做静态审查，实际Build / Success以你的执行为准。
+成功日志我读取；错误优先文字，界面 / HUD位置或控件不明才补截图。本批已实际Build / 四Success，实机反馈与日志覆盖边界见验收报告；此处为历史反馈模板。
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-本地HEAD `5462f49`已有C2-01实现；本轮起点工作区干净，远端未重新核验。当前助手只更新下列13份Markdown，没有改Source / Config / Content / AssetManifest / Tools / Git索引：
+C2-02源码已在本地a3ae8ca提交，远端未重新核验。本轮只更新13份文档，当前03A指南 / 实现范围见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。运行源码 / Config / Content / 来源保持。
 
-
-```text
-Docs/Reports/M3_02C2_01_Verification.md
-Docs/M3_02C2_02_EquipmentTransactions.md
-Docs/M3_02C2_01_EquipmentEffectOwnership.md
-Docs/M3_02C1_SessionInventory.md
-Docs/M3_Roadmap.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_Roadmap.md
-README.md
-Introduction.md
-```
-
-- 当前文档建议英文：`docs: verify equipment ownership and prepare equipment transactions`
-- 中文译文：`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`
-
-**你完成本章后**，Stage下面一新 / 九旧Source和当时最新文档；无差异文件无需重复加入：
-
-
-```text
-EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_LightAttack.cpp
-EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicEquipmentComponent.cpp
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicInventorySubsystem.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_LightAttack.h
-EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h
-EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicEquipmentComponent.h
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicInventorySubsystem.h
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentTransactionTests.cpp
-```
-
-本章没有新资产 / Config。UE确实产生合法重存差异时，只纳入实际变化的原三身体和关联来源记录，不强制重存：
-
-```text
-EmberTrial/Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset
-EmberTrial/Content/EmberTrial/Characters/Enemies/BP_ETMeleeEnemy.uasset
-EmberTrial/Content/EmberTrial/Tests/Blueprints/BP_ETCombatTrainingTarget.uasset
-Docs/AssetManifest.csv（仅资产字节确有变化且已同步哈希时）
-```
-
-- 实现建议英文：`feat: commit relic loadouts and restore equipment on new bodies`
-- 中文译文：`feat: 提交遗物配装并在新角色身体上恢复装备效果`
-
-CLion Refresh Changes→Stage最新修改（Stage后又改要再次Stage）→Review Diff→Commit / Push由你操作。Raw候选、日志、缓存、Trace和包留本地，不Force Add。确认差异是本章文件，再提交；助手不替你Stage / Commit / Push。
+当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`。下一批实现英文`feat: add relic list models and side effect free equipment previews`，中文译文`feat: 新增遗物列表数据模型与无副作用装备预览`。CLion刷新Changes→Stage最新修改→Review Diff→Commit / Push由用户操作；Raw / 日志 / 包留本地，助手未改索引。

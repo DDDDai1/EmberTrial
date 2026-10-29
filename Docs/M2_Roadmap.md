@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-10-29。[M2阶段已收尾](Reports/M2_Verification.md)，01–06、07A / B证据与C复盘材料交付完成；用户要求继续，M3至[C2-01](Reports/M3_02C2_01_Verification.md)已验收，当前[C2-02](M3_02C2_02_EquipmentTransactions.md)待手动。实际175 Source / 97cpp / 来源77；项目3641 / 等待354分钟，M2仍1400 / 139，06C及07C阅读未登记。首次PIE等待需求关闭。以下65h等预算保留为原规划比较。
+更新2026-10-29。[M2阶段已收尾](Reports/M2_Verification.md)，01–06、07A / B证据与C复盘材料交付完成；用户要求继续，M3至[C2-02](Reports/M3_02C2_02_Verification.md)已验收，当前[03A](M3_03A_RelicViewModels.md)待手动。实际176 Source / 98cpp / 来源77；项目3721 / 等待359分钟，M2仍1400 / 139，06C及07C阅读未登记。首次PIE等待需求关闭。以下65h等预算保留为原规划比较。
 
 ## 1. 本阶段交付
 
@@ -53,12 +53,12 @@ M1登记手动22h18不同于全项目设计 /理解总成本，不能将后续�
 
 [M2总报告](Reports/M2_Verification.md)、[07总报告](Reports/M2_07_Verification.md)与[C材料收尾](Reports/M2_07C_Verification.md)已保存，用户本轮要求继续下一章。A的23项与两进程包、B真实性能分析沿用，无新执行；C没有逐项理解答卷或实耗，不将继续开发当成独立面试能力认证。
 
-[M3-01静态定义](Reports/M3_01_Verification.md)已验收；02A两槽方案 / 预览也已通过；B属性 / 原生GE已通过，C1库存 / 版本已通过，C2-01自有句柄已通过，当前[C2-02身体事务 / 恢复](M3_02C2_02_EquipmentTransactions.md)待手动，后续页面 / 祭坛 / 设置。完整6件 / 2槽目标保持，当前仍100生命 / 原25伤害。
+[M3-01静态定义](Reports/M3_01_Verification.md)已验收；02A两槽方案 / 预览也已通过；B属性 / 原生GE已通过，C1库存 / 版本已通过，C2-01自有句柄与C2-02身体事务 / 恢复已通过，当前[03A列表模型 / 预览](M3_03A_RelicViewModels.md)待手动，实际页面 / 祭坛 / 设置后续。完整6件 / 2槽目标保持，初始空槽仍100 / 原25，受限PIE命令可验证100/120与30。
 
-M2实际1400 / 等待139分钟，06C与07C阅读未登记；全项目3641 / 明确354；M3实耗230 / 30。后续预计不计实耗，原70h待首个真实装备闭环后再校准。B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
+M2实际1400 / 等待139分钟，06C与07C阅读未登记；全项目3721 / 明确359；M3实耗310 / 35。后续预计不计实耗，原70h待首个真实装备闭环后再校准。B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-[C2-01验收报告](Reports/M3_02C2_01_Verification.md)已保存，当前[C2-02换装提交与恢复](M3_02C2_02_EquipmentTransactions.md)待手动。本地5462f49已有C2-01实现；本轮只更新13份文档，精确清单与未来一新 / 九旧Source见[C2-02末尾](M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)。
+[C2-02验收报告](Reports/M3_02C2_02_Verification.md)已保存，M3-02最小装备闭环完成，当前[M3-03A列表数据模型与只读预览](M3_03A_RelicViewModels.md)待手动。本地a3ae8ca已有C2-02实现；本轮只更新13份文档，精确清单与未来三新UI / 三旧Core Source见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。
 
-当前建议英文`docs: verify equipment ownership and prepare equipment transactions`，中文译文`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`；实现后英文`feat: commit relic loadouts and restore equipment on new bodies`，中文译文`feat: 提交遗物配装并在新角色身体上恢复装备效果`。Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`；实现后英文`feat: add relic list models and side effect free equipment previews`，中文译文`feat: 新增遗物列表数据模型与无副作用装备预览`。运行Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

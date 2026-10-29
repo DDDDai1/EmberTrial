@@ -1,6 +1,6 @@
 # M3-02C2-01：身体装备GE的句柄所有权
 
-2026-10-29复核，固定UE **5.5.4**。本批已手动实施并[验收通过](Reports/M3_02C2_01_Verification.md)，三相关Success、双Build与玩家GE清理已核对，无待补。实际代码配置40 / 检查2 / 等待5分钟；当前进入[C2-02真实提交与新身体恢复](M3_02C2_02_EquipmentTransactions.md)。以下保留本批历史实现供复查，不用重新覆盖后续修改或重跑验收。
+2026-10-29复核，固定UE **5.5.4**。本批已手动实施并[验收通过](Reports/M3_02C2_01_Verification.md)，三相关Success、双Build与玩家GE清理已核对，无待补。实际代码配置40 / 检查2 / 等待5分钟；C2-02也已验收，当前进入[M3-03A列表模型与预览](M3_03A_RelicViewModels.md)。以下保留本批历史实现供复查，不用重新覆盖后续修改或重跑验收。
 
 ## 1. 本批效果与范围
 
@@ -707,6 +707,6 @@ Source / 资产Save All；失败或不理解处（无填无）：
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-C2-01实现已在本地5462f49提交，远端未重新核验。当前验收报告 / 下一批指南及入口共13份文档，精确清单与未来C2-02源码范围见[C2-02末尾](M3_02C2_02_EquipmentTransactions.md#11-本批-commit--push固定放在最后)。Source / Config / Content / 来源清单保持用户完成后的状态。
+C2-01 / C2-02实现均已本地提交，当前HEADa3ae8ca。本轮只更新13份文档，最新精确范围见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。Source / Config / Content / 来源保持。
 
-当前建议英文`docs: verify equipment ownership and prepare equipment transactions`，中文译文`docs: 记录装备效果所有权验收并准备换装事务与身体恢复`。下一批实现建议英文`feat: commit relic loadouts and restore equipment on new bodies`，中文译文`feat: 提交遗物配装并在新角色身体上恢复装备效果`。CLion刷新Changes→Stage最新修改→Review Diff→Commit / Push由你操作；Raw / 日志 / 包本地，助手未改索引。
+当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`。Stage / Review Diff / Commit / Push由用户操作，Raw / 日志 / 包本地，助手未改索引或联网核验远端。

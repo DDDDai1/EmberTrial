@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06锁定 / 镜头 / 切换已验收](Docs/Reports/M2_06_Verification.md)，[M2-07A新版包集成已通过](Docs/Reports/M2_07A_Verification.md)，[M2-07B性能样本已分析](Docs/Reports/M2_07B_Verification.md)，[M2阶段已收尾](Docs/Reports/M2_Verification.md)，[M3-01遗物定义已验收](Docs/Reports/M3_01_Verification.md)，[M3-02A方案 / 预览已通过](Docs/Reports/M3_02A_Verification.md)，[M3-02B装备效果已通过](Docs/Reports/M3_02B_Verification.md)，[M3-02C1会话库存已通过](Docs/Reports/M3_02C1_Verification.md)，[M3-02C2-01身体装备GE所有权已通过](Docs/Reports/M3_02C2_01_Verification.md)，当前下发[M3-02C2-02真实提交与恢复](Docs/M3_02C2_02_EquipmentTransactions.md)，待手动实现，尚未达到最终投递版本。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。当前[M2-06锁定 / 镜头 / 切换已验收](Docs/Reports/M2_06_Verification.md)，[M2-07A新版包集成已通过](Docs/Reports/M2_07A_Verification.md)，[M2-07B性能样本已分析](Docs/Reports/M2_07B_Verification.md)，[M2阶段已收尾](Docs/Reports/M2_Verification.md)，[M3-01遗物定义已验收](Docs/Reports/M3_01_Verification.md)，[M3-02A方案 / 预览已通过](Docs/Reports/M3_02A_Verification.md)，[M3-02B装备效果已通过](Docs/Reports/M3_02B_Verification.md)，[M3-02C1会话库存已通过](Docs/Reports/M3_02C1_Verification.md)，[M3-02C2-01身体装备GE所有权已通过](Docs/Reports/M3_02C2_01_Verification.md)，[M3-02最小装备闭环已通过](Docs/Reports/M3_02C2_02_Verification.md)，当前下发[M3-03A列表模型与只读预览](Docs/M3_03A_RelicViewModels.md)，待手动实现，尚未达到最终投递版本。
 
 ## 已实现的体验
 
@@ -12,7 +12,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 - Tab按需选择 / 解除镜头前方存活敌人，带距离迟滞 / 遮挡宽限与死亡 / 换控清理、Z / C方向切换；已有屏幕菱形标记 / 离屏隐藏再现，锁定时右肩镜头平滑跟随，解除后归还鼠标 / 肩位，换身体与结束恢复。
 - 生命 / 体力 / 治疗次数 / 破势冷却HUD，独立主菜单、暂停、失败重试和本次进程内的检查点继续。
 
-已新增两件原生遗物DataAsset、稳定ID / 参数 / 槽位与校验 / AssetManager注册，以及无副作用的两槽方案 / 数值预览；原生装备GE与身体自有零幅度句柄、GI逻辑库存已接入；真实换装 / 恢复待C2-02，页面仍后续，普通Play仍原100 / 25。角色和动画仍使用UE模板及Control Rig占位资源。方向切换已实施并由用户报告检查完成；后续构筑和最终美术尚未完成；磁盘存档、多人及手柄交付不在当前已实现范围内。
+已新增两件原生遗物DataAsset、稳定ID / 参数 / 槽位与校验 / AssetManager注册，以及无副作用的两槽方案 / 数值预览；原生装备GE与身体自有零幅度句柄、GI逻辑库存已接入；真实换装 / 版本提交与新身体恢复已接通；初始空槽100 / 25，ET_Relic仅PIE可验证100/120与30，正式页面 / 祭坛仍后续。角色和动画仍使用UE模板及Control Rig占位资源。方向切换已实施并由用户报告检查完成；后续构筑和最终美术尚未完成；磁盘存档、多人及手柄交付不在当前已实现范围内。
 
 ## 获取与构建
 
@@ -43,14 +43,14 @@ Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说�
 | 范围交互 | E |
 | 暂停 / 继续 | P；菜单也支持鼠标与键盘 |
 
-Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Reports/M2_06C_Verification.md)。首次PIE创建等待需求关闭，不再追加优化或验收。上表保留此前已验收输入。数字1 / 3 / 4及PIE开发命令是现有兼容或诊断入口，作用与保留原因见[架构](Docs/Architecture.md)。Continue / Retry会重建世界与身体，只保留本次进程内的地图和检查点ID；普通交互Actor的激活状态不会跨世界保存。
+Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Reports/M2_06C_Verification.md)。首次PIE创建等待需求关闭，不再追加优化或验收。上表保留此前已验收输入。数字1 / 3 / 4及PIE开发命令是现有兼容或诊断入口，作用与保留原因见[架构](Docs/Architecture.md)。Continue / Retry重建世界与身体，保留本次进程的地图 / 检查点及拥有 / 已装备遗物ID，新身体重建装备后按最终上限恢复；普通交互Actor状态仍不跨世界保存，退出进程清空。
 
 ## 阅读入口
 
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M3-02C2-02真实换装提交与恢复](Docs/M3_02C2_02_EquipmentTransactions.md)：一新 / 九旧Source待手动，提交点 / EquipmentReady / 新身体恢复与PIE命令；[C2-01验收](Docs/Reports/M3_02C2_01_Verification.md)确认自有句柄更新 / 精确清理，尚无正式换装入口。[M3路线](Docs/M3_Roadmap.md)。
+- [当前开发：M3-03A列表数据模型与只读预览](Docs/M3_03A_RelicViewModels.md)：三新UI / 三旧Core Source待手动，列表Item / 投影查询与无副作用比较；[C2-02验收](Docs/Reports/M3_02C2_02_Verification.md)已连接真实配装事务与新身体恢复，正式UMG / 祭坛仍后续。[M3路线](Docs/M3_Roadmap.md)。
 - [M3-02A验收](Docs/Reports/M3_02A_Verification.md)：两槽资格 / 汇总、替换 / 卸下 / 预览，双库存专项当次Success。
 - [M3-01验收](Docs/Reports/M3_01_Verification.md)：两遗物静态定义、两Valid与Definitions Success；[原操作步骤](Docs/M3_01_RelicDefinitions.md)供复查。
 - [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。
@@ -67,4 +67,4 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [验收方案B](Docs/AcceptanceWorkflow_Options.md)：按影响范围测试、复用入口与阶段验收。
 - [资产来源清单](Docs/AssetManifest.csv)：来源、用途及授权记录；复用资产时需分别核对原授权。
 
-核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。当前28项自动化；M2-07A的23项阶段全组Success沿用，M3定义 / 规则 / 装备效果 / 会话库存专项已过，C2-01三相关项当次Success；B扩原Combo.Flow的真实三段伤害快照沿用，覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。
+核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。当前29项自动化；M2-07A的23项阶段全组Success沿用，M3定义 / 规则 / 装备效果 / 会话库存专项已过，C2-02四相关项当次Success；B扩原Combo.Flow的真实三段伤害快照沿用，覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。
