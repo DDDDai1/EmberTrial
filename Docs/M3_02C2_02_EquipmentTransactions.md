@@ -1,6 +1,6 @@
 # M3-02C2-02：真实换装提交与新身体装备恢复
 
-2026-10-29，UE **5.5.4**。本章已由你手动实现并[验收通过](Reports/M3_02C2_02_Verification.md)，四Success / 双Build与用户真实流程反馈已核对，无待补。实际代码60 / 阅读10 / 检查10 / 等待5分钟；当前进入[M3-03A列表模型与预览](M3_03A_RelicViewModels.md)。以下保留历史实现供复查，不重新覆盖后续代码或重复本章验收。
+2026-10-29，UE **5.5.4**。本章已由你手动实现并[验收通过](Reports/M3_02C2_02_Verification.md)，四Success / 双Build与用户真实流程反馈已核对，无待补。实际代码60 / 阅读10 / 检查10 / 等待5分钟；03A也已验收，当前进入[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)。以下保留历史实现供复查，不重新覆盖后续代码或重复本章验收。
 
 ## 1. 目标、范围与时间
 
@@ -1378,6 +1378,6 @@ Source / 必要重存资产Save All；失败或不理解处（无填无）：
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-C2-02源码已在本地a3ae8ca提交，远端未重新核验。本轮只更新13份文档，当前03A指南 / 实现范围见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。运行源码 / Config / Content / 来源保持。
+C2-02 / 03A实现均已本地提交，当前HEAD4ed704b。本轮13份文档与后续03B范围见[03B末尾](M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)；不重写或重测本章历史实现。
 
-当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`。下一批实现英文`feat: add relic list models and side effect free equipment previews`，中文译文`feat: 新增遗物列表数据模型与无副作用装备预览`。CLion刷新Changes→Stage最新修改→Review Diff→Commit / Push由用户操作；Raw / 日志 / 包留本地，助手未改索引。
+当前英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`。Stage / Commit / Push由用户操作，Raw / 日志 / 包本地，助手未改索引或联网核验远端。

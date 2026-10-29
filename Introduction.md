@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M3-02最小装备闭环已验收，当前[M3-03A列表模型与只读预览](Docs/M3_03A_RelicViewModels.md)待手动。实际176 Source / 98cpp、29自动化；初始空槽100 / 25，受限PIE命令可真实装备100/120与每段30，正式页面 / 祭坛仍后续。最新证据和实耗见[Progress](Docs/Progress.md)。
+当前进度：M3-02闭环及03A列表模型 / 无副作用预览已验收，当前[03B暂停页遗物浏览](Docs/M3_03B_RelicPausePanel.md)待手动。实际179 Source / 100cpp、30自动化；受限PIE可真实装备100/120与每段30，当前尚无遗物面板。最新证据与实耗见[Progress](Docs/Progress.md)。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -216,7 +216,7 @@ P0 退出条件：能构建打包；能连续完成 3 次闭环；没有阻断�
 
 ### 4.6 遗物、装备与数据驱动
 
-用 `UPrimaryDataAsset` 定义静态遗物数据：稳定 ID、`FText` 名称 / 说明、图标软引用、可用槽位、Gameplay Effect / 参数、排序类别。运行时实例与静态定义分离。M3-01类型化加法参数、两槽与AssetManager契约已验收，第一批最大生命+20、每段轻击基础加成+5已有原生GE / 整链快照与纯方案验证；GI会话库存和身体自有零幅度句柄已验收，C2-02真实提交与恢复已验收，03A下发列表模型 / 只读预览，构筑UI仍后续，不暴露任意GE引用 / 运行句柄。初始空槽保持原100 / 25，受限PIE命令可验证真实100/120与30。
+用 `UPrimaryDataAsset` 定义静态遗物数据：稳定 ID、`FText` 名称 / 说明、图标软引用、可用槽位、Gameplay Effect / 参数、排序类别。运行时实例与静态定义分离。M3-01类型化加法参数、两槽与AssetManager契约已验收，第一批最大生命+20、每段轻击基础加成+5已有原生GE / 整链快照与纯方案验证；GI会话库存和身体自有零幅度句柄已验收，C2-02真实提交与恢复已验收，03A列表模型 / 只读预览已验收，03B下发暂停页的列表 / 详情 / 比较，确认 / 祭坛仍后续，不暴露任意GE引用 / 运行句柄。初始空槽保持原100 / 25，受限PIE命令可验证真实100/120与30。
 
 6 个遗物的初始设计：最大生命提升、体力恢复提升、攻击提升、破势效率提升、治疗效果提升、生命与攻击的取舍型组合。数值是调参数据，不写死在 Widget 或角色蓝图里。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-29，M0、M1、M2与清理已收尾，M3-01 / 02已验收。**[C2-02报告](Docs/Reports/M3_02C2_02_Verification.md)记录一新 / 九旧Source、四相关Success / 双Build、正式装备 / 拒绝 / 活体不回血与清理日志；真实命中及Retry / Continue / NewRun按用户反馈通过，未将模型模拟写成实机日志。当前[03A列表模型与只读预览](Docs/M3_03A_RelicViewModels.md)待手动，实际176 Source / 98cpp / 29测试 / 来源77。C2-02代码60 / 阅读10 / 检查10 / 等待5，M3累计310 / 35，项目3721 / 明确等待359分钟；M2仍1400 / 139、06C及07C阅读未登记。初始空槽100 / 25，受限PIE入口已能真实装备 / 恢复；页面 / 祭坛、磁盘存档和最终美术仍后续。最新包M2_07A/Attempt01不含M3，性能沿用对应旧报告，首次PIE等待需求关闭。完整6件 / 2槽、M3原70h和M8最终复盘保持；普通C++手动、方案B与用户Git约定保持。以下保留原M0起点：
+**截至2026-10-29，M0、M1、M2与清理已收尾，M3至03A已验收。**[03A报告](Docs/Reports/M3_03A_Verification.md)核对三新UI / 三旧Core、两Success / 双Build与真实装备短查；列表数据测试不冒充实际Slate池化压力。当前[03B暂停页遗物浏览](Docs/M3_03B_RelicPausePanel.md)待手动，实际179 Source / 100cpp / 30测试 / 来源77。03A代码50 / 阅读10 / 检查2 / 等待4，M3累计372 / 39，项目3783 / 等待363分钟；M2仍1400 / 139、06C及07C阅读未登记。真实装备 / 恢复已接通，当前尚无遗物面板；03B复用P只读浏览，确认 / 祭坛、磁盘存档与最终美术后续。最新M2_07A/Attempt01包不含M3，性能沿用对应旧报告，首次PIE等待需求关闭。完整6件 / 2槽、M3原70h / M8复盘、普通C++手动 / 方案B / 用户Git保持。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,6 +868,6 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-[C2-02验收报告](Docs/Reports/M3_02C2_02_Verification.md)已保存，M3-02最小装备闭环完成，当前[M3-03A列表数据模型与只读预览](Docs/M3_03A_RelicViewModels.md)待手动。本地a3ae8ca已有C2-02实现；本轮只更新13份文档，精确清单与未来三新UI / 三旧Core Source见[03A末尾](Docs/M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。
+[03A验收报告](Docs/Reports/M3_03A_Verification.md)已保存，当前[03B暂停页遗物浏览](Docs/M3_03B_RelicPausePanel.md)待手动。本地4ed704b已有03A实现；本轮只更新13份文档，未来七新 / 四旧Source、两新Widget / 原Pause布局与来源范围见[03B末尾](Docs/M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。
 
-当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`；实现后英文`feat: add relic list models and side effect free equipment previews`，中文译文`feat: 新增遗物列表数据模型与无副作用装备预览`。运行Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；实现后英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。运行Source / Config / Content / 来源 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

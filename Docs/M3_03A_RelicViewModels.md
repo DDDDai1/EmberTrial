@@ -1,6 +1,6 @@
 # M3-03A：遗物列表数据对象与只读属性预览
 
-2026-10-29，UE **5.5.4**。[M3-02C2-02已验收](Reports/M3_02C2_02_Verification.md)，M3-02最小装备闭环收尾。本章仍由你手动输入代码；当前只是指南与本地候选，运行工程尚未实施、未Build或执行新测试。
+2026-10-29，UE **5.5.4**。本批已手动实现并[验收通过](Reports/M3_03A_Verification.md)，两Success / 双Build和短查已核对，无待补。实际代码50 / 阅读10 / 检查2 / 等待4分钟；当前进入[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)。以下保留历史实现供复查，不覆盖后续代码或重复验收。
 
 ## 1. 本章目标与工期
 
@@ -10,7 +10,7 @@
 
 范围为**三新UI Source / 三旧Core Source**，不改Build.cs、Config、输入、地图或资产。预计手动代码 **50–80分钟**、阅读 **10分钟**、检查 **2–5分钟**，构建等待另记。可以分次完成代码；第3–5节全部保存后再一次正常Build，不把中途缺声明的索引红线当成最终错误。
 
-当前实际176 Source / 98cpp（Core72 / UI23 / Editor3）、29自动化、296 Content / 来源77；实施后预计**179 Source / 100cpp（Core72 / UI25 / Editor3）、30自动化**。新UI测试必须放UI模块，不放Core Tests。
+已验收实际**179 Source / 100cpp（Core72 / UI25 / Editor3）、30自动化**，296 Content / 来源77。新UI测试必须放UI模块，不放Core Tests。
 
 ## 2. 职责与输出契约
 
@@ -672,47 +672,10 @@ Source / 必要资产Save All；失败或不理解处（无填无）：
 完成时分（完整时分）/ 手动代码 / 阅读 / 检查 / 构建等待：
 ```
 
-成功日志由我读取；报错优先文字，UI实际表现不符再补截图。本章候选仅静态核对，真正Build / Success以你实际执行为准。
+成功日志由我读取；报错优先文字，UI实际表现不符再补截图。本章已实际Build / 两Success，详见验收报告；此处为历史反馈模板。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-本地HEAD `a3ae8ca`已含C2-02源码，审查起点工作区干净；未重新核验远端。当前助手只更新以下13份文档：
+03A实现已在本地4ed704b提交，远端未重核。当前13份文档与未来03B源码 / 资产范围见[03B末尾](M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。运行Source / Config / Content / 来源保持。
 
-
-```text
-Docs/Reports/M3_02C2_02_Verification.md
-Docs/M3_03A_RelicViewModels.md
-Docs/M3_02C2_02_EquipmentTransactions.md
-Docs/M3_02C2_01_EquipmentEffectOwnership.md
-Docs/M3_Roadmap.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Docs/M2_Roadmap.md
-README.md
-Introduction.md
-```
-
-- 当前文档建议英文：`docs: verify relic transactions and prepare inventory view models`
-- 中文译文：`docs: 记录遗物换装事务验收并准备库存展示模型`
-
-你实施本章后，Stage下面三新UI / 三旧Core Source和当时最新文档：
-
-
-```text
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicEquipmentComponent.cpp
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicEquipmentComponent.h
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentTransactionTests.cpp
-EmberTrial/Source/EmberTrialUI/Private/Inventory/ETRelicViewModels.cpp
-EmberTrial/Source/EmberTrialUI/Public/Inventory/ETRelicViewModels.h
-EmberTrial/Source/EmberTrialUI/Tests/ETRelicViewModelsTests.cpp
-```
-
-本章没有新资产 / Config / Build.cs；仅在UE确实产生合法重存差异时纳入实际变化的旧资产，由我同步相关来源SHA。当前77来源无需重写。
-
-- 实现建议英文：`feat: add relic list models and side effect free equipment previews`
-- 中文译文：`feat: 新增遗物列表数据模型与无副作用装备预览`
-
-CLion刷新Changes→Stage最新修改（Stage后又改要再次Stage）→Review Diff→Commit / Push由你操作。Raw候选 / 日志 / 缓存 / Trace / 包留本地，不Force Add；助手本轮未改运行Source / Config / Content / AssetManifest / Tools / Git索引、未执行Build / 测试。
+当前英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；下一批实现英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。Stage / Review Diff / Commit / Push由用户操作，Raw / 日志 / 包本地，助手未改索引。

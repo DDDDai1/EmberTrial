@@ -245,10 +245,16 @@ B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原
 
 三新UI / 三旧Core：UI.Relics.ViewModels新专项和扩充的EquipmentTransactions各一次。投影用真实目录 / 捕获快照，检查排序筛选、失败清空、Item去重解绑；事务追加反复预览无GE / 属性 / 版本副作用、已装备不重复计算与活动身体可读不可写。原四Success沿用，无临时蓝图验收图。
 
-一分钟真实装备100/120 / Bonus5与左键30、旧2-E-P和基本输入短查；刚过的Retry / Continue / NewRun不重跑，不新Cook。当前只是候选与指南，尚未记作03A Build / Success；实际列表池化 / 500条性能等到真实UI接入再验。
+一分钟真实装备100/120 / Bonus5与左键30、旧2-E-P和基本输入短查；刚过的Retry / Continue / NewRun不重跑，不新Cook。03A本轮两项实际Success、双Build / 短查已过，检查2分钟；实际列表池化 / 500条性能等真实UI后分组验证，不把数据Item测试当Slate压力证明。
+
+## M3-03B最小范围
+
+新UI.Relics.Presenter与旧Inventory.EquipmentTransactions各一次。无屏幕夹具验证先观察后Ready、零幅度完成通知、稳定Item、同Presenter重启、NoPawn / 换身体与失活 / 结束；没有额外Viewport或第二份GI初始化。真实两新UMG / 原Pause布局按完整Designer步骤装配，不搭临时蓝图业务图。
+
+5–10分钟实机确认两件列表 / 中文 / 详情 / 只读比较无副作用、实际装备徽记、P在列表焦点下关闭、原继续按钮与一次Continue快照。31项全组、500件手造和新Cook均不纳入本批；条目释放代码接入不等于已经完成大列表压力测试。当前候选未写运行工程，不记作03B Build / Success。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-[C2-02验收报告](Reports/M3_02C2_02_Verification.md)已保存，M3-02最小装备闭环完成，当前[M3-03A列表数据模型与只读预览](M3_03A_RelicViewModels.md)待手动。本地a3ae8ca已有C2-02实现；本轮只更新13份文档，精确清单与未来三新UI / 三旧Core Source见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。
+[03A验收报告](Reports/M3_03A_Verification.md)已保存，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动。本地4ed704b已有03A实现；本轮只更新13份文档，未来七新 / 四旧Source、两新Widget / 原Pause布局与来源范围见[03B末尾](M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。
 
-当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`；实现后英文`feat: add relic list models and side effect free equipment previews`，中文译文`feat: 新增遗物列表数据模型与无副作用装备预览`。运行Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；实现后英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。运行Source / Config / Content / 来源 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。

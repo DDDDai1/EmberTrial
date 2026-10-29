@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-29。M3静态定义至[C2-02真实提交与恢复](Reports/M3_02C2_02_Verification.md)已验收，当前[M3-03A列表模型 / 预览](M3_03A_RelicViewModels.md)待手动；本页区分现有Runtime和待实施展示层，实际证据 / 工时见[Progress](Progress.md)。
+更新2026-10-29。M3静态定义至[C2-02真实提交与恢复](Reports/M3_02C2_02_Verification.md)已验收，[03A列表模型 / 预览](Reports/M3_03A_Verification.md)也已验收，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动；本页区分现有Runtime和待实施展示层，实际证据 / 工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -164,10 +164,14 @@ C2-02已验收：预检当前本地身体 / 观察版本 / 暂停 / Pending / Id
 
 新身体等待切图最终库存，首次恢复后回满最终生命上限；活体换装、重复观察与组件重激活不治疗。EquipmentReady另行门控受控玩家输入，不改GameplayReady；ET_Relic仅PIE开发入口，正式祭坛权限仍后续。新身体BeginPlay早于PostLoad确认时等Pending解除再恢复，避免提前套用上轮ID。最大值变化造成资源夹取的归因 / 恢复一起处理，不声称GAS天然原子。Presenter / View与祭坛页面后续，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
 
-M3-03A现下发、尚未实施：UI列表行是稳定ID / 文本 / 图标软引用的值快照，UObject Item为ListView承载数据，未来池化Widget先解绑旧Item再绑定新Item。投影按全部拥有数据校验后排序 / 筛选，失败清空；不加载图标或把数组下标当ID。身体TryBuildPreview与TryEquip共用预检，读可在动作 / 暂停期间执行，确认仍重验当前版本 / Idle / 非暂停；反复比较不Apply / Remove GE或治疗。
+M3-03A已验收：UI列表行是稳定ID / 文本 / 图标软引用的值快照，UObject Item为ListView承载数据，未来池化Widget先解绑旧Item再绑定新Item。投影按全部拥有数据校验后排序 / 筛选，失败清空；不加载图标或把数组下标当ID。身体TryBuildPreview与TryEquip共用预检，读可在动作 / 暂停期间执行，确认仍重验当前版本 / Idle / 非暂停；反复比较不Apply / Remove GE或治疗。
+
+M3-03B现下发、尚未实施：Core装备完成通知在bChanging撤销后发布，Presenter忽略本次写入中间属性通知，零幅度恢复也有事件。页面Presenter弱观察LocalPlayer身份 / GI库存 / 当前身体与ASC，稳定ID持有Item并去重；条目分配 / 释放精确解绑，Panel构造 / 结束启动 / 关闭自己的Presenter。
+
+只读面板嵌入已有P暂停页，不复制Flow、输入模式或世界暂停；比较可在暂停读取，页面不调用TryEquip。选中 / 槽位与展示快照归UI，领域拥有 / 配装与确认权限不迁入Widget。两件列表的真实检查与500条压力 / 异步图标边界分开；正式确认 / 祭坛后续。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[C2-02验收报告](Reports/M3_02C2_02_Verification.md)已保存，M3-02最小装备闭环完成，当前[M3-03A列表数据模型与只读预览](M3_03A_RelicViewModels.md)待手动。本地a3ae8ca已有C2-02实现；本轮只更新13份文档，精确清单与未来三新UI / 三旧Core Source见[03A末尾](M3_03A_RelicViewModels.md#10-本批-commit--push固定放在最后)。
+[03A验收报告](Reports/M3_03A_Verification.md)已保存，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动。本地4ed704b已有03A实现；本轮只更新13份文档，未来七新 / 四旧Source、两新Widget / 原Pause布局与来源范围见[03B末尾](M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。
 
-当前建议英文`docs: verify relic transactions and prepare inventory view models`，中文译文`docs: 记录遗物换装事务验收并准备库存展示模型`；实现后英文`feat: add relic list models and side effect free equipment previews`，中文译文`feat: 新增遗物列表数据模型与无副作用装备预览`。运行Source / Config / Content / 清单 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+当前建议英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；实现后英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。运行Source / Config / Content / 来源 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
