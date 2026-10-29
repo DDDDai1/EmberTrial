@@ -9,7 +9,10 @@
 class AEmberTrialCharacter;
 class UAbilitySystemComponent;
 class UETRunSessionSubsystem;
+class UETRelicEquipmentComponent;
 
+// 通知本组件控制下的装备状态已变化；消费者重新查询，不使用旧事件值作为权威。
+DECLARE_MULTICAST_DELEGATE_OneParam(FETRelicEquipmentChanged, UETRelicEquipmentComponent*);
 enum class EETRelicEffectWriteResult : uint8
 {
     Applied,
@@ -36,6 +39,9 @@ public:
     // 基础GameplayReady不等于装备已恢复；正式就绪还要求当前控制与会话一致。
     bool IsEquipmentReady() const;
     void RefreshEquipmentState();
+
+    bool IsUpdatingEquipment() const { return bChanging; }
+    FETRelicEquipmentChanged OnEquipmentChanged;
 
     // 调用方必须带看到的库存版本；正式祭坛权限由后续入口层接入。
     // 本章唯一交互调用者是受限PIE开发命令，不暴露BlueprintCallable。

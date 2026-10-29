@@ -22,6 +22,7 @@ public class EmberTrialUI : ModuleRules
             "GameplayAbilities",
             "GameplayTags",
             "InputCore",
+            "Slate",
             "SlateCore"
         });
     }

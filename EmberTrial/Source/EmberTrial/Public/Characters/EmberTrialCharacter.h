@@ -158,6 +158,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETTargetLockSelectionTest;
     friend class FETRelicEquipmentOwnershipTest;
     friend class FETRelicEquipmentTransactionTest;
+    friend class FETRelicPresenterTest;
 
     // Ready只表示四组属性链初始化成功；不代表存活、受控、装备就绪或能力已授予。
     bool bStartupAttributesInitialized = false;
@@ -317,6 +318,7 @@ protected:
     virtual void BeginPlay() override;
 
     virtual void PossessedBy(AController* NewController) override;
+    virtual void Restart() override;
     virtual void UnPossessed() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 

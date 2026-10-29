@@ -229,8 +229,11 @@ EETRelicEffectWriteResult UETRelicEquipmentComponent::TrySetModifiers(
         return EETRelicEffectWriteResult::Unchanged;
     }
 
-    TGuardValue<bool> ChangeGuard(bChanging, true);
-    WriteModifiersUnchecked(Modifiers);
+    {
+        TGuardValue<bool> ChangeGuard(bChanging, true);
+        WriteModifiersUnchecked(Modifiers);
+    }
+    OnEquipmentChanged.Broadcast(this);
     // Applied表示已向自有GE发出更新；同步回调可以继续改变世界，不在这里伪造回滚。
     return EETRelicEffectWriteResult::Applied;
 }
@@ -238,6 +241,7 @@ EETRelicEffectWriteResult UETRelicEquipmentComponent::TrySetModifiers(
 // ---- 精确释放：先丢弃本地身份，再调用可能重入的GAS移除，不清整张ASC ----
 void UETRelicEquipmentComponent::ReleaseOwnedEffect()
 {
+    const bool bHadIdentity = OwnedEffect.IsValid() || AppliedRevision != 0;
     UAbilitySystemComponent* ASC = EffectASC.Get();
     const FActiveGameplayEffectHandle Released = OwnedEffect;
     OwnedEffect.Invalidate();
@@ -250,6 +254,10 @@ void UETRelicEquipmentComponent::ReleaseOwnedEffect()
         ASC->RemoveActiveGameplayEffect(Released);
         UE_LOG(LogETRelicEquipment, Display,
                TEXT("[M3-02C2-01] Owned effect removed Body=%s"), *GetNameSafe(GetOwner()));
+    }
+    if (bHadIdentity)
+    {
+        OnEquipmentChanged.Broadcast(this);
     }
 }
 
@@ -405,26 +413,29 @@ void UETRelicEquipmentComponent::RefreshEquipmentState()
         return;
     }
 
-    TGuardValue<bool> ChangeGuard(bChanging, true);
     const bool bRefillNewBody = bInitialRestorePending;
-    bInitialRestorePending = false;
-    AppliedLoadout = Snapshot.Equipped;
-    AppliedRevision = Snapshot.Revision;
-    WriteModifiersUnchecked(Totals);
-
-    // GE通知可以同步结束 / 失活身体。发生后不再向失效ASC补写生命。
-    AEmberTrialCharacter* CurrentBody = nullptr;
-    UAbilitySystemComponent* CurrentASC = nullptr;
-    if (bRefillNewBody && ReadBody(CurrentBody, CurrentASC) && CurrentASC == ASC &&
-        !CurrentBody->IsCombatDead() && HasIntactOwnedEffect(ASC) && IsCurrentPlayerBody())
     {
-        ASC->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(),
-                                    ASC->GetNumericAttribute(UETHealthAttributeSet::GetMaxHealthAttribute()));
+        TGuardValue<bool> ChangeGuard(bChanging, true);
+        bInitialRestorePending = false;
+        AppliedLoadout = Snapshot.Equipped;
+        AppliedRevision = Snapshot.Revision;
+        WriteModifiersUnchecked(Totals);
+
+        // GE通知可以同步结束 / 失活身体。发生后不再向失效ASC补写生命。
+        AEmberTrialCharacter* CurrentBody = nullptr;
+        UAbilitySystemComponent* CurrentASC = nullptr;
+        if (bRefillNewBody && ReadBody(CurrentBody, CurrentASC) && CurrentASC == ASC &&
+            !CurrentBody->IsCombatDead() && HasIntactOwnedEffect(ASC) && IsCurrentPlayerBody())
+        {
+            ASC->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(),
+                                        ASC->GetNumericAttribute(UETHealthAttributeSet::GetMaxHealthAttribute()));
+        }
     }
     UE_LOG(LogETRelicEquipment, Display,
            TEXT("[M3-02C2-02] Restore Body=%s Revision=%llu A=%s B=%s Initial=%d"),
            *GetNameSafe(GetOwner()), static_cast<unsigned long long>(Snapshot.Revision),
            *Snapshot.Equipped.SlotA.ToString(), *Snapshot.Equipped.SlotB.ToString(), bRefillNewBody ? 1 : 0);
+    OnEquipmentChanged.Broadcast(this);
 }
 
 bool UETRelicEquipmentComponent::IsFinalDamageValid(const FETRelicModifierTotals& Modifiers) const
@@ -554,9 +565,13 @@ FETRelicInventoryReply UETRelicEquipmentComponent::TryEquip(
     return Inventory->TryCommitPlan(Plan,
         [this](const FETRelicLoadoutPlan& Committed, const uint64 Revision)
         {
-            TGuardValue<bool> ChangeGuard(bChanging, true);
-            AppliedLoadout = Committed.After;
-            AppliedRevision = Revision;
-            WriteModifiersUnchecked(Committed.AfterModifiers);
+            {
+                TGuardValue<bool> ChangeGuard(bChanging, true);
+                AppliedLoadout = Committed.After;
+                AppliedRevision = Revision;
+                WriteModifiersUnchecked(Committed.AfterModifiers);
+            }
+            // 发布时bChanging已撤销，读者可立即读取真正就绪的快照。
+            OnEquipmentChanged.Broadcast(this);
         });
 }

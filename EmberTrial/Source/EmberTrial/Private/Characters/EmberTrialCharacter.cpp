@@ -622,6 +622,18 @@ void AEmberTrialCharacter::UnPossessed()
     }
 }
 
+void AEmberTrialCharacter::Restart()
+{
+    Super::Restart();
+
+    // PossessedBy早于Controller::SetPawn；Restart时双方身份才完整。
+    // 初次出生仍由BeginPlay恢复；运行中换控在这里补查，不重新初始化属性。
+    if (HasActorBegunPlay() && !bAbilitySystemShuttingDown && IsValid(RelicEquipmentComponent))
+    {
+        RelicEquipmentComponent->RefreshEquipmentState();
+    }
+}
+
 // ---- 结束：先封锁重入 / 撤销Ready，再取消能力与清关联，最后交还Super ----
 void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
