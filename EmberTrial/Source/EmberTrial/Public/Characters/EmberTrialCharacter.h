@@ -159,6 +159,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETRelicEquipmentOwnershipTest;
     friend class FETRelicEquipmentTransactionTest;
     friend class FETRelicPresenterTest;
+    friend class FETRelicAltarTest;
 
     // Ready只表示四组属性链初始化成功；不代表存活、受控、装备就绪或能力已授予。
     bool bStartupAttributesInitialized = false;
