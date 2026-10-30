@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-30，M0、M1、M2与清理已收尾，M3-03B含Tick补修已验收。**[03B报告](Docs/Reports/M3_03B_Verification.md)记录两项Success、双Build、真实列表 / 详情 / 只读比较，以及ListEntry Auto修复后新进程三轮显示无Ensure；当前进入[M3-03C搜索 / 筛选 / 排序控件](Docs/M3_03C_RelicQueryControls.md)，仅指南准备、尚未实施。实际186 Source / 104cpp / 31测试 / 来源79，M3累计511 / 等待44分钟，项目3922 / 明确等待368分钟；03B人工139（含补修4）/ 等待5。确认换装 / 安全祭坛、磁盘存档与最终美术后续；M2_07A/Attempt01包不含M3。完整6件 / 2槽、M3原70h / M8复盘、普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-10-30，M0、M1、M2与清理已收尾，M3-03列表 / 详情 / 查询全部验收。**[03C报告](Docs/Reports/M3_03C_Verification.md)记录两项Success / 双Build、真实搜索筛选排序及文本焦点、三轮面板清理；历史ET-UI-001关闭。当前进入[M3-04A祭坛发现与资格](Docs/M3_04A_RelicAltarDiscovery.md)，仅指南准备，E / 页面 / 最终换装许可留B / C。实际186 Source / 104cpp / 31测试 / 来源79，M3累计636 / 等待49分钟，项目4047 / 明确等待373；本批人工125 / 等待5。完整6件 / 2槽、M3原70h / M8复盘、磁盘存档与最终美术后续，M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。

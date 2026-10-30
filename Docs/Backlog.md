@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-30。[M3-03B与Tick补修](Reports/M3_03B_Verification.md)已验收，无待补；当前[M3-03C查询控件](M3_03C_RelicQueryControls.md)待用户操作。实时规模 / 工时见[Progress](Progress.md)，历史行保留当时口径，首次PIE等待需求关闭。
+更新2026-10-30。[M3-03C已验收](Reports/M3_03C_Verification.md)，无待补；当前[M3-04A祭坛发现与资格](M3_04A_RelicAltarDiscovery.md)待用户操作。实时规模 / 工时见Progress，历史行保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -123,7 +123,8 @@
 | M3-02C2-02 | [真实换装提交 / 新身体恢复](Reports/M3_02C2_02_Verification.md) | 你手动实现，我审查 | 完成 | 176 / 98 / 29、四Success / 双Build；实机装备 / 切图反馈通过，80 / 等待5，无待补 |
 | M3-03A | [列表数据对象与只读预览](Reports/M3_03A_Verification.md) | 你手动实现，我审查 | 完成 | 179 / 100 / 30，两Success / 双Build；62 / 等待4，无待补 |
 | M3-03B | [暂停页遗物列表 / 详情 / 比较](Reports/M3_03B_Verification.md) | 你手动实现，我审查 | 完成 | 186 / 104 / 31，两Success / 双Build；ListEntry Auto新进程无Ensure，三轮订阅解绑闭合；139 / 等待5 |
-| M3-03C | [搜索 / 筛选 / 排序与文本焦点](M3_03C_RelicQueryControls.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 五旧Source / 原Panel三新控件；两专项与5–10分钟窄查，预计不计实耗 |
+| M3-03C | [搜索 / 筛选 / 排序与文本焦点](Reports/M3_03C_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 186 / 104 / 31，两专项Success / 双Build、实机查询与焦点通过，125 / 等待5；历史校验消息关闭 |
+| M3-04A | [祭坛发现与使用资格](M3_04A_RelicAltarDiscovery.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 五新Core / Character测试friend、一新BP / 地图；一个专项与装配短查；候选未实施 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -141,7 +142,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 03B含Tick补修已验收；03C查询控件指南下发，正式确认换装与祭坛在04 |
+| M3当前开发 | 03查询阶段全部验收；04A祭坛弱索引 / 资格待操作，正式E / 页面 / 确认留B / C |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -149,6 +150,6 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
+[M3-03C验收报告](Reports/M3_03C_Verification.md)已保存，无待补；本地`abfd9ba`包含五旧Source与Panel实物，起点工作区干净。当前提交03C报告 / 收尾、[04A祭坛发现指南](M3_04A_RelicAltarDiscovery.md)、AssetManifest及同步状态文档；04A尚未实施，不提前创建正式源码或新BP。未联网核验远端。
 
-英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+英文建议`docs: verify relic query controls and prepare altar discovery`；中文`docs: 完成遗物查询控件验收并准备祭坛发现功能`。Stage / Commit / Push由用户操作；日志 / 候选 / 缓存 / 包留本地。

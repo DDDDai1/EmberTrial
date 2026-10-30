@@ -1,6 +1,6 @@
 # M3：遗物装备、构筑界面与设置
 
-更新2026-10-30，UE **5.5.4**。M3-01 / 02 / 03A / [03B与Tick补修](Reports/M3_03B_Verification.md)已验收；当前[M3-03C查询控件](M3_03C_RelicQueryControls.md)指南已准备，待用户手动实施。当前186 Source / 104cpp、31测试 / 来源79；M3实耗511 / 等待44分钟。下一批不新增Source或测试注册，不把文档方案写成已实现。
+更新2026-10-30，UE **5.5.4**。M3-01 / 02 / 03全部已验收，[03C报告](Reports/M3_03C_Verification.md)无待补；当前[04A祭坛发现](M3_04A_RelicAltarDiscovery.md)待用户手动实施。实际186 Source / 104cpp、31测试 / 来源79，M3实耗636 / 等待49分钟；04A候选尚未落地。
 
 ## 1. 体验目标与分批
 
@@ -10,8 +10,8 @@
 | --- | --- | --- |
 | **[M3-01 静态定义 / 状态契约](Reports/M3_01_Verification.md)，完成** | 原生定义、稳定ID / 参数、原生校验 / 实物注册，两资产已保存 | Definitions Success / 两Valid与短基线；实际42 / 等待5，无装备效果 |
 | M3-02 最小装备闭环，完成 | 纯方案 / 装备GE / 会话库存 / 自有句柄 / 提交点 / EquipmentReady / 新身体恢复 / PIE入口 | C2-02四Success；真实装备与资源恢复按用户反馈通过，无待补 |
-| M3-03 列表 / 详情 / 预览，A / B完成、C待操作 | B的Presenter / 列表 / 比较与Tick兼容已验收；C把已有查询接搜索 / 筛选 / 排序 | C只测两相关专项与文本焦点 / 空结果；500行与图标后续集中验 |
-| M3-04 祭坛入口与页面输入 | 将旧练习交互扩成通用入口；安全换装、页面层 / 焦点 / 返回与战斗输入互斥 | 正式入口 / 开关 / 世界结束短查，不复制一套Pause所有者 |
+| M3-03 列表 / 详情 / 预览，A / B / C完成 | 真实列表 / 比较 / 查询与文本焦点；Tick兼容及旧校验消息关闭 | 两相关专项 / 双Build与实机通过；500行 / 图标压力仍后续 |
+| M3-04 祭坛入口与页面输入，A待操作 | A当前World祭坛发现 / 资格；B原E桥接与页面 / 暂停；C最终权限与换装确认 | 各批专项 / 受影响短查，不复制一套Pause所有者；A尚无新页面 |
 | M3-05 设置与导航 | 音量、窗口 / 分辨率 / 画质、灵敏度 / 镜头选项、应用 / 取消 / 默认与键盘路径 | 仅受影响显示 / 输入 / 保存；分辨率要核对实际值与回退 |
 | M3-06 集成与首轮试玩 | 当前新包、构筑可见差异、世界重建 / 页面与设置；一次阶段回归 | 沿用未改旧专项，相关真实键鼠与独立包，不重复整套旧矩阵 |
 
@@ -39,7 +39,7 @@ Controller会随切图销毁，不能单靠Controller字段保存Continue装备�
 
 ## 4. 工期、美术与学习
 
-原M3基础70h保持，按每周30h约2.3有效投入周；缓冲沿用全局规划。01至03A累计372 / 等待39分钟；03B代码90 / Designer40 / 检查5 / Tick补修4，共139，等待5。M3累计511 / 等待44；03C预计代码60–90、Designer20–30、检查5–10，等待另计，不提前计实耗。
+原M3基础70h保持，按每周30h约2.3有效投入周；缓冲沿用全局规划。01至03A累计372 / 等待39分钟；03B代码90 / Designer40 / 检查5 / Tick补修4，共139，等待5。03C实际代码90 / Designer30 / 检查5，共125、等待5；M3累计636 / 等待49。04A预计代码70–100 / 资产地图15–25 / 检查5–10，等待另计，不提前计实耗。
 
 图标先允许空引用，后续View用统一占位，不购买资源；FText与图标路径不当作逻辑ID。重要模型中后期接Blender，当前无新模型 / 骨架要求。普通C++由用户手动，复杂排错按当次授权。
 
@@ -47,6 +47,6 @@ Controller会随切图销毁，不能单靠Controller字段保存Continue装备�
 
 ## 5. Commit / Push（固定放在最后）
 
-[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
+[M3-03C验收报告](Reports/M3_03C_Verification.md)已保存，无待补；本地`abfd9ba`包含五旧Source与Panel实物，起点工作区干净。当前提交03C报告 / 收尾、[04A祭坛发现指南](M3_04A_RelicAltarDiscovery.md)、AssetManifest及同步状态文档；04A尚未实施，不提前创建正式源码或新BP。未联网核验远端。
 
-英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+英文建议`docs: verify relic query controls and prepare altar discovery`；中文`docs: 完成遗物查询控件验收并准备祭坛发现功能`。Stage / Commit / Push由用户操作；日志 / 候选 / 缓存 / 包留本地。

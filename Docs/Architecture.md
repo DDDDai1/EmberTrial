@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-30。M3静态定义至[C2-02真实提交与恢复](Reports/M3_02C2_02_Verification.md)、03A模型与[03B暂停页遗物浏览 / Tick补修](Reports/M3_03B_Verification.md)已验收；当前[03C查询控件](M3_03C_RelicQueryControls.md)待手动实施。本页区分现有Runtime和下一批设计，实际证据 / 工时见[Progress](Progress.md)。
+更新2026-10-30。M3最小装备闭环与03列表 / 详情 / 查询均已验收，当前[04A祭坛发现与资格](M3_04A_RelicAltarDiscovery.md)待用户实施；实际证据与工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -170,10 +170,12 @@ M3-03B已验收：Core装备完成通知在bChanging撤销后发布，Presenter�
 
 只读面板嵌入已有P暂停页，不复制Flow、输入模式或世界暂停；比较可在暂停读取，页面不调用TryEquip。选中 / 槽位与展示快照归UI，领域拥有 / 配装与确认权限不迁入Widget。两件列表的真实检查与500条压力 / 异步图标边界分开；正式确认 / 祭坛后续。
 
-03C计划接入既有Query：Presenter保存查询，Panel把文本 / 下拉框输入转成枚举，程序同步控件有重入保护；空结果清旧选择，排序保留稳定ID。搜索焦点消费P的KeyUp、Esc只转移焦点，避免冒泡触发外层暂停继续。该段是下一批设计，尚未修改实际Source；不增加Core到UI反向依赖或另一份Flow。
+03C已验收：Presenter保存查询，Panel把文本 / 下拉框输入转成枚举，程序同步控件有重入保护；空结果清旧选择，排序保留稳定ID。搜索焦点消费P的KeyUp、Esc只转移焦点，避免冒泡触发外层暂停继续；原暂停Flow和装备事务不增加第二份所有者。两个专项与真实输入焦点均已通过。
+
+04A待实施设计：Core新增WorldSubsystem弱登记祭坛，按请求检查当前Player / Ready / Idle / 未暂停及距离 / 高差 / Visibility，不缓存永久允许标志。祭坛Actor只负责空间配置 / 注册 / 清理；无Tick、Overlap缓存或GI旧World强引用。A不接E或写装备，B / C再建立页面暂停所有权与最终许可，不全局删除原TryEquip暂停保护。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
+[M3-03C验收报告](Reports/M3_03C_Verification.md)已保存，无待补；本地`abfd9ba`包含五旧Source与Panel实物，起点工作区干净。当前提交03C报告 / 收尾、[04A祭坛发现指南](M3_04A_RelicAltarDiscovery.md)、AssetManifest及同步状态文档；04A尚未实施，不提前创建正式源码或新BP。未联网核验远端。
 
-英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+英文建议`docs: verify relic query controls and prepare altar discovery`；中文`docs: 完成遗物查询控件验收并准备祭坛发现功能`。Stage / Commit / Push由用户操作；日志 / 候选 / 缓存 / 包留本地。

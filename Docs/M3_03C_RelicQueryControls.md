@@ -1,6 +1,6 @@
 # M3-03C：遗物搜索、筛选与排序控件
 
-2026-10-30，UE **5.5.4**。[M3-03B及Tick补修已验收](Reports/M3_03B_Verification.md)。本章现为**实施中，尚未完成整章验收**；C++由你手动输入，助手按你的当次要求完成7.1层级装配及7.4校验报错复核，实际记录见对应小节。下文代码与步骤保留作学习和复现依据。
+2026-10-30，UE **5.5.4**。本章已验收：用户16:44报告全项通过，两专项Success、双Build及真实查询 / 输入焦点检查见[验收报告](Reports/M3_03C_Verification.md)。人工125 / 等待5分钟，历史ET-UI-001已关闭；下一章[M3-04A](M3_04A_RelicAltarDiscovery.md)待用户实施。以下保留手动代码 / Designer步骤作学习依据。
 
 ## 1. 目标、范围与时间
 
@@ -674,44 +674,8 @@ ViewModels / Presenter各一次：
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-**当前仅准备文档**：提交本章指南、03B验收 / 补修收尾、AssetManifest及进度 / 路线 / 架构 / 工作流 / Git / 入口同步文档；本地b1c9579已包含Auto资产，不重复Stage无变化Source或资产。
+[M3-03C验收报告](Reports/M3_03C_Verification.md)已保存，无待补；本地`abfd9ba`包含五旧Source与Panel实物，起点工作区干净。当前提交03C报告 / 收尾、[04A祭坛发现指南](M3_04A_RelicAltarDiscovery.md)、AssetManifest及同步状态文档；04A尚未实施，不提前创建正式源码或新BP。未联网核验远端。
 
-当前文档差异清单：
+英文建议`docs: verify relic query controls and prepare altar discovery`；中文`docs: 完成遗物查询控件验收并准备祭坛发现功能`。Stage / Commit / Push由用户操作；日志 / 候选 / 缓存 / 包留本地。
 
-```text
-Docs/Reports/M3_03B_Verification.md
-Docs/M3_03B_RelicPausePanel.md
-Docs/M3_03C_RelicQueryControls.md
-Docs/AssetManifest.csv
-Docs/Progress.md
-Docs/Backlog.md
-Docs/M3_Roadmap.md
-Docs/M2_Roadmap.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Introduction.md
-README.md
-```
-
-- 当前文档建议英文：`docs: close relic panel tick fix and prepare inventory query controls`
-- 中文译文：`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`
-
-**你实现并检查完成后**，Stage下面五份旧Source及资产的最新差异，同时加入实际更新的本章记录 / 验收报告 / 来源清单。原Panel源文件是替换，不删除重建新类：
-
-```text
-EmberTrial/Source/EmberTrialUI/EmberTrialUI.Build.cs
-EmberTrial/Source/EmberTrialUI/Public/Inventory/ETRelicPresenter.h
-EmberTrial/Source/EmberTrialUI/Public/Widgets/ETRelicPanelWidget.h
-EmberTrial/Source/EmberTrialUI/Private/Widgets/ETRelicPanelWidget.cpp
-EmberTrial/Source/EmberTrialUI/Tests/ETRelicPresenterTests.cpp
-EmberTrial/Content/EmberTrial/ui/Inventory/WBP_ETRelicPanel.uasset
-EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset（仅确有重存差异时）
-Docs/M3_03C_RelicQueryControls.md
-Docs/AssetManifest.csv（验收后按实际SHA更新）
-```
-
-- 实现建议英文：`feat: add relic search filters and stable list sorting`
-- 中文译文：`feat: 新增遗物搜索筛选与基于稳定标识的列表排序`
-
-CLion刷新Changes → 将最新Unstaged差异再次Stage → Review Staged Diff → Commit / Push由你操作。Artifacts中的文档校对候选不属于正式Source，不Force Add；生成文件、日志、缓存、包留本地。英文建议与中文译文可择一作为提交标题，不需要把两句硬拼成一个标题。
+原实现范围是五旧UI Source与WBP_ETRelicPanel，已包含在本地提交，无需重复Stage；原WBP_PauseMenu字节未变。英文实现标题`feat: add relic search filters and stable list sorting`，中文`feat: 新增遗物搜索筛选与基于稳定标识的列表排序`。当前差异清单见Progress。

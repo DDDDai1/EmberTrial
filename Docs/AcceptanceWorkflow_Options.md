@@ -257,8 +257,14 @@ B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原
 
 五旧Source与原Panel布局；扩原Presenter用例，不新增测试文件 / 蓝图测试入口。ViewModels / Presenter各一次，实机5–10分钟覆盖中文与大小写、空结果、筛选与排序选择、P字符 / Esc / Enter焦点、一次真实已装备筛选、两轮开关与Stop。自动化不能代替输入法与焦点；不跑全31项、不重做Retry / Continue / 旧能力矩阵或新Cook。若失败只补对应窄项，长日志由助手读取。
 
+03C实际完成两项Success / 双Build，实机5分钟及全部查询 / 输入焦点按反馈通过；已有日志三轮订阅 / 解绑闭合，历史ET-UI-001已关闭。实际人工125 / 等待5，不追加助手操作用时。
+
+## M3-04A最小范围
+
+五新Core / Character.h测试friend，一新灰盒BP与正式地图。仅一个Interaction.RelicAltar专项覆盖登记 / 空间 / 身体资格 / 销毁；实机约5分钟检查灰盒无阻挡、原E / P查询与能力短查、两轮Play清理。A尚无新页面，不手搭临时E测试图、不执行全31项或新Cook。下一批改变确认 / 暂停权限时再扩大对应事务验证。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
+[M3-03C验收报告](Reports/M3_03C_Verification.md)已保存，无待补；本地`abfd9ba`包含五旧Source与Panel实物，起点工作区干净。当前提交03C报告 / 收尾、[04A祭坛发现指南](M3_04A_RelicAltarDiscovery.md)、AssetManifest及同步状态文档；04A尚未实施，不提前创建正式源码或新BP。未联网核验远端。
 
-英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+英文建议`docs: verify relic query controls and prepare altar discovery`；中文`docs: 完成遗物查询控件验收并准备祭坛发现功能`。Stage / Commit / Push由用户操作；日志 / 候选 / 缓存 / 包留本地。

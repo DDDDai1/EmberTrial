@@ -375,8 +375,9 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 2026-10-24 C指南下发：普通实现由用户手动，用户已写入C五旧Source / 两IA；本次“直接解决”仅授权助手修ETTargetLockTests.cpp，玩法 / 资产未再改。现有B2右肩未提交差异保留。C实施后五旧Core / 两新IA / 原IMC与Controller及实际文档清单见[C末尾](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)；当前不提前Stage未来文件 / 空报告，不改变Git索引。主张先提交B2，再做C；如合并，指南提供完整合并范围及中英文建议。
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
-[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
 
-英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+[M3-03C验收报告](Reports/M3_03C_Verification.md)已保存，无待补；本地`abfd9ba`包含五旧Source与Panel实物，起点工作区干净。当前提交03C报告 / 收尾、[04A祭坛发现指南](M3_04A_RelicAltarDiscovery.md)、AssetManifest及同步状态文档；04A尚未实施，不提前创建正式源码或新BP。未联网核验远端。
 
-2026-10-30补充：03C实际实施后只按指南末尾五旧Source / 原Panel / 可选Pause重存差异Stage，再提交当次验收和真实SHA。英文实现标题`feat: add relic search filters and stable list sorting`，中文`feat: 新增遗物搜索筛选与基于稳定标识的列表排序`。两者可择一作标题，不需要拼接；当前没有执行Stage / Commit / Push。
+英文建议`docs: verify relic query controls and prepare altar discovery`；中文`docs: 完成遗物查询控件验收并准备祭坛发现功能`。Stage / Commit / Push由用户操作；日志 / 候选 / 缓存 / 包留本地。
+
+04A实施后Stage五新Core、Character.h测试friend、新BP / 地图及当次文档，完整范围见指南末尾。英文实现建议`feat: add world scoped relic altar discovery and eligibility checks`，中文`feat: 新增世界级遗物祭坛发现与使用资格校验`。助手本轮未执行Stage / Commit / Push。
