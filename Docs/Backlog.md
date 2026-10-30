@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-10-29。当前[M3-03B主体完成、待Tick补修](Reports/M3_03B_Verification.md)，按[9.3](M3_03B_RelicPausePanel.md)做最小复验，本轮不进入下一章。实时规模 / 工时见[Progress](Progress.md)，历史行保留当时口径，首次PIE等待需求关闭。
+更新2026-10-30。[M3-03B与Tick补修](Reports/M3_03B_Verification.md)已验收，无待补；当前[M3-03C查询控件](M3_03C_RelicQueryControls.md)待用户操作。实时规模 / 工时见[Progress](Progress.md)，历史行保留当时口径，首次PIE等待需求关闭。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -122,7 +122,8 @@
 | M3-02C2-01 | [身体装备GE所有权](Reports/M3_02C2_01_Verification.md) | 你手动实现，我审查 | 完成 | 175 / 97 / 28，三Success、双Build与正式创建 / 精确释放；实际42 / 等待5，无待补 |
 | M3-02C2-02 | [真实换装提交 / 新身体恢复](Reports/M3_02C2_02_Verification.md) | 你手动实现，我审查 | 完成 | 176 / 98 / 29、四Success / 双Build；实机装备 / 切图反馈通过，80 / 等待5，无待补 |
 | M3-03A | [列表数据对象与只读预览](Reports/M3_03A_Verification.md) | 你手动实现，我审查 | 完成 | 179 / 100 / 30，两Success / 双Build；62 / 等待4，无待补 |
-| M3-03B | [暂停页遗物列表 / 详情 / 比较](Reports/M3_03B_Verification.md) | 你手动实现，我审查 | 待补修 | 186 / 104 / 31，两Success / 双Build与主体实机反馈通过；135 / 等待5；首次列表显示Never Tick Ensure待窄复验 |
+| M3-03B | [暂停页遗物列表 / 详情 / 比较](Reports/M3_03B_Verification.md) | 你手动实现，我审查 | 完成 | 186 / 104 / 31，两Success / 双Build；ListEntry Auto新进程无Ensure，三轮订阅解绑闭合；139 / 等待5 |
+| M3-03C | [搜索 / 筛选 / 排序与文本焦点](M3_03C_RelicQueryControls.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 五旧Source / 原Panel三新控件；两专项与5–10分钟窄查，预计不计实耗 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -140,13 +141,14 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 03B主体完成，两Success与实机反馈通过；列表Tick Ensure待窄补修，确认换装后续 |
+| M3当前开发 | 03B含Tick补修已验收；03C查询控件指南下发，正式确认换装与祭坛在04 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
 历史阶段入口：[M0校准](Reports/M0_07_Calibration.md)、[M1总验收](Reports/M1_Verification.md)、[M2路线](M2_Roadmap.md)、[当前M2-05总验收](Reports/M2_05_Verification.md)。当前架构见[Architecture](Architecture.md)，验收按[方案B](AcceptanceWorkflow_Options.md)，不在本页再次维护全部流水。
 
 ## 当前批次 Commit / Push（固定放在最后）
-[03B验收检查报告](Reports/M3_03B_Verification.md)已保存：主体实现和三份资产已在本地897b9fa，当前待列表Never Tick Ensure窄补修，不进入下一章。当前Stage报告、操作指南、AssetManifest与状态文档；补修后再加入有变化的ListEntry资产及新SHA。无需重复Stage无变化Source，未联网核验远端。
 
-当前记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`。实际修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
+
+英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。

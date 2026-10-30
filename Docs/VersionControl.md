@@ -375,6 +375,8 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 2026-10-24 C指南下发：普通实现由用户手动，用户已写入C五旧Source / 两IA；本次“直接解决”仅授权助手修ETTargetLockTests.cpp，玩法 / 资产未再改。现有B2右肩未提交差异保留。C实施后五旧Core / 两新IA / 原IMC与Controller及实际文档清单见[C末尾](M2_06C_TargetSwitching.md#11-本章-commit--push固定放在最后)；当前不提前Stage未来文件 / 空报告，不改变Git索引。主张先提交B2，再做C；如合并，指南提供完整合并范围及中英文建议。
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
-[03B验收检查报告](Reports/M3_03B_Verification.md)已保存：主体实现和三份资产已在本地897b9fa，当前待列表Never Tick Ensure窄补修，不进入下一章。当前Stage报告、操作指南、AssetManifest与状态文档；补修后再加入有变化的ListEntry资产及新SHA。无需重复Stage无变化Source，未联网核验远端。
+[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
 
-当前记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`。实际修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+
+2026-10-30补充：03C实际实施后只按指南末尾五旧Source / 原Panel / 可选Pause重存差异Stage，再提交当次验收和真实SHA。英文实现标题`feat: add relic search filters and stable list sorting`，中文`feat: 新增遗物搜索筛选与基于稳定标识的列表排序`。两者可择一作标题，不需要拼接；当前没有执行Stage / Commit / Push。

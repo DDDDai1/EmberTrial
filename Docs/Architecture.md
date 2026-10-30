@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-29。M3静态定义至[C2-02真实提交与恢复](Reports/M3_02C2_02_Verification.md)已验收，[03A列表模型 / 预览](Reports/M3_03A_Verification.md)也已验收，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动；本页区分现有Runtime和待实施展示层，实际证据 / 工时见[Progress](Progress.md)。
+更新2026-10-30。M3静态定义至[C2-02真实提交与恢复](Reports/M3_02C2_02_Verification.md)、03A模型与[03B暂停页遗物浏览 / Tick补修](Reports/M3_03B_Verification.md)已验收；当前[03C查询控件](M3_03C_RelicQueryControls.md)待手动实施。本页区分现有Runtime和下一批设计，实际证据 / 工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -148,7 +148,7 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新B性能报告对应同一A包；其短时Development / Medium观察不等于最终Shipping / 完整内容预算达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
-### M3：最小装备闭环已落地，展示层待接
+### M3：最小装备闭环与只读展示已落地
 
 UETRelicDefinition已保存稳定ID、FText / 可空软图标、两槽资格 / 两种加法参数，PrimaryAssetId为ETRelic:RelicId；原生单资产校验与实际目录 / ID自动注册专项通过。Core仅Editor条件依赖AssetRegistry测试，不增加UI / Editor反向依赖。两份DataAsset与来源已核实，尚无新Cook。
 
@@ -162,15 +162,18 @@ C2-01已验收：Character继承唯一RelicEquipment组件，只有玩家Ready�
 
 C2-02已验收：预检当前本地身体 / 观察版本 / 暂停 / Pending / Idle / 最终伤害；所有拒绝发生在副作用前。库存提交ID / 版本后执行预检过的同步原生写入器，身体更新同句柄后才发布领域事件；属性回调可读新ID，重入写Busy。同步死亡 / 结束是提交后的世界变化，不伪造资源回滚。
 
-新身体等待切图最终库存，首次恢复后回满最终生命上限；活体换装、重复观察与组件重激活不治疗。EquipmentReady另行门控受控玩家输入，不改GameplayReady；ET_Relic仅PIE开发入口，正式祭坛权限仍后续。新身体BeginPlay早于PostLoad确认时等Pending解除再恢复，避免提前套用上轮ID。最大值变化造成资源夹取的归因 / 恢复一起处理，不声称GAS天然原子。Presenter / View与祭坛页面后续，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
+新身体等待切图最终库存，首次恢复后回满最终生命上限；活体换装、重复观察与组件重激活不治疗。EquipmentReady另行门控受控玩家输入，不改GameplayReady；ET_Relic仅PIE开发入口，正式祭坛权限仍后续。新身体BeginPlay早于PostLoad确认时等Pending解除再恢复，避免提前套用上轮ID。最大值变化造成资源夹取的归因 / 恢复一起处理，不声称GAS天然原子。Presenter / View在03B落地，正式祭坛页面后续，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
 
 M3-03A已验收：UI列表行是稳定ID / 文本 / 图标软引用的值快照，UObject Item为ListView承载数据，未来池化Widget先解绑旧Item再绑定新Item。投影按全部拥有数据校验后排序 / 筛选，失败清空；不加载图标或把数组下标当ID。身体TryBuildPreview与TryEquip共用预检，读可在动作 / 暂停期间执行，确认仍重验当前版本 / Idle / 非暂停；反复比较不Apply / Remove GE或治疗。
 
-M3-03B主体已实现：Core装备完成通知在bChanging撤销后发布，Presenter忽略本次写入中间属性通知，零幅度恢复也有事件。页面Presenter弱观察LocalPlayer身份 / GI库存 / 当前身体与ASC，稳定ID持有Item并去重；条目分配 / 释放精确解绑，Panel构造 / 结束启动 / 关闭自己的Presenter。换控后角色Restart补查装备恢复，避免PossessedBy早于SetPawn导致Waiting。两项无屏幕专项已通过；真实列表绘制的Never Tick Ensure待条目Auto配置窄补修，不能用数据专项代替Slate生命周期验证。
+M3-03B已验收：Core装备完成通知在bChanging撤销后发布，Presenter忽略本次写入中间属性通知，零幅度恢复也有事件。页面Presenter弱观察LocalPlayer身份 / GI库存 / 当前身体与ASC，稳定ID持有Item并去重；条目分配 / 释放精确解绑，Panel构造 / 结束启动 / 关闭自己的Presenter。换控后角色Restart补查装备恢复，避免PossessedBy早于SetPawn导致Waiting。两项无屏幕专项通过；条目Auto兼容补修后，新编辑器进程实际三轮显示无Ensure。Panel / Pause仍Never，业务不加Tick；无屏幕专项与Slate生命周期证据分开记录。
 
 只读面板嵌入已有P暂停页，不复制Flow、输入模式或世界暂停；比较可在暂停读取，页面不调用TryEquip。选中 / 槽位与展示快照归UI，领域拥有 / 配装与确认权限不迁入Widget。两件列表的真实检查与500条压力 / 异步图标边界分开；正式确认 / 祭坛后续。
 
-## 10. 本批 Commit / Push（固定放在最后）
-[03B验收检查报告](Reports/M3_03B_Verification.md)已保存：主体实现和三份资产已在本地897b9fa，当前待列表Never Tick Ensure窄补修，不进入下一章。当前Stage报告、操作指南、AssetManifest与状态文档；补修后再加入有变化的ListEntry资产及新SHA。无需重复Stage无变化Source，未联网核验远端。
+03C计划接入既有Query：Presenter保存查询，Panel把文本 / 下拉框输入转成枚举，程序同步控件有重入保护；空结果清旧选择，排序保留稳定ID。搜索焦点消费P的KeyUp、Esc只转移焦点，避免冒泡触发外层暂停继续。该段是下一批设计，尚未修改实际Source；不增加Core到UI反向依赖或另一份Flow。
 
-当前记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`。实际修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+## 10. 本批 Commit / Push（固定放在最后）
+
+[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
+
+英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。

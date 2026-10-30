@@ -251,9 +251,14 @@ B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原
 
 新UI.Relics.Presenter与旧Inventory.EquipmentTransactions各一次。无屏幕夹具验证先观察后Ready、零幅度完成通知、稳定Item、同Presenter重启、NoPawn / 换身体与失活 / 结束；没有额外Viewport或第二份GI初始化。真实两新UMG / 原Pause布局按完整Designer步骤装配，不搭临时蓝图业务图。
 
-5–10分钟实机确认两件列表 / 中文 / 详情 / 只读比较无副作用、实际装备徽记、P在列表焦点下关闭、原继续按钮与一次Continue快照。31项全组、500件手造和新Cook均不纳入本批；条目释放代码接入不等于已经完成大列表压力测试。本批已两项Success与双Build，实际Slate首次显示发现Never Tick Ensure，按9.3窄补修；数据专项不能替代屏幕列表验证。
+5–10分钟实机确认两件列表 / 中文 / 详情 / 只读比较无副作用、实际装备徽记、P在列表焦点下关闭、原继续按钮与一次Continue快照。31项全组、500件手造和新Cook均不纳入本批；条目释放代码接入不等于已经完成大列表压力测试。本批两项Success与双Build、实机主体通过；首次Slate显示的Never Tick Ensure经ListEntry Auto修复，用户额外4分钟，新进程三轮显示 / 清理无Ensure。数据专项与屏幕验证各自留证，不重复旧矩阵。
+
+## M3-03C最小范围
+
+五旧Source与原Panel布局；扩原Presenter用例，不新增测试文件 / 蓝图测试入口。ViewModels / Presenter各一次，实机5–10分钟覆盖中文与大小写、空结果、筛选与排序选择、P字符 / Esc / Enter焦点、一次真实已装备筛选、两轮开关与Stop。自动化不能代替输入法与焦点；不跑全31项、不重做Retry / Continue / 旧能力矩阵或新Cook。若失败只补对应窄项，长日志由助手读取。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
-[03B验收检查报告](Reports/M3_03B_Verification.md)已保存：主体实现和三份资产已在本地897b9fa，当前待列表Never Tick Ensure窄补修，不进入下一章。当前Stage报告、操作指南、AssetManifest与状态文档；补修后再加入有变化的ListEntry资产及新SHA。无需重复Stage无变化Source，未联网核验远端。
 
-当前记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`。实际修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
+[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
+
+英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。

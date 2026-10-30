@@ -2,7 +2,7 @@
 
 2026-10-29，UE **5.5.4**。[M3-03A已验收](Reports/M3_03A_Verification.md)。本章主体C++由你手动输入，Designer按步骤装配；后续助手直接处理的检查与补修见对应章节记录。
 
-**当前状态（21:08完成反馈后复核）：主体完成，待9.3的Tick兼容窄补修。**两项自动化与功能反馈已通过，但本次运行日志有首次列表显示的Never Tick Ensure，详见[验收检查报告](Reports/M3_03B_Verification.md)；本轮不进入下一章。
+**当前状态（2026-10-30归档）：主体与9.3的Tick兼容补修均已验收。**10月29日21:24用户完成反馈，新进程三轮Panel订阅 / 解绑、无新Ensure，见[验收报告](Reports/M3_03B_Verification.md)。下一章为[M3-03C查询控件](M3_03C_RelicQueryControls.md)，尚未实施。
 
 ## 1. 完成本章后看到什么
 
@@ -1499,7 +1499,7 @@ Automation RunTests EmberTrial.M3.Inventory.EquipmentTransactions
 
 本批真实只检查两件列表 / 详情 / 订阅和原焦点边界；EntryReleased代码已接入，但不把两行显示宣传为完成500条池化压力测试。大列表 / 图标异步和正式确认入口后续集中验证，不让你手动创建几百件假遗物。
 
-### 9.3 验收日志发现的Tick兼容补修（2026-10-29，待手动）
+### 9.3 验收日志发现的Tick兼容补修（2026-10-29完成）
 
 主体反馈已收到，[验收检查报告](Reports/M3_03B_Verification.md)记录了两项Success和正常列表结果。但本次日志21:04:19有`TickFrequency != EWidgetTickFrequency::Never`及`SObjectWidget and UUserWidget have mismatching tick states`的Handled Ensure，调用栈经过列表绘制。初稿对列表条目统一要求Never不适合继续作为本机验证配置，先进行以下最小兼容调整。
 
@@ -1518,14 +1518,14 @@ ListEntry Tick Frequency=Auto / Compile-Save：
 完成时分 / 额外手动用时：
 ```
 
-本项通过前M3-03B状态为待补修，不进入下一章。原代码 / Designer / 真实检查人工135分钟、等待5分钟已登记；本次额外操作单列。
+**已关闭：**用户21:24报告以上全部通过，额外4分钟；21:22新编辑器日志三次Panel订阅 / 三次解绑，无TickFrequency / mismatching tick / Handled Ensure或Error。ListEntry于21:22:05保存，Auto资产已在本地b1c9579。原人工135 + 补修4 = 139分钟，等待5；无需重复本节操作。上述步骤保留作问题复盘，完整证据见验收报告。
 
 ## 10. 简短反馈
 
 ```text
 M3-03B 完成 / 卡在第__节第__步
 七新UI / 五旧Source；Editor Build / 三索引 / Game Build：
-两新WBP父类 / 3与8绑定 / List Entry Class / 无Binding / Never / Compile-Save：
+两新WBP父类 / 3与8绑定 / List Entry Class / 无Binding / Entry Auto-Panel Never / Compile-Save：
 原Pause两列 / 原三绑定与Flow保留：
 UI.Relics.Presenter / Inventory.EquipmentTransactions各一次：
 真实两行 / 中文 / 选中详情 / 槽A-B比较 / 浏览无真实属性变化：
@@ -1585,7 +1585,7 @@ EmberTrial/Source/EmberTrialUI/Tests/ETRelicPresenterTests.cpp
 EmberTrial/Content/EmberTrial/ui/Inventory/WBP_ETRelicListEntry.uasset（新）
 EmberTrial/Content/EmberTrial/ui/Inventory/WBP_ETRelicPanel.uasset（新）
 EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset（布局修改）
-Docs/AssetManifest.csv（已登记两新来源和三份实际SHA；补修后更新ListEntry SHA）
+Docs/AssetManifest.csv（已登记两新来源及补修后的三份实际SHA）
 ```
 
 - 实现建议英文：`feat: add event driven relic browsing to the pause menu`
@@ -1593,4 +1593,6 @@ Docs/AssetManifest.csv（已登记两新来源和三份实际SHA；补修后更�
 
 CLion刷新Changes→Stage最新修改（已Stage后再改需再次Stage）→Review Diff→Commit / Push由你操作。Raw候选 / 日志 / 缓存 / Trace / 包留本地，不Force Add；Source / UE资产 / 文档与清单按实际本章差异提交。
 
-**本地主体已提交897b9fa。**当前新增[验收检查报告](Reports/M3_03B_Verification.md)、9.3补修步骤、来源清单与进度文档；未变化源码无需重复提交。实际补修后再Stage最新ListEntry资产及其SHA。当前文档记录建议英文`docs: record relic panel verification and pending tick fix`，中文`docs: 记录遗物面板验收结果与待处理的 Tick 补修`；配置修复后英文`fix: align relic list entry tick settings with Slate lifecycle`，中文`fix: 调整遗物列表条目的 Tick 配置以兼容 Slate 生命周期`。
+[03B验收报告](Reports/M3_03B_Verification.md)已关闭Tick补修；本地`b1c9579`包含主体和ListEntry Auto配置，实物LFS / SHA匹配。当前只提交03B收尾、[03C查询控件指南](M3_03C_RelicQueryControls.md)、AssetManifest与同步状态文档。03C尚未实施，无变化Source / 资产无需重复Stage；未联网核验远端。
+
+英文建议`docs: close relic panel tick fix and prepare inventory query controls`；中文`docs: 完成遗物面板 Tick 补修验收并准备库存查询控件`。Stage / Commit / Push由用户操作，Raw / 日志 / 缓存 / 包留本地。
