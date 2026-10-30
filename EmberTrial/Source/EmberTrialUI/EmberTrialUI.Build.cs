@@ -12,7 +12,9 @@ public class EmberTrialUI : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
-            "UMG"
+            "UMG",
+            "Slate",
+            "SlateCore"
         });
 
         // UI通过私有Core依赖读取玩法接口；Slate / Input只服务实现，Core不能反向依赖UI。
@@ -21,9 +23,7 @@ public class EmberTrialUI : ModuleRules
             "EmberTrial",
             "GameplayAbilities",
             "GameplayTags",
-            "InputCore",
-            "Slate",
-            "SlateCore"
+            "InputCore"
         });
     }
 }

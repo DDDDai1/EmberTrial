@@ -60,6 +60,7 @@ public:
     bool SelectId(FName Id);
     bool SetPreviewSlotB(bool bSecondSlot);
     bool SetQuery(const FETRelicListQuery& NewQuery);
+    const FETRelicListQuery& GetQuery() const { return Query; }
     const FETRelicPanelData& GetSnapshot() const { return Snapshot; }
     const TArray<TObjectPtr<UETRelicListItem>>& GetItems() const { return VisibleItems; }
     UETRelicListItem* FindItem(FName Id) const;

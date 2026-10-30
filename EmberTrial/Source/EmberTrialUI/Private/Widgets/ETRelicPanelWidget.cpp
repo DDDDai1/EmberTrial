@@ -1,8 +1,13 @@
 #include "Widgets/ETRelicPanelWidget.h"
 #include "Components/Button.h"
+#include "Components/ComboBoxString.h"
+#include "Components/EditableTextBox.h"
 #include "Components/ListView.h"
 #include "Components/TextBlock.h"
 #include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
+#include "Input/Events.h"
+#include "InputCoreTypes.h"
 #include "Inventory/ETRelicPresenter.h"
 #include "Lifecycle/ETUILocalPlayerSubsystem.h"
 #include "Templates/UnrealTemplate.h"
@@ -12,7 +17,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogETRelicPanel, Log, All);
 bool UETRelicPanelWidget::HasRequiredLayout() const
 {
     return RelicList && InventoryStatusText && DetailNameText && DetailDescriptionText && PreviewText &&
-           SlotText && SlotAButton && SlotBButton;
+           SlotText && SlotAButton && SlotBButton && SearchBox && FilterCombo && SortCombo;
 }
 
 void UETRelicPanelWidget::NativeConstruct()
@@ -23,14 +28,18 @@ void UETRelicPanelWidget::NativeConstruct()
         UE_LOG(LogETRelicPanel, Warning, TEXT("[M3-03B] Missing required panel layout Widget=%s"), *GetName());
         return;
     }
-    SlotAButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleSlotA);
-    SlotBButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleSlotB);
-    RelicList->OnItemSelectionChanged().Remove(SelectionHandle);
-    SelectionHandle = RelicList->OnItemSelectionChanged().AddUObject(this, &ThisClass::HandleSelectionChanged);
     if (!Presenter)
     {
         Presenter = NewObject<UETRelicPresenter>(this);
     }
+    InitializeQueryControls();
+    SearchBox->OnTextChanged.AddUniqueDynamic(this, &ThisClass::HandleSearchChanged);
+    FilterCombo->OnSelectionChanged.AddUniqueDynamic(this, &ThisClass::HandleQuerySelectionChanged);
+    SortCombo->OnSelectionChanged.AddUniqueDynamic(this, &ThisClass::HandleQuerySelectionChanged);
+    SlotAButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleSlotA);
+    SlotBButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleSlotB);
+    RelicList->OnItemSelectionChanged().Remove(SelectionHandle);
+    SelectionHandle = RelicList->OnItemSelectionChanged().AddUObject(this, &ThisClass::HandleSelectionChanged);
     Presenter->OnChanged.Remove(PresenterHandle);
     PresenterHandle = Presenter->OnChanged.AddUObject(this, &ThisClass::Render);
     ULocalPlayer* LocalPlayer = GetOwningLocalPlayer();
@@ -41,6 +50,19 @@ void UETRelicPanelWidget::NativeConstruct()
 
 void UETRelicPanelWidget::NativeDestruct()
 {
+    // 先断开输入意图，再结束观察；不让关闭期间的控件回调重新进入Presenter。
+    if (SearchBox)
+    {
+        SearchBox->OnTextChanged.RemoveDynamic(this, &ThisClass::HandleSearchChanged);
+    }
+    if (FilterCombo)
+    {
+        FilterCombo->OnSelectionChanged.RemoveDynamic(this, &ThisClass::HandleQuerySelectionChanged);
+    }
+    if (SortCombo)
+    {
+        SortCombo->OnSelectionChanged.RemoveDynamic(this, &ThisClass::HandleQuerySelectionChanged);
+    }
     if (Presenter)
     {
         Presenter->OnChanged.Remove(PresenterHandle);
@@ -100,7 +122,9 @@ void UETRelicPanelWidget::Render(const FETRelicPanelData& Data)
         return;
     }
     TGuardValue<bool> Guard(bRendering, true);
+    SyncQueryControls();
     TArray<UObject*> Objects;
+    Objects.Reserve(Presenter->GetItems().Num());
     for (UETRelicListItem* Item : Presenter->GetItems())
     {
         Objects.Add(Item);
@@ -121,9 +145,12 @@ void UETRelicPanelWidget::Render(const FETRelicPanelData& Data)
             RelicList->ClearSelection();
         }
     }
-    InventoryStatusText->SetText(FText::FromString(Data.State == EETRelicPanelState::Ready
-        ? TEXT("遗物 · 只读查看") : TEXT("当前身体或装备尚不可预览")));
-    DetailNameText->SetText(Data.SelectedId.IsNone() ? FText::FromString(TEXT("没有可显示的遗物")) : Data.Name);
+    const FText Count = FText::AsNumber(Presenter->GetItems().Num());
+    InventoryStatusText->SetText(FText::Format(Data.State == EETRelicPanelState::Ready
+        ? NSLOCTEXT("ETRelics", "ReadyCount", "遗物 · 只读查看（{0} 件）")
+        : NSLOCTEXT("ETRelics", "WaitingCount", "遗物（{0} 件）· 当前身体尚不可预览"), Count));
+    DetailNameText->SetText(Data.SelectedId.IsNone()
+        ? NSLOCTEXT("ETRelics", "NoMatches", "没有符合条件的遗物") : Data.Name);
     DetailDescriptionText->SetText(Data.Description);
     SlotText->SetText(FText::FromString(Data.bSlotB ? TEXT("比较目标：槽 B") : TEXT("比较目标：槽 A")));
     if (Data.PreviewState == EETRelicPreviewState::Available ||
@@ -141,4 +168,119 @@ void UETRelicPanelWidget::Render(const FETRelicPanelData& Data)
         PreviewText->SetText(FText::FromString(Data.PreviewState == EETRelicPreviewState::Rejected
             ? TEXT("此方案不符合装备规则，例如同一遗物不能占两槽。") : TEXT("当前没有可用的属性比较。")));
     }
+}
+// ---- 查询控件：显示文字只用于呈现，选项索引在View内显式转换为查询枚举 ----
+void UETRelicPanelWidget::InitializeQueryControls()
+{
+    TGuardValue<bool> Guard(bSyncingQueryControls, true);
+    // 提交文本保留编辑焦点；Esc由本Panel显式转移，不回滚已经应用的搜索。
+    SearchBox->SetClearKeyboardFocusOnCommit(false);
+    SearchBox->SetSelectAllTextOnCommit(false);
+    SearchBox->SetRevertTextOnEscape(false);
+    FilterCombo->ClearOptions();
+    FilterCombo->AddOption(NSLOCTEXT("ETRelics", "FilterAll", "全部").ToString());
+    FilterCombo->AddOption(NSLOCTEXT("ETRelics", "FilterA", "可用于槽 A").ToString());
+    FilterCombo->AddOption(NSLOCTEXT("ETRelics", "FilterB", "可用于槽 B").ToString());
+    FilterCombo->AddOption(NSLOCTEXT("ETRelics", "FilterEquipped", "已装备").ToString());
+    SortCombo->ClearOptions();
+    SortCombo->AddOption(NSLOCTEXT("ETRelics", "SortCatalog", "设计顺序").ToString());
+    SortCombo->AddOption(NSLOCTEXT("ETRelics", "SortId", "ID 顺序").ToString());
+    SyncQueryControls();
+}
+
+void UETRelicPanelWidget::SyncQueryControls()
+{
+    if (!HasRequiredLayout() || !Presenter)
+    {
+        return;
+    }
+    TGuardValue<bool> Guard(bSyncingQueryControls, true);
+    const FETRelicListQuery& Query = Presenter->GetQuery();
+    int32 FilterIndex = 0;
+    switch (Query.Filter)
+    {
+    case EETRelicListFilter::CompatibleWithSlotA: FilterIndex = 1; break;
+    case EETRelicListFilter::CompatibleWithSlotB: FilterIndex = 2; break;
+    case EETRelicListFilter::Equipped: FilterIndex = 3; break;
+    default: break;
+    }
+    const int32 SortIndex = Query.Sort == EETRelicListSort::StableId ? 1 : 0;
+    if (FilterCombo->GetSelectedIndex() != FilterIndex)
+    {
+        FilterCombo->SetSelectedIndex(FilterIndex);
+    }
+    if (SortCombo->GetSelectedIndex() != SortIndex)
+    {
+        SortCombo->SetSelectedIndex(SortIndex);
+    }
+    // 相同内容不SetText，避免属性刷新打断输入法或重置编辑光标。
+    if (SearchBox->GetText().ToString() != Query.SearchText)
+    {
+        SearchBox->SetText(FText::FromString(Query.SearchText));
+    }
+}
+
+void UETRelicPanelWidget::ApplyQueryFromControls()
+{
+    if (bSyncingQueryControls || bRendering || !HasRequiredLayout() || !Presenter)
+    {
+        return;
+    }
+    FETRelicListQuery Query = Presenter->GetQuery();
+    switch (FilterCombo->GetSelectedIndex())
+    {
+    case 0: Query.Filter = EETRelicListFilter::All; break;
+    case 1: Query.Filter = EETRelicListFilter::CompatibleWithSlotA; break;
+    case 2: Query.Filter = EETRelicListFilter::CompatibleWithSlotB; break;
+    case 3: Query.Filter = EETRelicListFilter::Equipped; break;
+    default: return;
+    }
+    switch (SortCombo->GetSelectedIndex())
+    {
+    case 0: Query.Sort = EETRelicListSort::CatalogOrder; break;
+    case 1: Query.Sort = EETRelicListSort::StableId; break;
+    default: return;
+    }
+    Query.SearchText = SearchBox->GetText().ToString();
+    Presenter->SetQuery(Query);
+    // 不同条件可能得到完全相同的行，此时Presenter无需广播；View仍立即同步显示。
+    Render(Presenter->GetSnapshot());
+}
+
+void UETRelicPanelWidget::HandleSearchChanged(const FText& Text)
+{
+    ApplyQueryFromControls();
+}
+
+void UETRelicPanelWidget::HandleQuerySelectionChanged(FString SelectedItem,
+                                                    ESelectInfo::Type SelectionType)
+{
+    ApplyQueryFromControls();
+}
+
+// ---- 文本焦点：P作为字符保留在搜索框；Esc只离开编辑，不恢复世界 ----
+bool UETRelicPanelWidget::IsSearchFocused() const
+{
+    return SearchBox && (SearchBox->HasKeyboardFocus() || SearchBox->HasFocusedDescendants());
+}
+
+FReply UETRelicPanelWidget::NativeOnPreviewKeyDown(const FGeometry& InGeometry,
+                                                 const FKeyEvent& InKeyEvent)
+{
+    if (InKeyEvent.GetKey() == EKeys::Escape && IsSearchFocused() && SlotAButton && GetOwningPlayer())
+    {
+        SlotAButton->SetUserFocus(GetOwningPlayer());
+        return FReply::Handled();
+    }
+    return Super::NativeOnPreviewKeyDown(InGeometry, InKeyEvent);
+}
+
+FReply UETRelicPanelWidget::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+    if (InKeyEvent.GetKey() == EKeys::P && IsSearchFocused())
+    {
+        // 截断向外层PauseWidget的KeyUp冒泡，其余按键交还正常UMG路径。
+        return FReply::Handled();
+    }
+    return Super::NativeOnKeyUp(InGeometry, InKeyEvent);
 }

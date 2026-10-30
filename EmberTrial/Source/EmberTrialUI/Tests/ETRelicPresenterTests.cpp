@@ -82,6 +82,45 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
         return false;
     }
     int32 ViewEvents = 0;
+    // ---- 查询改变可见集合，不改变领域库存或丢弃仍拥有的Item ----
+    {
+        const auto BeforeQuery = Inventory->GetSnapshot();
+        FETRelicListQuery SearchQuery;
+        SearchQuery.SearchText = TEXT("  LIFE_  ");
+        TestTrue(TEXT("Search accepted"), Presenter->SetQuery(SearchQuery));
+        TestTrue(TEXT("Query retained without changing text"),
+            Presenter->GetQuery().SearchText == SearchQuery.SearchText);
+        TestTrue(TEXT("Search keeps matching stable item"), Presenter->GetItems().Num() == 1 &&
+            Presenter->GetItems()[0] == LifeItem && Presenter->GetSnapshot().SelectedId == LifeId);
+
+        SearchQuery.SearchText = TEXT("no_matching_relic");
+        Presenter->SetQuery(SearchQuery);
+        TestTrue(TEXT("Empty result clears selection and preview"), Presenter->GetItems().IsEmpty() &&
+            Presenter->GetSnapshot().SelectedId.IsNone() &&
+            Presenter->GetSnapshot().PreviewState == EETRelicPreviewState::Unavailable);
+        TestTrue(TEXT("Filtered items remain owned by presenter"),
+            Presenter->FindItem(LifeId) == LifeItem && Presenter->FindItem(EdgeId) == EdgeItem);
+
+        SearchQuery = {};
+        SearchQuery.Filter = EETRelicListFilter::Equipped;
+        Presenter->SetQuery(SearchQuery);
+        TestTrue(TEXT("Unequipped inventory has valid empty filter"), Presenter->GetItems().IsEmpty() &&
+            Presenter->GetSnapshot().State == EETRelicPanelState::Ready);
+        Presenter->SetQuery({});
+        TestTrue(TEXT("Clearing query restores rows and default selection"),
+            Presenter->GetItems().Num() == 2 && Presenter->GetSnapshot().SelectedId == LifeId &&
+            Presenter->FindItem(LifeId) == LifeItem && Presenter->FindItem(EdgeId) == EdgeItem);
+        TestFalse(TEXT("Same query is a no-op"), Presenter->SetQuery({}));
+        TestTrue(TEXT("Queries never commit inventory"),
+            Inventory->GetSnapshot().Revision == BeforeQuery.Revision &&
+            Inventory->GetSnapshot().Equipped == BeforeQuery.Equipped);
+        TestEqual(TEXT("Queries keep maximum100"),
+            Body->GetAbilitySystemComponent()->GetNumericAttribute(
+                UETHealthAttributeSet::GetMaxHealthAttribute()), 100.0f);
+        TestEqual(TEXT("Queries keep health100"),
+            Body->GetAbilitySystemComponent()->GetNumericAttribute(
+                UETHealthAttributeSet::GetHealthAttribute()), 100.0f);
+    }
     const FDelegateHandle ViewHandle = Presenter->OnChanged.AddLambda([&](const FETRelicPanelData&) { ++ViewEvents; });
     auto Equip = [&](EETRelicSlot Slot, FName Id)
     {
