@@ -13,6 +13,7 @@ class UETFailureWidget;
 class UETPauseWidget;
 class UETRunSessionSubsystem;
 class UETUILocalPlayerSubsystem;
+class AETRelicAltar;
 
 // Preserve the existing native class and serialized component configuration.
 // This single Controller component now coordinates both pause and failure UI.
@@ -43,7 +44,12 @@ private:
     void HandleResumeRequested();
 
     void HandlePauseRequested();
-    void PresentPause();
+    void PresentPause(AETRelicAltar* SourceAltar = nullptr);
+    void HandleAltarRequested(AETRelicAltar* SourceAltar);
+    void ClearAltarContext();
+
+    UFUNCTION()
+    void HandleAltarEndPlay(AActor* SourceActor, EEndPlayReason::Type Reason);
     void RemovePauseWidget();
 
     // 身体变化要成组撤销旧观察 / 延迟呈现 / View，再接入新Life。
@@ -91,6 +97,9 @@ private:
     TWeakObjectPtr<UETRunSessionSubsystem> Session;
     TWeakObjectPtr<UETCombatLifeComponent> BoundLife;
     FDelegateHandle PauseRequestHandle;
+    // 非空（包括已失效弱身份）表示祭坛来源；移除页面时撤销。
+    TWeakObjectPtr<AETRelicAltar> ActiveAltar;
+    FDelegateHandle AltarRequestHandle;
     FDelegateHandle DeathHandle;
     FDelegateHandle SessionFailureHandle;
     FTimerHandle PresentationHandle;

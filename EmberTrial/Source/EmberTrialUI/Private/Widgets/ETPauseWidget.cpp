@@ -102,3 +102,9 @@ FReply UETPauseWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry,
     }
     return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
+
+void UETPauseWidget::ShowAltarReady()
+{
+    ApplyState(false, FText::FromString(
+        TEXT("遗物祭坛 · 选择遗物比较属性；松开 P 或选择继续游戏返回试炼。")));
+}

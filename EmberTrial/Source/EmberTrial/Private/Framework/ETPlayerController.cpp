@@ -14,6 +14,8 @@
 #include "Resources/ETHealingResourceComponent.h"
 #include "AbilitySystemComponent.h"
 #include "Engine/World.h"
+#include "Interaction/ETRelicAltar.h"
+#include "Interaction/ETRelicAltarSubsystem.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETPlayerController, Log, All);
 
@@ -267,4 +269,26 @@ void AETPlayerController::ET_Healing(float Amount)
 #else
     (void)Amount;
 #endif
+}
+
+bool AETPlayerController::TryRequestRelicAltarInteraction()
+{
+    UWorld* World = GetWorld();
+    AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(GetPawn());
+    if (!IsLocalController() || !World || World->bIsTearingDown || !IsValid(Body) ||
+        Body->GetController() != this)
+    {
+        return false;
+    }
+    UETRelicAltarSubsystem* Registry = World->GetSubsystem<UETRelicAltarSubsystem>();
+    AETRelicAltar* Altar = Registry ? Registry->FindAvailableAltar(Body) : nullptr;
+    if (!IsValid(Altar))
+    {
+        return false;
+    }
+    UE_LOG(LogETPlayerController, Display,
+        TEXT("[M3-04B] Altar intent Controller=%s Altar=%s"), *GetName(), *Altar->GetName());
+    // 只广播一次意图，不在Core创建Widget / 暂停，也不直接提交装备。
+    OnRelicAltarRequested.Broadcast(Altar);
+    return true;
 }

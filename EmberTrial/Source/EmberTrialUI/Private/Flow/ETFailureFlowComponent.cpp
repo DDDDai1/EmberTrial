@@ -12,6 +12,7 @@
 #include "Logging/LogMacros.h"
 #include "Widgets/ETFailureWidget.h"
 #include "Widgets/ETPauseWidget.h"
+#include "Interaction/ETRelicAltar.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETFailureFlow, Log, All);
 
@@ -54,6 +55,8 @@ void UETFailureFlowComponent::BeginPlay()
     }
     PauseRequestHandle =
         Controller->OnPauseRequested.AddUObject(this, &ThisClass::HandlePauseRequested);
+    AltarRequestHandle = Controller->OnRelicAltarRequested.AddUObject(
+        this, &ThisClass::HandleAltarRequested);
     UIContext->OnObservedPawnChanged.AddUniqueDynamic(this, &ThisClass::HandleObservedPawnChanged);
     SessionFailureHandle =
         Session->OnTravelFailed.AddUObject(this, &ThisClass::HandleSessionFailure);
@@ -161,16 +164,25 @@ void UETFailureFlowComponent::HandlePauseRequested()
     PresentPause();
 }
 
-void UETFailureFlowComponent::PresentPause()
+void UETFailureFlowComponent::PresentPause(AETRelicAltar* SourceAltar)
 {
+    const bool bFromAltar = SourceAltar != nullptr;
+    AETPlayerController* Controller = ControllerOwner.Get();
+    AEmberTrialCharacter* OpeningBody = Controller
+        ? Cast<AEmberTrialCharacter>(Controller->GetPawn()) : nullptr;
+    if (!HasCurrentBody(false) || bCommandPending || bPresentationQueued ||
+        IsValid(PauseWidget.Get()) || IsValid(FailureWidget.Get()) || Session->IsTravelPending() ||
+        UGameplayStatics::IsGamePaused(this) ||
+        (bFromAltar && (!IsValid(SourceAltar) || !SourceAltar->CanUseAltar(OpeningBody))))
+    {
+        return;
+    }
     if (!PauseWidgetClass || PauseWidgetClass->HasAnyClassFlags(CLASS_Abstract))
     {
         UE_LOG(LogETFailureFlow, Warning,
-               TEXT("[M1-06D] Missing concrete PauseWidgetClass Owner=%s"),
-               *GetNameSafe(GetOwner()));
+            TEXT("[M1-06D] Missing concrete PauseWidgetClass Owner=%s"), *GetNameSafe(GetOwner()));
         return;
     }
-    AETPlayerController* Controller = ControllerOwner.Get();
     PauseWidget = CreateWidget<UETPauseWidget>(Controller, PauseWidgetClass);
     if (!IsValid(PauseWidget.Get()) || !PauseWidget->HasRequiredLayout())
     {
@@ -180,26 +192,46 @@ void UETFailureFlowComponent::PresentPause()
     }
     PauseWidget->OnResumeIntent.AddUniqueDynamic(this, &ThisClass::HandleResumeRequested);
     PauseWidget->OnMainMenuIntent.AddUniqueDynamic(this, &ThisClass::HandleMainMenuRequested);
-    PauseWidget->ShowReady();
-    if (!PauseWidget->AddToPlayerScreen(PauseWidgetZOrder) ||
+    if (bFromAltar)
+    {
+        PauseWidget->ShowAltarReady();
+    }
+    else
+    {
+        PauseWidget->ShowReady();
+    }
+    if (!PauseWidget->AddToPlayerScreen(PauseWidgetZOrder))
+    {
+        RemovePauseWidget();
+        return;
+    }
+    // 创建 / 显示Widget可同步运行回调；在取得暂停前重验当前身体与来源。
+    if (!IsValid(PauseWidget.Get()) || !HasCurrentBody(false) ||
+        Controller->GetPawn() != OpeningBody || Session->IsTravelPending() ||
+        UGameplayStatics::IsGamePaused(this) ||
+        (bFromAltar && (!IsValid(SourceAltar) || !SourceAltar->CanUseAltar(OpeningBody))) ||
         !UGameplayStatics::SetGamePaused(this, true))
     {
-        UE_LOG(LogETFailureFlow, Warning, TEXT("[M1-06D] Pause presentation rejected"));
         RemovePauseWidget();
         return;
     }
     bOwnsPause = true;
-    if (AEmberTrialCharacter* Body = Cast<AEmberTrialCharacter>(Controller->GetPawn()))
+    if (bFromAltar)
     {
-        Body->StopJumping();
+        ActiveAltar = SourceAltar;
+        SourceAltar->OnEndPlay.AddUniqueDynamic(this, &ThisClass::HandleAltarEndPlay);
     }
+    OpeningBody->StopJumping();
     Controller->bShowMouseCursor = true;
     UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller, PauseWidget.Get(),
-                                                   EMouseLockMode::DoNotLock, true);
+        EMouseLockMode::DoNotLock, true);
     PauseWidget->FocusResume();
     NotifyMenuState();
     UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Pause shown Owner=%s Widget=%s Paused=1"),
-           *GetNameSafe(Controller), *GetNameSafe(PauseWidget.Get()));
+        *GetNameSafe(Controller), *GetNameSafe(PauseWidget.Get()));
+    UE_LOG(LogETFailureFlow, Display,
+        TEXT("[M3-04B] Browse shown Owner=%s Altar=%s Mode=%s"), *GetNameSafe(Controller),
+        *GetNameSafe(ActiveAltar.Get()), bFromAltar ? TEXT("Altar") : TEXT("Pause"));
 }
 
 void UETFailureFlowComponent::HandleResumeRequested()
@@ -385,6 +417,12 @@ void UETFailureFlowComponent::RecoverActivePanel(const FText& Message)
     {
         return;
     }
+    if (!ActiveAltar.IsExplicitlyNull() && !ActiveAltar.IsValid())
+    {
+        // 请求失败但原祭坛已结束，撤销该页面，不能恢复成一个无来源的祭坛上下文。
+        HandleResumeRequested();
+        return;
+    }
     if (!UGameplayStatics::IsGamePaused(this))
     {
         if (!UGameplayStatics::SetGamePaused(this, true))
@@ -427,6 +465,7 @@ void UETFailureFlowComponent::RecoverActivePanel(const FText& Message)
 
 void UETFailureFlowComponent::RemovePauseWidget()
 {
+    ClearAltarContext();
     if (IsValid(PauseWidget.Get()))
     {
         const FString WidgetName = GetNameSafe(PauseWidget.Get());
@@ -497,8 +536,10 @@ void UETFailureFlowComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     if (AETPlayerController* Controller = ControllerOwner.Get())
     {
         Controller->OnPauseRequested.Remove(PauseRequestHandle);
+        Controller->OnRelicAltarRequested.Remove(AltarRequestHandle);
     }
     PauseRequestHandle.Reset();
+    AltarRequestHandle.Reset();
     if (UIContext.IsValid())
     {
         UIContext->OnObservedPawnChanged.RemoveDynamic(this, &ThisClass::HandleObservedPawnChanged);
@@ -520,4 +561,38 @@ void UETFailureFlowComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
            *GetNameSafe(GetOwner()));
     // No input/focus/pause changes in an ending world.
     Super::EndPlay(EndPlayReason);
+}
+
+void UETFailureFlowComponent::HandleAltarRequested(AETRelicAltar* SourceAltar)
+{
+    if (!HasCurrentBody(false) || !IsValid(SourceAltar) || SourceAltar->GetWorld() != GetWorld())
+    {
+        return;
+    }
+    PresentPause(SourceAltar);
+}
+
+void UETFailureFlowComponent::ClearAltarContext()
+{
+    // Get(true)仅用于解绑结束中的对象，不能拿这种对象授权装备或读取玩法状态。
+    if (AETRelicAltar* Altar = ActiveAltar.Get(true))
+    {
+        Altar->OnEndPlay.RemoveDynamic(this, &ThisClass::HandleAltarEndPlay);
+    }
+    ActiveAltar.Reset();
+}
+
+void UETFailureFlowComponent::HandleAltarEndPlay(AActor* SourceActor, EEndPlayReason::Type Reason)
+{
+    if (bEndingPlay || SourceActor != ActiveAltar.Get(true) || !HasCurrentContext())
+    {
+        return;
+    }
+    UE_LOG(LogETFailureFlow, Display, TEXT("[M3-04B] Altar source ended Owner=%s Reason=%d"),
+        *GetNameSafe(GetOwner()), static_cast<int32>(Reason));
+    // 切图中不恢复旧世界；若切图失败，RecoverActivePanel会处理失效的祭坛来源。
+    if (!bCommandPending && !Session->IsTravelPending())
+    {
+        HandleResumeRequested();
+    }
 }

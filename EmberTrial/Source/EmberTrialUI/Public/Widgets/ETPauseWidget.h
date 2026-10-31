@@ -19,6 +19,7 @@ public:
     // ---- 必需布局、Ready / Pending / Error与初始焦点 ----
     bool HasRequiredLayout() const;
     void ShowReady();
+    void ShowAltarReady();
     void ShowPending(const FText& Message);
     void ShowError(const FText& Message);
     void FocusResume();

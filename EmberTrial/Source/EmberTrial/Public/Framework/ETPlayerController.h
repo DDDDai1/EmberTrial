@@ -5,11 +5,13 @@
 #include "ETPlayerController.generated.h"
 
 class APawn;
+class AETRelicAltar;
 class UInputAction;
 class UETTargetLockComponent;
 class UETTargetLockCameraComponent;
 
 DECLARE_MULTICAST_DELEGATE(FETPauseRequested);
+DECLARE_MULTICAST_DELEGATE_OneParam(FETRelicAltarRequested, AETRelicAltar*);
 
 // Core只负责输入意图 / 控制生命周期；菜单与Widget装配由UI模块决定。
 UCLASS()
@@ -25,6 +27,12 @@ public:
 
     // Core emits an intent; the UI module decides whether to present a menu.
     FETPauseRequested OnPauseRequested;
+
+    // True只表示找到祭坛并消费本次交互；页面是否成功呈现由UI层决定。
+    UFUNCTION(BlueprintCallable, Category = "EmberTrial|Relic Altar")
+    bool TryRequestRelicAltarInteraction();
+
+    FETRelicAltarRequested OnRelicAltarRequested;
 
     // 蓝图事件桥接现有交互提示，不在Core中引用具体UI类型。
     UFUNCTION(BlueprintImplementableEvent, Category = "EmberTrial|Flow")
