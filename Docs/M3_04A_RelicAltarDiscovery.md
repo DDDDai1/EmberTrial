@@ -1,6 +1,6 @@
 # M3-04A：祭坛发现与使用资格
 
-2026-10-30，UE5.5.4。[M3-03C已验收](Reports/M3_03C_Verification.md)。本章是待你手动实施的开发指南；下面候选尚未写入正式Source、尚未Build或实机运行。
+2026-10-30，UE5.5.4。本章已验收，用户17:17全项反馈、专项Success / 双Build与清理证据见[报告](Reports/M3_04A_Verification.md)。人工70 / 等待5分钟，无待补；进入[M3-04B浏览流程](M3_04B_RelicAltarBrowseFlow.md)，下一批仅指南准备。以下代码与步骤保留作学习依据。
 
 ## 1. 本批交付与后续分批
 
@@ -565,29 +565,8 @@ Interaction.RelicAltar一次：
 
 ## 8. 本批 Commit / Push（固定放在最后）
 
-**当前只有指南与验收收尾文档**。03C五Source及Panel实物已在本地abfd9ba；当前Stage03C报告 / 状态、AssetManifest与本章指南，具体见Progress。未来五文件 / 新BP未创建，不提前Stage空文件。未联网核验远端。
+[M3-04A验收报告](Reports/M3_04A_Verification.md)已保存，无待补；本地`522edb9`包含源码 / 新BP / 地图，起点工作区干净。当前Stage A报告 / 收尾、[B浏览流程指南](M3_04B_RelicAltarBrowseFlow.md)、AssetManifest与同步状态文档；B尚未实施，不提交本地候选。未联网核验远端。
 
-- 当前文档建议英文：`docs: verify relic query controls and prepare altar discovery`
-- 中文译文：`docs: 完成遗物查询控件验收并准备祭坛发现功能`
+英文建议`docs: verify altar discovery and prepare altar browsing flow`；中文`docs: 完成祭坛发现验收并准备祭坛浏览流程`。Stage / Commit / Push由用户操作；Raw / 日志 / 缓存 / 包留本地。
 
-**实现并检查后**提交实际新增 / 修改及当次最新文档：
-
-```text
-EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h（只补测试friend）
-EmberTrial/Source/EmberTrial/Public/Interaction/ETRelicAltar.h
-EmberTrial/Source/EmberTrial/Private/Interaction/ETRelicAltar.cpp
-EmberTrial/Source/EmberTrial/Public/Interaction/ETRelicAltarSubsystem.h
-EmberTrial/Source/EmberTrial/Private/Interaction/ETRelicAltarSubsystem.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicAltarTests.cpp
-EmberTrial/Content/EmberTrial/Blueprints/Interaction/BP_ETRelicAltar.uasset
-EmberTrial/Content/EmberTrial/Maps/L_ET_VerticalSlice.umap
-地图产生的__ExternalActors__ / __ExternalObjects__实际差异（仅有变化时）
-Docs/M3_04A_RelicAltarDiscovery.md
-Docs/AssetManifest.csv（下次按新BP实物登记来源与SHA）
-验收报告与实际更新的Progress / Backlog / 路线等
-```
-
-- 实现建议英文：`feat: add world scoped relic altar discovery and eligibility checks`
-- 中文译文：`feat: 新增世界级遗物祭坛发现与使用资格校验`
-
-CLion刷新Changes → Stage最新差异 → Review → Commit / Push由你操作。已Stage后继续修改需再次Stage。Artifacts候选、日志、Intermediate / Saved / Binaries与包留本地；英文建议与中文译文可择一作标题。
+A实现范围为五新Core、Character.h测试friend、一新BP与正式地图，已在本地提交；英文实现标题`feat: add world scoped relic altar discovery and eligibility checks`，中文`feat: 新增世界级遗物祭坛发现与使用资格校验`。无需重复Stage无变化实物。

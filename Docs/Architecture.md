@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-30。M3最小装备闭环与03列表 / 详情 / 查询均已验收，当前[04A祭坛发现与资格](M3_04A_RelicAltarDiscovery.md)待用户实施；实际证据与工时见[Progress](Progress.md)。
+更新2026-10-30。M3装备闭环、03展示查询与[04A祭坛发现](Reports/M3_04A_Verification.md)已验收；当前[04B祭坛浏览](M3_04B_RelicAltarBrowseFlow.md)待用户实施。实际证据与工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -172,10 +172,12 @@ M3-03B已验收：Core装备完成通知在bChanging撤销后发布，Presenter�
 
 03C已验收：Presenter保存查询，Panel把文本 / 下拉框输入转成枚举，程序同步控件有重入保护；空结果清旧选择，排序保留稳定ID。搜索焦点消费P的KeyUp、Esc只转移焦点，避免冒泡触发外层暂停继续；原暂停Flow和装备事务不增加第二份所有者。两个专项与真实输入焦点均已通过。
 
-04A待实施设计：Core新增WorldSubsystem弱登记祭坛，按请求检查当前Player / Ready / Idle / 未暂停及距离 / 高差 / Visibility，不缓存永久允许标志。祭坛Actor只负责空间配置 / 注册 / 清理；无Tick、Overlap缓存或GI旧World强引用。A不接E或写装备，B / C再建立页面暂停所有权与最终许可，不全局删除原TryEquip暂停保护。
+04A已验收：Core的WorldSubsystem弱登记祭坛，按请求检查当前Player / Ready / Idle / 未暂停及距离 / 高差 / Visibility，不缓存永久允许标志。祭坛Actor负责空间配置 / 注册 / 清理，无Tick、Overlap缓存或GI旧World强引用；专项与实机灰盒通过。
+
+04B待实施设计：Controller从原唯一E入口查询后发布意图；有祭坛即消费，无候选回旧A/B。单FailureFlow复用原Pause布局、暂停 / Failure / 返回菜单链；页面只弱记来源，关闭 / 换身体 / 死亡 / EndPlay解绑，来源结束按原继续链恢复输入。C再建立最终写许可与确认，不全局删除TryEquip暂停保护。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[M3-03C验收报告](Reports/M3_03C_Verification.md)已保存，无待补；本地`abfd9ba`包含五旧Source与Panel实物，起点工作区干净。当前提交03C报告 / 收尾、[04A祭坛发现指南](M3_04A_RelicAltarDiscovery.md)、AssetManifest及同步状态文档；04A尚未实施，不提前创建正式源码或新BP。未联网核验远端。
+[M3-04A验收报告](Reports/M3_04A_Verification.md)已保存，无待补；本地`522edb9`包含源码 / 新BP / 地图，起点工作区干净。当前Stage A报告 / 收尾、[B浏览流程指南](M3_04B_RelicAltarBrowseFlow.md)、AssetManifest与同步状态文档；B尚未实施，不提交本地候选。未联网核验远端。
 
-英文建议`docs: verify relic query controls and prepare altar discovery`；中文`docs: 完成遗物查询控件验收并准备祭坛发现功能`。Stage / Commit / Push由用户操作；日志 / 候选 / 缓存 / 包留本地。
+英文建议`docs: verify altar discovery and prepare altar browsing flow`；中文`docs: 完成祭坛发现验收并准备祭坛浏览流程`。Stage / Commit / Push由用户操作；Raw / 日志 / 缓存 / 包留本地。

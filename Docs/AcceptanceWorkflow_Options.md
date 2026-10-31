@@ -263,8 +263,14 @@ B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原
 
 五新Core / Character.h测试friend，一新灰盒BP与正式地图。仅一个Interaction.RelicAltar专项覆盖登记 / 空间 / 身体资格 / 销毁；实机约5分钟检查灰盒无阻挡、原E / P查询与能力短查、两轮Play清理。A尚无新页面，不手搭临时E测试图、不执行全31项或新Cook。下一批改变确认 / 暂停权限时再扩大对应事务验证。
 
+04A已实际一个专项Success / 双Build及灰盒 / 清理反馈通过；用户检查5分钟、总人工70 / 等待5。当前日志直接覆盖一轮真实PIE，第二轮按用户反馈，不为记录重复补跑。
+
+## M3-04B最小范围
+
+只扩原Altar专项验证Core意图路由，不用无Viewport夹具冒充UMG成功。实机5–10分钟分组覆盖祭坛E / 原A-B与P、长按单次、搜索焦点 / 继续无补播、一次PIE祭坛销毁自动关闭、菜单Continue与Stop。没有临时验收蓝图或全32项 / Cook；来源销毁用现有PIE控制台命令，不删持久地图实例。真实确认与权限变化留C再验。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-[M3-03C验收报告](Reports/M3_03C_Verification.md)已保存，无待补；本地`abfd9ba`包含五旧Source与Panel实物，起点工作区干净。当前提交03C报告 / 收尾、[04A祭坛发现指南](M3_04A_RelicAltarDiscovery.md)、AssetManifest及同步状态文档；04A尚未实施，不提前创建正式源码或新BP。未联网核验远端。
+[M3-04A验收报告](Reports/M3_04A_Verification.md)已保存，无待补；本地`522edb9`包含源码 / 新BP / 地图，起点工作区干净。当前Stage A报告 / 收尾、[B浏览流程指南](M3_04B_RelicAltarBrowseFlow.md)、AssetManifest与同步状态文档；B尚未实施，不提交本地候选。未联网核验远端。
 
-英文建议`docs: verify relic query controls and prepare altar discovery`；中文`docs: 完成遗物查询控件验收并准备祭坛发现功能`。Stage / Commit / Push由用户操作；日志 / 候选 / 缓存 / 包留本地。
+英文建议`docs: verify altar discovery and prepare altar browsing flow`；中文`docs: 完成祭坛发现验收并准备祭坛浏览流程`。Stage / Commit / Push由用户操作；Raw / 日志 / 缓存 / 包留本地。

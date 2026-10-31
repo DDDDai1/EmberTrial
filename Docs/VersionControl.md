@@ -376,8 +376,8 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-[M3-03C验收报告](Reports/M3_03C_Verification.md)已保存，无待补；本地`abfd9ba`包含五旧Source与Panel实物，起点工作区干净。当前提交03C报告 / 收尾、[04A祭坛发现指南](M3_04A_RelicAltarDiscovery.md)、AssetManifest及同步状态文档；04A尚未实施，不提前创建正式源码或新BP。未联网核验远端。
+[M3-04A验收报告](Reports/M3_04A_Verification.md)已保存，无待补；本地`522edb9`包含源码 / 新BP / 地图，起点工作区干净。当前Stage A报告 / 收尾、[B浏览流程指南](M3_04B_RelicAltarBrowseFlow.md)、AssetManifest与同步状态文档；B尚未实施，不提交本地候选。未联网核验远端。
 
-英文建议`docs: verify relic query controls and prepare altar discovery`；中文`docs: 完成遗物查询控件验收并准备祭坛发现功能`。Stage / Commit / Push由用户操作；日志 / 候选 / 缓存 / 包留本地。
+英文建议`docs: verify altar discovery and prepare altar browsing flow`；中文`docs: 完成祭坛发现验收并准备祭坛浏览流程`。Stage / Commit / Push由用户操作；Raw / 日志 / 缓存 / 包留本地。
 
-04A实施后Stage五新Core、Character.h测试friend、新BP / 地图及当次文档，完整范围见指南末尾。英文实现建议`feat: add world scoped relic altar discovery and eligibility checks`，中文`feat: 新增世界级遗物祭坛发现与使用资格校验`。助手本轮未执行Stage / Commit / Push。
+B实施后Stage七旧Source / 角色与祭坛BP，以及原Pause确有重存差异时的资产，完整列表见指南末尾。英文实现建议`feat: route altar interaction through the existing pause flow`，中文`feat: 通过既有暂停流程接入祭坛交互与浏览页面`。助手未操作Git索引或远端。
