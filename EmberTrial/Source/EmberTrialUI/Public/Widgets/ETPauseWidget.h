@@ -8,6 +8,7 @@
 class UButton;
 class UTextBlock;
 class UETRelicPanelWidget;
+class UETInputSettingsWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETPauseActionRequested);
 
@@ -62,6 +63,9 @@ private:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UETRelicPanelWidget> RelicPanel;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UETInputSettingsWidget> InputSettingsPanel;
 
     // busy只保护本View请求中的输入，不代表世界暂停或角色死亡。
     bool bBusy = false;

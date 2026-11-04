@@ -1,5 +1,6 @@
 #include "Widgets/ETPauseWidget.h"
 #include "Widgets/ETRelicPanelWidget.h"
+#include "Widgets/ETInputSettingsWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
@@ -10,7 +11,8 @@
 
 bool UETPauseWidget::HasRequiredLayout() const
 {
-    return IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) && IsValid(StatusText.Get()) && IsValid(RelicPanel.Get());
+    return IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) &&
+        IsValid(StatusText.Get()) && IsValid(RelicPanel.Get()) && IsValid(InputSettingsPanel.Get());
 }
 
 void UETPauseWidget::NativeOnInitialized()
@@ -48,6 +50,10 @@ void UETPauseWidget::ApplyState(bool bPending, const FText& Message)
     if (RelicPanel)
     {
         RelicPanel->SetCommandBusy(bBusy);
+    }
+    if (InputSettingsPanel)
+    {
+        InputSettingsPanel->SetHostBusy(bBusy);
     }
     if (HasRequiredLayout())
     {
