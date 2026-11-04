@@ -19,6 +19,10 @@ public:
 
     // 此处是打开入口前的运行态资格；不表示已获得页面中的换装许可。
     static bool IsEligiblePlayer(const AEmberTrialCharacter* PlayerBody);
+
+    // 共用身体资格；不检查暂停，本身不是换装授权。
+    static bool IsEligibleBody(const AEmberTrialCharacter* PlayerBody);
+
     virtual void Deinitialize() override;
 
 protected:

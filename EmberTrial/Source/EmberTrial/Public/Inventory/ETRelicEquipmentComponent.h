@@ -7,6 +7,7 @@
 #include "ETRelicEquipmentComponent.generated.h"
 
 class AEmberTrialCharacter;
+class FETRelicAltarAccess;
 class UAbilitySystemComponent;
 class UETRunSessionSubsystem;
 class UETRelicEquipmentComponent;
@@ -43,9 +44,12 @@ public:
     bool IsUpdatingEquipment() const { return bChanging; }
     FETRelicEquipmentChanged OnEquipmentChanged;
 
-    // 调用方必须带看到的库存版本；正式祭坛权限由后续入口层接入。
-    // 本章唯一交互调用者是受限PIE开发命令，不暴露BlueprintCallable。
+    // 原PIE开发路径仍要求非暂停；不暴露BlueprintCallable
     FETRelicInventoryReply TryEquip(EETRelicSlot Slot, FName RelicId, uint64 ExpectedRevision);
+
+    // 正式页面路径：只有仍有效的祭坛上下文可在暂停中提交，不能传bool绕过。
+    FETRelicInventoryReply TryEquipAtAltar(const FETRelicAltarAccess& Access,
+        EETRelicSlot Slot, FName RelicId, uint64 ExpectedRevision);
 
     // 只构建比较结果：暂停 / 动作中可读，不应用GE、不改库存或当前连段快照。
     FETRelicInventoryReply TryBuildPreview(EETRelicSlot Slot, FName RelicId,
@@ -58,6 +62,10 @@ protected:
 private:
     friend class FETRelicEquipmentOwnershipTest;
     friend class FETRelicEquipmentTransactionTest;
+
+    // 两个入口复用同一提交点；nullptr仅指原非暂停入口。
+    FETRelicInventoryReply TryEquipInternal(EETRelicSlot Slot, FName RelicId,
+        uint64 ExpectedRevision, const FETRelicAltarAccess* Access);
 
     bool IsCurrentPlayerBody() const;
     bool ResolveSessionSources();

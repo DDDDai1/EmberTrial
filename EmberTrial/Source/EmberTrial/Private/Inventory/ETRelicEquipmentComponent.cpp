@@ -15,6 +15,7 @@
 #include "GameplayEffectAggregator.h"
 #include "Templates/UnrealTemplate.h"
 #include <limits>
+#include "Interaction/ETRelicAltarAccess.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETRelicEquipment, Log, All);
 
@@ -541,9 +542,23 @@ FETRelicInventoryReply UETRelicEquipmentComponent::TryBuildPreview(
     return Reply;
 }
 
-// ---- 写入仍要求当前身体Idle / 非暂停；只读预览不能绕过确认的版本重验 ----
+// ---- 两种入口，一份事务：普通非暂停 / 祭坛上下文内暂停确认 ----
 FETRelicInventoryReply UETRelicEquipmentComponent::TryEquip(
     const EETRelicSlot Slot, const FName RelicId, const uint64 ExpectedRevision)
+{
+    return TryEquipInternal(Slot, RelicId, ExpectedRevision, nullptr);
+}
+
+FETRelicInventoryReply UETRelicEquipmentComponent::TryEquipAtAltar(
+    const FETRelicAltarAccess& Access, const EETRelicSlot Slot, const FName RelicId,
+    const uint64 ExpectedRevision)
+{
+    return TryEquipInternal(Slot, RelicId, ExpectedRevision, &Access);
+}
+
+FETRelicInventoryReply UETRelicEquipmentComponent::TryEquipInternal(
+    const EETRelicSlot Slot, const FName RelicId, const uint64 ExpectedRevision,
+    const FETRelicAltarAccess* Access)
 {
     UETRelicInventorySubsystem* Inventory = InventorySource.Get();
     if (bChanging || (IsValid(Inventory) && Inventory->bChanging))
@@ -551,7 +566,8 @@ FETRelicInventoryReply UETRelicEquipmentComponent::TryEquip(
         return {EETRelicInventoryResult::Busy};
     }
     const AEmberTrialCharacter* Body = BodyOwner.Get();
-    if (!IsValid(Body) || !Body->IsFormalActionIdle() || UGameplayStatics::IsGamePaused(this))
+    if (!IsValid(Body) || !Body->IsFormalActionIdle() ||
+        (Access ? !Access->CanCommitFor(this) : UGameplayStatics::IsGamePaused(this)))
     {
         return {EETRelicInventoryResult::NotReady};
     }
@@ -561,7 +577,11 @@ FETRelicInventoryReply UETRelicEquipmentComponent::TryEquip(
     {
         return Reply;
     }
-    // 所有业务拒绝均已完成。提交回调保持C2-02协议，不先Apply再伪造回滚。
+    // 方案预检后、产生任何副作用前再次核对页面上下文的实时条件。
+    if (Access && !Access->CanCommitFor(this))
+    {
+        return {EETRelicInventoryResult::NotReady};
+    }
     return Inventory->TryCommitPlan(Plan,
         [this](const FETRelicLoadoutPlan& Committed, const uint64 Revision)
         {
@@ -571,7 +591,6 @@ FETRelicInventoryReply UETRelicEquipmentComponent::TryEquip(
                 AppliedRevision = Revision;
                 WriteModifiersUnchecked(Committed.AfterModifiers);
             }
-            // 发布时bChanging已撤销，读者可立即读取真正就绪的快照。
             OnEquipmentChanged.Broadcast(this);
         });
 }

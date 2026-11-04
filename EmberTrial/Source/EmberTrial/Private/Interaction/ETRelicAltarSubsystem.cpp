@@ -13,6 +13,11 @@ bool UETRelicAltarSubsystem::DoesSupportWorldType(const EWorldType::Type WorldTy
 
 bool UETRelicAltarSubsystem::IsEligiblePlayer(const AEmberTrialCharacter* PlayerBody)
 {
+    return IsEligibleBody(PlayerBody) && !UGameplayStatics::IsGamePaused(PlayerBody);
+}
+
+bool UETRelicAltarSubsystem::IsEligibleBody(const AEmberTrialCharacter* PlayerBody)
+{
     if (!IsValid(PlayerBody) || PlayerBody->IsActorBeingDestroyed() ||
         !PlayerBody->HasActorBegunPlay() || !PlayerBody->HasAuthority() ||
         PlayerBody->GetCombatTeam() != EETCombatTeam::Player ||
@@ -25,8 +30,8 @@ bool UETRelicAltarSubsystem::IsEligiblePlayer(const AEmberTrialCharacter* Player
     const APlayerController* PC = Cast<APlayerController>(PlayerBody->GetController());
     const UETRelicEquipmentComponent* Equipment =
         PlayerBody->FindComponentByClass<UETRelicEquipmentComponent>();
-    return World && World->GetNetMode() == NM_Standalone &&
-        !UGameplayStatics::IsGamePaused(PlayerBody) && IsValid(PC) &&
+    return World && !World->bIsTearingDown && World->GetNetMode() == NM_Standalone &&
+        IsValid(PC) && !PC->IsActorBeingDestroyed() && PC->GetWorld() == World &&
         PC->IsLocalController() && PC->GetPawn() == PlayerBody &&
         Equipment && Equipment->IsEquipmentReady();
 }
