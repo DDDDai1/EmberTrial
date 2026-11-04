@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-11-04。[M3-04C1已验收](Reports/M3_04C1_Verification.md)，无待补；当前[C2确认装备 / 卸装](M3_04C2_RelicConfirmationUI.md)待用户手动实施。实时规模 / 工时见Progress，历史行保留当时口径。
+更新2026-11-04。[M3-04C2已验收](Reports/M3_04C2_Verification.md)，无待补；当前[M3-05A1输入偏好 / 镜头灵敏度 / 本地保存](M3_05A1_InputPreferences.md)待用户手动实施。实时规模 / 工时见Progress，历史行保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -127,7 +127,8 @@
 | M3-04A | [祭坛发现与使用资格](Reports/M3_04A_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 191 / 107 / 32、专项Success / 双Build、灰盒与清理反馈通过；70 / 等待5 |
 | M3-04B | [E进入祭坛浏览页](Reports/M3_04B_Verification.md) | 你手动实现，8.1授权助手接线 / 审查 | 完成 | 专项Success / 单页 / 输入恢复与来源销毁窄项通过；87 / 等待5，无待补 |
 | M3-04C1 | [祭坛换装上下文与事务门控](Reports/M3_04C1_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 193 / 108 / 32，双Build / 两Success与短查通过；57 / 等待2，无待补 |
-| M3-04C2 | [祭坛确认装备与卸装UI](M3_04C2_RelicConfirmationUI.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 十旧UI模块文件、Panel15绑定 / Pause第四绑定，三相关专项与分组短查 |
+| M3-04C2 | [祭坛确认装备与卸装UI](Reports/M3_04C2_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 十旧UI模块 / 两资产、三Success / 双Build / 最终Valid与实机；95 / 等待2，无待补 |
+| M3-05A1 | [输入偏好与本地保存](M3_05A1_InputPreferences.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 三新Core / 旧Character.cpp / 单配置键；两相关专项、真实鼠标与一次重启 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -145,7 +146,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | C1已验收；C2接单Flow原生委托 / 页面确认与卸装，普通P保持只读 |
+| M3当前开发 | 01–04两件遗物正式闭环已验收；05A1输入偏好 / 保存待实施，完整6件与新包仍后续 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -153,9 +154,9 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-C1七份源码已在本地`e659e8c`，审查起点工作区干净。本轮Stage C1验收报告 / 收尾、C2新指南及同步状态文档；C2正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify altar access and prepare relic confirmation UI`
-- 中文译文：`docs: 完成祭坛换装上下文验收并准备遗物确认界面`
+- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
+- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
 
-Stage / Commit / Push由用户操作；Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

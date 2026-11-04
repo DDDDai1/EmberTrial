@@ -144,43 +144,33 @@ Practice仍被正式预检、移动 / 跳跃、受击 / 死亡与两项M0自动�
 
 [Editor校验器](../EmberTrial/Source/EmberTrialEditor/Private/Validation)只读CDO、BT结构与必需控件，不Spawn / 授予 / 播放。配置脚本只查共享Default.ini / 文件存在，不合并Saved / 平台配置，也不反序列化地图。
 
-现有23项自动化（含新增SpawnPlacement生成前贴地 / 回退）覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项、标记边界纯规则一项及镜头角度规则一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。当次执行 / 沿用范围见各批验收报告；[M2-07A](Reports/M2_07A_Verification.md)已阶段全组23Success，历史清理见[Cleanup](Cleanup.md)。
+M2历史23项自动化（含新增SpawnPlacement生成前贴地 / 回退）覆盖Practice两项、资源两项、韧性基础 / 状态 / 耗尽各一项及破势施放 / 冷却与范围各一项、闪避三项、连段两项、治疗两项、UI纯规则两项及破势冷却生命周期一项及目标选择 / 生命周期一项、标记边界纯规则一项及镜头角度规则一项；真实Montage / Notify / Sweep / GE测试仍不替代键鼠、焦点 / 布局、导航交战和独立包加载。当次执行 / 沿用范围见各批验收报告；[M2-07A](Reports/M2_07A_Verification.md)已阶段全组23Success，历史清理见[Cleanup](Cleanup.md)。
 
 清理32批及最后真实键鼠复验已关闭。当前M2_07A/Attempt01已实际Cook并验证四能力 / 资源HUD、Poise / F、锁定 / 标记 / 镜头与两轮世界重建；Cleanup包仅代表历史阶段，最新B性能报告对应同一A包；其短时Development / Medium观察不等于最终Shipping / 完整内容预算达标。后续构筑、持久存档与最终美术按[完整计划](../Introduction.md)分批。现有测试均受WITH_DEV_AUTOMATION_TESTS保护，普通Play不执行测试体；默认Shipping排除，Development保留编译 / 注册 / 体积成本，不因阶段早而删除有效回归。Content/Tests资源仍按实际引用保留。
 
-### M3：最小装备闭环与只读展示已落地
+### M3：两件遗物的正式装备闭环
 
-UETRelicDefinition已保存稳定ID、FText / 可空软图标、两槽资格 / 两种加法参数，PrimaryAssetId为ETRelic:RelicId；原生单资产校验与实际目录 / ID自动注册专项通过。Core仅Editor条件依赖AssetRegistry测试，不增加UI / Editor反向依赖。两份DataAsset与来源已核实，尚无新Cook。
+**静态定义与纯方案。** UETRelicDefinition保存稳定ID、FText / 可空软图标、两槽资格与两种加法参数，PrimaryAssetId为ETRelic:RelicId；只在Editor条件依赖AssetRegistry测试。无状态规则计算资格 / 汇总、替换 / 卸下与预览，Plan记录来源弱身份、观察版本和前态，不持有ASC / Widget。增加已有类型遗物改数据，新增效果机制仍需消费者 / 校验。
 
-02A已把两槽ID快照、资格 / 汇总、基值与最终值校验、替换 / 卸下方案集中为无状态纯函数。Plan不保存UObject / ASC，不加载图标 / 应用GE，不代表已提交；只有Success输出可用，NoChange / 失败清空。它既供后续装备预检，也供UI比较，基值须排除已有装备，且只承诺已建模的两种加法。
+**GI库存与身体效果。** Inventory独立于RunSession，持有定义和拥有 / 两槽ID / Revision；只监听已确认切图，NewRun重置、Retry / Continue / MainMenu保留并推进版本。玩家身体唯一RelicEquipment在Ready后持有一份自己创建的Infinite GE，以SourceObject / 精确句柄辨认所有权；更新同一GE避免临时上限下降，结束只清自己效果，敌人 / Neutral休眠，无Tick / Timer。四组基础GameplayReady与EquipmentReady分开，不把所有未来初始化塞进同一Ready。
 
-B已新增Combat属性集基础0与第四组Ready、双幅度Infinite GE。GA每条轻击激活捕获一次基础 / 加成，所有段按(基础+加成)×倍率；ClearStageResources不清整链缓存，EndAbility在Super前清理。MaxHealth / 加成的Base与Current分开保护；效果精确移除不删除别人的GE。C2-02已提供受限PIE入口验证真实正向装备。
+**真实提交与资源语义。** TryMakePlan预检最终值，所有拒绝在副作用前；库存提交ID / 版本后调用预检过的同步原生写入器，更新同句柄并在完整结果后发布领域事件。同步属性回调可读新ID，重入写Busy；外部同步死亡 / 结束不伪装成回滚。活体装卸只保留 / 夹限生命，不免费治疗；轻击整链缓存(基础+加成)，不是每段重新取装备。新身体等Pending解除后的最终库存，重建后回满最终上限，治疗次数 / 冷却回默认。磁盘进度留M5，不声称GAS天然原子。
 
-C1已验收：GI库存以Config主资产ID加载 / 校验，UPROPERTY持有定义，逻辑快照只给拥有ID / 两槽 / Revision。不可随意改写的Plan带来源弱引用 / 版本 / 前态，提交前重算静态参数，广播期间拒绝重入写。RunSession只新增已确认切图通知，不反向依赖Inventory；NewRun重置、Retry / Continue / MainMenu保留，但均推进版本。当前Source已含Subsystem，逻辑提交已由身体服务连接，实机仅受限PIE入口可换装；正式祭坛 / 页面后续。
+**Presenter与复用View。** 原生值快照供ListView，稳定ID维护选择；查询 / 比较不Apply GE，搜索清失效选择、排序保留合法ID。Presenter弱观察LocalPlayer / GI / 身体 / ASC，去重并精确解绑；条目分配 / 释放解绑旧Item。ListEntry Auto兼容UE原生Tick，Panel / Pause Never，业务不加Tick。搜索消费P、Esc离开文本焦点、Enter不误触外层继续；原Flow仍是暂停与输入模式唯一所有者。500行 / 异步图标压力尚未验证。
 
-C2-01已验收：Character继承唯一RelicEquipment组件，只有玩家Ready后创建一份原生零幅度GE，以SourceObject和精确Handle识别所有权；正常换加成更新同一GE，避免先移除导致临时上限下降。原生只读查询核对真实Spec，外部移除 / 篡改后不可用；失活 / Ready撤销 / EndPlay清自己的句柄，不按类清除。无Tick / Timer，敌人与Neutral休眠。批聚合通知不是任意世界回调的原子事务，也不将低层Applied冒充库存提交成功。
+**祭坛权限与确认。** WorldSubsystem弱登记祭坛，按请求核对Player / Ready / Idle、距离 / 高差与Visibility，无每帧扫描或跨World强引用。原唯一E入口有祭坛就消费，无候选回旧A/B；单FailureFlow沿原Pause页展示。来源结束、换身体 / 死亡 / 关闭 / 切图清理沿原恢复链。
 
-C2-02已验收：预检当前本地身体 / 观察版本 / 暂停 / Pending / Idle / 最终伤害；所有拒绝发生在副作用前。库存提交ID / 版本后执行预检过的同步原生写入器，身体更新同句柄后才发布领域事件；属性回调可读新ID，重入写Busy。同步死亡 / 结束是提交后的世界变化，不伪造资源回滚。
+C1的FETRelicAltarAccess不可复制，持有弱World / Controller / 身体 / 来源 / 会话身份。C2已由单Flow在未暂停时创建、取得暂停并成功呈现后发放；弱View委托携带身份，最终接收端重验当前页 / IsInViewport / 暂停归属与Core实时资格。Presenter只提交槽 / 稳定ID / 观察版本，沿同一事务完成；无搜索结果仍能卸装，普通P只读。移除时先Close / Reset Access和命令，再清View；旧观察结果 / 执行中解绑有代际与强局部保活保护，不用短暂解暂停换取写入权限。公开UI委托使用Core类型，EmberTrial是UI公开依赖，Core无UI反向依赖。
 
-新身体等待切图最终库存，首次恢复后回满最终生命上限；活体换装、重复观察与组件重激活不治疗。EquipmentReady另行门控受控玩家输入，不改GameplayReady；ET_Relic仅PIE开发入口，正式祭坛权限仍后续。新身体BeginPlay早于PostLoad确认时等Pending解除再恢复，避免提前套用上轮ID。最大值变化造成资源夹取的归因 / 恢复一起处理，不声称GAS天然原子。Presenter / View在03B落地，正式祭坛页面后续，磁盘快照留M5。合同与资源恢复顺序见[M3路线](M3_Roadmap.md)。
+M3当前32项含原M2的23项与9项新增专项；C2只执行Presenter / RelicAltar / EquipmentTransactions三项，无屏幕夹具、用户真实键鼠、资产Valid和真实Retry日志分开记录。[C2报告](Reports/M3_04C2_Verification.md)已关闭，独立包仍M2_07A/Attempt01，不代表M3已打包。
 
-M3-03A已验收：UI列表行是稳定ID / 文本 / 图标软引用的值快照，UObject Item为ListView承载数据，未来池化Widget先解绑旧Item再绑定新Item。投影按全部拥有数据校验后排序 / 筛选，失败清空；不加载图标或把数组下标当ID。身体TryBuildPreview与TryEquip共用预检，读可在动作 / 暂停期间执行，确认仍重验当前版本 / Idle / 非暂停；反复比较不Apply / Remove GE或治疗。
-
-M3-03B已验收：Core装备完成通知在bChanging撤销后发布，Presenter忽略本次写入中间属性通知，零幅度恢复也有事件。页面Presenter弱观察LocalPlayer身份 / GI库存 / 当前身体与ASC，稳定ID持有Item并去重；条目分配 / 释放精确解绑，Panel构造 / 结束启动 / 关闭自己的Presenter。换控后角色Restart补查装备恢复，避免PossessedBy早于SetPawn导致Waiting。两项无屏幕专项通过；条目Auto兼容补修后，新编辑器进程实际三轮显示无Ensure。Panel / Pause仍Never，业务不加Tick；无屏幕专项与Slate生命周期证据分开记录。
-
-只读面板嵌入已有P暂停页，不复制Flow、输入模式或世界暂停；比较可在暂停读取，页面不调用TryEquip。选中 / 槽位与展示快照归UI，领域拥有 / 配装与确认权限不迁入Widget。两件列表的真实检查与500条压力 / 异步图标边界分开；正式确认 / 祭坛后续。
-
-03C已验收：Presenter保存查询，Panel把文本 / 下拉框输入转成枚举，程序同步控件有重入保护；空结果清旧选择，排序保留稳定ID。搜索焦点消费P的KeyUp、Esc只转移焦点，避免冒泡触发外层暂停继续；原暂停Flow和装备事务不增加第二份所有者。两个专项与真实输入焦点均已通过。
-
-04A已验收：Core的WorldSubsystem弱登记祭坛，按请求检查当前Player / Ready / Idle / 未暂停及距离 / 高差 / Visibility，不缓存永久允许标志。祭坛Actor负责空间配置 / 注册 / 清理，无Tick、Overlap缓存或GI旧World强引用；专项与实机灰盒通过。
-
-04B已实现：Controller从原唯一E入口查询后发布意图；有祭坛即消费，无候选回旧A/B。单FailureFlow复用原Pause布局与暂停 / Failure / 返回菜单链；弱来源结束沿原继续链恢复，关闭 / 换身体 / 死亡 / EndPlay解绑。意图专项与页面恢复、活动页来源结束均已验收；C1弱身份、不可复制的原生上下文已验收，两入口共享同一提交点且原TryEquip继续拒绝暂停。C2候选由现有Flow独占发放 / 撤销，通过绑定弱View身份的原生委托连接Presenter；接收端重验IsInViewport / 当前页面 / 暂停归属与Core条件，Presenter携带观察版本，普通P只读。公开UI委托使用Core类型，因此C2计划将UI的EmberTrial依赖移至Public；Core无UI反向依赖。C2尚未写入Source，不提前宣称正式页面确认已实现。
+**设置阶段待实施。** [M3-05A1](M3_05A1_InputPreferences.md)将由GameUserSettings承载个人输入偏好，Character原Look消费一次；草稿由后续View保存值副本、确认后应用与显式保存。个人ini与GI配装 / 试炼资源分开，锁定相机继续拥有构图 / 跟随。A1当前仅指南 / 忽略候选，未写入正式Source / Config；显示确认回退和音量输出后续。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-C1七份源码已在本地`e659e8c`，审查起点工作区干净。本轮Stage C1验收报告 / 收尾、C2新指南及同步状态文档；C2正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify altar access and prepare relic confirmation UI`
-- 中文译文：`docs: 完成祭坛换装上下文验收并准备遗物确认界面`
+- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
+- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
 
-Stage / Commit / Push由用户操作；Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

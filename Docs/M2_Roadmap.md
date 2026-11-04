@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-11-04。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-04C1已验收](Reports/M3_04C1_Verification.md)，当前C2待用户手动实施；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
+更新2026-11-04。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-04C2已验收](Reports/M3_04C2_Verification.md)，当前05A1输入偏好 / 本地保存待用户手动实施；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
 
 ## 1. 本阶段交付
 
@@ -53,12 +53,15 @@ M1登记手动22h18不同于全项目设计 /理解总成本，不能将后续�
 
 [M2总报告](Reports/M2_Verification.md)、[07总报告](Reports/M2_07_Verification.md)与[C材料收尾](Reports/M2_07C_Verification.md)已保存，用户本轮要求继续下一章。A的23项与两进程包、B真实性能分析沿用，无新执行；C没有逐项理解答卷或实耗，不将继续开发当成独立面试能力认证。
 
-[M3-01静态定义](Reports/M3_01_Verification.md)已验收；02A两槽方案 / 预览也已通过；B属性 / 原生GE已通过，C1库存 / 版本已通过，C2-01自有句柄与C2-02身体事务 / 恢复已通过，03A列表模型 / 预览已过，当前[03B只读UMG浏览](M3_03B_RelicPausePanel.md)待手动，确认 / 祭坛 / 设置后续。完整6件 / 2槽目标保持，初始空槽仍100 / 原25，受限PIE命令可验证100/120与30。
+[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。当前[M3-05A1输入偏好与本地保存](M3_05A1_InputPreferences.md)待手动实施。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
 
-M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4261 / 明确等待385，M3实际850 / 等待61分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
+M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4356 / 明确等待387，M3实际945 / 等待63分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-[03A验收报告](Reports/M3_03A_Verification.md)已保存，当前[03B暂停页遗物浏览](M3_03B_RelicPausePanel.md)待手动。本地4ed704b已有03A实现；本轮只更新13份文档，未来七新 / 四旧Source、两新Widget / 原Pause布局与来源范围见[03B末尾](M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。
+C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-当前建议英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；实现后英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。运行Source / Config / Content / 来源 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
+- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
+
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

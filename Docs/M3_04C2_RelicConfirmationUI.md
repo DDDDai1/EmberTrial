@@ -1,6 +1,6 @@
 # M3-04C2：祭坛页面确认装备与卸装
 
-2026-11-04，UE5.5.4。[C1已验收](Reports/M3_04C1_Verification.md)。本章是手动实施指南：十旧UI模块文件、两个既有Widget资产；正式Source / 资产尚未改动，没有本章Build或Success结论。
+2026-11-04，UE5.5.4。**本章已验收通过，无待补。**[验收报告](Reports/M3_04C2_Verification.md)记录双Build、三相关Success、两份Widget最终Valid与实机闭环；当前进入[M3-05A1输入设置](M3_05A1_InputPreferences.md)。以下保留实际实施代码与Designer步骤供学习 / 复查，不要求重做。
 
 ## 1. 完成后的体验与分工
 
@@ -16,7 +16,7 @@ Flow独占C1的Access；在非暂停时创建，取得暂停并成功呈现同�
 | 两个既有Widget的Designer配置 | 15–25分钟 |
 | 三项相关专项与真实分组短查 | 5–10分钟 |
 
-当前193 Source / 108cpp（Core76 / UI29 / Editor3）、32测试、299 Content / 来源80；本批不增加Source文件 / 测试注册或资产，数量保持。等待另记，预计不计实耗。
+当前193 Source / 108cpp（Core76 / UI29 / Editor3）、32测试、299 Content / 来源80；本批不增加Source文件 / 测试注册或资产，数量保持。以上为实施前预算；实际代码70 / Designer20 / 检查5，共95分钟、等待2。M3累计945 / 等待63，项目4356 / 明确等待387。
 
 ## 2. 实施前
 
@@ -1287,31 +1287,9 @@ Source / 两资产Save All，默认值保持；失败或布局问题（无填无
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-C1实现已在本地e659e8c，当前先提交C1验收收尾、本章新指南与状态文档；C2正式Source / 资产尚未实施，忽略Artifacts里的候选不Stage。
+C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 当前文档英文：`docs: verify altar access and prepare relic confirmation UI`
-- 中文译文：`docs: 完成祭坛换装上下文验收并准备遗物确认界面`
+- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
+- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
 
-实施并检查通过后，本章实际范围为：
-
-```text
-EmberTrial/Source/EmberTrialUI/EmberTrialUI.Build.cs
-EmberTrial/Source/EmberTrialUI/Public/Inventory/ETRelicPresenter.h
-EmberTrial/Source/EmberTrialUI/Private/Inventory/ETRelicPresenter.cpp
-EmberTrial/Source/EmberTrialUI/Public/Widgets/ETRelicPanelWidget.h
-EmberTrial/Source/EmberTrialUI/Private/Widgets/ETRelicPanelWidget.cpp
-EmberTrial/Source/EmberTrialUI/Public/Widgets/ETPauseWidget.h
-EmberTrial/Source/EmberTrialUI/Private/Widgets/ETPauseWidget.cpp
-EmberTrial/Source/EmberTrialUI/Public/Flow/ETFailureFlowComponent.h
-EmberTrial/Source/EmberTrialUI/Private/Flow/ETFailureFlowComponent.cpp
-EmberTrial/Source/EmberTrialUI/Tests/ETRelicPresenterTests.cpp
-EmberTrial/Content/EmberTrial/ui/Inventory/WBP_ETRelicPanel.uasset
-EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset
-Docs/M3_04C2_RelicConfirmationUI.md
-当次Reports / AssetManifest / Progress / Backlog / 路线等实际差异
-```
-
-- 实现英文：`feat: confirm relic equipment through the altar UI`
-- 中文译文：`feat: 通过祭坛界面确认遗物装备与卸装`
-
-Stage最新内容 → Review → Commit / Push由你操作；源码已Stage后继续修改需再次Stage。日志 / Raw / 候选 / 缓存 / 包留本地，未变化资产不强制重存。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

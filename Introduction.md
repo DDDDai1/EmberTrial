@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-04，M0、M1、M2与清理已收尾，M3-04C1已验收，无待补。**[C1报告](Docs/Reports/M3_04C1_Verification.md)记录双Build / 两Success、类型化祭坛上下文与共享事务、真实短查；当前[C2](Docs/M3_04C2_RelicConfirmationUI.md)准备单Flow / 原生委托与页面确认 / 卸装，普通P保持只读。实际193 Source / 108cpp / 32测试 / 来源80，M3累计850 / 等待61分钟，项目4261 / 明确等待385；C1人工57 / 等待2。完整6件 / 2槽、M3原70h / M8复盘、磁盘存档与最终美术后续，M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-04，M0、M1、M2与清理已收尾，M3-01至04的两件遗物正式闭环已验收，无待补。**[C2报告](Docs/Reports/M3_04C2_Verification.md)记录双Build / 三Success、两份Widget最终Valid、真实祭坛装卸与带装备Retry；普通P只读、活体换装不治疗。当前[05A1](Docs/M3_05A1_InputPreferences.md)准备输入偏好、自由镜头灵敏度与本地保存，正式代码 / 配置待用户手动实施。实际193 Source / 108cpp / 32测试 / 来源80，M3累计945 / 等待63分钟，项目4356 / 明确等待387；C2人工95 / 等待2。完整6件 / 2槽、M3原70h / M8复盘、磁盘试炼存档与最终美术后续，M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,6 +868,9 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-[03A验收报告](Docs/Reports/M3_03A_Verification.md)已保存，当前[03B暂停页遗物浏览](Docs/M3_03B_RelicPausePanel.md)待手动。本地4ed704b已有03A实现；本轮只更新13份文档，未来七新 / 四旧Source、两新Widget / 原Pause布局与来源范围见[03B末尾](Docs/M3_03B_RelicPausePanel.md#11-本批-commit--push固定放在最后)。
+C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-当前建议英文`docs: verify relic view models and prepare pause menu inventory`，中文译文`docs: 记录遗物展示模型验收并准备暂停页遗物面板`；实现后英文`feat: add event driven relic browsing to the pause menu`，中文译文`feat: 为暂停菜单新增事件驱动的遗物浏览与属性比较`。运行Source / Config / Content / 来源 / Tools / Git索引保持，未重复Build / 测试；Raw / 日志 / 包本地，Stage / Commit / Push由用户操作，未核验远端。
+- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
+- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
+
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

@@ -282,11 +282,17 @@ C1实际两专项Success / 双Build与短查通过，人工57 / 等待2；没有
 
 十旧UI模块文件 / 两既有Widget。扩原Presenter命令专项验证真实Access / GE装卸、空搜索仍卸装、过期 / 重入 / 旧观察隔离；同时跑原Altar / EquipmentTransactions各一次。无Viewport原生夹具不冒充实际Flow / UMG通过。实机5–10分钟验证确认 / 真实30与100-120、鼠标键盘 / 文本焦点、普通P只读、一次来源销毁、带装备Retry / Continue与Stop新GI；不新建验收蓝图 / 测试注册或跑全32项 / Cook。
 
+C2实际三相关Success、双Build / 两最终Valid与分组实机通过，人工95 / 等待2。历史缺绑定消息与最终状态分开，日志直接证明Retry，Continue按用户反馈，不把夹具Travel通知当真实切图。
+
+## M3-05A1最小范围
+
+三新Core / 旧Look与单配置键；新InputPreferences验证输入值 / 提交 / 拒绝与真实引擎类配置，原CameraRules各一次。独立对象不Save / Load或全局Apply，避免污染个人偏好。实机只查.50 / 反转、非法拒绝、一次完整编辑器重启后仍读取.50 / 1并恢复默认、自由 / 锁定 / P / 祭坛与最短基线，5–10分钟、重启等待另记。无新Widget、临时蓝图、全33项 / 新Cook；后续正式草稿 / 应用 / 取消另在A2查，不将值副本测试冒充实际设置页面。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-C1七份源码已在本地`e659e8c`，审查起点工作区干净。本轮Stage C1验收报告 / 收尾、C2新指南及同步状态文档；C2正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify altar access and prepare relic confirmation UI`
-- 中文译文：`docs: 完成祭坛换装上下文验收并准备遗物确认界面`
+- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
+- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
 
-Stage / Commit / Push由用户操作；Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。
