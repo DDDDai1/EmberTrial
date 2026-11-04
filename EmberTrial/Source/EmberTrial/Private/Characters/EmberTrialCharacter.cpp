@@ -36,6 +36,7 @@
 #include "Resources/ETHealingResourceComponent.h"
 #include "Inventory/ETRelicEquipmentComponent.h"
 #include "Engine/GameInstance.h"
+#include "Settings/ETGameUserSettings.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -776,15 +777,18 @@ void AEmberTrialCharacter::StartPracticeAwareJump()
 
 void AEmberTrialCharacter::Look(const FInputActionValue& Value)
 {
-    // input is a Vector2D
-    FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-    if (Controller != nullptr)
+    if (!Controller)
     {
-        // add yaw and pitch input to controller
-        AddControllerYawInput(LookAxisVector.X);
-        AddControllerPitchInput(LookAxisVector.Y);
+        return;
     }
+
+    // 只变换收到的轴，不乘DeltaSeconds；锁定 / 暂停仍由既有Controller输入门控接管。
+    const UETGameUserSettings* Settings = UETGameUserSettings::GetETGameUserSettings();
+    const FETInputPreferences Preferences = Settings
+        ? Settings->GetInputPreferences() : FETInputPreferences{};
+    const FVector2D LookAxis = Preferences.TransformLook(Value.Get<FVector2D>());
+    AddControllerYawInput(LookAxis.X);
+    AddControllerPitchInput(LookAxis.Y);
 }
 
 // ---- 治疗：玩家专属，效果 / 次数事务由GA与资源组件负责 ----
