@@ -13,6 +13,8 @@
 #include "Widgets/ETFailureWidget.h"
 #include "Widgets/ETPauseWidget.h"
 #include "Interaction/ETRelicAltar.h"
+#include "Inventory/ETRelicEquipmentComponent.h"
+#include "Inventory/ETRelicPresenter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETFailureFlow, Log, All);
 
@@ -177,6 +179,15 @@ void UETFailureFlowComponent::PresentPause(AETRelicAltar* SourceAltar)
     {
         return;
     }
+    TUniquePtr<FETRelicAltarAccess> NextAccess;
+    if (bFromAltar)
+    {
+        NextAccess = FETRelicAltarAccess::TryOpen(Controller, SourceAltar);
+        if (!NextAccess)
+        {
+            return;
+        }
+    }
     if (!PauseWidgetClass || PauseWidgetClass->HasAnyClassFlags(CLASS_Abstract))
     {
         UE_LOG(LogETFailureFlow, Warning,
@@ -218,8 +229,22 @@ void UETFailureFlowComponent::PresentPause(AETRelicAltar* SourceAltar)
     bOwnsPause = true;
     if (bFromAltar)
     {
+        AltarAccess = MoveTemp(NextAccess);
         ActiveAltar = SourceAltar;
         SourceAltar->OnEndPlay.AddUniqueDynamic(this, &ThisClass::HandleAltarEndPlay);
+    }
+    if (bFromAltar)
+    {
+        const TWeakObjectPtr<UETPauseWidget> SourceView(PauseWidget.Get());
+        PauseWidget->ConfigureRelicCommands(
+            FETRelicCanSubmit::CreateUObject(this, &ThisClass::CanSubmitRelic, SourceView),
+            FETRelicSubmit::CreateUObject(this, &ThisClass::SubmitRelic, SourceView));
+        if (PauseWidget.Get() != SourceView.Get() || !HasCurrentBody(false))
+        {
+            RemovePauseWidget();
+            RestoreOwnedInput();
+            return;
+        }
     }
     OpeningBody->StopJumping();
     Controller->bShowMouseCursor = true;
@@ -574,12 +599,47 @@ void UETFailureFlowComponent::HandleAltarRequested(AETRelicAltar* SourceAltar)
 
 void UETFailureFlowComponent::ClearAltarContext()
 {
+    if (AltarAccess)
+    {
+        AltarAccess->Close();
+    }
+    AltarAccess.Reset();
+    if (IsValid(PauseWidget.Get()))
+    {
+        PauseWidget->ConfigureRelicCommands({}, {});
+    }
     // Get(true)仅用于解绑结束中的对象，不能拿这种对象授权装备或读取玩法状态。
     if (AETRelicAltar* Altar = ActiveAltar.Get(true))
     {
         Altar->OnEndPlay.RemoveDynamic(this, &ThisClass::HandleAltarEndPlay);
     }
     ActiveAltar.Reset();
+}
+
+// ---- 最终命令门控；旧View、普通P、挂起切图与外部暂停都不能提供写权限 ----
+bool UETFailureFlowComponent::CanSubmitRelic(const UETRelicEquipmentComponent* Equipment,
+    TWeakObjectPtr<UETPauseWidget> SourceView) const
+{
+    return HasCurrentBody(false) && !bCommandPending && !bPresentationQueued && bOwnsPause &&
+        SourceView.IsValid() && SourceView.Get() == PauseWidget.Get() && SourceView->IsInViewport() &&
+        !IsValid(FailureWidget.Get()) && !Session->IsTravelPending() &&
+        UGameplayStatics::IsGamePaused(this) && AltarAccess && AltarAccess->CanCommitFor(Equipment);
+}
+
+FETRelicInventoryReply UETFailureFlowComponent::SubmitRelic(
+    UETRelicEquipmentComponent* Equipment, const EETRelicSlot Slot, const FName RelicId,
+    const uint64 ExpectedRevision, TWeakObjectPtr<UETPauseWidget> SourceView)
+{
+    if (!CanSubmitRelic(Equipment, SourceView))
+    {
+        return {EETRelicInventoryResult::NotReady};
+    }
+    const FETRelicInventoryReply Reply = Equipment->TryEquipAtAltar(
+        *AltarAccess, Slot, RelicId, ExpectedRevision);
+    UE_LOG(LogETFailureFlow, Display,
+        TEXT("[M3-04C2] Relic submit Slot=%d Id=%s Result=%d"),
+        static_cast<int32>(Slot), *RelicId.ToString(), static_cast<int32>(Reply.Result));
+    return Reply;
 }
 
 void UETFailureFlowComponent::HandleAltarEndPlay(AActor* SourceActor, EEndPlayReason::Type Reason)

@@ -2,10 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Inventory/ETRelicPresenter.h"
 #include "ETPauseWidget.generated.h"
 
 class UButton;
 class UTextBlock;
+class UETRelicPanelWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETPauseActionRequested);
 
@@ -23,6 +25,7 @@ public:
     void ShowPending(const FText& Message);
     void ShowError(const FText& Message);
     void FocusResume();
+    void ConfigureRelicCommands(FETRelicCanSubmit CanSubmit, FETRelicSubmit Submit);
 
     UPROPERTY(BlueprintAssignable, Category = "EmberTrial|Pause")
     FETPauseActionRequested OnResumeIntent;
@@ -56,6 +59,9 @@ private:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> StatusText;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UETRelicPanelWidget> RelicPanel;
 
     // busy只保护本View请求中的输入，不代表世界暂停或角色死亡。
     bool bBusy = false;

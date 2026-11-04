@@ -1,4 +1,5 @@
 #include "Widgets/ETPauseWidget.h"
+#include "Widgets/ETRelicPanelWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
@@ -9,7 +10,7 @@
 
 bool UETPauseWidget::HasRequiredLayout() const
 {
-    return IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) && IsValid(StatusText.Get());
+    return IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) && IsValid(StatusText.Get()) && IsValid(RelicPanel.Get());
 }
 
 void UETPauseWidget::NativeOnInitialized()
@@ -44,6 +45,10 @@ void UETPauseWidget::ApplyState(bool bPending, const FText& Message)
 {
     // 先写本地状态，布局无效时也不能绕过pending继续发请求。
     bBusy = bPending;
+    if (RelicPanel)
+    {
+        RelicPanel->SetCommandBusy(bBusy);
+    }
     if (HasRequiredLayout())
     {
         BTN_Resume->SetIsEnabled(!bBusy);
@@ -103,8 +108,16 @@ FReply UETPauseWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry,
     return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 
+void UETPauseWidget::ConfigureRelicCommands(FETRelicCanSubmit CanSubmit, FETRelicSubmit Submit)
+{
+    if (RelicPanel)
+    {
+        RelicPanel->SetCommands(MoveTemp(CanSubmit), MoveTemp(Submit));
+    }
+}
+
 void UETPauseWidget::ShowAltarReady()
 {
     ApplyState(false, FText::FromString(
-        TEXT("遗物祭坛 · 选择遗物比较属性；松开 P 或选择继续游戏返回试炼。")));
+        TEXT("遗物祭坛 · 比较后确认装备或卸下目标槽；松开 P 或选择继续游戏返回。")));
 }

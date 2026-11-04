@@ -1,6 +1,10 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "Inventory/ETRelicPresenter.h"
+#include "Interaction/ETRelicAltar.h"
+#include "Interaction/ETRelicAltarAccess.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/WorldSettings.h"
 #include "Abilities/ETGA_LightAttack.h"
 #include "AbilitySystemComponent.h"
 #include "Attributes/ETHealthAttributeSet.h"
@@ -176,6 +180,83 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
     PC->Possess(OtherBody);
     TestTrue(TEXT("Second switch remains ready"),
         Presenter->GetSnapshot().State == EETRelicPanelState::Ready && Presenter->BoundBody.Get() == OtherBody);
+    // ---- C2原生命令桥；不以无Viewport夹具冒充真实Flow / UMG创建 ----
+    {
+        using EResult = EETRelicInventoryResult;
+        Presenter->SetQuery({});
+        Presenter->SetPreviewSlotB(false);
+        Presenter->SelectId(LifeId);
+        TestFalse(TEXT("Ordinary read-only presenter has no commands"), Presenter->GetSnapshot().bHasCommands);
+        TestTrue(TEXT("No command cannot unequip"), Presenter->UnequipPreviewSlot().Result == EResult::NotReady);
+        AETRelicAltar* Altar = World->SpawnActor<AETRelicAltar>(
+            OtherBody->GetActorLocation() + FVector(100, 0, 0), FRotator::ZeroRotator, Spawn);
+        APlayerState* Pauser = World->SpawnActor<APlayerState>();
+        auto Access = FETRelicAltarAccess::TryOpen(PC, Altar);
+        if (!TestNotNull(TEXT("Command pauser"), Pauser) ||
+            !TestTrue(TEXT("Command altar access opens"), Access.IsValid()))
+        {
+            return false;
+        }
+        World->GetWorldSettings()->SetPauserPlayerState(Pauser);
+        bool bPageOpen = true;
+        int32 Calls = 0;
+        EResult Nested = EResult::Success;
+        Presenter->SetCommands(
+            FETRelicCanSubmit::CreateLambda([&](const UETRelicEquipmentComponent* Target)
+            { return bPageOpen && Access->CanCommitFor(Target); }),
+            FETRelicSubmit::CreateLambda([&](UETRelicEquipmentComponent* Target,
+                EETRelicSlot Slot, FName Id, uint64 Revision)
+            {
+                ++Calls;
+                Nested = Presenter->ConfirmSelected().Result;
+                if (!bPageOpen || !Access->CanCommitFor(Target))
+                {
+                    return FETRelicInventoryReply{EResult::NotReady};
+                }
+                return Target->TryEquipAtAltar(*Access, Slot, Id, Revision);
+            }));
+        TestTrue(TEXT("Equipped target slot can unequip"), Presenter->GetSnapshot().bCanUnequip);
+        TestTrue(TEXT("Command real unequip"), Presenter->UnequipPreviewSlot().Result == EResult::Success);
+        TestTrue(TEXT("Command reentry rejected as Busy"), Nested == EResult::Busy);
+        TestEqual(TEXT("One callback per request"), Calls, 1);
+        TestTrue(TEXT("Empty slot can equip selected life"), Presenter->GetSnapshot().bCanEquip);
+        TestTrue(TEXT("Command real equip"), Presenter->ConfirmSelected().Result == EResult::Success);
+        TestFalse(TEXT("Already equipped selection disables confirm"), Presenter->GetSnapshot().bCanEquip);
+        TestEqual(TEXT("Live reequip no heal"), OtherASC->GetNumericAttribute(UETHealthAttributeSet::GetHealthAttribute()), 100.0f);
+        FETRelicListQuery Empty;
+        Empty.SearchText = TEXT("no_such_relic");
+        Presenter->SetQuery(Empty);
+        TestTrue(TEXT("No result can still unequip equipped slot"), Presenter->GetSnapshot().SelectedId.IsNone() &&
+            Presenter->GetSnapshot().bCanUnequip && !Presenter->GetSnapshot().bCanEquip);
+        TestTrue(TEXT("Unequip does not require selection"), Presenter->UnequipPreviewSlot().Result == EResult::Success);
+        Presenter->SetQuery({});
+        Presenter->SelectId(LifeId);
+        --Presenter->ObservedRevision;
+        TestTrue(TEXT("Observed stale revision reaches real rejection"), Presenter->ConfirmSelected().Result == EResult::StalePlan);
+        TestFalse(TEXT("Stale reply produces feedback"), Presenter->GetSnapshot().CommandMessage.IsEmpty());
+        bPageOpen = false;
+        Presenter->RefreshCommandAvailability();
+        const int32 BeforeClosed = Calls;
+        TestTrue(TEXT("Closed caller cannot submit"), Presenter->ConfirmSelected().Result == EResult::NotReady);
+        TestEqual(TEXT("Closed caller invokes no write callback"), Calls, BeforeClosed);
+        bPageOpen = true;
+        Presenter->SetCommands(
+            FETRelicCanSubmit::CreateLambda([&](const UETRelicEquipmentComponent* Target)
+            { return Access->CanCommitFor(Target); }),
+            FETRelicSubmit::CreateLambda([&](UETRelicEquipmentComponent*, EETRelicSlot, FName, uint64)
+            {
+                Presenter->Shutdown();
+                return FETRelicInventoryReply{EResult::NotReady};
+            }));
+        TestTrue(TEXT("Callback may shut down observation safely"),
+            Presenter->ConfirmSelected().Result == EResult::NotReady);
+        TestTrue(TEXT("Shutdown cannot receive old command feedback"),
+            Presenter->GetSnapshot().State == EETRelicPanelState::Unavailable &&
+            Presenter->GetSnapshot().CommandMessage.IsEmpty());
+        Presenter->SetCommands({}, {});
+        Access->Close();
+        World->GetWorldSettings()->SetPauserPlayerState(nullptr);
+    }
     Presenter->Shutdown();
     TestTrue(TEXT("Shutdown releases displayed items"), Presenter->GetItems().IsEmpty() &&
         Presenter->GetSnapshot().State == EETRelicPanelState::Unavailable);

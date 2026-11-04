@@ -3,12 +3,14 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ComboBoxString.h"
+#include "Inventory/ETRelicPresenter.h"
 #include "ETRelicPanelWidget.generated.h"
 
 class UButton;
 class UEditableTextBox;
 class UListView;
 class UTextBlock;
+class UVerticalBox;
 class UETRelicPresenter;
 struct FETRelicPanelData;
 
@@ -17,6 +19,10 @@ UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
 class EMBERTRIALUI_API UETRelicPanelWidget : public UUserWidget
 {
     GENERATED_BODY()
+
+public:
+    void SetCommands(FETRelicCanSubmit CanSubmit, FETRelicSubmit Submit);
+    void SetCommandBusy(bool bBusy);
 
 protected:
     virtual void NativeConstruct() override;
@@ -48,7 +54,13 @@ private:
     UFUNCTION()
     void HandleSlotB();
 
-    // ---- 页面持有Presenter；以下11个BindWidget对应Designer的名字与类型 ----
+    UFUNCTION()
+    void HandleConfirm();
+
+    UFUNCTION()
+    void HandleUnequip();
+
+    // ---- 页面持有Presenter；以下15个BindWidget对应Designer的名字与类型 ----
     UPROPERTY(Transient)
     TObjectPtr<UETRelicPresenter> Presenter;
 
@@ -84,6 +96,22 @@ private:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UButton> SlotBButton;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UVerticalBox> CommandContent;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UButton> ConfirmEquipButton;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UButton> UnequipButton;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> CommandResultText;
+
+    FETRelicCanSubmit CanSubmitCommand;
+    FETRelicSubmit SubmitCommand;
+    bool bCommandBusy = false;
 
     FDelegateHandle PresenterHandle;
     FDelegateHandle SelectionHandle;

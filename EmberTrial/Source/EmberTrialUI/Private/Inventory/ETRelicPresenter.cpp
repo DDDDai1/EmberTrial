@@ -11,6 +11,7 @@
 #include "Inventory/ETRelicInventorySubsystem.h"
 #include "Lifecycle/ETUILocalPlayerSubsystem.h"
 #include "Templates/UnrealTemplate.h"
+#include "UObject/StrongObjectPtr.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETRelicPresenter, Log, All);
 
@@ -19,7 +20,9 @@ bool FETRelicPanelData::operator==(const FETRelicPanelData& Other) const
     return State == Other.State && PreviewState == Other.PreviewState && SelectedId == Other.SelectedId &&
            Name.EqualTo(Other.Name) && Description.EqualTo(Other.Description) && bSlotB == Other.bSlotB &&
            BeforeMax == Other.BeforeMax && AfterMax == Other.AfterMax &&
-           BeforeAttack == Other.BeforeAttack && AfterAttack == Other.AfterAttack;
+               BeforeAttack == Other.BeforeAttack && AfterAttack == Other.AfterAttack &&
+               bHasCommands == Other.bHasCommands && bCanEquip == Other.bCanEquip &&
+               bCanUnequip == Other.bCanUnequip && CommandMessage.EqualTo(Other.CommandMessage);
 }
 
 // ---- 先订阅再取快照；重启保留页面Item身份，Shutdown释放页面持有的数据 ----
@@ -52,6 +55,10 @@ void UETRelicPresenter::BeginDestroy()
 
 void UETRelicPresenter::StopObserving(const bool bNotify)
 {
+    ++ObservationGeneration;
+    CanSubmitCommand.Unbind();
+    SubmitCommand.Unbind();
+    CommandMessage = FText::GetEmpty();
     bObserving = false;
     if (UETUILocalPlayerSubsystem* Subsystem = BoundSubsystem.Get())
     {
@@ -175,6 +182,7 @@ bool UETRelicPresenter::SelectId(const FName Id)
     {
         return false;
     }
+    CommandMessage = FText::GetEmpty();
     SelectedId = Id;
     Refresh();
     return true;
@@ -186,6 +194,7 @@ bool UETRelicPresenter::SetPreviewSlotB(const bool bSecondSlot)
     {
         return false;
     }
+    CommandMessage = FText::GetEmpty();
     bSlotB = bSecondSlot;
     Refresh();
     return true;
@@ -198,6 +207,7 @@ bool UETRelicPresenter::SetQuery(const FETRelicListQuery& NewQuery)
     {
         return false;
     }
+    CommandMessage = FText::GetEmpty();
     Query = NewQuery;
     Refresh();
     return true;
@@ -271,6 +281,8 @@ FETRelicPanelData UETRelicPresenter::BuildData() const
 {
     FETRelicPanelData Data;
     Data.bSlotB = bSlotB;
+    Data.CommandMessage = CommandMessage;
+    Data.bHasCommands = CanSubmitCommand.IsBound() && SubmitCommand.IsBound();
     Data.SelectedId = SelectedId;
     if (UETRelicListItem* Item = FindItem(SelectedId))
     {
@@ -294,7 +306,7 @@ FETRelicPanelData UETRelicPresenter::BuildData() const
     UETRelicEquipmentComponent* Equipment = BoundEquipment.Get();
     Data.State = Body->IsGameplayReady() && Equipment && Equipment->IsEquipmentReady()
         ? EETRelicPanelState::Ready : EETRelicPanelState::Waiting;
-    if (Data.State != EETRelicPanelState::Ready || SelectedId.IsNone())
+    if (Data.State != EETRelicPanelState::Ready)
     {
         return Data;
     }
@@ -304,11 +316,22 @@ FETRelicPanelData UETRelicPresenter::BuildData() const
     {
         return Data;
     }
+    const bool bAllowed = !bSubmitting && Data.bHasCommands &&
+        CanSubmitCommand.Execute(Equipment);
+    UETRelicInventorySubsystem* Inventory = BoundInventory.Get();
+    const FETRelicInventorySnapshot Current = Inventory ? Inventory->GetSnapshot() : FETRelicInventorySnapshot{};
+    Data.bCanUnequip = bAllowed && !(bSlotB ? Current.Equipped.SlotB : Current.Equipped.SlotA).IsNone();
+    // 无搜索结果仍可卸下目标槽，但不能把空选择误当成装备请求。
+    if (SelectedId.IsNone())
+    {
+        return Data;
+    }
     FETRelicLoadoutPlan Preview;
     const auto Reply = Equipment->TryBuildPreview(bSlotB ? EETRelicSlot::Second : EETRelicSlot::First,
                                                  SelectedId, ObservedRevision, Preview);
     if (Reply.Result == EETRelicInventoryResult::Success)
     {
+        Data.bCanEquip = bAllowed;
         Data.PreviewState = EETRelicPreviewState::Available;
         Data.BeforeMax = Preview.BeforePreview.MaxHealth;
         Data.AfterMax = Preview.AfterPreview.MaxHealth;
@@ -334,6 +357,86 @@ FETRelicPanelData UETRelicPresenter::BuildData() const
         Data.PreviewState = EETRelicPreviewState::Rejected;
     }
     return Data;
+}
+
+// ---- 当前页面命令；Reply来自真正业务提交，View不能自行制造成功 ----
+void UETRelicPresenter::SetCommands(FETRelicCanSubmit CanSubmit, FETRelicSubmit Submit)
+{
+    CanSubmitCommand = MoveTemp(CanSubmit);
+    SubmitCommand = MoveTemp(Submit);
+    CommandMessage = FText::GetEmpty();
+    Refresh();
+}
+
+void UETRelicPresenter::RefreshCommandAvailability()
+{
+    Refresh();
+}
+
+FETRelicInventoryReply UETRelicPresenter::ConfirmSelected()
+{
+    return SubmitChange(false);
+}
+
+FETRelicInventoryReply UETRelicPresenter::UnequipPreviewSlot()
+{
+    return SubmitChange(true);
+}
+
+FETRelicInventoryReply UETRelicPresenter::SubmitChange(const bool bUnequip)
+{
+    if (bSubmitting || bRefreshing)
+    {
+        return {EETRelicInventoryResult::Busy};
+    }
+    UETRelicEquipmentComponent* Equipment = BoundEquipment.Get();
+    if (!bObserving || !IsValid(Equipment) || !CanSubmitCommand.IsBound() ||
+        !SubmitCommand.IsBound() || !CanSubmitCommand.Execute(Equipment) ||
+        (bUnequip ? !Snapshot.bCanUnequip : !Snapshot.bCanEquip))
+    {
+        return {EETRelicInventoryResult::NotReady};
+    }
+
+    TStrongObjectPtr<UETRelicPresenter> KeepAlive(this);
+    const uint64 Generation = ObservationGeneration;
+    const EETRelicSlot Slot = bSlotB ? EETRelicSlot::Second : EETRelicSlot::First;
+    const FName RequestedId = bUnequip ? NAME_None : SelectedId;
+    const uint64 ExpectedRevision = ObservedRevision;
+    const FETRelicSubmit Command = SubmitCommand;
+    FETRelicInventoryReply Reply;
+    {
+        TGuardValue<bool> Guard(bSubmitting, true);
+        // 副本保证回调中Shutdown / Unbind不会销毁正在执行的委托实例。
+        Reply = Command.Execute(Equipment, Slot, RequestedId, ExpectedRevision);
+    }
+    // GE同步回调可关闭页面或换身体；不向已结束 / 重启的观察写入旧结果。
+    if (!bObserving || Generation != ObservationGeneration || BoundEquipment.Get() != Equipment)
+    {
+        return Reply;
+    }
+    switch (Reply.Result)
+    {
+    case EETRelicInventoryResult::Success:
+        CommandMessage = FText::FromString(bUnequip ? TEXT("已卸下该槽遗物。") : TEXT("装备已生效。"));
+        break;
+    case EETRelicInventoryResult::NoChange:
+        CommandMessage = FText::FromString(TEXT("该槽装备未变化。"));
+        break;
+    case EETRelicInventoryResult::StalePlan:
+        CommandMessage = FText::FromString(TEXT("装备数据已变化，请查看最新比较后再次确认。"));
+        break;
+    case EETRelicInventoryResult::Busy:
+        CommandMessage = FText::FromString(TEXT("正在处理，请稍后再试。"));
+        break;
+    case EETRelicInventoryResult::RuleRejected:
+        CommandMessage = FText::FromString(TEXT("此方案不符合装备规则，请重新选择遗物与槽位。"));
+        break;
+    default:
+        CommandMessage = FText::FromString(TEXT("当前祭坛或身体不可用，请关闭页面后重新进入。"));
+        break;
+    }
+    Refresh();
+    return Reply;
 }
 
 // ---- 回调核对当前来源，忽略旧身体 / 旧库存的事件 ----

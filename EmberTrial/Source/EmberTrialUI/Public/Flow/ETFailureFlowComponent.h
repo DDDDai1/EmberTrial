@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "TimerManager.h"
+#include "Interaction/ETRelicAltarAccess.h"
 #include "ETFailureFlowComponent.generated.h"
 
 class APawn;
@@ -14,6 +15,9 @@ class UETPauseWidget;
 class UETRunSessionSubsystem;
 class UETUILocalPlayerSubsystem;
 class AETRelicAltar;
+class UETRelicEquipmentComponent;
+struct FETRelicInventoryReply;
+enum class EETRelicSlot : uint8;
 
 // Preserve the existing native class and serialized component configuration.
 // This single Controller component now coordinates both pause and failure UI.
@@ -47,6 +51,11 @@ private:
     void PresentPause(AETRelicAltar* SourceAltar = nullptr);
     void HandleAltarRequested(AETRelicAltar* SourceAltar);
     void ClearAltarContext();
+    bool CanSubmitRelic(const UETRelicEquipmentComponent* Equipment,
+        TWeakObjectPtr<UETPauseWidget> SourceView) const;
+    FETRelicInventoryReply SubmitRelic(UETRelicEquipmentComponent* Equipment,
+        EETRelicSlot Slot, FName RelicId, uint64 ExpectedRevision,
+        TWeakObjectPtr<UETPauseWidget> SourceView);
 
     UFUNCTION()
     void HandleAltarEndPlay(AActor* SourceActor, EEndPlayReason::Type Reason);
@@ -99,6 +108,7 @@ private:
     FDelegateHandle PauseRequestHandle;
     // 非空（包括已失效弱身份）表示祭坛来源；移除页面时撤销。
     TWeakObjectPtr<AETRelicAltar> ActiveAltar;
+    TUniquePtr<FETRelicAltarAccess> AltarAccess;
     FDelegateHandle AltarRequestHandle;
     FDelegateHandle DeathHandle;
     FDelegateHandle SessionFailureHandle;

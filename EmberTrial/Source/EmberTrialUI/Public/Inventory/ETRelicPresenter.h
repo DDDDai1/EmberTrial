@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Inventory/ETRelicViewModels.h"
+#include "Inventory/ETRelicInventorySubsystem.h"
 #include "UObject/Object.h"
 #include "ETRelicPresenter.generated.h"
 
@@ -39,6 +40,10 @@ struct EMBERTRIALUI_API FETRelicPanelData
     FText Name;
     FText Description;
     bool bSlotB = false;
+    bool bHasCommands = false;
+    bool bCanEquip = false;
+    bool bCanUnequip = false;
+    FText CommandMessage;
     float BeforeMax = 0.0f;
     float AfterMax = 0.0f;
     float BeforeAttack = 0.0f;
@@ -48,7 +53,13 @@ struct EMBERTRIALUI_API FETRelicPanelData
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FETRelicPanelChanged, const FETRelicPanelData&);
 
-// 页面作用域的只读Presenter：观察数据源、复用稳定ID的Item、保存页面选择。
+// 页面只拿到弱绑定的查询 / 提交委托，不持有Core Access本体。
+DECLARE_DELEGATE_RetVal_OneParam(bool, FETRelicCanSubmit,
+    const UETRelicEquipmentComponent*);
+DECLARE_DELEGATE_RetVal_FourParams(FETRelicInventoryReply, FETRelicSubmit,
+    UETRelicEquipmentComponent*, EETRelicSlot, FName, uint64);
+
+// 页面作用域Presenter：观察数据，保存选择，只通过当前Flow的命令桥提交。
 UCLASS()
 class EMBERTRIALUI_API UETRelicPresenter : public UObject
 {
@@ -57,6 +68,10 @@ class EMBERTRIALUI_API UETRelicPresenter : public UObject
 public:
     void StartObserving(UETUILocalPlayerSubsystem* Subsystem);
     void Shutdown();
+    void SetCommands(FETRelicCanSubmit CanSubmit, FETRelicSubmit Submit);
+    void RefreshCommandAvailability();
+    FETRelicInventoryReply ConfirmSelected();
+    FETRelicInventoryReply UnequipPreviewSlot();
     bool SelectId(FName Id);
     bool SetPreviewSlotB(bool bSecondSlot);
     bool SetQuery(const FETRelicListQuery& NewQuery);
@@ -77,6 +92,7 @@ private:
     void Refresh();
     void ResolveInventory();
     FETRelicPanelData BuildData() const;
+    FETRelicInventoryReply SubmitChange(bool bUnequip);
 
     UFUNCTION()
     void HandlePawnChanged(APawn* PreviousPawn, APawn* CurrentPawn);
@@ -110,4 +126,9 @@ private:
     bool bSlotB = false;
     bool bObserving = false;
     bool bRefreshing = false;
+    bool bSubmitting = false;
+    uint64 ObservationGeneration = 0;
+    FETRelicCanSubmit CanSubmitCommand;
+    FETRelicSubmit SubmitCommand;
+    FText CommandMessage;
 };

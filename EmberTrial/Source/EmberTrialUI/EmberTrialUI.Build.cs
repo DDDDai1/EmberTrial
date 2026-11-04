@@ -14,13 +14,13 @@ public class EmberTrialUI : ModuleRules
             "Engine",
             "UMG",
             "Slate",
-            "SlateCore"
+            "SlateCore",
+            "EmberTrial"
         });
 
-        // UI通过私有Core依赖读取玩法接口；Slate / Input只服务实现，Core不能反向依赖UI。
+        // 公开UI委托使用Core槽位 / 回复类型，Core已列为公开依赖；Core仍不能反向依赖UI。
         PrivateDependencyModuleNames.AddRange(new string[]
         {
-            "EmberTrial",
             "GameplayAbilities",
             "GameplayTags",
             "InputCore"

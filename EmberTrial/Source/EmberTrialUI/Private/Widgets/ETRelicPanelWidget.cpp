@@ -4,6 +4,7 @@
 #include "Components/EditableTextBox.h"
 #include "Components/ListView.h"
 #include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
 #include "Input/Events.h"
@@ -17,7 +18,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogETRelicPanel, Log, All);
 bool UETRelicPanelWidget::HasRequiredLayout() const
 {
     return RelicList && InventoryStatusText && DetailNameText && DetailDescriptionText && PreviewText &&
-           SlotText && SlotAButton && SlotBButton && SearchBox && FilterCombo && SortCombo;
+           SlotText && SlotAButton && SlotBButton && SearchBox && FilterCombo && SortCombo &&
+           CommandContent && ConfirmEquipButton && UnequipButton && CommandResultText;
 }
 
 void UETRelicPanelWidget::NativeConstruct()
@@ -36,6 +38,8 @@ void UETRelicPanelWidget::NativeConstruct()
     SearchBox->OnTextChanged.AddUniqueDynamic(this, &ThisClass::HandleSearchChanged);
     FilterCombo->OnSelectionChanged.AddUniqueDynamic(this, &ThisClass::HandleQuerySelectionChanged);
     SortCombo->OnSelectionChanged.AddUniqueDynamic(this, &ThisClass::HandleQuerySelectionChanged);
+    ConfirmEquipButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleConfirm);
+    UnequipButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleUnequip);
     SlotAButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleSlotA);
     SlotBButton->OnClicked.AddUniqueDynamic(this, &ThisClass::HandleSlotB);
     RelicList->OnItemSelectionChanged().Remove(SelectionHandle);
@@ -44,12 +48,23 @@ void UETRelicPanelWidget::NativeConstruct()
     PresenterHandle = Presenter->OnChanged.AddUObject(this, &ThisClass::Render);
     ULocalPlayer* LocalPlayer = GetOwningLocalPlayer();
     Presenter->StartObserving(LocalPlayer ? LocalPlayer->GetSubsystem<UETUILocalPlayerSubsystem>() : nullptr);
+    Presenter->SetCommands(CanSubmitCommand, SubmitCommand);
     Render(Presenter->GetSnapshot());
     UE_LOG(LogETRelicPanel, Display, TEXT("[M3-03B] Panel subscribed Widget=%s"), *GetName());
 }
 
 void UETRelicPanelWidget::NativeDestruct()
 {
+    CanSubmitCommand.Unbind();
+    SubmitCommand.Unbind();
+    if (ConfirmEquipButton)
+    {
+        ConfirmEquipButton->OnClicked.RemoveDynamic(this, &ThisClass::HandleConfirm);
+    }
+    if (UnequipButton)
+    {
+        UnequipButton->OnClicked.RemoveDynamic(this, &ThisClass::HandleUnequip);
+    }
     // 先断开输入意图，再结束观察；不让关闭期间的控件回调重新进入Presenter。
     if (SearchBox)
     {
@@ -66,6 +81,7 @@ void UETRelicPanelWidget::NativeDestruct()
     if (Presenter)
     {
         Presenter->OnChanged.Remove(PresenterHandle);
+        Presenter->SetCommands({}, {});
         Presenter->Shutdown();
     }
     PresenterHandle.Reset();
@@ -147,12 +163,18 @@ void UETRelicPanelWidget::Render(const FETRelicPanelData& Data)
     }
     const FText Count = FText::AsNumber(Presenter->GetItems().Num());
     InventoryStatusText->SetText(FText::Format(Data.State == EETRelicPanelState::Ready
-        ? NSLOCTEXT("ETRelics", "ReadyCount", "遗物 · 只读查看（{0} 件）")
+        ? (Data.bHasCommands ? NSLOCTEXT("ETRelics", "AltarCount", "遗物祭坛（{0} 件）")
+                             : NSLOCTEXT("ETRelics", "ReadyCount", "遗物 · 只读查看（{0} 件）"))
         : NSLOCTEXT("ETRelics", "WaitingCount", "遗物（{0} 件）· 当前身体尚不可预览"), Count));
     DetailNameText->SetText(Data.SelectedId.IsNone()
         ? NSLOCTEXT("ETRelics", "NoMatches", "没有符合条件的遗物") : Data.Name);
     DetailDescriptionText->SetText(Data.Description);
     SlotText->SetText(FText::FromString(Data.bSlotB ? TEXT("比较目标：槽 B") : TEXT("比较目标：槽 A")));
+    CommandContent->SetVisibility(Data.bHasCommands ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+    ConfirmEquipButton->SetIsEnabled(!bCommandBusy && Data.bCanEquip);
+    UnequipButton->SetIsEnabled(!bCommandBusy && Data.bCanUnequip);
+    CommandResultText->SetText(Data.CommandMessage.IsEmpty()
+        ? FText::FromString(TEXT("选择目标槽位与遗物后确认。")) : Data.CommandMessage);
     if (Data.PreviewState == EETRelicPreviewState::Available ||
         Data.PreviewState == EETRelicPreviewState::AlreadyEquipped)
     {
@@ -169,6 +191,42 @@ void UETRelicPanelWidget::Render(const FETRelicPanelData& Data)
             ? TEXT("此方案不符合装备规则，例如同一遗物不能占两槽。") : TEXT("当前没有可用的属性比较。")));
     }
 }
+// ---- 原生页面命令桥；View只发意图，不能自己Apply GE ----
+void UETRelicPanelWidget::SetCommands(FETRelicCanSubmit CanSubmit, FETRelicSubmit Submit)
+{
+    CanSubmitCommand = MoveTemp(CanSubmit);
+    SubmitCommand = MoveTemp(Submit);
+    if (Presenter)
+    {
+        Presenter->SetCommands(CanSubmitCommand, SubmitCommand);
+    }
+}
+
+void UETRelicPanelWidget::SetCommandBusy(const bool bBusy)
+{
+    bCommandBusy = bBusy;
+    if (Presenter)
+    {
+        Render(Presenter->GetSnapshot());
+    }
+}
+
+void UETRelicPanelWidget::HandleConfirm()
+{
+    if (!bCommandBusy && Presenter)
+    {
+        Presenter->ConfirmSelected();
+    }
+}
+
+void UETRelicPanelWidget::HandleUnequip()
+{
+    if (!bCommandBusy && Presenter)
+    {
+        Presenter->UnequipPreviewSlot();
+    }
+}
+
 // ---- 查询控件：显示文字只用于呈现，选项索引在View内显式转换为查询枚举 ----
 void UETRelicPanelWidget::InitializeQueryControls()
 {
