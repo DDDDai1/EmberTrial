@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-04，M0、M1、M2与清理已收尾，M3-01至04的两件遗物正式闭环已验收，无待补。**[C2报告](Docs/Reports/M3_04C2_Verification.md)记录双Build / 三Success、两份Widget最终Valid、真实祭坛装卸与带装备Retry；普通P只读、活体换装不治疗。当前[05A1](Docs/M3_05A1_InputPreferences.md)准备输入偏好、自由镜头灵敏度与本地保存，正式代码 / 配置待用户手动实施。实际193 Source / 108cpp / 32测试 / 来源80，M3累计945 / 等待63分钟，项目4356 / 明确等待387；C2人工95 / 等待2。完整6件 / 2槽、M3原70h / M8复盘、磁盘试炼存档与最终美术后续，M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-04，M0、M1、M2与清理已收尾，M3-01至04及05A1已验收，无待补。**[A1报告](Docs/Reports/M3_05A1_Verification.md)记录双Build / 两Success、自由镜头偏好与真实重启读取；[祭坛装备闭环](Docs/Reports/M3_04C2_Verification.md)仍按原事务、普通P只读。当前[A2暂停输入卡](Docs/M3_05A2_InputSettingsUI.md)准备草稿 / 应用 / 取消 / 输入默认与键盘，正式Source / 资产待用户手动实施。实际196 Source / 110cpp / 33测试 / 来源80，M3累计1005 / 等待68，项目4416 / 明确等待392；A1人工60 / 等待5。个人偏好不是试炼存档；完整6件 / 2槽、显示 / 音量、磁盘进度与最终美术后续，M3原70h / M8复盘保持，旧M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,9 +868,9 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
+A1三新Core / 旧Character.cpp / DefaultEngine.ini已在本地`9166313`，审查起点工作区干净。当前Stage A1验收报告 / 指南收尾、A2新指南与同步状态文档；A2正式Source / Widget尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
-- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
+- 英文建议：`docs: verify input preferences and prepare settings UI`
+- 中文译文：`docs: 完成输入偏好验收并准备设置界面`
 
-Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。

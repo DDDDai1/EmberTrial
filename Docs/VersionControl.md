@@ -376,11 +376,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-04 C2收尾：本地f0f4e76已含十份旧UI源码与两Widget，工作区起点干净；两资产SHA / HEAD LFS已核对并更新来源清单。当前提交C2验收收尾和05A1指南 / 状态文档；A1三新Core / 一个旧cpp与一个旧配置尚未写入正式工程，未来完成后按指南末尾中英文建议提交。个人GameUserSettings.ini留本地，不复制到共享Config，不通过NewRun重置玩家偏好。助手未操作索引或远端。
 
+2026-11-04 A1收尾：本地9166313已含三新Core / 旧Character.cpp / 单Engine配置键；四Source与候选一致，工作区起点干净。双Build / 两Success与重启读取已验收，80条来源SHA保持，本轮不重存资产 / 不改清单。当前Stage A1收尾、A2指南与状态；未来A2五新UI / 两旧Pause、一新Widget与旧Pause按指南末尾实施建议提交。个人GameUserSettings.ini保持本地，日志Ini逻辑名不当成物理路径；助手未操作索引或远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
+A1三新Core / 旧Character.cpp / DefaultEngine.ini已在本地`9166313`，审查起点工作区干净。当前Stage A1验收报告 / 指南收尾、A2新指南与同步状态文档；A2正式Source / Widget尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
-- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
+- 英文建议：`docs: verify input preferences and prepare settings UI`
+- 中文译文：`docs: 完成输入偏好验收并准备设置界面`
 
-Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。

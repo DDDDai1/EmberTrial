@@ -162,15 +162,17 @@ M2历史23项自动化（含新增SpawnPlacement生成前贴地 / 回退）覆�
 
 C1的FETRelicAltarAccess不可复制，持有弱World / Controller / 身体 / 来源 / 会话身份。C2已由单Flow在未暂停时创建、取得暂停并成功呈现后发放；弱View委托携带身份，最终接收端重验当前页 / IsInViewport / 暂停归属与Core实时资格。Presenter只提交槽 / 稳定ID / 观察版本，沿同一事务完成；无搜索结果仍能卸装，普通P只读。移除时先Close / Reset Access和命令，再清View；旧观察结果 / 执行中解绑有代际与强局部保活保护，不用短暂解暂停换取写入权限。公开UI委托使用Core类型，EmberTrial是UI公开依赖，Core无UI反向依赖。
 
-M3当前32项含原M2的23项与9项新增专项；C2只执行Presenter / RelicAltar / EquipmentTransactions三项，无屏幕夹具、用户真实键鼠、资产Valid和真实Retry日志分开记录。[C2报告](Reports/M3_04C2_Verification.md)已关闭，独立包仍M2_07A/Attempt01，不代表M3已打包。
+M3当前33项含原M2的23项、遗物9项与输入偏好1项；C2只执行Presenter / RelicAltar / EquipmentTransactions三项，无屏幕夹具、用户真实键鼠、资产Valid和真实Retry日志分开记录。[C2报告](Reports/M3_04C2_Verification.md)已关闭，独立包仍M2_07A/Attempt01，不代表M3已打包。
 
-**设置阶段待实施。** [M3-05A1](M3_05A1_InputPreferences.md)将由GameUserSettings承载个人输入偏好，Character原Look消费一次；草稿由后续View保存值副本、确认后应用与显式保存。个人ini与GI配装 / 试炼资源分开，锁定相机继续拥有构图 / 跟随。A1当前仅指南 / 忽略候选，未写入正式Source / Config；显示确认回退和音量输出后续。
+**输入偏好已落地。** [A1](Reports/M3_05A1_Verification.md)由引擎持有的UETGameUserSettings保存合法个人偏好，Character原Look消费一次；默认1 / 不反转、运行拒绝非法值、重启持久化已验证。个人ini与GI配装 / 试炼资源分开，锁定相机继续拥有构图 / 跟随。SaveSettings只在明确确认调用，逻辑配置名与实际Saved物理路径分开记录；没有每帧读写ini。
+
+**A2待实施。** [输入设置卡](M3_05A2_InputSettingsUI.md)将在原Pause左列嵌入，五新UI / 两旧Pause，Pause透传Flow已有busy，Flow源码不改。纯值Draft保存当前基线与候选，浏览 / 默认 / 取消不应用；确认前核对外部当前值，成功才应用 / 保存。关闭即封口并丢弃未应用草稿，键盘操作只作用于当前焦点，原P继续路径保留；A2仅指南 / 忽略候选，无正式Source / 资产改动。主菜单设置入口、显示确认回退和音量输出后续。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
+A1三新Core / 旧Character.cpp / DefaultEngine.ini已在本地`9166313`，审查起点工作区干净。当前Stage A1验收报告 / 指南收尾、A2新指南与同步状态文档；A2正式Source / Widget尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
-- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
+- 英文建议：`docs: verify input preferences and prepare settings UI`
+- 中文译文：`docs: 完成输入偏好验收并准备设置界面`
 
-Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。

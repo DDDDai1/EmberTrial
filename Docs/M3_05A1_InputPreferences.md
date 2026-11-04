@@ -1,6 +1,6 @@
 # M3-05A1：输入偏好、镜头灵敏度与本地保存
 
-2026-11-04，UE **5.5.4**。[M3-04C2已验收](Reports/M3_04C2_Verification.md)，无待补。本章提供手动实施代码与步骤，正式Source / Config尚未修改，没有本章Build或Success结论。
+2026-11-04，UE **5.5.4**。**本章已验收通过，无待补。**[验收报告](Reports/M3_05A1_Verification.md)记录双Build、两专项Success、实际轴变换与完整重启后的本地读取；当前进入[A2暂停页输入设置](M3_05A2_InputSettingsUI.md)。以下保留手动实施内容供复查，不要求重做。
 
 ## 1. 本章交付与后续安排
 
@@ -19,7 +19,7 @@
 
 个人偏好写入`GameUserSettings.ini`，**不是试炼磁盘存档**，不保存遗物、检查点或角色资源。多人分屏 / 手柄偏好不在当前范围。此阶段沿用现有鼠标平滑 / 模板输入倍率，本章倍数是当前手感的相对倍率。
 
-预计：代码35–55分钟 / 配置与阅读5–10 / 检查5–10，另记构建与一次编辑器重启等待。实际起点193 Source / 108cpp（Core76 / UI29 / Editor3）、32自动化、299 Content / 来源80；完成后预计196 / 110cpp（Core78 / UI29 / Editor3）、33自动化，资产数量保持。以下预期不计入实际进度。
+实施前预算代码35–55 / 阅读配置5–10 / 检查5–10；实际代码40 / 阅读配置10 / 检查10，共60分钟、等待5。现已196 Source / 110cpp（Core78 / UI29 / Editor3）、33自动化、299 Content / 来源80；M3累计1005 / 等待68，项目4416 / 明确等待392。
 
 ## 2. 实施前与文件位置
 
@@ -412,7 +412,7 @@ Automation RunTests EmberTrial.M2.TargetLock.CameraRules
 ### 7.1 查询与实际轴变换
 
 1. 正式地图Play。按`~`打开**游戏视口内**控制台，输入`et.InputSettings`并回车；也可在编辑器Output Log的Cmd输入，若提示Start PIE则改用视口控制台。无须自己指定World。
-2. 应看到`Class=/Script/EmberTrial.ETGameUserSettings Sensitivity=1.00 InvertY=0`与实际`Ini=...`。若此前已保存过本章偏好，以实际值为准；首次没有设置文件时才承诺默认值。
+2. 应看到`Class=/Script/EmberTrial.ETGameUserSettings Sensitivity=1.00 InvertY=0`与`Ini=...`。本机该字段实际为逻辑配置名`GameUserSettings`；物理文件已核实为`E:\UE_Project\Demo\EmberTrial\Saved\Config\WindowsEditor\GameUserSettings.ini`。若此前已保存过偏好，以实际值为准；首次没有设置文件时才承诺默认值。
 3. 关闭控制台，Tab保持未锁定，移动鼠标看自由镜头。重新打开控制台执行下条后关闭控制台：
 
 ```text
@@ -430,7 +430,7 @@ et.InputSettings apply 0 0
 
 1. 保留`.50 / 1`，Stop后重新Play，查询仍是`.50 / 1`。这一步只证明同一引擎实例保持，**还不证明磁盘读取**。
 2. Stop、Save All并完整关闭UE编辑器。重新打开工程与正式地图、Play，再执行`et.InputSettings`。仍为`.50 / 1`才是此次真实持久化检查；不需要新Cook或打包。
-3. 如果没有恢复，先保留日志中的完整Ini路径告诉我，别删除缓存 / 个人文件。不同Editor / 独立包的配置目录可以不同，本章不要求旧M2包识别新设置。
+3. 如果没有恢复，先保留日志Ini字段、实际个人文件路径与相关启动日志告诉我，别删除缓存 / 个人文件。不同Editor / 独立包的配置目录可以不同，本章不要求旧M2包识别新设置。
 4. 执行下面命令恢复本章最终默认值，随后查询确认`1.00 / 0`。该命令只恢复输入项，不改窗口 / 分辨率 / 画质。
 
 ```text
@@ -470,17 +470,9 @@ Source / Config已保存；未改资产；失败或手感问题（无填无）�
 
 ## 10. Commit / Push（固定放在最后）
 
-**当前收尾文档**：C2代码 / 两资产已在本地`f0f4e76`，当前只Stage C2验收报告、C2收尾 / 来源清单 / 状态文档及本指南。建议`docs: verify relic confirmation UI and prepare input settings`；中文`docs: 完成遗物确认界面验收并准备输入设置`。不重复Stage未变化源码 / 资产，未联网核验远端。
+A1三新Core / 旧Character.cpp / DefaultEngine.ini已在本地`9166313`，审查起点工作区干净。当前Stage A1验收报告 / 指南收尾、A2新指南与同步状态文档；A2正式Source / Widget尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-**本章手动实施完成后**，CLion检查以下差异再Stage：
+- 英文建议：`docs: verify input preferences and prepare settings UI`
+- 中文译文：`docs: 完成输入偏好验收并准备设置界面`
 
-- 三新：第2节Settings头 / 实现与InputPreferences测试。
-- 两旧：Character.cpp的单include与Look替换、DefaultEngine.ini的单键。
-- 实际有改的本指南 / 进度 / 报告等共享文档；尚未生成的验收报告不要创建空文件。
-- 不Stage个人GameUserSettings.ini、Saved、Intermediate、Binaries、.idea / CMake生成、日志 / Artifacts候选或旧包；本章无Content改动。
-
-实施建议：`feat: persist input preferences and apply mouse sensitivity`。
-
-专业中文：`feat: 持久化输入偏好并应用鼠标镜头灵敏度`。
-
-Stage前查看最终差异；暂存后又修改需重新Stage最新版本，再Commit / Push。Git由用户操作，助手未提交或推送。
+Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。

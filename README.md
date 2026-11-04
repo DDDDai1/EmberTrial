@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2阶段已收尾](Docs/Reports/M2_Verification.md)，[M3-01至04的两件遗物正式闭环已验收](Docs/Reports/M3_04C2_Verification.md)。当前准备[M3-05A1输入偏好与本地保存](Docs/M3_05A1_InputPreferences.md)，待用户手动实施；最终内容、美术与投递材料仍在开发。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2阶段已收尾](Docs/Reports/M2_Verification.md)，[M3-01至04的两件遗物正式闭环已验收](Docs/Reports/M3_04C2_Verification.md)。[M3-05A1输入偏好与本地保存已验收](Docs/Reports/M3_05A1_Verification.md)，当前[A2暂停输入设置卡](Docs/M3_05A2_InputSettingsUI.md)待用户手动实施；最终内容、美术与投递材料仍在开发。
 
 ## 已实现的体验
 
@@ -11,6 +11,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 - F站定施放与真实6游戏秒冷却，.4秒一次300cm / 60Poise范围结算；受击 / 破势 / 死亡取消不退款。
 - Tab按需选择 / 解除镜头前方存活敌人，带距离迟滞 / 遮挡宽限与死亡 / 换控清理、Z / C方向切换；已有屏幕菱形标记 / 离屏隐藏再现，锁定时右肩镜头平滑跟随，解除后归还鼠标 / 肩位，换身体与结束恢复。
 - 生命 / 体力 / 治疗次数 / 破势冷却HUD，独立主菜单、暂停、失败重试和本次进程内的检查点继续。
+- 自由镜头输入偏好：0.25–3倍灵敏度与Y轴反转，个人设置可本地保存 / 重启读取；当前可用开发入口，正式设置卡待A2实现。
 
 两件遗物提供稳定ID / 参数 / 槽位校验、GI库存与版本、身体自有GE和资源恢复；祭坛E打开同一遗物页，支持真实列表 / 中文搜索 / 排序筛选 / 两槽比较，确认后装备或卸装，普通P只读。初始空槽100生命 / 25伤害；两件装备后上限120 / 伤害30，存活换装不治疗。Retry / 本进程Continue保留配装，新身体按最终上限恢复；NewRun空槽。角色和动画仍为UE模板 / Control Rig占位，完整6件、磁盘进度存档与最终美术后续，多人及手柄交付不在范围。
 
@@ -50,7 +51,7 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M3-05A1输入偏好与本地保存](Docs/M3_05A1_InputPreferences.md)：待用户手动实施；[C2祭坛确认 / 卸装已验收](Docs/Reports/M3_04C2_Verification.md)，两件遗物正式页面闭环通过，普通P只读。[M3路线](Docs/M3_Roadmap.md)。
+- [当前开发：M3-05A2暂停输入设置卡](Docs/M3_05A2_InputSettingsUI.md)：待用户手动实施；[A1输入偏好已验收](Docs/Reports/M3_05A1_Verification.md)，实际倍率 / 反转与本地持久化通过，下一步接草稿确认和键盘。[M3路线](Docs/M3_Roadmap.md)。
 - [M3-02A验收](Docs/Reports/M3_02A_Verification.md)：两槽资格 / 汇总、替换 / 卸下 / 预览，双库存专项当次Success。
 - [M3-01验收](Docs/Reports/M3_01_Verification.md)：两遗物静态定义、两Valid与Definitions Success；[原操作步骤](Docs/M3_01_RelicDefinitions.md)供复查。
 - [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。

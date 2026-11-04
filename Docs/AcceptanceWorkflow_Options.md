@@ -288,11 +288,17 @@ C2实际三相关Success、双Build / 两最终Valid与分组实机通过，人�
 
 三新Core / 旧Look与单配置键；新InputPreferences验证输入值 / 提交 / 拒绝与真实引擎类配置，原CameraRules各一次。独立对象不Save / Load或全局Apply，避免污染个人偏好。实机只查.50 / 反转、非法拒绝、一次完整编辑器重启后仍读取.50 / 1并恢复默认、自由 / 锁定 / P / 祭坛与最短基线，5–10分钟、重启等待另记。无新Widget、临时蓝图、全33项 / 新Cook；后续正式草稿 / 应用 / 取消另在A2查，不将值副本测试冒充实际设置页面。
 
+A1实际两Success / 双Build / 真实轴与完整重启读取已通过，人工60 / 等待5；两份启动日志分别保留，不为A2重复重启 / CameraRules / 全组测试。日志Ini是逻辑名，实际文件已只读核对默认1 / 不反转。
+
+## M3-05A2最小范围
+
+五新UI / 两旧Pause，新卡与旧Pause装配；新InputDraft验证副本、应用候选 / 外部变更拒绝、默认 / 取消与Close，原InputPreferences各一次。无屏幕草稿不冒充真实UMG / 磁盘；实机5–10分钟只查关闭丢弃、应用实际手感、默认先草稿 / 取消恢复、Tab左右键 / Enter-Space / Esc与P、一处祭坛集成 / Stop新卡；最终默认1 / 不反转。无临时蓝图、A1完整重启、全34项 / 新Cook，未动Core事务不重跑全套遗物矩阵。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-C2十份UI源码与两资产已在本地`f0f4e76`，审查起点工作区干净。当前Stage C2验收报告 / 收尾、两资产来源清单、M3-05A1新指南及同步状态文档；A1正式Source / Config尚未实施，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage；未联网核验远端。
+A1三新Core / 旧Character.cpp / DefaultEngine.ini已在本地`9166313`，审查起点工作区干净。当前Stage A1验收报告 / 指南收尾、A2新指南与同步状态文档；A2正式Source / Widget尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify relic confirmation UI and prepare input settings`
-- 中文译文：`docs: 完成遗物确认界面验收并准备输入设置`
+- 英文建议：`docs: verify input preferences and prepare settings UI`
+- 中文译文：`docs: 完成输入偏好验收并准备设置界面`
 
-Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。
