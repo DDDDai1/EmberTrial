@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-10-30，M0、M1、M2与清理已收尾，M3-03与04A祭坛发现已验收。**[04A报告](Docs/Reports/M3_04A_Verification.md)记录专项Success / 双Build与灰盒清理；当前进入[M3-04B浏览流程](Docs/M3_04B_RelicAltarBrowseFlow.md)，仅指南准备，复用原E入口 / 单Pause Flow，最终确认许可留C。实际191 Source / 107cpp / 32测试 / 来源80，M3累计706 / 等待54分钟，项目4117 / 明确等待378；本批人工70 / 等待5。完整6件 / 2槽、M3原70h / M8复盘、磁盘存档与最终美术后续，M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-04，M0、M1、M2与清理已收尾，M3-04B已验收，无待补。**[B报告](Docs/Reports/M3_04B_Verification.md)记录专项Success、祭坛页 / 普通P与原交互恢复、来源销毁自动关闭；当前[C1](Docs/M3_04C1_RelicAltarAccess.md)准备Core上下文与共享事务，C2再接Flow / 确认按钮。实际191 Source / 107cpp / 32测试 / 来源80，M3累计793 / 等待59分钟，项目4204 / 明确等待383；B人工87 / 等待5。完整6件 / 2槽、M3原70h / M8复盘、磁盘存档与最终美术后续，M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。

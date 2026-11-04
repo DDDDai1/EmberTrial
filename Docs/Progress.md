@@ -1,24 +1,25 @@
 # 当前开发进度
 
-更新2026-10-31。[M3-04A已验收](Reports/M3_04A_Verification.md)，无待补；当前[M3-04B：E进入祭坛浏览页](M3_04B_RelicAltarBrowseFlow.md)**实施中**。8.1已按当次授权通过computer-use完成接线、Compile与正常Save，从8.2继续；整章运行验收尚未完成。
+更新2026-11-04。[M3-04B已验收](Reports/M3_04B_Verification.md)，来源销毁窄补项关闭、无待补；当前[M3-04C1：祭坛换装上下文与真实事务门控](M3_04C1_RelicAltarAccess.md)指南已准备，待用户手动实施。
 
 ## 当前实际工程
 
-- 191 Source / 107cpp（Core75 / UI29 / Editor3）、32自动化、299 Content / 来源80。本地522edb9包含A实现与新BP / 地图，起点工作区干净；两个LFS / SHA匹配，未联网核验远端。
-- 当前World弱登记祭坛，按请求读距离 / 高差 / Visibility与当前本地身体资格；没有常驻扫描 / Tick / Timer。A专项17:14:21 Success，实际祭坛ready / end闭合，双Build / 三索引与两轮短查按反馈通过。
-- B七旧Source已有工作区修改，角色8.1入口已接通：Started → 当前Controller Cast → 祭坛请求 → 返回值分支，False与Cast Failed回退原A/B交互。复用单FailureFlow / 原Pause与Panel；本次仅核对蓝图编译 / 正常保存及Valid / Issues=0，不推定双目标Build或整章运行通过。
-- B不新增Source / 测试注册 / 资产，预计规模保持；C再接真实确认 / 卸装与最终许可。完整六件、磁盘存档与最终美术后续；独立包仍M2_07A/Attempt01，不含M3。
+- 191 Source / 107cpp（Core75 / UI29 / Editor3）、32自动化、299 Content / 来源80。B七旧Source与角色在本地d331bbc，角色SHA / LFS匹配，未联网核验远端。
+- B原唯一E请求祭坛、单Flow复用Pause / RelicPanel，False回旧A/B；普通P仍只读。11/04活动页销毁命中来源结束回调，自动移除 / 恢复Paused=0；重开祭坛与页面正常。
+- C1仅准备两新 / 五旧Core候选与手动指南，不改正式Source / 资产。预期193 Source / 108cpp（Core76 / UI29 / Editor3），仍32测试；只扩Altar + 原EquipmentTransactions各一次。
+- C1建立弱身份上下文与共享事务；C2才接Flow暂停所有权、发放 / 撤销与确认 / 卸装按钮，不把普通P页变成任意换装入口。完整6件、磁盘存档与最终美术仍后续；独立包M2_07A/Attempt01不含M3。
 
 ## 工时与协作
 
-A代码60 / 资产地图5 / 检查5，共70，等待5。M3累计706分钟（11小时46分）/ 等待54；项目4117分钟（68小时37分）/ 明确等待378分钟（6小时18分）。B预计代码70–100 / 蓝图15–25 / 检查5–10，等待另记，不计实耗；助手工作不计用户用时。M2仍1400 / 139，06C / 07C阅读未登记。
+B代码60 / 蓝图20 / 检查5 / 窄补2，共87，等待5。M3累计793分钟（13小时13分）/ 等待59；项目4204分钟（70小时04分）/ 明确等待383分钟（6小时23分）。C1预算手动50–80 / 检查5–10，等待另计，不计实耗；助手操作 / 审查不计用户用时，M2仍1400 / 139。
 
-普通C++与基础蓝图由用户手动，复杂排错按当次授权；长日志由助手读取。B只扩原Altar专项一次，真实开关 / 焦点 / 来源销毁与短基线分组查；不搭临时验收蓝图、不跑全32项或新Cook。首次PIE等待需求保持关闭。
+普通C++与基础蓝图由用户手动，复杂排错按当次授权；长日志由助手读取。B不重验，C1只检查受影响事务与约2分钟短查，不搭临时验收图 / 跑全32项 / 新Cook。首次PIE等待需求保持关闭。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-[M3-04A验收报告](Reports/M3_04A_Verification.md)已保存，无待补；本地`522edb9`包含A源码 / 新BP / 地图。B正在实施，8.1资产与记录已保存；完成本章检查后，按[B指南最后一节](M3_04B_RelicAltarBrowseFlow.md#11-本批-commit--push固定放在最后)提交实际源码 / 资产与文档差异，不提交本地候选。未联网核验远端。
+B七旧Source与角色资产已在本地`d331bbc`。本轮Stage B最终报告 / 操作记录、C1新指南、来源清单与同步状态文档；C1正式Source尚未改动，不Stage忽略目录里的候选。已有源码 / 资产无新差异时不重复Stage。未联网核验远端。
 
-英文建议`docs: verify altar discovery and prepare altar browsing flow`；中文`docs: 完成祭坛发现验收并准备祭坛浏览流程`。Stage / Commit / Push由用户操作；Raw / 日志 / 缓存 / 包留本地。
+- 英文建议：`docs: verify altar browsing and prepare authorized relic transactions`
+- 中文译文：`docs: 完成祭坛浏览验收并准备遗物授权换装事务`
 
-当前文档差异：Reports/M3_04A_Verification、M3_04A操作指南、M3_04B新指南、AssetManifest、Progress、Backlog、M3_Roadmap、M2_Roadmap、Architecture、AcceptanceWorkflow_Options、VersionControl、Introduction、README。B实施后的七旧Source / 角色与祭坛BP范围见B最后一节。
+Stage / Commit / Push由用户操作；Raw / 候选 / 日志 / 缓存 / 包留本地。

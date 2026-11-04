@@ -1,6 +1,6 @@
 # EmberTrial：架构与生命周期
 
-更新2026-10-30。M3装备闭环、03展示查询与[04A祭坛发现](Reports/M3_04A_Verification.md)已验收；当前[04B祭坛浏览](M3_04B_RelicAltarBrowseFlow.md)待用户实施。实际证据与工时见[Progress](Progress.md)。
+更新2026-11-04。M3装备闭环、03展示查询与[04B祭坛浏览](Reports/M3_04B_Verification.md)已验收，无待补；当前[C1核心上下文与事务](M3_04C1_RelicAltarAccess.md)仅准备指南。实际证据与工时见[Progress](Progress.md)。
 
 ## 1. 模块与构建边界
 
@@ -174,10 +174,13 @@ M3-03B已验收：Core装备完成通知在bChanging撤销后发布，Presenter�
 
 04A已验收：Core的WorldSubsystem弱登记祭坛，按请求检查当前Player / Ready / Idle / 未暂停及距离 / 高差 / Visibility，不缓存永久允许标志。祭坛Actor负责空间配置 / 注册 / 清理，无Tick、Overlap缓存或GI旧World强引用；专项与实机灰盒通过。
 
-04B待实施设计：Controller从原唯一E入口查询后发布意图；有祭坛即消费，无候选回旧A/B。单FailureFlow复用原Pause布局、暂停 / Failure / 返回菜单链；页面只弱记来源，关闭 / 换身体 / 死亡 / EndPlay解绑，来源结束按原继续链恢复输入。C再建立最终写许可与确认，不全局删除TryEquip暂停保护。
+04B已实现：Controller从原唯一E入口查询后发布意图；有祭坛即消费，无候选回旧A/B。单FailureFlow复用原Pause布局与暂停 / Failure / 返回菜单链；弱来源结束沿原继续链恢复，关闭 / 换身体 / 死亡 / EndPlay解绑。意图专项与页面恢复、活动页来源结束均已验收；C1设计弱身份、不可复制的原生上下文，两入口共享同一提交点且原TryEquip继续拒绝暂停。C2再由现有Flow独占发放 / 撤销，Presenter提交时同时重验页面与库存版本；普通P仍只读。C1候选尚未写入Source，不提前宣称正式页面确认已实现。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-[M3-04A验收报告](Reports/M3_04A_Verification.md)已保存，无待补；本地`522edb9`包含源码 / 新BP / 地图，起点工作区干净。当前Stage A报告 / 收尾、[B浏览流程指南](M3_04B_RelicAltarBrowseFlow.md)、AssetManifest与同步状态文档；B尚未实施，不提交本地候选。未联网核验远端。
+B七旧Source与角色资产已在本地`d331bbc`。本轮Stage B最终报告 / 操作记录、C1新指南、来源清单与同步状态文档；C1正式Source尚未改动，不Stage忽略目录里的候选。已有源码 / 资产无新差异时不重复Stage。未联网核验远端。
 
-英文建议`docs: verify altar discovery and prepare altar browsing flow`；中文`docs: 完成祭坛发现验收并准备祭坛浏览流程`。Stage / Commit / Push由用户操作；Raw / 日志 / 缓存 / 包留本地。
+- 英文建议：`docs: verify altar browsing and prepare authorized relic transactions`
+- 中文译文：`docs: 完成祭坛浏览验收并准备遗物授权换装事务`
+
+Stage / Commit / Push由用户操作；Raw / 候选 / 日志 / 缓存 / 包留本地。

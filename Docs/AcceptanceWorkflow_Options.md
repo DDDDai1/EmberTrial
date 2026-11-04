@@ -267,10 +267,19 @@ B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原
 
 ## M3-04B最小范围
 
-只扩原Altar专项验证Core意图路由，不用无Viewport夹具冒充UMG成功。实机5–10分钟分组覆盖祭坛E / 原A-B与P、长按单次、搜索焦点 / 继续无补播、一次PIE祭坛销毁自动关闭、菜单Continue与Stop。没有临时验收蓝图或全32项 / Cook；来源销毁用现有PIE控制台命令，不删持久地图实例。真实确认与权限变化留C再验。
+只扩原Altar专项验证Core意图路由，不用无Viewport夹具冒充UMG成功。实机5–10分钟分组覆盖祭坛E / 原A-B与P、长按单次、搜索焦点 / 继续无补播、一次PIE祭坛销毁自动关闭、菜单Continue与Stop。没有临时验收蓝图或全32项 / Cook；来源销毁保持祭坛页打开，从编辑器Output Log / Cmd执行现有PIE命令，不删持久地图实例。真实确认与权限变化留C再验。
+
+04B主体85 / 窄补2，共87 / 等待5。11/04真实活动页来源结束 → 移除 → Paused=0与重开祭坛有日志，窄项关闭，不再重做B。
+
+## M3-04C1最小范围
+
+两新 / 五旧Core，只扩原Interaction.RelicAltar验证上下文 / 真正暂停内GE事务、普通入口拒绝、旧版本 / Busy / NoChange、空间 / 身份 / 死亡 / Close / 来源销毁；原EquipmentTransactions各一次回归共享提交与新身体恢复。实机只E / P单页与旧能力短查、Stop再开，约2分钟。不新建测试文件 / 注册、不跑全32项、不搭临时蓝图或新Cook。正式Flow / 页面所有权及确认按钮的输入验证留C2，不把Core夹具称为已创建UMG。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-[M3-04A验收报告](Reports/M3_04A_Verification.md)已保存，无待补；本地`522edb9`包含源码 / 新BP / 地图，起点工作区干净。当前Stage A报告 / 收尾、[B浏览流程指南](M3_04B_RelicAltarBrowseFlow.md)、AssetManifest与同步状态文档；B尚未实施，不提交本地候选。未联网核验远端。
+B七旧Source与角色资产已在本地`d331bbc`。本轮Stage B最终报告 / 操作记录、C1新指南、来源清单与同步状态文档；C1正式Source尚未改动，不Stage忽略目录里的候选。已有源码 / 资产无新差异时不重复Stage。未联网核验远端。
 
-英文建议`docs: verify altar discovery and prepare altar browsing flow`；中文`docs: 完成祭坛发现验收并准备祭坛浏览流程`。Stage / Commit / Push由用户操作；Raw / 日志 / 缓存 / 包留本地。
+- 英文建议：`docs: verify altar browsing and prepare authorized relic transactions`
+- 中文译文：`docs: 完成祭坛浏览验收并准备遗物授权换装事务`
+
+Stage / Commit / Push由用户操作；Raw / 候选 / 日志 / 缓存 / 包留本地。

@@ -1,6 +1,6 @@
 # M3-04B：E进入祭坛浏览页与输入恢复
 
-2026-10-30编制，2026-10-31更新，UE5.5.4。[M3-04A已验收](Reports/M3_04A_Verification.md)。本章正在实施；第8.1节已按当次授权由助手通过computer-use完成、编译并正常保存。其余步骤与第9节运行检查仍按实际完成情况反馈，不据本次蓝图编译推定整章通过。
+2026-10-30编制，2026-11-04收尾，UE5.5.4。[M3-04A已验收](Reports/M3_04A_Verification.md)。11月4日19:31窄补验完成，[验收报告](Reports/M3_04B_Verification.md)确认全章通过、无待补。8.1由助手按当次授权通过computer-use完成；下一章为[M3-04C1](M3_04C1_RelicAltarAccess.md)，以下保留本批操作步骤供复盘。
 
 ## 1. 看到的结果与本批边界
 
@@ -467,7 +467,7 @@ IA_Interact.Started → Cast ETPlayerController
 - True保持空接；False与Cast Failed共用原TryInteractWithCurrentTarget(Self)调用。编辑器允许这两条互斥白线汇入同一输入，无需复制函数调用。
 - 已整理节点；其余输入执行引脚保持空接。原函数内部、候选注册 / 清理及输入映射未改。
 - Compile显示绿色Good to go；正常Save后为All Saved。14:56:26日志确认保存到正式Content路径，项目资产校验Valid / Issues=0。
-- 本记录只确认8.1接线 / 编译 / 保存，第9节运行检查仍待执行。**从8.2继续，无需重接8.1。**
+- 此处是当时8.1的操作记录；后续第9节及来源销毁窄项均已验收通过，见本章报告，无需重接或重验。
 
 ### 8.2 祭坛标识与原页面
 
@@ -500,10 +500,21 @@ Automation RunTests EmberTrial.M3.Interaction.RelicAltar
 
 ### 9.3 一次来源清理与Stop
 
-1. 仅在PIE中打开祭坛页，按控制台键`~`，输入引擎现有作弊命令`DestroyAll ETRelicAltar`，Enter执行后关闭控制台。命令只针对本轮World的祭坛类；不在编辑器场景中删除持久资产。该命令已核对本机CheatManager声明；若本机控制台提示不识别，回报这一项即可，不另搭Level Blueprint测试图。
-2. 来源结束后应关闭祭坛页并恢复游戏，长日志有Altar source ended / Pause removed / Pause resumed；原P仍能使用。Stop后重新Play，地图中保存的祭坛恢复。
-3. 再E打开，使用原返回主菜单，再Continue，靠近祭坛E可打开新页；原生命 / 装备会话语义沿用。Stop时无旧页面 / 旧来源错误。
-4. 最后左键 / 2 / E-A/B与移动短查，默认数值、slomo、Debug保持，Save All。**B仍只读，没有真实确认按钮是预期**，不重验完整战斗 / Retry矩阵。
+**2026-11-04已补验通过，无需重跑。** 以下保留当时修订的窄补步骤，日志已确认来源结束 → 页面移除 → Paused=0；可直接阅读下一章。
+
+1. **本次只补这一项，约1分钟，不重做9.2：** 在正式地图Play，靠近祭坛站定按E；确认祭坛浏览页仍在屏幕上。**不要先按P、继续按钮、Enter或Space关闭页面，也不要Stop。** 游戏暂停由页面持有，编辑器工具栏仍保持PIE运行，不额外点击编辑器Pause按钮。
+2. 鼠标若被视口捕获，按**Shift+F1**释放；页面保持打开。点击UE编辑器底部**Output Log**，确认左下命令执行器为**Cmd**（不是Python）。在`Enter Console Command`框输入以下命令，按Enter执行：
+
+   ```text
+   DestroyAll ETRelicAltar
+   ```
+
+   仅在本轮PIE仍运行时执行。本机UE5.5.4的`FConsoleCommandExecutor::ExecInternal`会优先使用PlayWorld，并交由该世界LocalPlayer执行；这不是在Outliner删除持久地图实例。页面为UIOnly输入，补验改走编辑器Output Log，不依赖游戏内`~`能否开启。
+3. 预期页面自动消失，点击游戏视口后可移动；日志应依次出现`Altar source ended`、`Pause removed`、`Pause resumed ... Paused=0`。普通P仍可使用。若命令不识别或页面不消失，反馈实际现象即可，先不改C++或重建验收图。
+4. Stop → 再Play，地图祭坛应恢复；保持正式地图资产不变。已完成的菜单Continue、旧能力 / E-A/B / P与输入短基线不再重跑。
+5. 简短回复“**M3-04B来源销毁窄补验：页面自动关闭 / 移动恢复 / 重开祭坛恢复：通过或实际失败；完成时分、额外手动用时**”。长日志由助手读取，不要求抄写。
+
+**收尾结果：** 10月31日原样本为离页后销毁；11月4日19:30:29真实命中活动页来源结束并自动恢复。用户额外2分钟完成，本章无待补。B仍为只读浏览，没有真实确认按钮符合边界。
 
 普通P页不会因祭坛销毁而关闭；祭坛死亡 / 世界结束的暂停归属沿原Flow，不通过Timer等待一个已暂停世界。范围 / Enabled变化的最终写权限由C在确认时重验，本章不宣称浏览期间持续监视所有条件。
 
@@ -524,12 +535,12 @@ Interaction.RelicAltar一次：
 
 ## 11. 本批 Commit / Push（固定放在最后）
 
-04A实现已在本地522edb9；04B正在实施，8.1角色蓝图已正常保存。下列源码 / 资产须完成本章检查后再作为实现提交；本地候选不Stage。未联网核验远端。
+B七旧Source与角色资产已在本地`d331bbc`。本轮Stage B最终报告 / 操作记录、C1新指南、来源清单与同步状态文档；C1正式Source尚未改动，不Stage忽略目录里的候选。已有源码 / 资产无新差异时不重复Stage。未联网核验远端。
 
-- 当前文档英文：`docs: verify altar discovery and prepare altar browsing flow`
-- 中文译文：`docs: 完成祭坛发现验收并准备祭坛浏览流程`
+- 当前文档英文：`docs: verify altar browsing and prepare authorized relic transactions`
+- 中文译文：`docs: 完成祭坛浏览验收并准备遗物授权换装事务`
 
-实施并检查后提交以下七旧Source、实际资产差异和本章验收 / 清单 / 进度：
+以下为实现提交d331bbc及本章收尾的核对清单；本轮只Stage实际新增文档差异，无变化Source / 资产无需重复提交：
 
 ```text
 EmberTrial/Source/EmberTrial/Public/Framework/ETPlayerController.h
@@ -543,6 +554,7 @@ EmberTrial/Content/ThirdPerson/Blueprints/BP_ThirdPersonCharacter.uasset
 EmberTrial/Content/EmberTrial/Blueprints/Interaction/BP_ETRelicAltar.uasset
 EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset（仅确有差异）
 Docs/M3_04B_RelicAltarBrowseFlow.md
+Docs/Reports/M3_04B_Verification.md
 Docs/AssetManifest.csv（按实际资产SHA更新）
 当次Reports / Progress / Backlog / 路线等实际文档差异
 ```
