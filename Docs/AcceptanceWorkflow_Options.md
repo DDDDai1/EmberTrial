@@ -275,11 +275,18 @@ B修改公共Character依赖与攻击消费者，跑新EquipmentEffects、扩原
 
 两新 / 五旧Core，只扩原Interaction.RelicAltar验证上下文 / 真正暂停内GE事务、普通入口拒绝、旧版本 / Busy / NoChange、空间 / 身份 / 死亡 / Close / 来源销毁；原EquipmentTransactions各一次回归共享提交与新身体恢复。实机只E / P单页与旧能力短查、Stop再开，约2分钟。不新建测试文件 / 注册、不跑全32项、不搭临时蓝图或新Cook。正式Flow / 页面所有权及确认按钮的输入验证留C2，不把Core夹具称为已创建UMG。
 
+
+C1实际两专项Success / 双Build与短查通过，人工57 / 等待2；没有强制重存未改资产。本轮复用已完成证据，不为报告重新运行。
+
+## M3-04C2最小范围
+
+十旧UI模块文件 / 两既有Widget。扩原Presenter命令专项验证真实Access / GE装卸、空搜索仍卸装、过期 / 重入 / 旧观察隔离；同时跑原Altar / EquipmentTransactions各一次。无Viewport原生夹具不冒充实际Flow / UMG通过。实机5–10分钟验证确认 / 真实30与100-120、鼠标键盘 / 文本焦点、普通P只读、一次来源销毁、带装备Retry / Continue与Stop新GI；不新建验收蓝图 / 测试注册或跑全32项 / Cook。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B七旧Source与角色资产已在本地`d331bbc`。本轮Stage B最终报告 / 操作记录、C1新指南、来源清单与同步状态文档；C1正式Source尚未改动，不Stage忽略目录里的候选。已有源码 / 资产无新差异时不重复Stage。未联网核验远端。
+C1七份源码已在本地`e659e8c`，审查起点工作区干净。本轮Stage C1验收报告 / 收尾、C2新指南及同步状态文档；C2正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify altar browsing and prepare authorized relic transactions`
-- 中文译文：`docs: 完成祭坛浏览验收并准备遗物授权换装事务`
+- 英文建议：`docs: verify altar access and prepare relic confirmation UI`
+- 中文译文：`docs: 完成祭坛换装上下文验收并准备遗物确认界面`
 
 Stage / Commit / Push由用户操作；Raw / 候选 / 日志 / 缓存 / 包留本地。

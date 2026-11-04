@@ -376,9 +376,9 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B七旧Source与角色资产已在本地`d331bbc`。本轮Stage B最终报告 / 操作记录、C1新指南、来源清单与同步状态文档；C1正式Source尚未改动，不Stage忽略目录里的候选。已有源码 / 资产无新差异时不重复Stage。未联网核验远端。
+C1七份源码已在本地`e659e8c`，审查起点工作区干净。本轮Stage C1验收报告 / 收尾、C2新指南及同步状态文档；C2正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify altar browsing and prepare authorized relic transactions`
-- 中文译文：`docs: 完成祭坛浏览验收并准备遗物授权换装事务`
+- 英文建议：`docs: verify altar access and prepare relic confirmation UI`
+- 中文译文：`docs: 完成祭坛换装上下文验收并准备遗物确认界面`
 
 Stage / Commit / Push由用户操作；Raw / 候选 / 日志 / 缓存 / 包留本地。

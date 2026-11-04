@@ -1,6 +1,6 @@
 # M3-04C1：祭坛换装上下文与真实事务门控
 
-2026-11-04，UE5.5.4。[M3-04B已验收](Reports/M3_04B_Verification.md)，来源销毁窄补验通过。本章提供完整手动代码；正式Source / 资产尚未改动，也没有本章Build或Success结论。
+2026-11-04，UE5.5.4。[M3-04B已验收](Reports/M3_04B_Verification.md)，来源销毁窄补验通过。本章已手动完成，[验收报告](Reports/M3_04C1_Verification.md)确认双Build / 两Success及短查通过、无待补。下一章[C2](M3_04C2_RelicConfirmationUI.md)接正式页面确认与卸装；以下保留完整实现供学习。
 
 ## 1. 本批交付与时间
 
@@ -14,7 +14,7 @@
 | 旧Core | AltarSubsystem两文件、Equipment两文件、原Altar测试 | 35–55分钟 |
 | 检查 | 原Altar扩展 + 原EquipmentTransactions各一次，实机短查 | 5–10分钟 |
 
-当前191 Source / 107cpp（Core75 / UI29 / Editor3）、32测试 / 299 Content / 来源80；完成后预计193 Source / 108cpp（Core76 / UI29 / Editor3），测试仍32、资产与来源不增加。等待另记，预算不计实耗。
+完成后实际193 Source / 108cpp（Core76 / UI29 / Editor3）、32测试 / 299 Content / 来源80。用户代码50 / 阅读5 / 检查2，共57，等待2；原预算保留用于估计对比。
 
 ## 2. 先理解三条边界
 
@@ -489,12 +489,13 @@ Source已保存，原资产与配置保持；失败或不理解处（无填无�
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-**当前只有B验收收尾与C1指南准备：** B源码 / 角色实物已在d331bbc，提交B报告、B操作记录 / 工时 / 来源、下列新指南与同步状态文档即可。候选均在忽略Artifacts内，不Stage；本章正式Source尚未写入。
+C1七份源码已在本地`e659e8c`，审查起点工作区干净。本轮Stage C1验收报告 / 收尾、C2新指南及同步状态文档；C2正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 当前文档英文：`docs: verify altar browsing and prepare authorized relic transactions`
-- 中文译文：`docs: 完成祭坛浏览验收并准备遗物授权换装事务`
+- 英文建议：`docs: verify altar access and prepare relic confirmation UI`
+- 中文译文：`docs: 完成祭坛换装上下文验收并准备遗物确认界面`
 
-你手动实施并检查通过后，Stage本章实际七份源码与对应记录：
+Stage / Commit / Push由用户操作；Raw / 候选 / 日志 / 缓存 / 包留本地。
+以下为已提交的七份实现源码与本章记录，保留供核对；本轮只Stage实际文档差异：
 
 ```text
 EmberTrial/Source/EmberTrial/Public/Interaction/ETRelicAltarAccess.h
