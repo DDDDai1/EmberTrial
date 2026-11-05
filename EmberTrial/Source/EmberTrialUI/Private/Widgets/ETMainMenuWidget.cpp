@@ -1,5 +1,6 @@
 #include "Widgets/ETMainMenuWidget.h"
 #include "Widgets/ETInputSettingsWidget.h"
+#include "Widgets/ETVideoSettingsWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
@@ -12,7 +13,8 @@ DEFINE_LOG_CATEGORY_STATIC(LogETMainMenuView, Log, All);
 bool UETMainMenuWidget::HasRequiredLayout() const
 {
     return IsValid(StartButton.Get()) && IsValid(ContinueButton.Get()) &&
-        IsValid(QuitButton.Get()) && IsValid(StatusText.Get()) && IsValid(InputSettingsPanel.Get());
+        IsValid(QuitButton.Get()) && IsValid(StatusText.Get()) && IsValid(InputSettingsPanel.Get()) &&
+        IsValid(VideoSettingsPanel.Get());
 }
 
 void UETMainMenuWidget::NativeOnInitialized()
@@ -30,6 +32,15 @@ void UETMainMenuWidget::NativeOnInitialized()
 }
 
 // ---- Ready / Pending / Error的呈现；没有Tick或属性Binding ----
+
+void UETMainMenuWidget::NativeDestruct()
+{
+    if (VideoSettingsPanel)
+    {
+        VideoSettingsPanel->CloseView();
+    }
+    Super::NativeDestruct();
+}
 
 void UETMainMenuWidget::ShowReady(bool bCanContinue)
 {
@@ -57,6 +68,10 @@ void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
     if (InputSettingsPanel)
     {
         InputSettingsPanel->SetHostBusy(bBusy);
+    }
+    if (VideoSettingsPanel)
+    {
+        VideoSettingsPanel->SetHostBusy(bBusy);
     }
     if (!HasRequiredLayout())
     {

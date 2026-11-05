@@ -7,6 +7,7 @@
 class UButton;
 class UTextBlock;
 class UETInputSettingsWidget;
+class UETVideoSettingsWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETMenuActionRequested);
 
@@ -37,6 +38,7 @@ public:
 protected:
     // 每个实例初始化时绑定一次；移出 / 加回屏幕不重复构造按钮业务。
     virtual void NativeOnInitialized() override;
+    virtual void NativeDestruct() override;
 
 private:
     // ---- 统一按钮状态；点击回调只检查View状态并广播 ----
@@ -66,6 +68,9 @@ private:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UETInputSettingsWidget> InputSettingsPanel;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UETVideoSettingsWidget> VideoSettingsPanel;
 
     // busy仅表示请求处理中，不等于世界暂停；Continue来自Session快照。
     bool bBusy = false;

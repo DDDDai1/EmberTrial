@@ -1,6 +1,7 @@
 #include "Widgets/ETPauseWidget.h"
 #include "Widgets/ETRelicPanelWidget.h"
 #include "Widgets/ETInputSettingsWidget.h"
+#include "Widgets/ETVideoSettingsWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
@@ -12,7 +13,8 @@
 bool UETPauseWidget::HasRequiredLayout() const
 {
     return IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) &&
-        IsValid(StatusText.Get()) && IsValid(RelicPanel.Get()) && IsValid(InputSettingsPanel.Get());
+        IsValid(StatusText.Get()) && IsValid(RelicPanel.Get()) && IsValid(InputSettingsPanel.Get()) &&
+        IsValid(VideoSettingsPanel.Get());
 }
 
 void UETPauseWidget::NativeOnInitialized()
@@ -28,10 +30,20 @@ void UETPauseWidget::NativeOnInitialized()
 
 // ---- 状态呈现；无Tick / 属性Binding，也不修改世界 ----
 
+void UETPauseWidget::NativeDestruct()
+{
+    if (VideoSettingsPanel)
+    {
+        VideoSettingsPanel->CloseView();
+    }
+    Super::NativeDestruct();
+}
+
 void UETPauseWidget::ShowReady()
 {
     ApplyState(false, FText::FromString(TEXT("松开 P 或选择继续游戏返回。")));
 }
+
 
 void UETPauseWidget::ShowPending(const FText& Message)
 {
@@ -54,6 +66,10 @@ void UETPauseWidget::ApplyState(bool bPending, const FText& Message)
     if (InputSettingsPanel)
     {
         InputSettingsPanel->SetHostBusy(bBusy);
+    }
+    if (VideoSettingsPanel)
+    {
+        VideoSettingsPanel->SetHostBusy(bBusy);
     }
     if (HasRequiredLayout())
     {

@@ -9,6 +9,7 @@ class UButton;
 class UTextBlock;
 class UETRelicPanelWidget;
 class UETInputSettingsWidget;
+class UETVideoSettingsWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETPauseActionRequested);
 
@@ -37,6 +38,7 @@ public:
 protected:
     // 每个实例只在初始化绑定按钮；不在Construct重复注册业务。
     virtual void NativeOnInitialized() override;
+    virtual void NativeDestruct() override;
     virtual FReply NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
     virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry,
                                            const FPointerEvent& InMouseEvent) override;
@@ -66,6 +68,9 @@ private:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UETInputSettingsWidget> InputSettingsPanel;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UETVideoSettingsWidget> VideoSettingsPanel;
 
     // busy只保护本View请求中的输入，不代表世界暂停或角色死亡。
     bool bBusy = false;
