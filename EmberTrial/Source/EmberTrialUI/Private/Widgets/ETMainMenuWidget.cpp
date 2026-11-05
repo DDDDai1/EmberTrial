@@ -1,4 +1,5 @@
 #include "Widgets/ETMainMenuWidget.h"
+#include "Widgets/ETInputSettingsWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
@@ -11,7 +12,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogETMainMenuView, Log, All);
 bool UETMainMenuWidget::HasRequiredLayout() const
 {
     return IsValid(StartButton.Get()) && IsValid(ContinueButton.Get()) &&
-           IsValid(QuitButton.Get()) && IsValid(StatusText.Get());
+        IsValid(QuitButton.Get()) && IsValid(StatusText.Get()) && IsValid(InputSettingsPanel.Get());
 }
 
 void UETMainMenuWidget::NativeOnInitialized()
@@ -53,6 +54,10 @@ void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
 {
     // 先保存状态，即使布局不完整，后续意图也不能绕过pending。
     bBusy = bPending;
+    if (InputSettingsPanel)
+    {
+        InputSettingsPanel->SetHostBusy(bBusy);
+    }
     if (!HasRequiredLayout())
     {
         return;

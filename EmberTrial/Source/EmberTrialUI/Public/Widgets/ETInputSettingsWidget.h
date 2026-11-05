@@ -10,7 +10,7 @@ class UCheckBox;
 class USlider;
 class UTextBlock;
 
-/** 现有Pause中的输入设置卡；不拥有世界暂停 / 输入模式，不另建Flow。 */
+/** 主菜单 / Pause共用输入设置卡；不拥有世界暂停或输入模式。 */
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
 class EMBERTRIALUI_API UETInputSettingsWidget : public UUserWidget
 {

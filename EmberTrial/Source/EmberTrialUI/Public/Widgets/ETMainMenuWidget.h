@@ -6,6 +6,7 @@
 
 class UButton;
 class UTextBlock;
+class UETInputSettingsWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETMenuActionRequested);
 
@@ -62,6 +63,9 @@ private:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> StatusText;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UETInputSettingsWidget> InputSettingsPanel;
 
     // busy仅表示请求处理中，不等于世界暂停；Continue来自Session快照。
     bool bBusy = false;

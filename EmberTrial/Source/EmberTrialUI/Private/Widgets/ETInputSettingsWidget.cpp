@@ -48,7 +48,7 @@ void UETInputSettingsWidget::NativeConstruct()
     SensitivitySlider->SetMinValue(FETInputPreferences::MinSensitivity);
     SensitivitySlider->SetMaxValue(FETInputPreferences::MaxSensitivity);
     SensitivitySlider->SetStepSize(0.05f);
-    ReadCurrent(FText::FromString(TEXT("修改后选择应用；P继续会丢弃未应用的修改。")));
+    ReadCurrent(FText::FromString(TEXT("修改后选择应用；离开页面会丢弃未应用的修改。")));
 }
 
 void UETInputSettingsWidget::NativeDestruct()
@@ -184,7 +184,7 @@ void UETInputSettingsWidget::HandleApply()
     // 保存接口未来可能触发同步外部回调；已移除的View不再更新 / 抢焦点。
     if (bViewActive && HasLiveHost() && Settings.Get() == Current)
     {
-        ReadCurrent(FText::FromString(TEXT("已应用；继续游戏后使用新设置。")));
+        ReadCurrent(FText::FromString(TEXT("已应用；进入或继续游戏后使用新设置。")));
         FocusSlider();
     }
 }
