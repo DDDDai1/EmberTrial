@@ -336,13 +336,17 @@ B1实际一Success / 双Build / 只读查询与短查通过，人工38 / 等待3
 
 三新 / 两旧Core，仅一GraphicsPreferences纯规则专项；PIE拒绝、专用-game真实非分辨率应用 / 预览保护期间拒绝及同ini重启读取。无新Widget、临时Blueprint、全组或Cook。纯规则不能证明GPU帧率 / 原生窗口，SaveRequested不等于磁盘成功；实际CVar覆盖与未完成项如实记录。
 
+主体70 / 等待5，窄补验1；Graphics03已确认新进程0 / 30 / 0查询与正常退出，本章验收通过。不再要求恢复模板值或重复旧矩阵。
+
+## M3-05B4-02最小范围
+
+五新 / 四旧UI，新草稿专项一次；一新 / 两旧Widget三Valid、PIE禁用与短查。两轮专用-game验证真控件浏览 / 应用 / 默认草稿、键盘 / 自动滚动、Pause关闭丢弃、显示预览期间禁用且保留草稿、重启只读查询。外部快照变化由纯规则覆盖，不再搭临时蓝图 / 额外控制台矩阵；不重复Core专项、全39项或Cook。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B3-02原实现 / 三资产已在本地`01d00a0`。当前Stage实际修改的两个Widget补修源码、本章验收报告 / 指南、来源与共享状态，以及新B4-01指南。B4-01三新 / 两旧Core仍只有候选，不提前Stage；Artifacts运行日志、个人ini和候选留本地。
+B4-01五份Core实现已在本地`d20de4e`。当前Stage其验收报告 / 指南收尾、新B4-02指南与实际更新的共享状态文档；02五新 / 四旧UI及一新 / 两旧Widget尚未实施，不提前Stage候选、空报告或来源行。
 
-- 英文合并建议：`fix: initialize video settings after viewport readiness`
-- 专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`
-- 英文独立文档建议：`docs: verify video settings UI and prepare graphics preferences`
-- 专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`
+- 英文文档建议：`docs: verify graphics preferences and prepare shared graphics settings UI`
+- 专业中文：`docs: 完成画质偏好验收并准备共享画质设置界面`
 
-B4-01未来五源码与提交建议见新指南末尾。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+02未来源码 / 资产提交建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

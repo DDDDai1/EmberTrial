@@ -394,13 +394,15 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-05 B3-02首屏收尾：两个既有Widget源码已含有限重试 / 清理，双Build与用户全新进程专项反馈通过；独立日志未另存，报告不冒充实读。源资产SHA不变，来源82。当前Stage真实补修 / 收尾文档及B4-01新指南，后者五份Core候选尚未写入工程，不提前Stage；个人图形配置 / 日志仍留Artifacts。
 
+2026-11-05 B4-01主体核对：d20de4e已含三新 / 两旧Core，候选归一一致，217 / 123 / 38、资产 / 来源不变。双Build / 一Success、真实应用与预览拒绝通过；最后已保存0-30-0，第二轮缺少查询，保留唯一窄补验。当前仅提交报告 / 指南8.5 / 状态，不生成下一批候选或提交测试ini。
+
+2026-11-05 B4-01收尾：Graphics03证实全新-game读取0-30-0，唯一窄补验关闭，实际手动71 / 等待5；源码在d20de4e、资产 / 来源不变。当前仅Stage报告 / 指南收尾、B4-02新指南与共享状态；02五新 / 四旧UI和一新 / 两旧WBP尚未实施，不提前写正式源码、Stage候选或登记来源。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B3-02原实现 / 三资产已在本地`01d00a0`。当前Stage实际修改的两个Widget补修源码、本章验收报告 / 指南、来源与共享状态，以及新B4-01指南。B4-01三新 / 两旧Core仍只有候选，不提前Stage；Artifacts运行日志、个人ini和候选留本地。
+B4-01五份Core实现已在本地`d20de4e`。当前Stage其验收报告 / 指南收尾、新B4-02指南与实际更新的共享状态文档；02五新 / 四旧UI及一新 / 两旧Widget尚未实施，不提前Stage候选、空报告或来源行。
 
-- 英文合并建议：`fix: initialize video settings after viewport readiness`
-- 专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`
-- 英文独立文档建议：`docs: verify video settings UI and prepare graphics preferences`
-- 专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`
+- 英文文档建议：`docs: verify graphics preferences and prepare shared graphics settings UI`
+- 专业中文：`docs: 完成画质偏好验收并准备共享画质设置界面`
 
-B4-01未来五源码与提交建议见新指南末尾。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+02未来源码 / 资产提交建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

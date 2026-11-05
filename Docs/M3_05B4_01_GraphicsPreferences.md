@@ -1,6 +1,6 @@
 # M3-05B4-01：原生画质、帧率上限与垂直同步
 
-2026-11-05，UE **5.5.4**。[B3-02共享显示卡已验收](Reports/M3_05B3_02_Verification.md)，首屏问题按用户明确的全新进程反馈关闭，本次独立日志未另存。以下为下一批手动代码；正式工程尚未加入本章实现，未宣称编译或实机通过。
+2026-11-05，UE **5.5.4**。主体22:00、重启读取窄补验22:10完成，**本章验收通过，无待补**。[报告](Reports/M3_05B4_01_Verification.md)记录五源码 / 双Build / 一Success和Graphics03新进程读取0 / 30 / 0。下一章为[B4-02共享画质设置卡](M3_05B4_02_GraphicsSettingsUI.md)，以下保留已完成步骤供复查。
 
 ## 1. 本章做出的行为
 
@@ -17,7 +17,7 @@
 | 应用 | 仅本机独立Game World；PIE与视频预览保护期间拒绝，无排队补执行 |
 | 读取 | 引擎当前设置快照，不等同GPU实际帧率、画面质量或磁盘成功 |
 
-当前214 Source / 121cpp（Core83 / UI35 / Editor3）、37测试、301 Content / 来源82。本批三新 / 两旧Core后预计217 Source / 123cpp（Core85 / UI35 / Editor3）、38测试，资产 / 来源不变。预算代码45–70 / 阅读5–10 / 检查8–12分钟，构建等待另记；尚未实施不计实耗。
+实际217 Source / 123cpp（Core85 / UI35 / Editor3）、38测试、301 Content / 来源82。三新 / 两旧Core已在本地d20de4e，资产 / 共享Config未改；代码50 / 阅读10 / 检查10加窄补验1，共71分钟，等待5。M3累计1643 / 等待111；项目5054 / 明确等待435分钟。
 
 ## 2. 文件与开始前准备
 
@@ -402,7 +402,7 @@ Set-Location 'E:\UE_Project\Demo'
 $graphicsRuntime = 'E:\UE_Project\Demo\Artifacts\M3_05B4_01\Runtime'
 New-Item -ItemType Directory -Path $graphicsRuntime -Force | Out-Null
 $graphicsProfile = Join-Path $graphicsRuntime 'GraphicsUser.ini'
-$graphicsLog = Join-Path $graphicsRuntime 'Graphics02.log'
+$graphicsLog = Join-Path $graphicsRuntime 'Graphics01.log'
 $graphicsArgs = @(
     '"E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject"'
     '/Game/EmberTrial/Maps/L_ET_MainMenu'
@@ -425,12 +425,55 @@ Start-Process -FilePath 'D:\UE5\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe' -
 
 ### 8.3 显示预览期间拒绝
 
-在P显示卡选择实际目录中的另一窗口尺寸 → 预览。在倒计时还在时打开控制台执行`et.GraphicsSettings apply 0 30 0`，应ApplyAccepted=0；关闭控制台，点取消预览（若已超时恢复也可，只需日志能确认命令发生在保护期间）。查询应仍Quality1 / Cap60 / VSync0，不补执行被拒绝的设置。若来不及输入，保留结果，不为此反复整套重跑；可发消息由助手接手此单项。
+在P显示卡选择实际目录中的另一窗口尺寸 → 预览。在倒计时还在时打开控制台执行`et.GraphicsSettings apply 0 30 0`，应ApplyAccepted=0；关闭控制台，点取消预览（若已超时恢复也可，只需日志能确认命令发生在保护期间）。查询应保持预览开始前最后一次成功应用值（按原顺序是Quality1 / Cap60 / VSync0），不补执行被拒绝的设置。不要在预览前为了预填命令先按Enter，那会真实应用该命令。若来不及输入，保留结果，不为此反复整套重跑；可发消息由助手接手此单项。
 
 ### 8.4 重启读取与收尾
 
-1. 正常返回菜单并退出。把8.1脚本仅改日志名为Graphics02.log再启动，沿用同一GraphicsUser.ini；查询应读取Quality1 / Cap60 / VSync0。两份日志由助手读取，存在专用ini不等于已证明重启读取。
+1. 正常返回菜单并退出。脚本就是8.1的整段PowerShell，不是另存的.ps1文件。把其中日志名改为Graphics02.log再启动，沿用同一GraphicsUser.ini；执行`et.GraphicsSettings`，应读取**上次退出前最后一次成功应用的值**。若严格按前述顺序，是Quality1 / Cap60 / VSync0；若之后额外成功应用其他合法值，以该值为准。存在专用ini不等于已证明重启读取。
 2. 新进程进入试炼，P一种方式继续、移动与转向短查，正常返回菜单退出。个人测试配置留本批Artifacts；无需改共享Config、恢复所有机器原值或重存资产。本章未改B3原专用ini。
+
+### 8.5 重启读取窄补验（已完成，保留复查）
+
+**22:10结论：**Graphics03已确认22:09:51.724全新-game只读查询Valid1 / Quality0 / Cap30 / VSync0，无前置apply；正常退出22:10:01。用户额外手动1分钟，待补项关闭，下面无需重复执行。
+
+**为什么补：**Graphics01日志中21:56:25在预览开始前又成功应用Quality0 / Cap30 / VSync0；21:56:34预览期间的同值请求正确拒绝。最终GraphicsUser.ini十组画质都是0、FrameRateLimit=30、VSync=False，这属于合法已保存状态，不是预览中错误提交。Graphics02有正确-game / 同一ini启动和退出，但没有`et.GraphicsSettings`查询输出。只补重启读取，不改代码、不重Build或重做前面检查，也不强制把合法0 / 30 / 0改回1 / 60 / 0。
+
+1. 确保上一轮测试游戏已退出。将下列**整段**复制到PowerShell执行；沿用现有GraphicsUser.ini，只创建新的Graphics03.log。
+
+```powershell
+Set-Location 'E:\UE_Project\Demo'
+$graphicsRuntime = 'E:\UE_Project\Demo\Artifacts\M3_05B4_01\Runtime'
+$graphicsProfile = Join-Path $graphicsRuntime 'GraphicsUser.ini'
+$graphicsLog = Join-Path $graphicsRuntime 'Graphics03.log'
+$graphicsArgs = @(
+    '"E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject"'
+    '/Game/EmberTrial/Maps/L_ET_MainMenu'
+    '-game'
+    '-windowed'
+    '-ResX=1280'
+    '-ResY=720'
+    ('-GameUserSettingsINI="{0}"' -f $graphicsProfile)
+    ('-abslog="{0}"' -f $graphicsLog)
+)
+Start-Process -FilePath 'D:\UE5\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe' -ArgumentList $graphicsArgs -WindowStyle Normal
+```
+
+2. 新游戏主菜单出现后，按`~`打开**游戏控制台**，只输入下面这条查询并按Enter。不要在PowerShell或编辑器Output Log输入，也不要先执行apply。
+
+```text
+et.GraphicsSettings
+```
+
+3. 应输出`Valid=1 Quality=0 Cap=30.00 VSync=0`，有效CVar一般为EffectiveCap30 / EffectiveVSync0。若不同，保留实际输出并反馈，不先改值覆盖现场。助手读取长日志，你不用抄整行。
+4. 收起控制台，从主菜单正常退出；无需再进试炼或切分辨率。可反馈：
+
+```text
+M3-05B4-01 重启读取窄补验
+同一GraphicsUser.ini / Graphics03.log / 未先执行apply：
+全新-game查询Valid1 / Quality0 / Cap30 / VSync0（不符写实际）：
+正常退出：
+完成时分 / 额外手动用时：
+```
 
 ## 9. 完成后反馈
 
@@ -441,7 +484,7 @@ GraphicsPreferences一次 / PIE应用拒绝：
 独立窗口Quality0-Cap30 / 非法拒绝、窗口与输入隔离：
 暂停Quality1-Cap60-VSync1，随后保持画质关闭VSync：
 视频预览保护期间ApplyAccepted0、取消后无补执行：
-独立重启读取1-60-0 / 两轮日志 / 原P与移动短查：
+独立重启读取最后已保存值（本次0-30-0）/ 日志 / 原P与移动短查：
 Source已保存，资产 / 共享Config未改；失败或不理解处（无填无）：
 完成时分 / 手动代码 / 阅读 / 检查 / 构建启动等待：
 ```
@@ -450,12 +493,9 @@ Source已保存，资产 / 共享Config未改；失败或不理解处（无填�
 
 ## 10. Commit / Push（固定放在最后）
 
-### 10.1 当前B3-02收尾与新指南
+B4-01五份Core实现已在本地`d20de4e`。当前Stage其验收报告 / 指南收尾、新B4-02指南与实际更新的共享状态文档；02五新 / 四旧UI及一新 / 两旧Widget尚未实施，不提前Stage候选、空报告或来源行。
 
-Stage已实际完成的B3-02两个Widget补修源码、B3验收报告 / 指南 / 状态 / 来源，以及本指南。英文：`fix: initialize video settings after viewport readiness`；专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`。文档单独提交可用`docs: verify video settings UI and prepare graphics preferences`；专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`。
+- 英文文档建议：`docs: verify graphics preferences and prepare shared graphics settings UI`
+- 专业中文：`docs: 完成画质偏好验收并准备共享画质设置界面`
 
-### 10.2 本章手动实施完成后
-
-Stage第2节三新 / 两旧Core文件与本章实际验收文档。英文：`feat: add native graphics quality frame limit and VSync preferences`；专业中文：`feat: 新增原生画质帧率上限与垂直同步偏好设置`。当前候选尚未写入正式工程，不提前Stage不存在的源码或空报告。
-
-Artifacts候选 / Runtime / GraphicsUser.ini、Saved / Intermediate / Binaries、.idea与索引留本地；本章无新资产或共享Config修改。Stage后再改需重新Stage → Review → Commit / Push由用户操作。
+02未来源码 / 资产提交建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

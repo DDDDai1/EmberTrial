@@ -180,15 +180,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **B3-02已验收。** [共享显示卡](M3_05B3_02_VideoSettingsUI.md)复用主菜单 / Pause；View拥有草稿 / 返回Serial，Begin同步广播暂时抑制后认领，Core拥有真实时间和窗口副作用。宿主CloseView先解绑再取消，Pending亦取消。首次捕获失败会临时用CoreTicker有限重试，成功 / 超时 / 关页结束，无Widget Tick或世界Timer。用户全新进程专项反馈已通过，本轮独立日志未另存；原Never / DisableNativeTick与PIE保护保持。
 
-**B4-01仅指南 / 候选。** [非分辨率偏好](M3_05B4_01_GraphicsPreferences.md)继续由引擎同一GameUserSettings持有；纯规则只校验 / 解释值。计划单独设置十组画质以保留ResolutionQuality，PIE / 视频保护期间拒绝；ApplyNonResolutionSettings与显式Save不启动窗口预览。不新增服务、World引用、Tick或Timer；后续共享卡再拥有本页草稿，当前正式工程尚未实现。
+**B4-01已验收。** [非分辨率偏好](Reports/M3_05B4_01_Verification.md)由引擎同一GameUserSettings持有；独立设置十组画质保留ResolutionQuality，混合值-1保持当前组。PIE / 视频保护期间拒绝，ApplyNonResolutionSettings与显式Save不启动窗口预览。Graphics03证实最后合法0 / 30 / 0重启读取，无新服务或常驻轮询。
+
+**B4-02仅指南 / 候选。** [共用画质卡](M3_05B4_02_GraphicsSettingsUI.md)计划由纯草稿维护编辑、应用前重验Core公开快照；默认只填本卡1 / 60 / 0。新View订阅原视频服务的状态事件以禁用 / 恢复，不在倒计时中覆盖草稿；宿主关闭先解绑画质卡再取消视频，旧View不能确认。两个宿主第七绑定，右列滚动且焦点自动进入视野。无新设置服务 / Widget Tick / 世界Timer，正式实现与资产尚未创建。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B3-02原实现 / 三资产已在本地`01d00a0`。当前Stage实际修改的两个Widget补修源码、本章验收报告 / 指南、来源与共享状态，以及新B4-01指南。B4-01三新 / 两旧Core仍只有候选，不提前Stage；Artifacts运行日志、个人ini和候选留本地。
+B4-01五份Core实现已在本地`d20de4e`。当前Stage其验收报告 / 指南收尾、新B4-02指南与实际更新的共享状态文档；02五新 / 四旧UI及一新 / 两旧Widget尚未实施，不提前Stage候选、空报告或来源行。
 
-- 英文合并建议：`fix: initialize video settings after viewport readiness`
-- 专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`
-- 英文独立文档建议：`docs: verify video settings UI and prepare graphics preferences`
-- 专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`
+- 英文文档建议：`docs: verify graphics preferences and prepare shared graphics settings UI`
+- 专业中文：`docs: 完成画质偏好验收并准备共享画质设置界面`
 
-B4-01未来五源码与提交建议见新指南末尾。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+02未来源码 / 资产提交建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
