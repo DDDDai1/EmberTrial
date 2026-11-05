@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-11-04。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-05A1已验收](Reports/M3_05A1_Verification.md)，当前A2暂停输入卡 / 草稿确认待用户手动实施；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
+更新2026-11-05。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-05A2已验收](Reports/M3_05A2_Verification.md)，当前A3主菜单复用待用户手动实施；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
 
 ## 1. 本阶段交付
 
@@ -53,15 +53,15 @@ M1登记手动22h18不同于全项目设计 /理解总成本，不能将后续�
 
 [M2总报告](Reports/M2_Verification.md)、[07总报告](Reports/M2_07_Verification.md)与[C材料收尾](Reports/M2_07C_Verification.md)已保存，用户本轮要求继续下一章。A的23项与两进程包、B真实性能分析沿用，无新执行；C没有逐项理解答卷或实耗，不将继续开发当成独立面试能力认证。
 
-[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05A1输入偏好与本地保存](Reports/M3_05A1_Verification.md)已验收，当前[A2暂停输入卡](M3_05A2_InputSettingsUI.md)待手动实施。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
+[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05A2输入偏好与Pause卡](Reports/M3_05A2_Verification.md)已验收，当前[A3主菜单复用](M3_05A3_MainMenuInputSettings.md)待手动实施。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
 
-M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4416 / 明确等待392，M3实际1005 / 等待68分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
+M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4516 / 明确等待397，M3实际1105 / 等待73分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-A1三新Core / 旧Character.cpp / DefaultEngine.ini已在本地`9166313`，审查起点工作区干净。当前Stage A1验收报告 / 指南收尾、A2新指南与同步状态文档；A2正式Source / Widget尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+A2五新UI / 两旧Pause与两资产已在本地`df3a1cd`，审查起点工作区干净。当前Stage A2验收报告 / 指南收尾、来源清单、A3新指南与同步状态文档；A3正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify input preferences and prepare settings UI`
-- 中文译文：`docs: 完成输入偏好验收并准备设置界面`
+- 英文建议：`docs: verify pause input settings and prepare main menu reuse`
+- 中文译文：`docs: 完成暂停输入设置验收并准备主菜单复用`
 
 Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。

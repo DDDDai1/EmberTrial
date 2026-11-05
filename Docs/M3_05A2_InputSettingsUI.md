@@ -1,6 +1,6 @@
 # M3-05A2：暂停页输入设置与草稿确认
 
-2026-11-04，UE **5.5.4**。[A1输入偏好与本地保存已验收](Reports/M3_05A1_Verification.md)，无待补。本章提供手动实施指南；新正式Source / Widget尚未写入，没有本章Build或Success结论。
+2026-11-05收尾，UE **5.5.4**。**本章已验收通过，无待补。**[验收报告](Reports/M3_05A2_Verification.md)区分用户反馈时间与实际日志日期，记录双Build / 两Success、两Valid和键鼠闭环。当前进入[A3主菜单复用](M3_05A3_MainMenuInputSettings.md)，以下保留实施代码与Designer步骤供复查，不要求重做。
 
 ## 1. 本章体验与边界
 
@@ -17,7 +17,7 @@ P或祭坛E打开既有页面，左列原菜单下出现“输入设置”卡：
 
 `FETInputSettingsDraft`只保存值；View负责控件与确认、复用A1接口。原Pause向输入卡透传Flow已有busy，Flow源码不改，菜单 / 身体 / 暂停仍由它拥有。确认与焦点恢复还检查当前卡或其UserWidget祖先仍在Viewport，避免页面移除后的迟到输入；不把嵌套卡自身IsInViewport通常为False误判为未显示。无Tick、属性Binding、ASC观察、新Action或临时验收蓝图。主菜单单独打开设置的入口、显示 / 画质 / 分辨率确认回退、音量实际路由留后续批次；这不是完整M3设置菜单。
 
-预算：代码60–90分钟 / Designer20–35 / 阅读配置5–10 / 检查5–10；构建等待另记，可分两次完成。实际起点196 Source / 110cpp（Core78 / UI29 / Editor3）、33自动化、299 Content / 来源80；本批五新UI文件 / 两旧UI文件、一新Widget / 一旧Pause，完成后预计201 Source / 113cpp（Core78 / UI32 / Editor3）、34自动化、300 Content / 来源81，预计不计入当前实耗。
+实施前预算代码60–90 / Designer20–35 / 阅读配置5–10 / 检查5–10。实际代码60 / Designer30 / 阅读5 / 检查5，共100分钟、等待5；当前201 Source / 113cpp（Core78 / UI32 / Editor3）、34自动化、300 Content / 来源81。M3累计1105 / 等待73，项目4516 / 明确等待397。
 
 ## 2. 准备与准确路径
 
@@ -810,19 +810,9 @@ Tab左右键 / Space勾选 / Enter-Space按钮 / Esc仅取消 / P继续焦点：
 
 ## 11. Commit / Push（固定放在最后）
 
-**当前文档收尾**：A1实现在本地`9166313`，起点工作区干净。当前Stage A1验收报告 / 指南收尾与同步状态文档、本A2指南；正式A2 Source / 资产尚未实施。建议英文`docs: verify input preferences and prepare settings UI`；中文`docs: 完成输入偏好验收并准备设置界面`。
+A2五新UI / 两旧Pause与两资产已在本地`df3a1cd`，审查起点工作区干净。当前Stage A2验收报告 / 指南收尾、来源清单、A3新指南与同步状态文档；A3正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-**本章手动实施完成后**，在CLion查看最终差异并重新Stage：
+- 英文建议：`docs: verify pause input settings and prepare main menu reuse`
+- 中文译文：`docs: 完成暂停输入设置验收并准备主菜单复用`
 
-- 五新UI：第2节Draft头 / 实现、Widget头 / 实现和专项测试。
-- 两旧：原ETPauseWidget.h / .cpp五处修改；没有Core / Flow / Config / Build.cs改动。
-- 新`EmberTrial/Content/EmberTrial/ui/Settings/WBP_ETInputSettings.uasset`。
-- 旧`EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset`。
-- 实际更新的本指南、AssetManifest、Reports / Progress等共享文档；未生成的报告不要创建空文件。新资产来源等实施保存后登记，不提前填虚构SHA。
-- 不Stage个人GameUserSettings.ini / Saved / Intermediate / Binaries、.idea / CMake生成或Artifacts候选 / 日志 / 旧包。
-
-英文实现建议：`feat: add staged input settings to the pause menu`。
-
-专业中文：`feat: 为暂停菜单新增输入设置草稿与应用确认`。
-
-Stage后继续修改需重新Stage最新版本 → Review → Commit / Push。Git由用户操作，助手未提交或推送。
+Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。

@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-04，M0、M1、M2与清理已收尾，M3-01至04及05A1已验收，无待补。**[A1报告](Docs/Reports/M3_05A1_Verification.md)记录双Build / 两Success、自由镜头偏好与真实重启读取；[祭坛装备闭环](Docs/Reports/M3_04C2_Verification.md)仍按原事务、普通P只读。当前[A2暂停输入卡](Docs/M3_05A2_InputSettingsUI.md)准备草稿 / 应用 / 取消 / 输入默认与键盘，正式Source / 资产待用户手动实施。实际196 Source / 110cpp / 33测试 / 来源80，M3累计1005 / 等待68，项目4416 / 明确等待392；A1人工60 / 等待5。个人偏好不是试炼存档；完整6件 / 2槽、显示 / 音量、磁盘进度与最终美术后续，M3原70h / M8复盘保持，旧M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-05，M0、M1、M2与清理已收尾，M3-01至04及05A1 / A2已验收，无待补。**[A2报告](Docs/Reports/M3_05A2_Verification.md)记录双Build / 两Success、两Valid与真实草稿 / 键盘，明确区分反馈与日志日期；原祭坛事务与普通P只读保持。当前[A3主菜单复用](Docs/M3_05A3_MainMenuInputSettings.md)待手动，四旧UI / 两旧Widget、无新类 / 测试。实际201 Source / 113cpp / 34测试 / 来源81，M3累计1105 / 等待73，项目4516 / 明确等待397；A2人工100 / 等待5。个人偏好不是试炼存档；完整6件 / 2槽、显示 / 音量、磁盘进度与最终美术后续，M3原70h / M8复盘保持，旧M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,9 +868,9 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-A1三新Core / 旧Character.cpp / DefaultEngine.ini已在本地`9166313`，审查起点工作区干净。当前Stage A1验收报告 / 指南收尾、A2新指南与同步状态文档；A2正式Source / Widget尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+A2五新UI / 两旧Pause与两资产已在本地`df3a1cd`，审查起点工作区干净。当前Stage A2验收报告 / 指南收尾、来源清单、A3新指南与同步状态文档；A3正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify input preferences and prepare settings UI`
-- 中文译文：`docs: 完成输入偏好验收并准备设置界面`
+- 英文建议：`docs: verify pause input settings and prepare main menu reuse`
+- 中文译文：`docs: 完成暂停输入设置验收并准备主菜单复用`
 
 Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。

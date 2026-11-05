@@ -294,11 +294,17 @@ A1实际两Success / 双Build / 真实轴与完整重启读取已通过，人工
 
 五新UI / 两旧Pause，新卡与旧Pause装配；新InputDraft验证副本、应用候选 / 外部变更拒绝、默认 / 取消与Close，原InputPreferences各一次。无屏幕草稿不冒充真实UMG / 磁盘；实机5–10分钟只查关闭丢弃、应用实际手感、默认先草稿 / 取消恢复、Tab左右键 / Enter-Space / Esc与P、一处祭坛集成 / Stop新卡；最终默认1 / 不反转。无临时蓝图、A1完整重启、全34项 / 新Cook，未动Core事务不重跑全套遗物矩阵。
 
+A2实际两Success / 两Valid / 双Build与键鼠通过，人工100 / 等待5；现存证据11月4日晚与本次11月5日14:08反馈分别记载，不因日期重复测试。历史第五绑定错误在最终保存后关闭。
+
+## M3-05A3最小范围
+
+四旧UI / 两旧Widget，复用已验收草稿卡，不新增测试注册。只原InputDraft一次，5–10分钟真实菜单草稿不提交 / 应用后游戏生效、Pause同值、Tab / 方向键 / Enter-Space / Esc、Stop新卡与默认恢复。Controller / Core未改，不重跑None地图失败 / 死亡装卸矩阵、A1重启、全34项或新Cook；遇真实失败再据日志窄查。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-A1三新Core / 旧Character.cpp / DefaultEngine.ini已在本地`9166313`，审查起点工作区干净。当前Stage A1验收报告 / 指南收尾、A2新指南与同步状态文档；A2正式Source / Widget尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+A2五新UI / 两旧Pause与两资产已在本地`df3a1cd`，审查起点工作区干净。当前Stage A2验收报告 / 指南收尾、来源清单、A3新指南与同步状态文档；A3正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify input preferences and prepare settings UI`
-- 中文译文：`docs: 完成输入偏好验收并准备设置界面`
+- 英文建议：`docs: verify pause input settings and prepare main menu reuse`
+- 中文译文：`docs: 完成暂停输入设置验收并准备主菜单复用`
 
 Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。

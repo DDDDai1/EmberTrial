@@ -378,11 +378,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-04 A1收尾：本地9166313已含三新Core / 旧Character.cpp / 单Engine配置键；四Source与候选一致，工作区起点干净。双Build / 两Success与重启读取已验收，80条来源SHA保持，本轮不重存资产 / 不改清单。当前Stage A1收尾、A2指南与状态；未来A2五新UI / 两旧Pause、一新Widget与旧Pause按指南末尾实施建议提交。个人GameUserSettings.ini保持本地，日志Ini逻辑名不当成物理路径；助手未操作索引或远端。
 
+2026-11-05 A2收尾：df3a1cd已含五新UI / 两旧Pause与两资产，七源码与候选一致、工作区起点干净；输入卡新增来源、Pause更新SHA / LFS，来源81。用户反馈14:08与11月4日晚实物 / 日志分别记载。当前仅提交A2收尾与A3指南 / 状态，A3未来四旧UI / 两旧Widget按指南实施；没有新增类 / 测试或强制重存Pause，个人设置仍留本地。助手未操作索引或核验远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-A1三新Core / 旧Character.cpp / DefaultEngine.ini已在本地`9166313`，审查起点工作区干净。当前Stage A1验收报告 / 指南收尾、A2新指南与同步状态文档；A2正式Source / Widget尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+A2五新UI / 两旧Pause与两资产已在本地`df3a1cd`，审查起点工作区干净。当前Stage A2验收报告 / 指南收尾、来源清单、A3新指南与同步状态文档；A3正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
 
-- 英文建议：`docs: verify input preferences and prepare settings UI`
-- 中文译文：`docs: 完成输入偏好验收并准备设置界面`
+- 英文建议：`docs: verify pause input settings and prepare main menu reuse`
+- 中文译文：`docs: 完成暂停输入设置验收并准备主菜单复用`
 
 Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。
