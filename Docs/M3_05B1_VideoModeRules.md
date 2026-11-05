@@ -1,6 +1,6 @@
 # M3-05B1：视频模式值契约与原生快照
 
-2026-11-05，UE **5.5.4**。[A3已验收](Reports/M3_05A3_Verification.md)，无待补。本章是手动实施指南，正式Source尚未修改，无本章Build / Success结论。
+2026-11-05，UE **5.5.4**。**本章已验收，无待补。**[报告](Reports/M3_05B1_Verification.md)记录双Build / 一Success与真实只读查询；进入[B2-01视频预览事务](M3_05B2_01_VideoPreviewTransaction.md)。以下保留手动实施内容供复查，不要求重做。
 
 ## 1. 本章交付与分批
 
@@ -10,7 +10,7 @@
 
 `et.VideoMode`只读观察原生设置，不切屏、不修改 / 保存个人配置。Requested / Confirmed可为0，此时记录Valid=0，不悄悄补默认或把它当正在显示的真实像素。当前个人输入设置、页面与试炼业务保持。
 
-预计代码25–40 / 阅读5–10 / 检查3–5分钟，构建等待另计。实际201 Source / 113cpp（Core78 / UI32 / Editor3）、34测试、300 Content / 来源81；完成后预计204 Source / 115cpp（Core80 / UI32 / Editor3）、35测试，资产数量保持。预计不计实耗。
+实施前预计代码25–40 / 阅读5–10 / 检查3–5；实际代码30 / 阅读5 / 检查3，共38分钟、等待3。现204 Source / 115cpp（Core80 / UI32 / Editor3）、35测试、300 Content / 来源81；M3累计1198 / 等待78，项目4609 / 明确等待402。
 
 ## 2. 文件与准备
 
@@ -331,12 +331,9 @@ et.VideoMode已输出（0 / Valid0如实保留，长日志由助手读取）：
 
 ## 8. Commit / Push（固定放在最后）
 
-**当前文档收尾**：A3实现在本地`63ff171`，当前Stage A3验收 / 指南收尾、两资产来源更新、状态与本B1指南；B1正式源码尚未实施，候选 / 日志不Stage。英文`docs: verify main menu settings and prepare video mode rules`；中文`docs: 完成主菜单设置验收并准备视频模式规则`。
+B1三份新Core源码已在本地`caf1eec`，审查起点工作区干净。当前Stage B1验收报告 / 指南收尾、B2-01新指南与同步状态文档；01正式Source尚未实施，不Stage忽略Artifacts里的候选。未变化源码 / 资产不重复Stage。
 
-**本章实施后**，CLion检查第2节三份新Core源码与实际修改的本指南 / Reports / Progress等文档；本章不改既有Source、Config、Build.cs或Content，不强制重存资产。未生成报告不创建空文件；个人ini / Saved / Intermediate / Binaries / .idea / CMake生成 / Artifacts留本地。
+- 英文建议：`docs: verify video modes and prepare preview transactions`
+- 中文译文：`docs: 完成视频模式验收并准备预览事务`
 
-英文实现建议：`feat: add video mode snapshots and candidate validation`。
-
-专业中文：`feat: 新增视频模式快照与候选配置校验`。
-
-Stage后又修改需重新Stage最新版本 → Review → Commit / Push由用户操作。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

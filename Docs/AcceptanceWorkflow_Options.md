@@ -306,11 +306,17 @@ A3实际一Success / 两Valid / 双Build与菜单 / 游戏实际切换通过，�
 
 三新Core普通文件。新VideoModeRules一次覆盖目录 / 模式 / 正规化与引擎请求 / 确认分离；独立对象不Apply / Save。实机只明确查询et.VideoMode，0 / Valid0如实保留，不与Viewport画面等同；原P与移动3–5分钟。无新UI、切屏、临时蓝图、全35项 / 新Cook。真实应用 / 暂停下确认回退另由B2验证。
 
+B1实际一Success / 双Build / 只读查询与短查通过，人工38 / 等待3；原81条来源SHA保持，无新资产。请求 / 确认2048×1152与桌面2560×1440分开，不伪报实际Viewport或切屏。
+
+## M3-05B2-01最小范围
+
+三新Core事务内核，只新VideoPreviewTransaction一次，覆盖观察 / 期限 / Serial、确认 / 恢复、失败重试与非法时间；夹具用精确半秒 / 四分之一秒避免十进制边界误差。无World / 显示I/O，不冒充暂停下原生计时 / 实际切屏。实机仅原P / 移动3–5分钟，无临时蓝图、全36项 / 重复旧矩阵 / 新Cook；真实窗口接入归02。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-A3四旧UI文件与两资产已在本地`63ff171`，审查起点工作区干净。当前Stage A3验收报告 / 指南收尾、两资产来源更新、B1新指南与同步状态文档；B1正式Source尚未实施，不Stage忽略Artifacts里的候选。提交范围以本地实际差异为准，不重复Stage未变化源码 / 资产。
+B1三份新Core源码已在本地`caf1eec`，审查起点工作区干净。当前Stage B1验收报告 / 指南收尾、B2-01新指南与同步状态文档；01正式Source尚未实施，不Stage忽略Artifacts里的候选。未变化源码 / 资产不重复Stage。
 
-- 英文建议：`docs: verify main menu settings and prepare video mode rules`
-- 中文译文：`docs: 完成主菜单设置验收并准备视频模式规则`
+- 英文建议：`docs: verify video modes and prepare preview transactions`
+- 中文译文：`docs: 完成视频模式验收并准备预览事务`
 
 Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

@@ -162,7 +162,7 @@ M2历史23项自动化（含新增SpawnPlacement生成前贴地 / 回退）覆�
 
 C1的FETRelicAltarAccess不可复制，持有弱World / Controller / 身体 / 来源 / 会话身份。C2已由单Flow在未暂停时创建、取得暂停并成功呈现后发放；弱View委托携带身份，最终接收端重验当前页 / IsInViewport / 暂停归属与Core实时资格。Presenter只提交槽 / 稳定ID / 观察版本，沿同一事务完成；无搜索结果仍能卸装，普通P只读。移除时先Close / Reset Access和命令，再清View；旧观察结果 / 执行中解绑有代际与强局部保活保护，不用短暂解暂停换取写入权限。公开UI委托使用Core类型，EmberTrial是UI公开依赖，Core无UI反向依赖。
 
-M3当前34项含原M2的23项、遗物9项与输入偏好 / 草稿2项；C2只执行Presenter / RelicAltar / EquipmentTransactions三项，无屏幕夹具、用户真实键鼠、资产Valid和真实Retry日志分开记录。[C2报告](Reports/M3_04C2_Verification.md)已关闭，独立包仍M2_07A/Attempt01，不代表M3已打包。
+M3当前35项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规则3项；C2只执行Presenter / RelicAltar / EquipmentTransactions三项，无屏幕夹具、用户真实键鼠、资产Valid和真实Retry日志分开记录。[C2报告](Reports/M3_04C2_Verification.md)已关闭，独立包仍M2_07A/Attempt01，不代表M3已打包。
 
 **输入偏好已落地。** [A1](Reports/M3_05A1_Verification.md)由引擎持有的UETGameUserSettings保存合法个人偏好，Character原Look消费一次；默认1 / 不反转、运行拒绝非法值、重启持久化已验证。个人ini与GI配装 / 试炼资源分开，锁定相机继续拥有构图 / 跟随。SaveSettings只在明确确认调用，逻辑配置名与实际Saved物理路径分开记录；没有每帧读写ini。
 
@@ -170,13 +170,15 @@ M3当前34项含原M2的23项、遗物9项与输入偏好 / 草稿2项；C2只�
 
 **A3已验收。** [主菜单](Reports/M3_05A3_Verification.md)加入第五输入卡绑定与Pending透传，复用同一WBP与通用文案；Controller / Session仍拥有切图 / 初始焦点。卡片无需Pawn / ASC，未应用离开不提交，应用后游戏与Pause同值；无新增类 / 测试。
 
-**B1待实施。** [视频模式规则](M3_05B1_VideoModeRules.md)将以普通Core值对象区分请求 / 上次确认 / 桌面状态；候选依赖平台目录，无边框正规化到桌面，失败清空。当前仅三新候选 / 指南，不切屏 / 保存。实际Viewport基线、应用 / 确认及暂停下回退由后续事务负责，不能把原生请求值当实际显示结果。
+**B1已验收。** [视频模式规则](Reports/M3_05B1_Verification.md)以普通Core值对象分开请求 / 上次确认 / 桌面状态，候选依赖调用方平台目录，无边框正规化到桌面，失败清空。三源码 / 双Build / 专项与只读查询通过；原生配置2048×1152 / 无边框不冒充实际Viewport，未切屏 / 保存。
+
+**B2-01待实施。** [预览事务内核](M3_05B2_01_VideoPreviewTransaction.md)只处理纯值、单调绝对时间与命令意图；实际候选观察后才确认，过期 / 取消 / 外部变化恢复基线，失败显式保留，Serial隔离旧页。所有状态调用由同一宿主顺序执行；02接平台窗口 / 实时时钟 / 生命周期并执行命令，不能把CommitCandidate许可当已落盘。三新文件仅候选 / 指南，正式Source未改，真实显示与B3界面仍后续。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-A3四旧UI文件与两资产已在本地`63ff171`，审查起点工作区干净。当前Stage A3验收报告 / 指南收尾、两资产来源更新、B1新指南与同步状态文档；B1正式Source尚未实施，不Stage忽略Artifacts里的候选。提交范围以本地实际差异为准，不重复Stage未变化源码 / 资产。
+B1三份新Core源码已在本地`caf1eec`，审查起点工作区干净。当前Stage B1验收报告 / 指南收尾、B2-01新指南与同步状态文档；01正式Source尚未实施，不Stage忽略Artifacts里的候选。未变化源码 / 资产不重复Stage。
 
-- 英文建议：`docs: verify main menu settings and prepare video mode rules`
-- 中文译文：`docs: 完成主菜单设置验收并准备视频模式规则`
+- 英文建议：`docs: verify video modes and prepare preview transactions`
+- 中文译文：`docs: 完成视频模式验收并准备预览事务`
 
 Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

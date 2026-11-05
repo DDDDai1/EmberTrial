@@ -382,11 +382,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-05 A3收尾：本地63ff171已含四旧UI与两旧Widget，源码候选一致；来源两行更新SHA / LFS，规模201 / 113 / 34、来源81保持。双Build / 一Success / 两Valid与双宿主实机已验收。当前仅Stage A3收尾与B1指南 / 状态；未来B1三新Core按指南实施，不提前建空报告 / Stage候选，个人设置留本地。
 
+2026-11-05 B1收尾：本地caf1eec已有三新Core，源码与候选一致，规模204 / 115 / 35、来源81不变；双Build / 一Success / 只读查询与短查通过。当前Stage B1收尾、B2-01指南 / 状态，01三新Core尚未写入正式工程，不提前Stage候选 / 空报告；资产 / Config未改，不强制重存。Git由用户操作。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-A3四旧UI文件与两资产已在本地`63ff171`，审查起点工作区干净。当前Stage A3验收报告 / 指南收尾、两资产来源更新、B1新指南与同步状态文档；B1正式Source尚未实施，不Stage忽略Artifacts里的候选。提交范围以本地实际差异为准，不重复Stage未变化源码 / 资产。
+B1三份新Core源码已在本地`caf1eec`，审查起点工作区干净。当前Stage B1验收报告 / 指南收尾、B2-01新指南与同步状态文档；01正式Source尚未实施，不Stage忽略Artifacts里的候选。未变化源码 / 资产不重复Stage。
 
-- 英文建议：`docs: verify main menu settings and prepare video mode rules`
-- 中文译文：`docs: 完成主菜单设置验收并准备视频模式规则`
+- 英文建议：`docs: verify video modes and prepare preview transactions`
+- 中文译文：`docs: 完成视频模式验收并准备预览事务`
 
 Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

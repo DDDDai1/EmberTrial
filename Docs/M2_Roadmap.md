@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-11-05。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-05A3已验收](Reports/M3_05A3_Verification.md)，当前B1视频模式规则待用户手动实施；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
+更新2026-11-05。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-05B1已验收](Reports/M3_05B1_Verification.md)，当前B2-01预览事务待用户手动实施；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
 
 ## 1. 本阶段交付
 
@@ -53,15 +53,15 @@ M1登记手动22h18不同于全项目设计 /理解总成本，不能将后续�
 
 [M2总报告](Reports/M2_Verification.md)、[07总报告](Reports/M2_07_Verification.md)与[C材料收尾](Reports/M2_07C_Verification.md)已保存，用户本轮要求继续下一章。A的23项与两进程包、B真实性能分析沿用，无新执行；C没有逐项理解答卷或实耗，不将继续开发当成独立面试能力认证。
 
-[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05A3双宿主输入卡](Reports/M3_05A3_Verification.md)已验收，当前[B1视频模式规则](M3_05B1_VideoModeRules.md)待手动实施。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
+[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05B1视频模式规则](Reports/M3_05B1_Verification.md)已验收，当前[B2-01预览事务](M3_05B2_01_VideoPreviewTransaction.md)待手动实施。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
 
-M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4571 / 明确等待399，M3实际1160 / 等待75分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
+M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4609 / 明确等待402，M3实际1198 / 等待78分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-A3四旧UI文件与两资产已在本地`63ff171`，审查起点工作区干净。当前Stage A3验收报告 / 指南收尾、两资产来源更新、B1新指南与同步状态文档；B1正式Source尚未实施，不Stage忽略Artifacts里的候选。提交范围以本地实际差异为准，不重复Stage未变化源码 / 资产。
+B1三份新Core源码已在本地`caf1eec`，审查起点工作区干净。当前Stage B1验收报告 / 指南收尾、B2-01新指南与同步状态文档；01正式Source尚未实施，不Stage忽略Artifacts里的候选。未变化源码 / 资产不重复Stage。
 
-- 英文建议：`docs: verify main menu settings and prepare video mode rules`
-- 中文译文：`docs: 完成主菜单设置验收并准备视频模式规则`
+- 英文建议：`docs: verify video modes and prepare preview transactions`
+- 中文译文：`docs: 完成视频模式验收并准备预览事务`
 
 Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。
