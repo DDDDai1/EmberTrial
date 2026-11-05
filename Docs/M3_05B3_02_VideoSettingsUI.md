@@ -1,6 +1,6 @@
 # M3-05B3-02：共享显示设置卡与确认回退
 
-2026-11-05，UE **5.5.4**。[B3-01已验收](Reports/M3_05B3_01_Verification.md)，无待补。以下为手动实施步骤；正式源码 / 资产尚未修改，没有本章Build或实机成功结论。
+2026-11-05，UE **5.5.4**。主体21:09、首屏窄补修21:29完成，**本章验收通过，无待补**。[本章报告](Reports/M3_05B3_02_Verification.md)区分已有日志与用户实机反馈；本轮独立日志未另存。下一章为[B4-01原生画质与帧率偏好](M3_05B4_01_GraphicsPreferences.md)。以下代码 / 历史检查保留供复查，8.8已实施，不必重复操作。
 
 ## 1. 本章体验与所有权
 
@@ -16,9 +16,9 @@
 | P继续 / 切图 / 关闭页面 | 宿主立即CloseView：先解绑、再取消自己的Serial，不把未确认候选自动保存 |
 | PIE | 显示独立游戏提示，调整控件禁用；编辑器窗口不切屏 |
 
-Core继续拥有事务、平台时钟与窗口副作用。新View订阅服务的状态 / 整秒事件，无Tick、属性Binding、World Timer或输入Action。Begin同步广播发生在Serial返回前，因此View暂时忽略这一段回调，返回后认领Serial并读取当前快照；旧页不得拿全局最新Serial确认别人的预览。
+Core继续拥有事务、平台时钟与窗口副作用。新View订阅服务的状态 / 整秒事件，无Widget Tick、属性Binding、World Timer或输入Action；首屏捕获失败才临时运行8.8的有限CoreTicker。Begin同步广播发生在Serial返回前，因此View暂时忽略这一段回调，返回后认领Serial并读取当前快照；旧页不得拿全局最新Serial确认别人的预览。
 
-实际212 Source / 120cpp（Core83 / UI34 / Editor3）、37测试、300 Content / 来源81。两新 / 四旧UI后预计214 Source / 121cpp（Core83 / UI35 / Editor3），测试37；新WBP实物保存后Content预计301、来源预计82，未创建前不先登记。
+实际214 Source / 121cpp（Core83 / UI35 / Editor3）、37测试、301 Content / 来源82。新WBP已保存，两旧宿主已装配，三资产均已有项目Valid；来源记录保留首次显示卡问题未关闭的边界。
 
 预算代码90–130 / Designer30–45 / 阅读5–10 / 检查10–15分钟；可分代码与资产两次完成。最终美术排版仍在后期，本批保证中文、操作层次与小窗口可用。
 
@@ -947,7 +947,7 @@ Start-Process -FilePath 'D:\UE5\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe' -
 
 **发现两处待处理的界面问题：**在本次主菜单窗口中，标题右侧与输入设置卡的文字区域发生重叠；模式 / 分辨率下拉列表的未选项为深色文字叠深色背景，可读性不足。已测试的窗口回退链路正常，但这两处布局 / 样式以及上表未覆盖项目尚不能标为整章通过。
 
-### 8.7 两处界面问题的手动修复（待用户执行）
+### 8.7 两处界面问题的修复方案与实际记录
 
 以下保留修复方案。助手检查发现标题和两个下拉框的目标属性已设置；视频设置控件原先未保存，现已编译并保存，主菜单也已编译通过。视觉窄复验见8.7.3；首次启动显示卡不可用是另行发现的待排查问题，不能因此宣称本章已全部通过。保留第8.6节原始测试记录。
 
@@ -999,6 +999,8 @@ Start-Process -FilePath 'D:\UE5\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe' -
 
 **新增待排查：**本次独立进程首次进入主菜单时，显示卡显示“当前显示状态不可用 / 请在独立游戏窗口中调整显示设置”，选项禁用；进入试炼打开Pause后恢复，返回主菜单亦恢复，未等待验证首次页面是否自行恢复。日志命令行确有`-game`，因此不能简单归因于PIE。初步需要检查首次构造时窗口 / Viewport实际尺寸及`Capture`失败原因；当前尚无足够证据断定根因，也未修改源码。此问题修复及重启复验完成前，本章保持未验收。
 
+**21:09完成反馈后的证据补充：**已从19:12的Editor备份日志核对三资产项目Valid与两专项Success；完整键盘导航和恢复输入由用户确认通过，不再列为待用户重复操作。两处视觉主体检查通过，悬停态仍未单独覆盖；唯一阻止本章收尾的问题是上述首屏初始化，按8.8补修。此前“未执行Validate / 未覆盖键盘”的记载仅代表助手当时操作范围，不覆盖本次新增证据。
+
 1. 对修改过的**WBP_ETMainMenu、WBP_ETVideoSettings**分别Compile → Save → Validate Assets，应有本项目Valid。再对**WBP_PauseMenu**Compile / Validate，确认嵌套卡仍正常；只有它实际变为未保存时才Save，不为本次修复重新制作或改名Pause实例。
 2. 用第8.3节的独立-game脚本启动，**仅将日志文件名VideoUI01.log改为VideoUI02.log**，保留同一个Artifacts专用个人ini。两处均是Designer修改，无需再跑C++ Build、两个专项、全回归或Cook。
 3. 主菜单先看实际初始窗口：标题完整、不覆盖输入设置卡。展开ModeCombo，观察普通行、鼠标悬停行和选中行都能辨认；按Esc收起。展开ResolutionCombo同样检查。折叠后的当前值仍应清楚，不能变成白底白字。
@@ -1015,6 +1017,157 @@ Text_Title字号32 / Fill / Auto Wrap / Wrap480；两窗口尺寸下无重叠：
 Pause共享样式正常；Compile-Save / 本项目Valid：
 本次实际修改的资产名称 / 失败或特别说明（无填无）：
 完成时分 / 额外手动用时：
+```
+
+### 8.8 首次显示卡不可用的最小补修（已完成，保留复查）
+
+**依据与范围。**助手在21:05启动的真实`-game`进程首次主菜单观察到不可用，进入试炼的Pause及返回菜单后恢复。现有NativeConstruct只读一次，失败关闭Draft；Idle服务没有持续事件，窗口稍后就绪也不会自动重读。这解释了为何存在卡住的路径，但当时没有记录具体哪个Capture条件失败，不能断言一定是尺寸为0。补修只在独立游戏初次捕获失败时有限重试，成功 / 超时 / 页面关闭即停止，不开放PIE权限、不使用请求尺寸冒充实际值。
+
+普通C++继续由你手动输入。只改下列既有两文件，保留原八绑定、全部业务函数和既有资源；不新增蓝图事件、变量、资产或测试文件。头文件仍为UI模块的`Public/Widgets/ETVideoSettingsWidget.h`，实现为`Private/Widgets/ETVideoSettingsWidget.cpp`。
+
+#### 8.8.1 头文件三处增量
+
+1. 在`#include "Blueprint/UserWidget.h"`后加下面include；generated.h仍为最后一条include：
+
+```cpp
+#include "Containers/Ticker.h"
+```
+
+2. 在private区`void ReadCurrent(const FText& Message);`之后增加：
+
+```cpp
+    // 初次捕获失败才启动，避免窗口尚未就绪让首屏永久禁用。
+    void StartInitialCaptureRetry();
+    void StopInitialCaptureRetry();
+    bool TickInitialCapture(float DeltaSeconds);
+```
+
+3. 在private区原`FDelegateHandle PreviewChangedHandle;`之后增加：
+
+```cpp
+    FTSTicker::FDelegateHandle InitialCaptureTickerHandle;
+    double InitialCaptureDeadlineSeconds = 0.0;
+    bool bInsideInitialCaptureTick = false;
+```
+
+#### 8.8.2 实现文件三处接入
+
+1. include区增加以下两行，不重复已有include：
+
+```cpp
+#include "Engine/World.h"
+#include "HAL/PlatformTime.h"
+```
+
+2. 在文件顶部既有`namespace ETVideoViewPrivate {`中、`FString ModeLabel`之前增加命名常量：
+
+```cpp
+constexpr float InitialCaptureRetryInterval = 0.1f;
+constexpr double InitialCaptureTimeoutSeconds = 3.0;
+```
+
+3. `NativeConstruct`末尾原`ReadCurrent(...)`保留，**紧接其后**增加`StartInitialCaptureRetry();`。`CloseView`开头原`bViewActive = false;`保留，紧接其后增加`StopInitialCaptureRetry();`。宿主原CloseView调用与NativeDestruct清理保持。
+
+#### 8.8.3 增加三个完整函数
+
+放在`ReadCurrent`函数结束之后、`HandleSnapshot`之前。原ReadCurrent不替换；启动时首次失败的提示会在有限重试成功后被真实快照替换。
+
+```cpp
+void UETVideoSettingsWidget::StartInitialCaptureRetry()
+{
+    StopInitialCaptureRetry();
+
+    const UWorld* World = GetWorld();
+    if (Draft.IsOpen() || !bViewActive || !Service.IsValid() || GIsEditor ||
+        !World || World->WorldType != EWorldType::Game ||
+        World->GetNetMode() != NM_Standalone)
+    {
+        return;
+    }
+
+    InitialCaptureDeadlineSeconds = FPlatformTime::Seconds() +
+        ETVideoViewPrivate::InitialCaptureTimeoutSeconds;
+    InitialCaptureTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+        FTickerDelegate::CreateUObject(this, &ThisClass::TickInitialCapture),
+        ETVideoViewPrivate::InitialCaptureRetryInterval);
+
+    Feedback = FText::FromString(TEXT("显示状态暂不可用，正在重试。"));
+    Render();
+    UE_LOG(LogETVideoSettingsView, Display,
+        TEXT("[M3-05B3-02] Initial capture deferred Widget=%s"), *GetName());
+}
+
+void UETVideoSettingsWidget::StopInitialCaptureRetry()
+{
+    if (InitialCaptureTickerHandle.IsValid() && !bInsideInitialCaptureTick)
+    {
+        FTSTicker::RemoveTicker(InitialCaptureTickerHandle);
+    }
+    InitialCaptureTickerHandle.Reset();
+    InitialCaptureDeadlineSeconds = 0.0;
+}
+
+bool UETVideoSettingsWidget::TickInitialCapture(float)
+{
+    const TGuardValue<bool> InCallback(bInsideInitialCaptureTick, true);
+
+    // 当前回调返回false自行退出；关闭页面时不会留下旧View观察。
+    if (!bViewActive || !Service.IsValid() || !HasLiveHost())
+    {
+        StopInitialCaptureRetry();
+        return false;
+    }
+    if (Draft.IsOpen())
+    {
+        StopInitialCaptureRetry();
+        return false; // 其他状态事件已完成捕获，不覆盖用户草稿。
+    }
+
+    ReadCurrent(ETVideoViewPrivate::ResultText(EETVideoPreviewResult::None));
+    if (!bViewActive)
+    {
+        StopInitialCaptureRetry();
+        return false;
+    }
+    if (Draft.IsOpen())
+    {
+        StopInitialCaptureRetry();
+        UE_LOG(LogETVideoSettingsView, Display,
+            TEXT("[M3-05B3-02] Initial capture ready Widget=%s"), *GetName());
+        return false;
+    }
+    if (FPlatformTime::Seconds() >= InitialCaptureDeadlineSeconds)
+    {
+        StopInitialCaptureRetry();
+        Feedback = FText::FromString(TEXT("显示状态读取失败，请重开游戏后重试。"));
+        Render();
+        UE_LOG(LogETVideoSettingsView, Warning,
+            TEXT("[M3-05B3-02] Initial capture timed out Widget=%s"), *GetName());
+        return false;
+    }
+    return true;
+}
+```
+
+CoreTicker只在失败窗口临时运行，不受世界暂停影响；不是Widget Tick，原Never与DisableNativeTick保留。3秒为重试上限而非固定等待，捕获成功立即结束。弱UObject委托与CloseView精确清理，回调内部返回false退出；PIE不注册这个重试。若超时，应继续定位Capture / 窗口环境，不能加无限重试或移除IsStandaloneContext。
+
+**21:29收尾结果：**两文件已实现，双Build / 索引通过；用户明确全新-game首次主菜单自行就绪、无Timed out，草稿等待5秒未被覆盖，Pause / 返回菜单 / 正常退出通过。本轮独立日志未另存，不能声称已读到Deferred→Ready；本项按专项反馈关闭。下列复验清单仅供复查，不要求重跑。
+
+#### 8.8.4 构建与一次窄复验
+
+1. 保存并关闭所有UE进程，按原第6节完成Editor Build / 索引 / Game Build。无反射属性、资产或绑定变化，不要求重做Designer或重存三资产；此前三Valid与两专项Success沿用，不重复全37项或Cook。
+2. 第8.3节脚本只将日志名改为`VideoUI03.log`，使用原专用ini。必须是**全新进程首次主菜单**，不先进入试炼；卡应自动出现实际尺寸和可用选项。若触发重试，日志应先Deferred后Ready且无Timed out；若首次直接成功，允许两条重试日志都没有。
+3. 首屏展开两列表，选择一个不同尺寸但先不预览；等5秒草稿应保留，取消修改回实际值，证明重试已停止且不会覆盖操作。无需重跑确认 / 超时 / 全屏矩阵。
+4. 开始试炼 → P → 正常继续 → 再P返回菜单，显示卡仍正常；退出。助手读取03日志，若仍超时或不可用保留现场，不将本章记全部通过。
+
+```text
+M3-05B3-02 首屏窄补修
+两文件增量 / 双Build / 索引：
+全新-game首次主菜单自行就绪、无须先进试炼：
+Deferred→Ready或首次直接成功 / 无Timed out（日志由助手读取）：
+草稿等待5秒未被覆盖 / Pause与返回菜单正常：
+最终专用配置保持、正常退出；失败或特别说明：
+完成时分 / 额外手动用时 / 构建等待：
 ```
 
 ## 9. 定位与生命周期说明
@@ -1046,36 +1199,11 @@ P暂停实时时限 / P与鼠标关闭取消 / 重开新View：
 
 ## 11. Commit / Push（固定放在最后）
 
-### 11.1 当前收尾文档
+B3-02原实现 / 三资产已在本地`01d00a0`。当前Stage实际修改的两个Widget补修源码、本章验收报告 / 指南、来源与共享状态，以及新B4-01指南。B4-01三新 / 两旧Core仍只有候选，不提前Stage；Artifacts运行日志、个人ini和候选留本地。
 
-B3-01源码已在本地`3682aa6`。当前Stage 01验收报告 / 指南收尾、本指南与实际变化的Progress / Backlog / M3及M2 Roadmap / Architecture / AcceptanceWorkflow_Options / VersionControl / Introduction / README。02源码和资产尚未实施，不Stage忽略候选或空报告。
+- 英文合并建议：`fix: initialize video settings after viewport readiness`
+- 专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`
+- 英文独立文档建议：`docs: verify video settings UI and prepare graphics preferences`
+- 专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`
 
-英文：`docs: verify display settings draft and prepare shared video settings UI`。
-
-专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`。
-
-### 11.2 本章实施后的源码与资产
-
-第2节两新 / 四旧UI文件，加以下三个实际保存的资产：
-
-```text
-EmberTrial/Content/EmberTrial/ui/Settings/WBP_ETVideoSettings.uasset  新
-EmberTrial/Content/EmberTrial/ui/Menu/WBP_ETMainMenu.uasset          旧
-EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset           旧
-```
-
-英文：`feat: add shared display settings UI with preview confirmation and rollback`。
-
-专业中文：`feat: 新增共享显示设置界面与预览确认回退`。
-
-### 11.3 文档独立提交
-
-本指南、实际生成的验收报告与同步状态 / 来源清单；来源SHA待真实资产保存后更新，不预填空行。英文：`docs: record shared video settings UI implementation and verification`；专业中文：`docs: 记录共享显示设置界面实现与验证结果`。源码 / 资产 / 文档合并提交可使用11.2的feat建议。
-
-### 11.4 两处视觉补修的提交建议
-
-**目前只补了方案**：本次Stage本指南。英文：`docs: add fixes for menu title overlap and combo list contrast`；专业中文：`docs: 补充主菜单标题重叠与下拉列表对比度修复步骤`。
-
-**用户执行并复验后**：Stage实际修改的WBP_ETMainMenu / WBP_ETVideoSettings，以及确有保存变化的WBP_PauseMenu；再附实际更新的本指南 / 来源清单。英文：`fix: prevent menu title overlap and improve combo list contrast`；专业中文：`fix: 修复主菜单标题重叠并改善下拉列表对比度`。不把尚未执行的方案提交描述成已修复。
-
-Runtime / VideoUIUser.ini、Artifacts候选、Saved / Intermediate / Binaries、.idea与生成索引留本地。Stage后再修改需重新Stage → Review → Commit / Push由用户操作。
+B4-01未来五源码与提交建议见新指南末尾。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

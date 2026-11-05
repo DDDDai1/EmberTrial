@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-11-05。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-05B2-01已验收](Reports/M3_05B2_01_Verification.md)，当前02原生接入待用户手动实施；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
+更新2026-11-05。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-05B3-02已验收](Reports/M3_05B3_02_Verification.md)，当前B4-01原生画质 / 帧率接口待手动；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
 
 ## 1. 本阶段交付
 
@@ -53,15 +53,17 @@ M1登记手动22h18不同于全项目设计 /理解总成本，不能将后续�
 
 [M2总报告](Reports/M2_Verification.md)、[07总报告](Reports/M2_07_Verification.md)与[C材料收尾](Reports/M2_07C_Verification.md)已保存，用户本轮要求继续下一章。A的23项与两进程包、B真实性能分析沿用，无新执行；C没有逐项理解答卷或实耗，不将继续开发当成独立面试能力认证。
 
-[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05B2-02原生预览](Reports/M3_05B2_02_Verification.md)已验收，[B3-01显示草稿](Reports/M3_05B3_01_Verification.md)已验收，当前[02共享显示设置卡](M3_05B3_02_VideoSettingsUI.md)待手动实施。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
+[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05B2-02原生预览](Reports/M3_05B2_02_Verification.md)已验收，[B3-01显示草稿](Reports/M3_05B3_01_Verification.md)已验收，[B3-02共享显示卡](Reports/M3_05B3_02_Verification.md)已验收，当前[B4-01原生画质 / 帧率接口](M3_05B4_01_GraphicsPreferences.md)待手动。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
 
-M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4813 / 明确等待420，M3实际1402 / 等待96分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
+M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4983 / 明确等待430，M3实际1572 / 等待106分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-B3-01三份UI源码已在本地`3682aa6`，本轮审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与实际更新的共享状态文档；02两新 / 四旧UI源码和三个资产尚未实施，Artifacts候选不Stage。
+B3-02原实现 / 三资产已在本地`01d00a0`。当前Stage实际修改的两个Widget补修源码、本章验收报告 / 指南、来源与共享状态，以及新B4-01指南。B4-01三新 / 两旧Core仍只有候选，不提前Stage；Artifacts运行日志、个人ini和候选留本地。
 
-- 英文文档建议：`docs: verify display settings draft and prepare shared video settings UI`
-- 专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`
+- 英文合并建议：`fix: initialize video settings after viewport readiness`
+- 专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`
+- 英文独立文档建议：`docs: verify video settings UI and prepare graphics preferences`
+- 专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`
 
-未来02源码 / 资产与独立文档提交建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人配置、日志、候选 / 缓存与包留本地。
+B4-01未来五源码与提交建议见新指南末尾。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

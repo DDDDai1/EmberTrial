@@ -330,11 +330,19 @@ B1实际一Success / 双Build / 只读查询与短查通过，人工38 / 等待3
 
 两新 / 四旧UI，一新WBP与两旧宿主。只原VideoDraft / VideoPreviewTransaction各一次；三资产Valid / PIE禁用短查，独立-game专用ini验证真实卡片、键盘焦点、确认 / 取消 / 超时、暂停与页面关闭 / 切图取消。无临时Blueprint、重复旧装卸矩阵、全37项或新Cook；原生恢复失败只做日志窄查。
 
+主体155 / 等待5，首屏补修15 / 等待5，当前已验收。初始异常后，用户明确确认全新进程首次主菜单自行就绪、草稿保留与页面短查通过；未另存独立日志，报告保留此证据限制。已有两专项 / 三Valid与确认回退矩阵沿用，无额外重跑。
+
+## M3-05B4-01最小范围
+
+三新 / 两旧Core，仅一GraphicsPreferences纯规则专项；PIE拒绝、专用-game真实非分辨率应用 / 预览保护期间拒绝及同ini重启读取。无新Widget、临时Blueprint、全组或Cook。纯规则不能证明GPU帧率 / 原生窗口，SaveRequested不等于磁盘成功；实际CVar覆盖与未完成项如实记录。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B3-01三份UI源码已在本地`3682aa6`，本轮审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与实际更新的共享状态文档；02两新 / 四旧UI源码和三个资产尚未实施，Artifacts候选不Stage。
+B3-02原实现 / 三资产已在本地`01d00a0`。当前Stage实际修改的两个Widget补修源码、本章验收报告 / 指南、来源与共享状态，以及新B4-01指南。B4-01三新 / 两旧Core仍只有候选，不提前Stage；Artifacts运行日志、个人ini和候选留本地。
 
-- 英文文档建议：`docs: verify display settings draft and prepare shared video settings UI`
-- 专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`
+- 英文合并建议：`fix: initialize video settings after viewport readiness`
+- 专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`
+- 英文独立文档建议：`docs: verify video settings UI and prepare graphics preferences`
+- 专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`
 
-未来02源码 / 资产与独立文档提交建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人配置、日志、候选 / 缓存与包留本地。
+B4-01未来五源码与提交建议见新指南末尾。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

@@ -9,11 +9,16 @@
 #include "Settings/ETGameUserSettings.h"
 #include "Settings/ETVideoSettingsSubsystem.h"
 #include "UObject/StrongObjectPtr.h"
+#include "Engine/World.h"
+#include "HAL/PlatformTime.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETVideoSettingsView, Log, All);
 
 namespace ETVideoViewPrivate
 {
+    constexpr float InitialCaptureRetryInterval = 0.1f;
+    constexpr double InitialCaptureTimeoutSeconds = 3.0;
+
 FString ModeLabel(const EETVideoWindowMode Mode)
 {
     switch (Mode)
@@ -74,6 +79,7 @@ void UETVideoSettingsWidget::NativeConstruct()
         PreviewChangedHandle = Current->OnChanged.AddUObject(this, &ThisClass::HandleSnapshot);
     }
     ReadCurrent(ETVideoViewPrivate::ResultText(EETVideoPreviewResult::None));
+    StartInitialCaptureRetry();
 }
 
 void UETVideoSettingsWidget::NativeDestruct()
@@ -85,6 +91,7 @@ void UETVideoSettingsWidget::NativeDestruct()
 void UETVideoSettingsWidget::CloseView()
 {
     bViewActive = false;
+    StopInitialCaptureRetry();
     if (UETVideoSettingsSubsystem* Current = Service.Get())
     {
         Current->OnChanged.Remove(PreviewChangedHandle);
@@ -158,6 +165,81 @@ void UETVideoSettingsWidget::ReadCurrent(const FText& Message)
     if (!bReady) Draft.Close();
     Feedback = bReady ? Message : FText::FromString(TEXT("请在独立游戏窗口中调整显示设置。"));
     Render(true);
+}
+
+void UETVideoSettingsWidget::StartInitialCaptureRetry()
+{
+    StopInitialCaptureRetry();
+
+    const UWorld* World = GetWorld();
+    if (Draft.IsOpen() || !bViewActive || !Service.IsValid() || GIsEditor ||
+        !World || World->WorldType != EWorldType::Game ||
+        World->GetNetMode() != NM_Standalone)
+    {
+        return;
+    }
+
+    InitialCaptureDeadlineSeconds = FPlatformTime::Seconds() +
+        ETVideoViewPrivate::InitialCaptureTimeoutSeconds;
+    InitialCaptureTickerHandle = FTSTicker::GetCoreTicker().AddTicker(
+        FTickerDelegate::CreateUObject(this, &ThisClass::TickInitialCapture),
+        ETVideoViewPrivate::InitialCaptureRetryInterval);
+
+    Feedback = FText::FromString(TEXT("显示状态暂不可用，正在重试。"));
+    Render();
+    UE_LOG(LogETVideoSettingsView, Display,
+        TEXT("[M3-05B3-02] Initial capture deferred Widget=%s"), *GetName());
+}
+
+void UETVideoSettingsWidget::StopInitialCaptureRetry()
+{
+    if (InitialCaptureTickerHandle.IsValid() && !bInsideInitialCaptureTick)
+    {
+        FTSTicker::RemoveTicker(InitialCaptureTickerHandle);
+    }
+    InitialCaptureTickerHandle.Reset();
+    InitialCaptureDeadlineSeconds = 0.0;
+}
+
+bool UETVideoSettingsWidget::TickInitialCapture(float)
+{
+    const TGuardValue<bool> InCallback(bInsideInitialCaptureTick, true);
+
+    // 当前回调返回false自行退出；关闭页面时不会留下旧View观察。
+    if (!bViewActive || !Service.IsValid() || !HasLiveHost())
+    {
+        StopInitialCaptureRetry();
+        return false;
+    }
+    if (Draft.IsOpen())
+    {
+        StopInitialCaptureRetry();
+        return false; // 其他状态事件已完成捕获，不覆盖用户草稿。
+    }
+
+    ReadCurrent(ETVideoViewPrivate::ResultText(EETVideoPreviewResult::None));
+    if (!bViewActive)
+    {
+        StopInitialCaptureRetry();
+        return false;
+    }
+    if (Draft.IsOpen())
+    {
+        StopInitialCaptureRetry();
+        UE_LOG(LogETVideoSettingsView, Display,
+            TEXT("[M3-05B3-02] Initial capture ready Widget=%s"), *GetName());
+        return false;
+    }
+    if (FPlatformTime::Seconds() >= InitialCaptureDeadlineSeconds)
+    {
+        StopInitialCaptureRetry();
+        Feedback = FText::FromString(TEXT("显示状态读取失败，请重开游戏后重试。"));
+        Render();
+        UE_LOG(LogETVideoSettingsView, Warning,
+            TEXT("[M3-05B3-02] Initial capture timed out Widget=%s"), *GetName());
+        return false;
+    }
+    return true;
 }
 
 void UETVideoSettingsWidget::HandleSnapshot(const FETVideoPreviewSnapshot& Snapshot)

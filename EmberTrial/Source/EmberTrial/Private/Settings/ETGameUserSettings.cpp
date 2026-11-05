@@ -1,5 +1,5 @@
 #include "Settings/ETGameUserSettings.h"
-
+#include "Settings/ETGraphicsSettingsTypes.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "CoreGlobals.h"
@@ -140,6 +140,77 @@ void UETGameUserSettings::CommitVideoPreview(
     Super::SaveSettings();
 }
 
+// ---- 非分辨率设置；不切窗口、不改输入偏好或预览事务 ----
+
+bool UETGameUserSettings::ReadGraphicsPreferences(FETGraphicsPreferences& Out) const
+{
+    Out = FETGraphicsPreferences{};
+    if (this != GetETGameUserSettings())
+    {
+        return false;
+    }
+
+    // GetOverallScalabilityLevel还比较ResolutionQuality；此处明确只汇总十组画质。
+    const int32 Groups[] = {
+        GetViewDistanceQuality(), GetAntiAliasingQuality(), GetShadowQuality(),
+        GetGlobalIlluminationQuality(), GetReflectionQuality(), GetPostProcessingQuality(),
+        GetTextureQuality(), GetVisualEffectQuality(), GetFoliageQuality(), GetShadingQuality()
+    };
+    FETGraphicsPreferences Value;
+    Value.QualityLevel = FETGraphicsSettingsRules::FindUniformQuality(MakeArrayView(Groups));
+    Value.FrameRateLimit = GetFrameRateLimit();
+    Value.bUseVSync = IsVSyncEnabled();
+    if (!Value.IsValid())
+    {
+        return false;
+    }
+    Out = Value;
+    return true;
+}
+
+bool UETGameUserSettings::ApplyGraphicsPreferences(
+    const FETGraphicsPreferences& Request, const UWorld* ContextWorld)
+{
+    // PIE不能全局更改编辑器画质；预览中保存也不能泄漏候选视频配置。
+    if (this != GetETGameUserSettings() || GIsEditor || !IsValid(ContextWorld) ||
+        ContextWorld->bIsTearingDown || ContextWorld->WorldType != EWorldType::Game ||
+        ContextWorld->GetNetMode() != NM_Standalone || bVideoPreviewGuard)
+    {
+        return false;
+    }
+
+    FETGraphicsPreferences Current;
+    FETGraphicsPreferences Next;
+    if (!ReadGraphicsPreferences(Current) ||
+        !FETGraphicsSettingsRules::TryResolve(Request, Current, Next))
+    {
+        return false;
+    }
+
+    if (Next.QualityLevel != FETGraphicsPreferences::CustomQuality)
+    {
+        // 不调用SetOverallScalabilityLevel，保留当前ResolutionQuality与窗口配置。
+        SetViewDistanceQuality(Next.QualityLevel);
+        SetAntiAliasingQuality(Next.QualityLevel);
+        SetShadowQuality(Next.QualityLevel);
+        SetGlobalIlluminationQuality(Next.QualityLevel);
+        SetReflectionQuality(Next.QualityLevel);
+        SetPostProcessingQuality(Next.QualityLevel);
+        SetTextureQuality(Next.QualityLevel);
+        SetVisualEffectQuality(Next.QualityLevel);
+        SetFoliageQuality(Next.QualityLevel);
+        SetShadingQuality(Next.QualityLevel);
+    }
+    SetFrameRateLimit(Next.FrameRateLimit);
+    SetVSyncEnabled(Next.bUseVSync);
+    ApplyNonResolutionSettings();
+    SaveSettings();
+    UE_LOG(LogETUserSettings, Display,
+        TEXT("[M3-05B4-01] Graphics applied Quality=%d Cap=%.2f VSync=%d SaveRequested=1"),
+        Next.QualityLevel, Next.FrameRateLimit, Next.bUseVSync ? 1 : 0);
+    return true;
+}
+
 #if !UE_BUILD_SHIPPING
 // ---- 开发观察入口；正式设置页将复用同一接口，不把控制台作为产品UI ----
 
@@ -206,4 +277,51 @@ FAutoConsoleCommandWithWorldAndArgs Command(
     TEXT("Input preferences: query; apply <0.25..3> <InvertY:0|1>; defaults"),
     FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&Execute), ECVF_Cheat);
 } // namespace ETInputPreferencesConsole
+
+// ---- 开发观察入口；后续正式卡片复用上面的原生接口 ----
+namespace ETGraphicsPreferencesConsole
+{
+void Execute(const TArray<FString>& Args, UWorld* World)
+{
+    UETGameUserSettings* Settings = UETGameUserSettings::GetETGameUserSettings();
+    if (!Settings || !World || !World->IsGameWorld())
+    {
+        UE_LOG(LogETUserSettings, Display, TEXT("[M3-05B4-01] Start a game world first"));
+        return;
+    }
+
+    if (!Args.IsEmpty())
+    {
+        FETGraphicsPreferences Request;
+        if (Args.Num() != 4 || !Args[0].Equals(TEXT("apply"), ESearchCase::IgnoreCase) ||
+            !FDefaultValueHelper::ParseInt(Args[1], Request.QualityLevel) ||
+            !FDefaultValueHelper::ParseFloat(Args[2], Request.FrameRateLimit) ||
+            (Args[3] != TEXT("0") && Args[3] != TEXT("1")))
+        {
+            UE_LOG(LogETUserSettings, Display,
+                TEXT("[M3-05B4-01] Usage: et.GraphicsSettings [apply <-1..4 quality> <cap;0=unlimited> <vsync:0|1>]"));
+            return;
+        }
+        Request.bUseVSync = Args[3] == TEXT("1");
+        const bool bAccepted = Settings->ApplyGraphicsPreferences(Request, World);
+        UE_LOG(LogETUserSettings, Display,
+            TEXT("[M3-05B4-01] ApplyAccepted=%d"), bAccepted ? 1 : 0);
+    }
+
+    FETGraphicsPreferences Value;
+    const bool bValid = Settings->ReadGraphicsPreferences(Value);
+    const IConsoleVariable* Cap = IConsoleManager::Get().FindConsoleVariable(TEXT("t.MaxFPS"));
+    const IConsoleVariable* VSync = IConsoleManager::Get().FindConsoleVariable(TEXT("r.VSync"));
+    UE_LOG(LogETUserSettings, Display,
+        TEXT("[M3-05B4-01] Graphics Valid=%d Quality=%d Cap=%.2f VSync=%d EffectiveCap=%.2f EffectiveVSync=%d Ini=%s"),
+        bValid ? 1 : 0, Value.QualityLevel, Value.FrameRateLimit, Value.bUseVSync ? 1 : 0,
+        Cap ? Cap->GetFloat() : -1.0f, VSync ? VSync->GetInt() : -1, *GGameUserSettingsIni);
+}
+
+FAutoConsoleCommandWithWorldAndArgs Command(
+    TEXT("et.GraphicsSettings"),
+    TEXT("Graphics preferences: query; apply <-1..4 quality> <cap> <vsync:0|1>"),
+    FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&Execute), ECVF_Cheat);
+} // namespace ETGraphicsPreferencesConsole
+
 #endif

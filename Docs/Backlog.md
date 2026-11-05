@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-11-05。[M3-05B3-01已验收](Reports/M3_05B3_01_Verification.md)，无待补；当前[02共享显示设置卡](M3_05B3_02_VideoSettingsUI.md)待用户手动。实时规模 / 工时见Progress，历史行保留当时口径。
+更新2026-11-05。[B3-02已验收](Reports/M3_05B3_02_Verification.md)，首屏待修关闭；当前[B4-01原生画质 / 帧率接口](M3_05B4_01_GraphicsPreferences.md)待手动。实时规模 / 工时见Progress，历史口径保留。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -135,7 +135,8 @@
 | M3-05B2-01 | [视频预览事务内核](Reports/M3_05B2_01_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 207 / 117 / 36，双Build / 一Success与短查；47 / 等待3，无待补 |
 | M3-05B2-02 | [原生视频预览与回退](Reports/M3_05B2_02_Verification.md) | 你实现，我审查并经授权实测 | 完成 | 209 / 118 / 36，双Build / 两Success与原生回退通过；95 / 等待5，无待补 |
 | M3-05B3-01 | [显示设置草稿与候选目录](Reports/M3_05B3_01_Verification.md) | 你手动实现，我审查 | 完成 | 212 / 120 / 37，双Build / 一Success / 短查；62 / 等待10 |
-| M3-05B3-02 | [共享显示设置卡与确认回退](M3_05B3_02_VideoSettingsUI.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 两新 / 四旧UI，一新WBP / 两宿主；两专项、三Valid与实际确认 / 关闭回退 |
+| M3-05B3-02 | [共享显示卡验收](Reports/M3_05B3_02_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 主体双Build / 两Success / 三Valid；首屏窄补修按用户全新进程反馈通过，未另存独立日志；170 / 等待10 |
+| M3-05B4-01 | [原生画质 / 帧率 / VSync](M3_05B4_01_GraphicsPreferences.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 三新 / 两旧Core候选；一专项、PIE拒绝 / 独立应用与重启读取；无新资产 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -153,7 +154,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 01–04两件遗物正式闭环已验收；05A / B1 / B2已验收，B3-01显示草稿已验收，当前02共享显示卡待实施；完整6件与新包仍后续 |
+| M3当前开发 | 01–04与05A / B1 / B2 / B3-01 / 02已验收，无待补；B4-01原生画质与帧率接口待实施，完整6件与新包后续 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -161,9 +162,11 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-B3-01三份UI源码已在本地`3682aa6`，本轮审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与实际更新的共享状态文档；02两新 / 四旧UI源码和三个资产尚未实施，Artifacts候选不Stage。
+B3-02原实现 / 三资产已在本地`01d00a0`。当前Stage实际修改的两个Widget补修源码、本章验收报告 / 指南、来源与共享状态，以及新B4-01指南。B4-01三新 / 两旧Core仍只有候选，不提前Stage；Artifacts运行日志、个人ini和候选留本地。
 
-- 英文文档建议：`docs: verify display settings draft and prepare shared video settings UI`
-- 专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`
+- 英文合并建议：`fix: initialize video settings after viewport readiness`
+- 专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`
+- 英文独立文档建议：`docs: verify video settings UI and prepare graphics preferences`
+- 专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`
 
-未来02源码 / 资产与独立文档提交建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人配置、日志、候选 / 缓存与包留本地。
+B4-01未来五源码与提交建议见新指南末尾。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

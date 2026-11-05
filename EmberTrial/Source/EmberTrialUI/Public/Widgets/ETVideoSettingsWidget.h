@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Containers/Ticker.h"
 #include "Components/ComboBoxString.h"
 #include "Settings/ETVideoSettingsDraft.h"
 #include "Settings/ETVideoPreviewTransaction.h"
@@ -34,6 +35,11 @@ private:
     bool CanEdit() const;
     bool Capture(FETVideoMode& Actual, FETVideoResolutionCatalogue& Available) const;
     void ReadCurrent(const FText& Message);
+
+    // 初次捕获失败才启动，避免窗口尚未就绪让首屏永久禁用。
+    void StartInitialCaptureRetry();
+    void StopInitialCaptureRetry();
+    bool TickInitialCapture(float DeltaSeconds);
     void Render(bool bRebuildChoices = false);
     void FocusMode();
     void CancelOwnedPreview();
@@ -72,6 +78,9 @@ private:
 
     TWeakObjectPtr<UETVideoSettingsSubsystem> Service;
     FDelegateHandle PreviewChangedHandle;
+    FTSTicker::FDelegateHandle InitialCaptureTickerHandle;
+    double InitialCaptureDeadlineSeconds = 0.0;
+    bool bInsideInitialCaptureTick = false;
     FETVideoSettingsDraft Draft;
     TArray<EETVideoWindowMode> Modes;
     TArray<FIntPoint> Resolutions;

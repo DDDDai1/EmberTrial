@@ -4,6 +4,9 @@
 #include "GameFramework/GameUserSettings.h"
 #include "ETGameUserSettings.generated.h"
 
+struct FETGraphicsPreferences;
+class UWorld;
+
 /** 玩家输入偏好的值快照；设置页面可持有副本，浏览 / 取消不改变已应用值。 */
 USTRUCT(BlueprintType)
 struct EMBERTRIAL_API FETInputPreferences
@@ -40,6 +43,13 @@ public:
     /** 只提交合法值到运行内存；调用者在整页确认后显式SaveSettings，不逐次滑动写盘。 */
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Settings")
     bool ApplyInputPreferences(const FETInputPreferences& Preferences);
+
+    /** 读取引擎保存的画质组 / 帧率 / VSync；不是GPU实际帧率或视觉达标证明。 */
+    bool ReadGraphicsPreferences(FETGraphicsPreferences& Out) const;
+
+    /** 仅独立游戏提交，视频预览保护期间拒绝；成功表示已应用并请求保存。 */
+    bool ApplyGraphicsPreferences(const FETGraphicsPreferences& Request,
+        const UWorld* ContextWorld);
 
     virtual void LoadSettings(bool bForceReload = false) override;
     virtual void SetToDefaults() override;

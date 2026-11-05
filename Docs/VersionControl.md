@@ -390,11 +390,17 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-05 B3-01收尾：本地3682aa6已有三新UI，候选一致，212 / 120 / 37与来源81保持；双Build / 一Success和原P短查通过。当前只Stage01报告 / 收尾、02指南与状态；02两新 / 四旧UI / 一新WBP和两旧宿主尚未实施，不预填来源。个人设置 / Runtime留Artifacts，Git仍用户操作。
 
+2026-11-05 B3-02主体核对：本地01d00a0含两新 / 四旧UI与一新 / 两旧Widget；六源码与候选归一一致、三LFS OID匹配实物。来源82，214 / 121 / 37；双Build / 两Success / 三Valid及视觉通过，保留首屏初始化待修。本轮只登记报告 / 来源 / 状态与手动补修方案，不把尚未实施的C++修复描述成已提交。
+
+2026-11-05 B3-02首屏收尾：两个既有Widget源码已含有限重试 / 清理，双Build与用户全新进程专项反馈通过；独立日志未另存，报告不冒充实读。源资产SHA不变，来源82。当前Stage真实补修 / 收尾文档及B4-01新指南，后者五份Core候选尚未写入工程，不提前Stage；个人图形配置 / 日志仍留Artifacts。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B3-01三份UI源码已在本地`3682aa6`，本轮审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与实际更新的共享状态文档；02两新 / 四旧UI源码和三个资产尚未实施，Artifacts候选不Stage。
+B3-02原实现 / 三资产已在本地`01d00a0`。当前Stage实际修改的两个Widget补修源码、本章验收报告 / 指南、来源与共享状态，以及新B4-01指南。B4-01三新 / 两旧Core仍只有候选，不提前Stage；Artifacts运行日志、个人ini和候选留本地。
 
-- 英文文档建议：`docs: verify display settings draft and prepare shared video settings UI`
-- 专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`
+- 英文合并建议：`fix: initialize video settings after viewport readiness`
+- 专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`
+- 英文独立文档建议：`docs: verify video settings UI and prepare graphics preferences`
+- 专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`
 
-未来02源码 / 资产与独立文档提交建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人配置、日志、候选 / 缓存与包留本地。
+B4-01未来五源码与提交建议见新指南末尾。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

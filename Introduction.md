@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M3-01至04两件遗物闭环、05A输入设置与B2原生预览 / B3-01显示草稿已验收；当前[02共享显示设置卡](Docs/M3_05B3_02_VideoSettingsUI.md)待手动。实际212 Source / 120cpp、37自动化，实耗见[Progress](Docs/Progress.md)。
+当前进度：M3-01至04、05A / B1 / B2 / B3-01 / 02已验收，首屏补修无待补；当前[B4-01原生画质 / 帧率接口](Docs/M3_05B4_01_GraphicsPreferences.md)待手动。实际214 Source / 121cpp、37自动化，实耗见[Progress](Docs/Progress.md)。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-05，M0、M1、M2与清理已收尾，M3-01至04、05A / B1 / B2 / B3-01已验收，无待补。**[B3-01报告](Docs/Reports/M3_05B3_01_Verification.md)记录双Build / 一Success与短查，当前[02共享显示设置卡](Docs/M3_05B3_02_VideoSettingsUI.md)待手动。实际212 Source / 120cpp / 37测试 / 来源81，M3累计1402 / 等待96，项目4813 / 明确等待420；01人工62 / 等待10。两新 / 四旧UI和新卡 / 两旧宿主先给指南，保存后再登记来源；个人偏好不等于试炼存档。完整6件 / 2槽、画质 / 音量、磁盘进度与最终美术后续，M3原70h / M8复盘保持，旧M2_07A/Attempt01不含M3。普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-05，M0、M1、M2与清理已收尾，M3-01至04、05A / B1 / B2 / B3-01 / 02已验收。**[B3-02报告](Docs/Reports/M3_05B3_02_Verification.md)记录主体双Build / 两Success / 三Valid、键鼠与首屏窄补修；本轮独立日志未另存，首屏结果按用户专项反馈登记。当前[B4-01原生画质 / 帧率 / VSync](Docs/M3_05B4_01_GraphicsPreferences.md)待手动，实际214 Source / 121cpp / 37测试 / 来源82，M3累计1572 / 等待106，项目4983 / 明确等待430；02人工170 / 等待10。个人偏好不等于试炼存档；完整6件 / 2槽、图形正式卡 / 音量、磁盘进度与最终美术后续，M3原70h / M8复盘保持。旧M2_07A/Attempt01不含M3，普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,9 +868,11 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-B3-01三份UI源码已在本地`3682aa6`，本轮审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与实际更新的共享状态文档；02两新 / 四旧UI源码和三个资产尚未实施，Artifacts候选不Stage。
+B3-02原实现 / 三资产已在本地`01d00a0`。当前Stage实际修改的两个Widget补修源码、本章验收报告 / 指南、来源与共享状态，以及新B4-01指南。B4-01三新 / 两旧Core仍只有候选，不提前Stage；Artifacts运行日志、个人ini和候选留本地。
 
-- 英文文档建议：`docs: verify display settings draft and prepare shared video settings UI`
-- 专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`
+- 英文合并建议：`fix: initialize video settings after viewport readiness`
+- 专业中文：`fix: 在显示窗口就绪后完成设置界面初始化`
+- 英文独立文档建议：`docs: verify video settings UI and prepare graphics preferences`
+- 专业中文：`docs: 完成显示设置界面验收并准备画质偏好接口`
 
-未来02源码 / 资产与独立文档提交建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人配置、日志、候选 / 缓存与包留本地。
+B4-01未来五源码与提交建议见新指南末尾。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
