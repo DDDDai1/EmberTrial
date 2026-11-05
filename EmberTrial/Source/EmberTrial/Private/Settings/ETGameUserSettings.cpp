@@ -66,6 +66,80 @@ void UETGameUserSettings::SetToDefaults()
     InputPreferences = FETInputPreferences{};
 }
 
+// ---- 预览配置保护：UE窗口变化会自动SetScreenResolution + ConfirmVideoMode ----
+
+bool UETGameUserSettings::BeginVideoPreviewGuard()
+{
+    if (bVideoPreviewGuard)
+    {
+        return false;
+    }
+    GuardedVideo.Requested = GetScreenResolution();
+    GuardedVideo.Confirmed = GetLastConfirmedScreenResolution();
+    GuardedVideo.Mode = FullscreenMode;
+    GuardedVideo.ConfirmedMode = LastConfirmedFullscreenMode;
+    GuardedVideo.PreferredMode = PreferredFullscreenMode;
+    GuardedVideo.ResolutionQuality = ScalabilityQuality.ResolutionQuality;
+    bVideoPreviewGuard = true;
+    return true;
+}
+
+void UETGameUserSettings::RestoreGuardedVideo()
+{
+    if (bVideoPreviewGuard)
+    {
+        ResolutionSizeX = GuardedVideo.Requested.X;
+        ResolutionSizeY = GuardedVideo.Requested.Y;
+        LastUserConfirmedResolutionSizeX = GuardedVideo.Confirmed.X;
+        LastUserConfirmedResolutionSizeY = GuardedVideo.Confirmed.Y;
+        FullscreenMode = GuardedVideo.Mode;
+        LastConfirmedFullscreenMode = GuardedVideo.ConfirmedMode;
+        PreferredFullscreenMode = GuardedVideo.PreferredMode;
+        ScalabilityQuality.ResolutionQuality = GuardedVideo.ResolutionQuality;
+    }
+}
+
+void UETGameUserSettings::EndVideoPreviewGuard()
+{
+    RestoreGuardedVideo();
+    bVideoPreviewGuard = false;
+}
+
+void UETGameUserSettings::ConfirmVideoMode()
+{
+    if (bVideoPreviewGuard)
+    {
+        RestoreGuardedVideo();
+        return;
+    }
+    Super::ConfirmVideoMode();
+}
+
+void UETGameUserSettings::SaveSettings()
+{
+    RestoreGuardedVideo();
+    Super::SaveSettings(); // 输入等非视频偏好照常保存，候选视频值不入盘。
+}
+
+void UETGameUserSettings::CommitVideoPreview(
+    const FIntPoint Resolution, const EWindowMode::Type Mode)
+{
+    EndVideoPreviewGuard();
+    SetScreenResolution(Resolution);
+    SetFullscreenMode(Mode);
+    if (Mode != EWindowMode::Windowed)
+    {
+        // UE5.5的SetPreferredFullscreenMode是private；在派生类同步受保护字段与同名CVar。
+        PreferredFullscreenMode = Mode == EWindowMode::Fullscreen ? 0 : 1;
+        if (IConsoleVariable* Fullscreen = IConsoleManager::Get().FindConsoleVariable(TEXT("r.FullScreenMode")))
+        {
+            Fullscreen->Set(PreferredFullscreenMode, ECVF_SetByGameSetting);
+        }
+    }
+    Super::ConfirmVideoMode();
+    Super::SaveSettings();
+}
+
 #if !UE_BUILD_SHIPPING
 // ---- 开发观察入口；正式设置页将复用同一接口，不把控制台作为产品UI ----
 

@@ -43,8 +43,30 @@ public:
 
     virtual void LoadSettings(bool bForceReload = false) override;
     virtual void SetToDefaults() override;
+    virtual void ConfirmVideoMode() override;
+    virtual void SaveSettings() override;
 
 private:
+    friend class UETVideoSettingsSubsystem;
+    friend class FETVideoModeRulesTest;
+
+    bool BeginVideoPreviewGuard();
+    void RestoreGuardedVideo();
+    void EndVideoPreviewGuard();
+    void CommitVideoPreview(FIntPoint Resolution, EWindowMode::Type Mode);
+
+    struct FVideoConfigState
+    {
+        FIntPoint Requested = FIntPoint::ZeroValue;
+        FIntPoint Confirmed = FIntPoint::ZeroValue;
+        int32 Mode = 0;
+        int32 ConfirmedMode = 0;
+        int32 PreferredMode = 0;
+        float ResolutionQuality = 0.0f;
+    };
+    FVideoConfigState GuardedVideo;
+    bool bVideoPreviewGuard = false; // 非Config，不跨进程保存。
+
     UPROPERTY(Config)
     FETInputPreferences InputPreferences;
 };

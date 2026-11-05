@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Containers/ArrayView.h"
+#include "GenericPlatform/GenericWindow.h"
 
 class UGameUserSettings;
 
@@ -37,6 +38,8 @@ struct EMBERTRIAL_API FETVideoModeSnapshot
 class EMBERTRIAL_API FETVideoModeRules
 {
 public:
+    static EETVideoWindowMode FromNative(EWindowMode::Type Mode);
+    static bool ToNative(EETVideoWindowMode Mode, EWindowMode::Type& Out);
     // 只读已有引擎实例；未初始化尺寸保留0，由IsWellFormed表达不可用。
     static bool Capture(const UGameUserSettings* Settings, FETVideoModeSnapshot& Out);
 

@@ -9,14 +9,14 @@ public class EmberTrial : ModuleRules
         // 公开头导出ASC / Tag / 输入与AI类型；保持现有Public依赖，不引入UI / Editor。
         PublicDependencyModuleNames.AddRange(new string[]
         {
-            "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
+            "Core", "CoreUObject", "Engine", "ApplicationCore", "InputCore", "EnhancedInput",
             "GameplayAbilities", "GameplayTags", "AIModule"
         });
 
         // Gameplay任务 / 物理只在实现中使用；旧Practice头通过ModuleDirectory私有路径解析。
         PrivateDependencyModuleNames.AddRange(new string[]
         {
-            "GameplayTasks", "PhysicsCore"
+            "GameplayTasks", "PhysicsCore", "SlateCore"
         });
 
         // 遗物目录集成测试只在Editor编译；Game不引入AssetRegistry依赖。

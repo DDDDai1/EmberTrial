@@ -7,9 +7,8 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogETVideoModes, Log, All);
 
-namespace ETVideoModePrivate
-{
-EETVideoWindowMode FromNative(const EWindowMode::Type Mode)
+
+EETVideoWindowMode FETVideoModeRules::FromNative(const EWindowMode::Type Mode)
 {
     switch (Mode)
     {
@@ -19,7 +18,18 @@ EETVideoWindowMode FromNative(const EWindowMode::Type Mode)
     default: return EETVideoWindowMode::Invalid;
     }
 }
-} // namespace ETVideoModePrivate
+
+bool FETVideoModeRules::ToNative(const EETVideoWindowMode Mode, EWindowMode::Type& Out)
+{
+    Out = EWindowMode::Windowed;
+    switch (Mode)
+    {
+    case EETVideoWindowMode::Windowed: Out = EWindowMode::Windowed; return true;
+    case EETVideoWindowMode::Borderless: Out = EWindowMode::WindowedFullscreen; return true;
+    case EETVideoWindowMode::Fullscreen: Out = EWindowMode::Fullscreen; return true;
+    default: return false;
+    }
+}
 
 bool FETVideoMode::IsWellFormed() const
 {
@@ -38,9 +48,9 @@ bool FETVideoModeRules::Capture(const UGameUserSettings* Settings, FETVideoModeS
         return false;
     }
     Out.Requested.Resolution = Settings->GetScreenResolution();
-    Out.Requested.Mode = ETVideoModePrivate::FromNative(Settings->GetFullscreenMode());
+    Out.Requested.Mode = FromNative(Settings->GetFullscreenMode());
     Out.LastConfirmed.Resolution = Settings->GetLastConfirmedScreenResolution();
-    Out.LastConfirmed.Mode = ETVideoModePrivate::FromNative(Settings->GetLastConfirmedFullscreenMode());
+    Out.LastConfirmed.Mode = FromNative(Settings->GetLastConfirmedFullscreenMode());
     Out.DesktopResolution = Settings->GetDesktopResolution();
     return true;
 }

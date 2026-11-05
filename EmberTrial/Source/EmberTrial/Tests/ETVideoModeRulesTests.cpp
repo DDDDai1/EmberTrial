@@ -1,5 +1,6 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Settings/ETVideoModeRules.h"
+#include "Settings/ETGameUserSettings.h"
 #include "GameFramework/GameUserSettings.h"
 #include "Misc/AutomationTest.h"
 
@@ -10,6 +11,17 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETVideoModeRulesTest,
 bool FETVideoModeRulesTest::RunTest(const FString& Parameters)
 {
     (void)Parameters;
+    for (const EWindowMode::Type Native : {EWindowMode::Windowed,
+        EWindowMode::WindowedFullscreen, EWindowMode::Fullscreen})
+    {
+        EWindowMode::Type Back = EWindowMode::Windowed;
+        TestTrue(TEXT("Known mode round trip"),
+            FETVideoModeRules::ToNative(FETVideoModeRules::FromNative(Native), Back) && Back == Native);
+    }
+    EWindowMode::Type Rejected = EWindowMode::Fullscreen;
+    TestFalse(TEXT("Invalid project mode rejected"),
+        FETVideoModeRules::ToNative(EETVideoWindowMode::Invalid, Rejected));
+    TestTrue(TEXT("Rejected native output is reset"), Rejected == EWindowMode::Windowed);
     const FIntPoint Desktop(2560, 1440);
     const TArray<FIntPoint> Sizes = {FIntPoint::ZeroValue, FIntPoint(1280, 720),
         FIntPoint(1920, 1080), FIntPoint(1920, 1080)};
@@ -70,6 +82,28 @@ bool FETVideoModeRulesTest::RunTest(const FString& Parameters)
     TestFalse(TEXT("Missing settings rejected"), FETVideoModeRules::Capture(nullptr, Snapshot));
     TestTrue(TEXT("Rejected snapshot is cleared"),
         !Snapshot.Requested.IsWellFormed() && Snapshot.DesktopResolution == FIntPoint::ZeroValue);
+    // 真实引擎窗口调整顺序：先改请求尺寸，再虚调用ConfirmVideoMode。
+    UETGameUserSettings* Guarded = NewObject<UETGameUserSettings>();
+    if (!TestNotNull(TEXT("Guarded settings object"), Guarded))
+    {
+        return false;
+    }
+    Guarded->SetScreenResolution(FIntPoint(1280, 720));
+    Guarded->SetFullscreenMode(EWindowMode::Windowed);
+    Guarded->ConfirmVideoMode();
+    TestTrue(TEXT("Preview guard acquired"), Guarded->BeginVideoPreviewGuard());
+    TestFalse(TEXT("Second guard cannot replace first baseline"), Guarded->BeginVideoPreviewGuard());
+    Guarded->SetScreenResolution(FIntPoint(1600, 900));
+    Guarded->ConfirmVideoMode();
+    TestTrue(TEXT("Engine automatic confirmation restores requested and confirmed baseline"),
+        Guarded->GetScreenResolution() == FIntPoint(1280, 720) &&
+        Guarded->GetLastConfirmedScreenResolution() == FIntPoint(1280, 720));
+    Guarded->EndVideoPreviewGuard();
+    Guarded->SetScreenResolution(FIntPoint(1600, 900));
+    Guarded->ConfirmVideoMode();
+    TestTrue(TEXT("Ordinary confirmation works after releasing guard"),
+        Guarded->GetLastConfirmedScreenResolution() == FIntPoint(1600, 900));
+    // 这里不调用SaveSettings / CommitVideoPreview，不写本机个人文件。
     return true;
 }
 #endif
