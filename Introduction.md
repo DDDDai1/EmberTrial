@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M3-02闭环及03A列表模型 / 无副作用预览已验收，当前[03B暂停页遗物浏览](Docs/M3_03B_RelicPausePanel.md)待手动。实际179 Source / 100cpp、30自动化；受限PIE可真实装备100/120与每段30，当前尚无遗物面板。最新证据与实耗见[Progress](Docs/Progress.md)。
+当前进度：M3-01至04两件遗物正式闭环、05A输入设置与B2原生视频预览已验收，当前[B3-01显示设置草稿](Docs/M3_05B3_01_VideoSettingsDraft.md)待手动。实际209 Source / 118cpp、36自动化；已有遗物浏览 / 确认页面和双宿主输入卡，显示设置卡在B3-02接入。最新证据与实耗见[Progress](Docs/Progress.md)。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-05，M0、M1、M2与清理已收尾，M3-01至04、05A / B1 / B2-01已验收，无待补。**[01报告](Docs/Reports/M3_05B2_01_Verification.md)记录双Build / 一Success、纯事务与短查，不声称真实切屏。当前[02原生视频接入](Docs/M3_05B2_02_NativeVideoPreview.md)待手动，两新 / 六旧Core，含真实窗口 / CoreTicker与引擎自动确认保护，独立-game / 专用ini验证后才接B3显示UI。实际207 Source / 117cpp / 36测试 / 来源81，M3累计1245 / 等待81，项目4656 / 明确等待405；01人工47 / 等待3。个人偏好不是试炼存档；完整6件 / 2槽、显示 / 画质 / 音量、磁盘进度与最终美术后续，M3原70h / M8复盘保持，旧M2_07A/Attempt01包不含M3。普通C++手动 / 方案B / 用户Git约定保持；首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-05，M0、M1、M2与清理已收尾，M3-01至04、05A / B1 / B2已验收，无待补。**[B2-02报告](Docs/Reports/M3_05B2_02_Verification.md)记录双Build / 两Success与真实窗口、暂停 / 切图恢复。当前[B3-01显示设置草稿](Docs/M3_05B3_01_VideoSettingsDraft.md)待手动，三新UI值对象 / 专项，B3-02再接共享卡 / 确认交互。实际209 Source / 118cpp / 36测试 / 来源81，M3累计1340 / 等待86，项目4751 / 明确等待410；02人工95 / 等待5。个人偏好不是试炼存档，完整6件 / 2槽、画质 / 音量、磁盘进度与最终美术后续，M3原70h / M8复盘保持，旧M2_07A/Attempt01不含M3。普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,9 +868,9 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-01三份Core源码已在本地`68e189b`，审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与同步状态文档；02正式Source / Build.cs尚未修改，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage。
+B2-02源码已在本地`c2df3c1`，本轮起点工作区干净。当前Stage B2-02验收报告 / 指南收尾、B3-01新指南与实际更新的共享状态文档；B3-01三新UI源码尚未写入正式工程，Artifacts候选不Stage。源码 / 资产 / Config未变化时不重复Stage。
 
-- 英文建议：`docs: verify video preview kernel and prepare native integration`
-- 中文译文：`docs: 完成视频预览内核验收并准备原生窗口接入`
+- 英文文档建议：`docs: verify native video preview and plan display settings draft`
+- 专业中文：`docs: 完成原生视频预览验收并规划显示设置草稿`
 
-Stage / Commit / Push由用户操作；个人配置、Runtime / 候选 / 日志 / 缓存 / 包留本地。
+未来B3-01实施后的源码与文档建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人设置 / 日志 / 候选 / 缓存 / 包留本地。

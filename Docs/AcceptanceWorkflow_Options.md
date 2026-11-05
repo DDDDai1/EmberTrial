@@ -318,11 +318,17 @@ B1实际一Success / 双Build / 只读查询与短查通过，人工38 / 等待3
 
 两新 / 六旧Core，扩原VideoModeRules覆盖模式映射与UE自动SetScreenResolution→Confirm调用顺序，原事务各一次。PIE只查拒绝，真实验证用关闭编辑器后的独立-game进程与Artifacts专用ini。检查目录、窗口取消 / 超时 / 确认与重复拒绝、配置保护、暂停下实时时限、一次切图恢复与无边框；10–15分钟，不需精确按秒。独占全屏 / 完整UI在B3，不新建镜像测试、临时蓝图或跑全36项 / Cook。窗口 / OS恢复失败如实保留日志，不假报成功。
 
+02实际双Build / 两Success、PIE拒绝和独立窗口实测通过，人工95 / 等待5；恢复移动转向由用户补齐，目录示例限制已修正文档。
+
+## M3-05B3-01最小范围
+
+三新UI普通文件，只新VideoDraft一次覆盖目录 / 模式选择、浏览无副作用、过期环境拒绝、关闭重开；原P输入卡与移动转向2分钟短查。无新Widget / 真实切屏 / Config，不重复B2窗口矩阵、旧输入专项、全37项或Cook。B3-02再用真实共享显示卡验证确认交互和关闭取消。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-01三份Core源码已在本地`68e189b`，审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与同步状态文档；02正式Source / Build.cs尚未修改，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage。
+B2-02源码已在本地`c2df3c1`，本轮起点工作区干净。当前Stage B2-02验收报告 / 指南收尾、B3-01新指南与实际更新的共享状态文档；B3-01三新UI源码尚未写入正式工程，Artifacts候选不Stage。源码 / 资产 / Config未变化时不重复Stage。
 
-- 英文建议：`docs: verify video preview kernel and prepare native integration`
-- 中文译文：`docs: 完成视频预览内核验收并准备原生窗口接入`
+- 英文文档建议：`docs: verify native video preview and plan display settings draft`
+- 专业中文：`docs: 完成原生视频预览验收并规划显示设置草稿`
 
-Stage / Commit / Push由用户操作；个人配置、Runtime / 候选 / 日志 / 缓存 / 包留本地。
+未来B3-01实施后的源码与文档建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人设置 / 日志 / 候选 / 缓存 / 包留本地。

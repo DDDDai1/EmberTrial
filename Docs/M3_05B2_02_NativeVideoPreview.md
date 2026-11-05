@@ -1,6 +1,6 @@
 # M3-05B2-02：原生视频预览、实时时钟与回退
 
-2026-11-05，UE **5.5.4**。[01事务内核已验收](Reports/M3_05B2_01_Verification.md)。本章源码已由用户实施；本次自动化与独立窗口测试结果见第8.1节，完整章节验收仍需结合构建、索引和用户手动部分的反馈。
+2026-11-05，UE **5.5.4**。**本章已验收，无待补。**[验收报告](Reports/M3_05B2_02_Verification.md)汇总双Build / 两Success与独立窗口实测；当前进入[B3-01显示设置草稿](M3_05B3_01_VideoSettingsDraft.md)。以下实现步骤保留供复查，不要求重做。
 
 ## 1. 本章交付与约束
 
@@ -10,7 +10,7 @@ CoreTicker仅在应用 / 确认 / 恢复期间运行，时间来自FPlatformTime
 
 **只允许独立游戏进程真实切屏**（!GIsEditor、Game World、Standalone）；PIE / 编辑器内嵌窗口明确拒绝。主显示器是本批验证范围，跨显示器 / HDR / 刷新率不在本批。新确认UI留B3，这批使用开发控制台。后续页面必须在关闭时主动CancelPreview；Core无法把“Owner对象仍存活”当作“Widget仍在屏幕上”。
 
-预算代码90–140 / 阅读10–15 / 实机10–15分钟，构建与独立启动等待另记，可分两次完成。实际207 Source / 117cpp（Core82 / UI32 / Editor3）、36测试、300 Content / 来源81；完成后预计209 Source / 118cpp（Core83 / UI32 / Editor3），36测试及资产数量保持。
+实施前预算代码90–140 / 阅读10–15 / 实机10–15分钟；实际代码70 / 阅读10 / 检查15，共95分钟，等待5。现209 Source / 118cpp（Core83 / UI32 / Editor3）、36测试、300 Content / 来源81。
 
 ## 2. 文件与准备
 
@@ -1107,13 +1107,13 @@ et.VideoPreview confirm
 
 ### 8.1 2026-11-05 实际测试记录
 
-助手按用户授权操作独立`-game`窗口；完整日志为本地`Artifacts/M3_05B2_02/Runtime/VideoPreview01.log`，配置为同目录`VideoPreviewUser.ini`。编辑器日志显示`VideoModeRules`与`VideoPreviewTransaction`各一次Success，PIE请求返回Serial=0；本次未独立复核构建和索引。
+助手按用户授权操作独立`-game`窗口；完整日志为本地`Artifacts/M3_05B2_02/Runtime/VideoPreview01.log`，配置为同目录`VideoPreviewUser.ini`。编辑器日志显示`VideoModeRules`与`VideoPreviewTransaction`各一次Success，PIE请求返回Serial=0；本次电脑操作未独立复核构建和索引；用户17:25已确认双Build / 三索引和完整短查通过，整章结论见验收报告。
 
 - 初始Native=1，实际1280×720窗口；候选目录包含1536×864和1365×767。
 - Serial 1：1280×720 → 1536×864，手动取消后实际恢复1280×720，Result=3。预览时配置请求值与确认值均保持1280×720。
 - Serial 2：相同候选未确认，超时后实际恢复1280×720，Result=4。
 - Serial 3：确认1536×864，ConfirmAccepted=1、SaveRequested一次；重复确认返回0。专用ini中请求和确认尺寸均为1536×864。
-- 暂停中1280×720请求返回Serial=0；结合目录实现，当前尺寸不再为1280时它可能不在候选目录，具体拒绝原因日志未细分。改用目录中的1365×767：Serial 4在Paused=1期间倒计时结束并恢复1536×864，Result=4；P可关闭暂停页，移动和鼠标转向未单独核验。
+- 暂停中1280×720请求返回Serial=0；结合目录实现，当前尺寸不再为1280时它可能不在候选目录，具体拒绝原因日志未细分。改用目录中的1365×767：Serial 4在Paused=1期间倒计时结束并恢复1536×864，Result=4；P可关闭暂停页；助手未单独核验移动和鼠标转向，用户17:25反馈已补齐通过。
 - Serial 5：游戏暂停时预览1365×767，返回主菜单触发世界清理，实际恢复1536×864，Result=3。此处覆盖游戏到菜单的切图，未重复菜单到游戏方向。
 - Serial 6：无边框实际2048×1152 / Mode=1，手动取消恢复1536×864窗口，Result=3。正常退出日志完整；专用配置最终1536×864，未恢复1280×720。独占全屏未测。
 
@@ -1139,43 +1139,9 @@ Runtime目录（沿用默认可填沿用）/ 专用配置保留 / 正常退出�
 
 ## 10. Commit / Push（固定放在最后）
 
-**当前范围**：01实现在本地`68e189b`；02源码已由用户实施，本指南含实测记录。按CLion实际变更检查01收尾文档及02范围，尚未完成的完整章节验收不要提前记为通过。
+B2-02源码已在本地`c2df3c1`，本轮起点工作区干净。当前Stage B2-02验收报告 / 指南收尾、B3-01新指南与实际更新的共享状态文档；B3-01三新UI源码尚未写入正式工程，Artifacts候选不Stage。源码 / 资产 / Config未变化时不重复Stage。
 
-**实施后**，CLion核对第2节两新 / 六旧Core文件及实际更新的本指南 / Reports / Progress等共享文档；无UI / Content / 共享Config改动。未生成报告不创建空文件，未变资产不重存。
+- 英文文档建议：`docs: verify native video preview and plan display settings draft`
+- 专业中文：`docs: 完成原生视频预览验收并规划显示设置草稿`
 
-Runtime日志、VideoPreviewUser.ini、Saved / Intermediate / Binaries、.idea / CMake生成与Artifacts候选留本地。
-
-### 10.1 源码提交
-
-范围为第2节列出的两新 / 六旧Core文件，核对实际差异后Stage。
-
-英文实现建议：`feat: integrate native video preview with realtime rollback`。
-
-专业中文：`feat: 接入原生视频预览与实时时限回退`。
-
-### 10.2 文档提交
-
-本次尚未提交的文档范围如下，路径相对工程仓库根目录；只Stage实际有变化的文件：
-
-```text
-Docs/M3_05B2_02_NativeVideoPreview.md
-Docs/Reports/M3_05B2_01_Verification.md
-Docs/M3_05B2_01_VideoPreviewTransaction.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/M3_Roadmap.md
-Docs/M2_Roadmap.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Introduction.md
-README.md
-```
-
-英文文档建议：`docs: document native video preview and runtime verification`。
-
-专业中文：`docs: 记录原生视频预览方案与运行验证结果`。
-
-可先提交10.1源码，再提交10.2文档，最后一起Push。若希望本章源码与文档合为一次Commit，可使用英文`feat: integrate and verify native video preview with realtime rollback`；专业中文为`feat: 接入并验证原生视频预览与实时时限回退`。
-
-Stage后有修改需重新Stage最新版本 → Review → Commit / Push由用户操作。
+未来B3-01实施后的源码与文档建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人设置 / 日志 / 候选 / 缓存 / 包留本地。

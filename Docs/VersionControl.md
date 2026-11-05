@@ -386,11 +386,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-05 B2-01收尾：本地68e189b已有三新Core，源码与候选一致，规模207 / 117 / 36、来源81不变；双Build / 一Success与短查通过。当前Stage 01报告 / 收尾、02指南 / 状态；02正式源码 / Build.cs尚未写入，未来两新 / 六旧Core按指南实施，不提前Stage候选 / 空报告。Runtime日志与专用VideoPreviewUser.ini保持Artifacts本地，不覆盖共享Config或强制重存资产。
 
+2026-11-05 B2-02收尾：本地c2df3c1已有两新 / 六旧Core，候选归一一致，209 / 118 / 36与来源81保持；双Build / 两Success / 原生实测已验收。当前只Stage报告 / 指南收尾、B3-01新指南与共享状态；未来三新UI由用户手动实施。Artifacts运行日志 / 专用ini留本地，助手未操作索引或远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-01三份Core源码已在本地`68e189b`，审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与同步状态文档；02正式Source / Build.cs尚未修改，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage。
+B2-02源码已在本地`c2df3c1`，本轮起点工作区干净。当前Stage B2-02验收报告 / 指南收尾、B3-01新指南与实际更新的共享状态文档；B3-01三新UI源码尚未写入正式工程，Artifacts候选不Stage。源码 / 资产 / Config未变化时不重复Stage。
 
-- 英文建议：`docs: verify video preview kernel and prepare native integration`
-- 中文译文：`docs: 完成视频预览内核验收并准备原生窗口接入`
+- 英文文档建议：`docs: verify native video preview and plan display settings draft`
+- 专业中文：`docs: 完成原生视频预览验收并规划显示设置草稿`
 
-Stage / Commit / Push由用户操作；个人配置、Runtime / 候选 / 日志 / 缓存 / 包留本地。
+未来B3-01实施后的源码与文档建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人设置 / 日志 / 候选 / 缓存 / 包留本地。

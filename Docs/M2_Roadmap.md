@@ -53,15 +53,15 @@ M1登记手动22h18不同于全项目设计 /理解总成本，不能将后续�
 
 [M2总报告](Reports/M2_Verification.md)、[07总报告](Reports/M2_07_Verification.md)与[C材料收尾](Reports/M2_07C_Verification.md)已保存，用户本轮要求继续下一章。A的23项与两进程包、B真实性能分析沿用，无新执行；C没有逐项理解答卷或实耗，不将继续开发当成独立面试能力认证。
 
-[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05B2-01预览事务](Reports/M3_05B2_01_Verification.md)已验收，当前[02原生窗口](M3_05B2_02_NativeVideoPreview.md)待手动实施。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
+[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05B2-02原生预览](Reports/M3_05B2_02_Verification.md)已验收，当前[B3-01显示设置草稿](M3_05B3_01_VideoSettingsDraft.md)待手动实施。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
 
-M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4656 / 明确等待405，M3实际1245 / 等待81分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
+M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目4751 / 明确等待410，M3实际1340 / 等待86分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-01三份Core源码已在本地`68e189b`，审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与同步状态文档；02正式Source / Build.cs尚未修改，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage。
+B2-02源码已在本地`c2df3c1`，本轮起点工作区干净。当前Stage B2-02验收报告 / 指南收尾、B3-01新指南与实际更新的共享状态文档；B3-01三新UI源码尚未写入正式工程，Artifacts候选不Stage。源码 / 资产 / Config未变化时不重复Stage。
 
-- 英文建议：`docs: verify video preview kernel and prepare native integration`
-- 中文译文：`docs: 完成视频预览内核验收并准备原生窗口接入`
+- 英文文档建议：`docs: verify native video preview and plan display settings draft`
+- 专业中文：`docs: 完成原生视频预览验收并规划显示设置草稿`
 
-Stage / Commit / Push由用户操作；个人配置、Runtime / 候选 / 日志 / 缓存 / 包留本地。
+未来B3-01实施后的源码与文档建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人设置 / 日志 / 候选 / 缓存 / 包留本地。
