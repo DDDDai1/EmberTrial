@@ -312,11 +312,17 @@ B1实际一Success / 双Build / 只读查询与短查通过，人工38 / 等待3
 
 三新Core事务内核，只新VideoPreviewTransaction一次，覆盖观察 / 期限 / Serial、确认 / 恢复、失败重试与非法时间；夹具用精确半秒 / 四分之一秒避免十进制边界误差。无World / 显示I/O，不冒充暂停下原生计时 / 实际切屏。实机仅原P / 移动3–5分钟，无临时蓝图、全36项 / 重复旧矩阵 / 新Cook；真实窗口接入归02。
 
+01实际一Success / 双Build与短查通过，人工47 / 等待3；纯值事务不作为OS切屏或暂停下原生计时证据。
+
+## M3-05B2-02最小范围
+
+两新 / 六旧Core，扩原VideoModeRules覆盖模式映射与UE自动SetScreenResolution→Confirm调用顺序，原事务各一次。PIE只查拒绝，真实验证用关闭编辑器后的独立-game进程与Artifacts专用ini。检查目录、窗口取消 / 超时 / 确认与重复拒绝、配置保护、暂停下实时时限、一次切图恢复与无边框；10–15分钟，不需精确按秒。独占全屏 / 完整UI在B3，不新建镜像测试、临时蓝图或跑全36项 / Cook。窗口 / OS恢复失败如实保留日志，不假报成功。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B1三份新Core源码已在本地`caf1eec`，审查起点工作区干净。当前Stage B1验收报告 / 指南收尾、B2-01新指南与同步状态文档；01正式Source尚未实施，不Stage忽略Artifacts里的候选。未变化源码 / 资产不重复Stage。
+01三份Core源码已在本地`68e189b`，审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与同步状态文档；02正式Source / Build.cs尚未修改，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage。
 
-- 英文建议：`docs: verify video modes and prepare preview transactions`
-- 中文译文：`docs: 完成视频模式验收并准备预览事务`
+- 英文建议：`docs: verify video preview kernel and prepare native integration`
+- 中文译文：`docs: 完成视频预览内核验收并准备原生窗口接入`
 
-Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人配置、Runtime / 候选 / 日志 / 缓存 / 包留本地。

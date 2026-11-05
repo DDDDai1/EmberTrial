@@ -162,7 +162,7 @@ M2历史23项自动化（含新增SpawnPlacement生成前贴地 / 回退）覆�
 
 C1的FETRelicAltarAccess不可复制，持有弱World / Controller / 身体 / 来源 / 会话身份。C2已由单Flow在未暂停时创建、取得暂停并成功呈现后发放；弱View委托携带身份，最终接收端重验当前页 / IsInViewport / 暂停归属与Core实时资格。Presenter只提交槽 / 稳定ID / 观察版本，沿同一事务完成；无搜索结果仍能卸装，普通P只读。移除时先Close / Reset Access和命令，再清View；旧观察结果 / 执行中解绑有代际与强局部保活保护，不用短暂解暂停换取写入权限。公开UI委托使用Core类型，EmberTrial是UI公开依赖，Core无UI反向依赖。
 
-M3当前35项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规则3项；C2只执行Presenter / RelicAltar / EquipmentTransactions三项，无屏幕夹具、用户真实键鼠、资产Valid和真实Retry日志分开记录。[C2报告](Reports/M3_04C2_Verification.md)已关闭，独立包仍M2_07A/Attempt01，不代表M3已打包。
+M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规则 / 预览事务4项；C2只执行Presenter / RelicAltar / EquipmentTransactions三项，无屏幕夹具、用户真实键鼠、资产Valid和真实Retry日志分开记录。[C2报告](Reports/M3_04C2_Verification.md)已关闭，独立包仍M2_07A/Attempt01，不代表M3已打包。
 
 **输入偏好已落地。** [A1](Reports/M3_05A1_Verification.md)由引擎持有的UETGameUserSettings保存合法个人偏好，Character原Look消费一次；默认1 / 不反转、运行拒绝非法值、重启持久化已验证。个人ini与GI配装 / 试炼资源分开，锁定相机继续拥有构图 / 跟随。SaveSettings只在明确确认调用，逻辑配置名与实际Saved物理路径分开记录；没有每帧读写ini。
 
@@ -172,13 +172,15 @@ M3当前35项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **B1已验收。** [视频模式规则](Reports/M3_05B1_Verification.md)以普通Core值对象分开请求 / 上次确认 / 桌面状态，候选依赖调用方平台目录，无边框正规化到桌面，失败清空。三源码 / 双Build / 专项与只读查询通过；原生配置2048×1152 / 无边框不冒充实际Viewport，未切屏 / 保存。
 
-**B2-01待实施。** [预览事务内核](M3_05B2_01_VideoPreviewTransaction.md)只处理纯值、单调绝对时间与命令意图；实际候选观察后才确认，过期 / 取消 / 外部变化恢复基线，失败显式保留，Serial隔离旧页。所有状态调用由同一宿主顺序执行；02接平台窗口 / 实时时钟 / 生命周期并执行命令，不能把CommitCandidate许可当已落盘。三新文件仅候选 / 指南，正式Source未改，真实显示与B3界面仍后续。
+**B2-01已验收。** [事务内核](Reports/M3_05B2_01_Verification.md)只接纯值 / 绝对单调时间并返回命令意图，观察候选后确认，恢复也必须观察实际基线；期限、Serial、失败重试已由专项验证。单宿主顺序调用，无World / I/O，不将CommitCandidate许可当落盘成功。
+
+**02待实施。** [GI视频适配](M3_05B2_02_NativeVideoPreview.md)将绑定弱Owner / World / Viewport / 原生Window身份，预览期间CoreTicker用平台时间，世界清理或所有者失效取消。UE会在窗口变化后自动ConfirmVideoMode，派生设置类保护原视频字段，显式确认才提交；SlateCore私有、窗口枚举ApplicationCore公开，分辨率目录复用Engine接口，Core无项目UI反向依赖。两新 / 六旧Core仅候选 / 指南，独立-game与专用ini的实际回退尚待用户验证，B3页面关闭需主动取消。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B1三份新Core源码已在本地`caf1eec`，审查起点工作区干净。当前Stage B1验收报告 / 指南收尾、B2-01新指南与同步状态文档；01正式Source尚未实施，不Stage忽略Artifacts里的候选。未变化源码 / 资产不重复Stage。
+01三份Core源码已在本地`68e189b`，审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与同步状态文档；02正式Source / Build.cs尚未修改，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage。
 
-- 英文建议：`docs: verify video modes and prepare preview transactions`
-- 中文译文：`docs: 完成视频模式验收并准备预览事务`
+- 英文建议：`docs: verify video preview kernel and prepare native integration`
+- 中文译文：`docs: 完成视频预览内核验收并准备原生窗口接入`
 
-Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人配置、Runtime / 候选 / 日志 / 缓存 / 包留本地。

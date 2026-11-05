@@ -1,6 +1,6 @@
 # M3-05B2-01：视频预览确认与回退事务内核
 
-2026-11-05，UE **5.5.4**。[B1已验收](Reports/M3_05B1_Verification.md)，无待补。本章提供手动代码指南；正式Source尚未修改，没有本章Build / Success结论。
+2026-11-05，UE **5.5.4**。**本章已验收，无待补。**[报告](Reports/M3_05B2_01_Verification.md)记录双Build / 一Success与短查；当前进入[02原生视频预览](M3_05B2_02_NativeVideoPreview.md)。以下保留手动实现供学习 / 复查，不要求重做。
 
 ## 1. 分批与交付
 
@@ -22,7 +22,7 @@ stateDiagram-v2
 
 **返回命令是待执行意图，不是已切屏。** 所有入口都必须检查Type：None不做副作用、ApplyCandidate申请候选、RestoreBaseline申请基线、CommitCandidate才允许确认配置 / 保存。尤其过期Confirm会返回RestoreBaseline，不能把“收到返回值”一律当确认成功。命令每次返回由适配层执行一次；本章没有适配层，不执行任何真实切换 / 保存。
 
-预算代码45–70 / 阅读5–10 / 检查3–5分钟，等待另计。实际204 Source / 115cpp（Core80 / UI32 / Editor3）、35测试、300 Content / 来源81；完成后预计207 Source / 117cpp（Core82 / UI32 / Editor3）、36测试，资产保持。预计不计实耗。
+实施前预算代码45–70 / 阅读5–10 / 检查3–5；实际代码40 / 阅读5 / 检查2，共47分钟、等待3。现207 Source / 117cpp（Core82 / UI32 / Editor3）、36测试、300 Content / 来源81；M3累计1245 / 等待81，项目4656 / 明确等待405。
 
 ## 2. 创建位置
 
@@ -472,12 +472,9 @@ VideoPreviewTransaction一次：
 
 ## 8. Commit / Push（固定放在最后）
 
-**当前收尾文档**：B1实现在本地`caf1eec`，当前Stage B1验收 / 指南收尾、状态与本01指南；01正式源码尚未实施。英文`docs: verify video modes and prepare preview transactions`；中文`docs: 完成视频模式验收并准备预览事务`。
+01三份Core源码已在本地`68e189b`，审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与同步状态文档；02正式Source / Build.cs尚未修改，忽略Artifacts候选不Stage。未变化源码 / 资产不重复Stage。
 
-**本章实施后**，CLion核对第2节三新Core与实际修改的本指南 / Reports / Progress等共享文档。本章不改既有Source、Build.cs、Config / Content，不强制重存资产；未生成报告不建空文件。个人ini / Saved / Intermediate / Binaries / .idea / CMake生成 / Artifacts留本地。
+- 英文建议：`docs: verify video preview kernel and prepare native integration`
+- 中文译文：`docs: 完成视频预览内核验收并准备原生窗口接入`
 
-英文实现建议：`feat: add video preview confirmation and rollback state machine`。
-
-专业中文：`feat: 新增视频预览确认与回退状态机`。
-
-Stage后继续修改需重新Stage最新版本 → Review → Commit / Push由用户操作。
+Stage / Commit / Push由用户操作；个人配置、Runtime / 候选 / 日志 / 缓存 / 包留本地。
