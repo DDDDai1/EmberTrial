@@ -1,6 +1,6 @@
 # M3-05B3-01：显示设置草稿与候选目录
 
-2026-11-05，UE **5.5.4**。[B2-02已验收](Reports/M3_05B2_02_Verification.md)，无待补。本章为手动实施指南；完整代码只在文档与忽略候选中，正式Source尚未写入，未执行本章Build或自动化。
+2026-11-05，UE **5.5.4**。**本章已验收，无待补。**[报告](Reports/M3_05B3_01_Verification.md)记录双Build / 一Success与短查；当前进入[02共享显示设置卡](M3_05B3_02_VideoSettingsUI.md)。以下实施步骤保留供复查，不要求重做。
 
 ## 1. 本章效果与分工
 
@@ -8,7 +8,7 @@
 
 **本批不会出现新的显示设置卡片。** B3-02接共享Widget、模式 / 分辨率下拉框与确认 / 回退交互，再挂主菜单和原Pause页。Serial、阶段、计时和配置保护始终由B2拥有；本类不重复实现事务。后续Widget关闭须用自己的Owner / Serial显式Cancel并解绑，预览繁忙期间禁用编辑，事务结束重新建立草稿。PIE保持真实切屏拒绝，页面届时显示独立游戏操作提示。
 
-实际209 Source / 118cpp（Core83 / UI32 / Editor3）、36测试、300 Content / 来源81；本批三新UI后预计212 Source / 120cpp（Core83 / UI34 / Editor3）、37测试，资产数量保持。预算代码45–65 / 阅读5–10 / 检查2–5分钟，构建等待另记。
+实施前预算代码45–65 / 阅读5–10 / 检查2–5；实际代码50 / 阅读10 / 检查2，共62分钟，等待10。现212 Source / 120cpp（Core83 / UI34 / Editor3）、37测试、300 Content / 来源81。
 
 ## 2. 创建三份普通文件
 
@@ -372,33 +372,9 @@ UI.Settings.VideoDraft一次：
 
 ## 8. Commit / Push（固定放在最后）
 
-### 8.1 本轮文档收尾
+B3-01三份UI源码已在本地`3682aa6`，本轮审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与实际更新的共享状态文档；02两新 / 四旧UI源码和三个资产尚未实施，Artifacts候选不Stage。
 
-B2-02源码已在本地`c2df3c1`，只Stage本轮有变化的以下文档；B3-01源码仍为Artifacts候选，不提前Stage：
+- 英文文档建议：`docs: verify display settings draft and prepare shared video settings UI`
+- 专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`
 
-```text
-Docs/Reports/M3_05B2_02_Verification.md
-Docs/M3_05B2_02_NativeVideoPreview.md
-Docs/M3_05B3_01_VideoSettingsDraft.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/M3_Roadmap.md
-Docs/M2_Roadmap.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Introduction.md
-README.md
-```
-
-英文建议：`docs: verify native video preview and plan display settings draft`。
-
-专业中文：`docs: 完成原生视频预览验收并规划显示设置草稿`。
-
-### 8.2 本章实施后的源码与文档
-
-源码为第2节三新UI文件。英文建议：`feat: add display settings draft with validated preview candidates`；专业中文：`feat: 新增显示设置草稿与预览候选校验`。
-
-文档为本指南与实际更新的验收 / Progress / Roadmap等，未生成报告不建空文件。英文建议：`docs: record display settings draft implementation and verification`；专业中文：`docs: 记录显示设置草稿实现与验证结果`。若源码和文档一起提交，可用上一条feat建议。
-
-Artifacts候选、Runtime / 专用ini、Saved / Intermediate / Binaries、.idea与生成索引留本地。资产 / Config无变化无需Stage。Stage后又编辑须重新Stage → Review → Commit / Push由用户操作。
+未来02源码 / 资产与独立文档提交建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人配置、日志、候选 / 缓存与包留本地。

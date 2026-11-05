@@ -388,11 +388,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-05 B2-02收尾：本地c2df3c1已有两新 / 六旧Core，候选归一一致，209 / 118 / 36与来源81保持；双Build / 两Success / 原生实测已验收。当前只Stage报告 / 指南收尾、B3-01新指南与共享状态；未来三新UI由用户手动实施。Artifacts运行日志 / 专用ini留本地，助手未操作索引或远端。
 
+2026-11-05 B3-01收尾：本地3682aa6已有三新UI，候选一致，212 / 120 / 37与来源81保持；双Build / 一Success和原P短查通过。当前只Stage01报告 / 收尾、02指南与状态；02两新 / 四旧UI / 一新WBP和两旧宿主尚未实施，不预填来源。个人设置 / Runtime留Artifacts，Git仍用户操作。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B2-02源码已在本地`c2df3c1`，本轮起点工作区干净。当前Stage B2-02验收报告 / 指南收尾、B3-01新指南与实际更新的共享状态文档；B3-01三新UI源码尚未写入正式工程，Artifacts候选不Stage。源码 / 资产 / Config未变化时不重复Stage。
+B3-01三份UI源码已在本地`3682aa6`，本轮审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与实际更新的共享状态文档；02两新 / 四旧UI源码和三个资产尚未实施，Artifacts候选不Stage。
 
-- 英文文档建议：`docs: verify native video preview and plan display settings draft`
-- 专业中文：`docs: 完成原生视频预览验收并规划显示设置草稿`
+- 英文文档建议：`docs: verify display settings draft and prepare shared video settings UI`
+- 专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`
 
-未来B3-01实施后的源码与文档建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人设置 / 日志 / 候选 / 缓存 / 包留本地。
+未来02源码 / 资产与独立文档提交建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人配置、日志、候选 / 缓存与包留本地。

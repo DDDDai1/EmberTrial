@@ -176,13 +176,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **B2-02已验收。** [GI视频适配](Reports/M3_05B2_02_Verification.md)绑定弱Owner / World / Viewport / 原生Window；CoreTicker用平台时间，清理时取消。派生设置类保护UE自动Confirm / 保存造成的候选泄漏，显式确认才提交；真实取消 / 超时 / 暂停 / 切图恢复已验证。SlateCore私有、ApplicationCore公开，目录复用Engine，Core不依赖项目UI。
 
-**B3-01待实施。** [显示草稿](M3_05B3_01_VideoSettingsDraft.md)由UI模块持有纯值副本，从实际模式 / 平台目录生成选择；无边框固定桌面，旧基线 / 目录失效时拒绝预览。三新UI仅候选，Serial / 时钟 / 回退继续归B2，02宿主关闭仍须主动Cancel并解绑。
+**B3-01已验收。** [显示草稿](Reports/M3_05B3_01_Verification.md)由UI持有纯值副本，从实际模式 / 平台目录生成选择；无边框固定桌面，外部实际 / 目录变化时拒绝过期候选，关闭重开丢弃旧状态。三源码 / 专项与短查通过。
+
+**B3-02待实施。** [共享显示卡](M3_05B3_02_VideoSettingsUI.md)复用主菜单 / Pause；本View持有Owner=this / 返回Serial，Begin同步事件在认领前抑制，随后读快照；Core拥有时钟与副作用。宿主NativeDestruct显式CloseView先解绑后取消，Pending也取消；无Widget Tick / 世界Timer。两新 / 四旧UI与三资产仅候选 / 指南，实际确认 / 恢复须另验。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B2-02源码已在本地`c2df3c1`，本轮起点工作区干净。当前Stage B2-02验收报告 / 指南收尾、B3-01新指南与实际更新的共享状态文档；B3-01三新UI源码尚未写入正式工程，Artifacts候选不Stage。源码 / 资产 / Config未变化时不重复Stage。
+B3-01三份UI源码已在本地`3682aa6`，本轮审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与实际更新的共享状态文档；02两新 / 四旧UI源码和三个资产尚未实施，Artifacts候选不Stage。
 
-- 英文文档建议：`docs: verify native video preview and plan display settings draft`
-- 专业中文：`docs: 完成原生视频预览验收并规划显示设置草稿`
+- 英文文档建议：`docs: verify display settings draft and prepare shared video settings UI`
+- 专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`
 
-未来B3-01实施后的源码与文档建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人设置 / 日志 / 候选 / 缓存 / 包留本地。
+未来02源码 / 资产与独立文档提交建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人配置、日志、候选 / 缓存与包留本地。

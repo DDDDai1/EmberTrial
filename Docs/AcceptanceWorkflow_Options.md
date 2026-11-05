@@ -324,11 +324,17 @@ B1实际一Success / 双Build / 只读查询与短查通过，人工38 / 等待3
 
 三新UI普通文件，只新VideoDraft一次覆盖目录 / 模式选择、浏览无副作用、过期环境拒绝、关闭重开；原P输入卡与移动转向2分钟短查。无新Widget / 真实切屏 / Config，不重复B2窗口矩阵、旧输入专项、全37项或Cook。B3-02再用真实共享显示卡验证确认交互和关闭取消。
 
+01实际双Build / 一VideoDraft Success与短查通过，人工62 / 等待10，无新资产。
+
+## M3-05B3-02最小范围
+
+两新 / 四旧UI，一新WBP与两旧宿主。只原VideoDraft / VideoPreviewTransaction各一次；三资产Valid / PIE禁用短查，独立-game专用ini验证真实卡片、键盘焦点、确认 / 取消 / 超时、暂停与页面关闭 / 切图取消。无临时Blueprint、重复旧装卸矩阵、全37项或新Cook；原生恢复失败只做日志窄查。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B2-02源码已在本地`c2df3c1`，本轮起点工作区干净。当前Stage B2-02验收报告 / 指南收尾、B3-01新指南与实际更新的共享状态文档；B3-01三新UI源码尚未写入正式工程，Artifacts候选不Stage。源码 / 资产 / Config未变化时不重复Stage。
+B3-01三份UI源码已在本地`3682aa6`，本轮审查起点工作区干净。当前Stage 01验收报告 / 指南收尾、02新指南与实际更新的共享状态文档；02两新 / 四旧UI源码和三个资产尚未实施，Artifacts候选不Stage。
 
-- 英文文档建议：`docs: verify native video preview and plan display settings draft`
-- 专业中文：`docs: 完成原生视频预览验收并规划显示设置草稿`
+- 英文文档建议：`docs: verify display settings draft and prepare shared video settings UI`
+- 专业中文：`docs: 完成显示设置草稿验收并准备共享显示设置界面`
 
-未来B3-01实施后的源码与文档建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人设置 / 日志 / 候选 / 缓存 / 包留本地。
+未来02源码 / 资产与独立文档提交建议分别见新指南末尾。Stage / Commit / Push由用户操作，个人配置、日志、候选 / 缓存与包留本地。
