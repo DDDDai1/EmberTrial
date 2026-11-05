@@ -168,13 +168,15 @@ M3当前34项含原M2的23项、遗物9项与输入偏好 / 草稿2项；C2只�
 
 **A2输入卡已落地。** [输入设置卡](Reports/M3_05A2_Verification.md)嵌入原Pause左列，Pause透传Flow已有busy，Flow源码未改。纯值Draft保存应用基线与候选，浏览 / 默认 / 取消不应用；确认重验外部当前值与实际Viewport宿主，成功才应用 / 保存。程序同步控件防重入，移除时封口 / 丢弃未应用草稿；原P、卡内Esc与键盘焦点通过。两项专项与实际UI分开记录，个人设置不要求Pawn / ASC。
 
-**A3待实施。** [主菜单复用](M3_05A3_MainMenuInputSettings.md)只加原菜单第五绑定与busy透传，复用同一WBP输入卡和通用文案；原Controller / Session仍拥有切图与初始焦点。四旧UI / 两旧Widget仅候选 / 指南，正式工程尚未改动；无新增类或测试。显示确认回退和音量输出后续。
+**A3已验收。** [主菜单](Reports/M3_05A3_Verification.md)加入第五输入卡绑定与Pending透传，复用同一WBP与通用文案；Controller / Session仍拥有切图 / 初始焦点。卡片无需Pawn / ASC，未应用离开不提交，应用后游戏与Pause同值；无新增类 / 测试。
+
+**B1待实施。** [视频模式规则](M3_05B1_VideoModeRules.md)将以普通Core值对象区分请求 / 上次确认 / 桌面状态；候选依赖平台目录，无边框正规化到桌面，失败清空。当前仅三新候选 / 指南，不切屏 / 保存。实际Viewport基线、应用 / 确认及暂停下回退由后续事务负责，不能把原生请求值当实际显示结果。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-A2五新UI / 两旧Pause与两资产已在本地`df3a1cd`，审查起点工作区干净。当前Stage A2验收报告 / 指南收尾、来源清单、A3新指南与同步状态文档；A3正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+A3四旧UI文件与两资产已在本地`63ff171`，审查起点工作区干净。当前Stage A3验收报告 / 指南收尾、两资产来源更新、B1新指南与同步状态文档；B1正式Source尚未实施，不Stage忽略Artifacts里的候选。提交范围以本地实际差异为准，不重复Stage未变化源码 / 资产。
 
-- 英文建议：`docs: verify pause input settings and prepare main menu reuse`
-- 中文译文：`docs: 完成暂停输入设置验收并准备主菜单复用`
+- 英文建议：`docs: verify main menu settings and prepare video mode rules`
+- 中文译文：`docs: 完成主菜单设置验收并准备视频模式规则`
 
-Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

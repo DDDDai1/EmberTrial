@@ -380,11 +380,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-05 A2收尾：df3a1cd已含五新UI / 两旧Pause与两资产，七源码与候选一致、工作区起点干净；输入卡新增来源、Pause更新SHA / LFS，来源81。用户反馈14:08与11月4日晚实物 / 日志分别记载。当前仅提交A2收尾与A3指南 / 状态，A3未来四旧UI / 两旧Widget按指南实施；没有新增类 / 测试或强制重存Pause，个人设置仍留本地。助手未操作索引或核验远端。
 
+2026-11-05 A3收尾：本地63ff171已含四旧UI与两旧Widget，源码候选一致；来源两行更新SHA / LFS，规模201 / 113 / 34、来源81保持。双Build / 一Success / 两Valid与双宿主实机已验收。当前仅Stage A3收尾与B1指南 / 状态；未来B1三新Core按指南实施，不提前建空报告 / Stage候选，个人设置留本地。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-A2五新UI / 两旧Pause与两资产已在本地`df3a1cd`，审查起点工作区干净。当前Stage A2验收报告 / 指南收尾、来源清单、A3新指南与同步状态文档；A3正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+A3四旧UI文件与两资产已在本地`63ff171`，审查起点工作区干净。当前Stage A3验收报告 / 指南收尾、两资产来源更新、B1新指南与同步状态文档；B1正式Source尚未实施，不Stage忽略Artifacts里的候选。提交范围以本地实际差异为准，不重复Stage未变化源码 / 资产。
 
-- 英文建议：`docs: verify pause input settings and prepare main menu reuse`
-- 中文译文：`docs: 完成暂停输入设置验收并准备主菜单复用`
+- 英文建议：`docs: verify main menu settings and prepare video mode rules`
+- 中文译文：`docs: 完成主菜单设置验收并准备视频模式规则`
 
-Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

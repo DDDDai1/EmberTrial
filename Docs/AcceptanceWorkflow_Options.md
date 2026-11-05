@@ -300,11 +300,17 @@ A2实际两Success / 两Valid / 双Build与键鼠通过，人工100 / 等待5；
 
 四旧UI / 两旧Widget，复用已验收草稿卡，不新增测试注册。只原InputDraft一次，5–10分钟真实菜单草稿不提交 / 应用后游戏生效、Pause同值、Tab / 方向键 / Enter-Space / Esc、Stop新卡与默认恢复。Controller / Core未改，不重跑None地图失败 / 死亡装卸矩阵、A1重启、全34项或新Cook；遇真实失败再据日志窄查。
 
+A3实际一Success / 两Valid / 双Build与菜单 / 游戏实际切换通过，人工55 / 等待2。原菜单Controller未改，不为收尾重做旧None地图 / 死亡装卸矩阵。
+
+## M3-05B1最小范围
+
+三新Core普通文件。新VideoModeRules一次覆盖目录 / 模式 / 正规化与引擎请求 / 确认分离；独立对象不Apply / Save。实机只明确查询et.VideoMode，0 / Valid0如实保留，不与Viewport画面等同；原P与移动3–5分钟。无新UI、切屏、临时蓝图、全35项 / 新Cook。真实应用 / 暂停下确认回退另由B2验证。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-A2五新UI / 两旧Pause与两资产已在本地`df3a1cd`，审查起点工作区干净。当前Stage A2验收报告 / 指南收尾、来源清单、A3新指南与同步状态文档；A3正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+A3四旧UI文件与两资产已在本地`63ff171`，审查起点工作区干净。当前Stage A3验收报告 / 指南收尾、两资产来源更新、B1新指南与同步状态文档；B1正式Source尚未实施，不Stage忽略Artifacts里的候选。提交范围以本地实际差异为准，不重复Stage未变化源码 / 资产。
 
-- 英文建议：`docs: verify pause input settings and prepare main menu reuse`
-- 中文译文：`docs: 完成暂停输入设置验收并准备主菜单复用`
+- 英文建议：`docs: verify main menu settings and prepare video mode rules`
+- 中文译文：`docs: 完成主菜单设置验收并准备视频模式规则`
 
-Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

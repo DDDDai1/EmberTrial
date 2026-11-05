@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-11-05。[M3-05A2已验收](Reports/M3_05A2_Verification.md)，无待补；当前[A3主菜单复用输入设置卡](M3_05A3_MainMenuInputSettings.md)待用户手动实施。实时规模 / 工时见Progress，历史行保留当时口径。
+更新2026-11-05。[M3-05A3已验收](Reports/M3_05A3_Verification.md)，无待补；当前[B1视频模式规则与原生快照](M3_05B1_VideoModeRules.md)待用户手动实施。实时规模 / 工时见Progress，历史行保留当时口径。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -130,7 +130,8 @@
 | M3-04C2 | [祭坛确认装备与卸装UI](Reports/M3_04C2_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 十旧UI模块 / 两资产、三Success / 双Build / 最终Valid与实机；95 / 等待2，无待补 |
 | M3-05A1 | [输入偏好与本地保存](Reports/M3_05A1_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 196 / 110 / 33、双Build / 两Success、实际轴与重启；60 / 等待5，无待补 |
 | M3-05A2 | [暂停页输入设置与草稿确认](Reports/M3_05A2_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 201 / 113 / 34、两Success / 两Valid / 双Build与实机；100 / 等待5，无待补 |
-| M3-05A3 | [主菜单复用输入卡](M3_05A3_MainMenuInputSettings.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 四旧UI / 两旧Widget，数量保持；一原专项与菜单切换短查 |
+| M3-05A3 | [主菜单复用输入卡](Reports/M3_05A3_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 四旧UI / 两旧Widget，双Build / 一Success / 两Valid与实机；55 / 等待2，无待补 |
+| M3-05B1 | [视频模式快照与候选规则](M3_05B1_VideoModeRules.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 三新Core、无切屏 / 保存；一新规则专项与只读查询 / P短查 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -148,7 +149,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 01–04两件遗物正式闭环已验收；05A1 / A2已验收，A3主菜单复用待实施；完整6件与新包仍后续 |
+| M3当前开发 | 01–04两件遗物正式闭环已验收；05A1 / A2 / A3已验收，B1视频模式规则待实施；完整6件与新包仍后续 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -156,9 +157,9 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-A2五新UI / 两旧Pause与两资产已在本地`df3a1cd`，审查起点工作区干净。当前Stage A2验收报告 / 指南收尾、来源清单、A3新指南与同步状态文档；A3正式Source / 资产尚未实施，不Stage忽略Artifacts内的候选。未变化源码 / 资产不重复Stage；未联网核验远端。
+A3四旧UI文件与两资产已在本地`63ff171`，审查起点工作区干净。当前Stage A3验收报告 / 指南收尾、两资产来源更新、B1新指南与同步状态文档；B1正式Source尚未实施，不Stage忽略Artifacts里的候选。提交范围以本地实际差异为准，不重复Stage未变化源码 / 资产。
 
-- 英文建议：`docs: verify pause input settings and prepare main menu reuse`
-- 中文译文：`docs: 完成暂停输入设置验收并准备主菜单复用`
+- 英文建议：`docs: verify main menu settings and prepare video mode rules`
+- 中文译文：`docs: 完成主菜单设置验收并准备视频模式规则`
 
-Stage / Commit / Push由用户操作；个人GameUserSettings.ini、Raw / 候选 / 日志 / 缓存 / 包留本地。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。

@@ -1,6 +1,6 @@
 # M3-05A3：主菜单复用输入设置卡
 
-2026-11-05，UE **5.5.4**。[A2暂停输入卡已验收](Reports/M3_05A2_Verification.md)，无待补。本章是手动实施指南，正式Source / 资产尚未修改，没有本章Build或Success结论。
+2026-11-05，UE **5.5.4**。**本章已验收，无待补。**[报告](Reports/M3_05A3_Verification.md)记录双Build、一Success、两Valid与实际菜单 / 游戏闭环；进入[B1视频模式规则](M3_05B1_VideoModeRules.md)。以下保留实施步骤供复查，不要求重做。
 
 ## 1. 本章交付
 
@@ -8,7 +8,7 @@
 
 这是一小批入口复用：**四份旧UI源码、两份旧Widget资产**，不新增类 / 测试 / 资产。只在MainMenuWidget加入第五绑定与既有busy透传，输入卡仅改两处通用提示及注释。MainMenuController、RunSession、Core、Config、Pause和输入映射均无需改动。之后进入M3-05B的显示设置，分辨率实际应用 / 确认回退另外设计。
 
-预算代码15–25 / Designer15–25 / 阅读5 / 检查5–10分钟，构建等待另计。实际201 Source / 113cpp（Core78 / UI32 / Editor3）、34自动化、300 Content / 来源81，本批完成后数量保持。预算不计实耗。
+实施前预算代码15–25 / Designer15–25 / 阅读5 / 检查5–10；实际代码30 / Designer15 / 阅读5 / 检查5，共55分钟、等待2。规模保持201 Source / 113cpp（Core78 / UI32 / Editor3）、34自动化、300 Content / 来源81。M3累计1160 / 等待75，项目4571 / 明确等待399。
 
 ## 2. 实施前与四个文件
 
@@ -280,18 +280,9 @@ Source / 两资产Save All、已回常用地图；布局或失败问题（无填
 
 ## 9. Commit / Push（固定放在最后）
 
-**当前文档收尾**：A2实现在本地`df3a1cd`，起点工作区干净。Stage A2验收 / 指南收尾、来源清单 / 状态文档与本A3指南；A3正式Source / 资产尚未实施。英文`docs: verify pause input settings and prepare main menu reuse`；中文`docs: 完成暂停输入设置验收并准备主菜单复用`。
+A3四旧UI文件与两资产已在本地`63ff171`，审查起点工作区干净。当前Stage A3验收报告 / 指南收尾、两资产来源更新、B1新指南与同步状态文档；B1正式Source尚未实施，不Stage忽略Artifacts里的候选。提交范围以本地实际差异为准，不重复Stage未变化源码 / 资产。
 
-**本章实施完成后**，CLion检查最终差异再Stage：
+- 英文建议：`docs: verify main menu settings and prepare video mode rules`
+- 中文译文：`docs: 完成主菜单设置验收并准备视频模式规则`
 
-- 第2节四份既有UI文件，保留原菜单意图 / Controller门控。
-- `EmberTrial/Content/EmberTrial/ui/Menu/WBP_ETMainMenu.uasset`。
-- `EmberTrial/Content/EmberTrial/ui/Settings/WBP_ETInputSettings.uasset`（仅通用占位文案）。
-- 实际修改的本指南 / Reports / AssetManifest / Progress等共享文档；未生成报告不创建空文件。
-- 个人GameUserSettings.ini、Saved / Intermediate / Binaries、.idea / CMake生成、Artifacts日志 / 候选 / 旧包留本地。本批没有新增源码 / 资产，也不强制重存未改Pause。
-
-英文实现建议：`feat: reuse input settings on the main menu`。
-
-专业中文：`feat: 在主菜单复用输入设置与草稿确认`。
-
-Stage后又修改需重新Stage最新版本 → Review → Commit / Push由用户操作；助手未操作索引或远端。
+Stage / Commit / Push由用户操作；个人设置、Raw / 候选 / 日志 / 缓存 / 包留本地。
