@@ -2,6 +2,7 @@
 #include "Widgets/ETRelicPanelWidget.h"
 #include "Widgets/ETInputSettingsWidget.h"
 #include "Widgets/ETVideoSettingsWidget.h"
+#include "Widgets/ETGraphicsSettingsWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
@@ -14,7 +15,7 @@ bool UETPauseWidget::HasRequiredLayout() const
 {
     return IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) &&
         IsValid(StatusText.Get()) && IsValid(RelicPanel.Get()) && IsValid(InputSettingsPanel.Get()) &&
-        IsValid(VideoSettingsPanel.Get());
+        IsValid(VideoSettingsPanel.Get()) && IsValid(GraphicsSettingsPanel.Get());
 }
 
 void UETPauseWidget::NativeOnInitialized()
@@ -32,6 +33,10 @@ void UETPauseWidget::NativeOnInitialized()
 
 void UETPauseWidget::NativeDestruct()
 {
+    if (GraphicsSettingsPanel)
+    {
+        GraphicsSettingsPanel->CloseView();
+    }
     if (VideoSettingsPanel)
     {
         VideoSettingsPanel->CloseView();
@@ -66,6 +71,10 @@ void UETPauseWidget::ApplyState(bool bPending, const FText& Message)
     if (InputSettingsPanel)
     {
         InputSettingsPanel->SetHostBusy(bBusy);
+    }
+    if (GraphicsSettingsPanel)
+    {
+        GraphicsSettingsPanel->SetHostBusy(bBusy);
     }
     if (VideoSettingsPanel)
     {

@@ -10,6 +10,7 @@ class UTextBlock;
 class UETRelicPanelWidget;
 class UETInputSettingsWidget;
 class UETVideoSettingsWidget;
+class UETGraphicsSettingsWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETPauseActionRequested);
 
@@ -71,6 +72,9 @@ private:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UETVideoSettingsWidget> VideoSettingsPanel;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UETGraphicsSettingsWidget> GraphicsSettingsPanel;
 
     // busy只保护本View请求中的输入，不代表世界暂停或角色死亡。
     bool bBusy = false;

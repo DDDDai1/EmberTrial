@@ -8,6 +8,7 @@ class UButton;
 class UTextBlock;
 class UETInputSettingsWidget;
 class UETVideoSettingsWidget;
+class UETGraphicsSettingsWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETMenuActionRequested);
 
@@ -71,6 +72,9 @@ private:
 
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UETVideoSettingsWidget> VideoSettingsPanel;
+
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UETGraphicsSettingsWidget> GraphicsSettingsPanel;
 
     // busy仅表示请求处理中，不等于世界暂停；Continue来自Session快照。
     bool bBusy = false;
