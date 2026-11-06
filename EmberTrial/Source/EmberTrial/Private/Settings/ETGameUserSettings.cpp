@@ -1,5 +1,7 @@
 #include "Settings/ETGameUserSettings.h"
 #include "Settings/ETGraphicsSettingsTypes.h"
+#include "Settings/ETAudioSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "CoreGlobals.h"
@@ -49,14 +51,25 @@ bool UETGameUserSettings::ApplyInputPreferences(const FETInputPreferences& Prefe
     return true;
 }
 
-bool UETGameUserSettings::SetAudioPreferences(const FETAudioPreferences& Preferences)
+bool UETGameUserSettings::ApplyAudioPreferences(
+    const FETAudioPreferences& Preferences, UWorld* ContextWorld)
 {
-    // 数据提交不混音；视频保护期间拒绝，不把本批开发入口当成设置权限绕过。
-    if (this != GetETGameUserSettings() || bVideoPreviewGuard || !Preferences.IsValid())
+    if (this != GetETGameUserSettings() || bVideoPreviewGuard || !Preferences.IsValid() ||
+        GIsEditor || !IsValid(ContextWorld) || ContextWorld->bIsTearingDown ||
+        ContextWorld->WorldType != EWorldType::Game || ContextWorld->GetNetMode() != NM_Standalone)
+    {
+        return false;
+    }
+    UGameInstance* GI = ContextWorld->GetGameInstance();
+    UETAudioSubsystem* Audio = GI ? GI->GetSubsystem<UETAudioSubsystem>() : nullptr;
+    if (!Audio || !Audio->ApplyRuntime(Preferences, ContextWorld))
     {
         return false;
     }
     AudioPreferences = Preferences;
+    SaveSettings();
+    UE_LOG(LogETUserSettings, Display,
+        TEXT("[M3-05C2] Audio applied SaveRequested=1 RoutingApplied=1"));
     return true;
 }
 
@@ -342,7 +355,7 @@ FAutoConsoleCommandWithWorldAndArgs Command(
     FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&Execute), ECVF_Cheat);
 } // namespace ETGraphicsPreferencesConsole
 
-// ---- 本批只保存偏好；C2再把同一数据接入实际声音路由 ----
+// ---- 音量入口复用实际应用合同；C1的store数据入口已迁移 ----
 namespace ETAudioPreferencesConsole
 {
 void Execute(const TArray<FString>& Args, UWorld* World)
@@ -350,47 +363,33 @@ void Execute(const TArray<FString>& Args, UWorld* World)
     UETGameUserSettings* Settings = UETGameUserSettings::GetETGameUserSettings();
     if (!Settings || !World || !World->IsGameWorld())
     {
-        UE_LOG(LogETUserSettings, Display, TEXT("[M3-05C1] Start a game world first"));
         return;
     }
-
     if (!Args.IsEmpty())
     {
         FETAudioPreferences Request;
-        if (Args.Num() != 4 || !Args[0].Equals(TEXT("store"), ESearchCase::IgnoreCase) ||
+        if (Args.Num() != 4 || !Args[0].Equals(TEXT("apply"), ESearchCase::IgnoreCase) ||
             !FDefaultValueHelper::ParseFloat(Args[1], Request.MasterVolume) ||
             !FDefaultValueHelper::ParseFloat(Args[2], Request.MusicVolume) ||
             !FDefaultValueHelper::ParseFloat(Args[3], Request.EffectsVolume))
         {
             UE_LOG(LogETUserSettings, Display,
-                TEXT("[M3-05C1] Usage: et.AudioSettings [store <master:0..1> <music:0..1> <effects:0..1>]"));
+                TEXT("[M3-05C2] Usage: et.AudioSettings [apply <master> <music> <effects>]"));
             return;
         }
-        const bool bAllowed = !GIsEditor && !World->bIsTearingDown &&
-            World->WorldType == EWorldType::Game && World->GetNetMode() == NM_Standalone;
-        const bool bStored = bAllowed && Settings->SetAudioPreferences(Request);
-        if (bStored)
-        {
-            Settings->SaveSettings();
-            UE_LOG(LogETUserSettings, Display,
-                TEXT("[M3-05C1] Audio preferences stored SaveRequested=1 RuntimeAudioApplied=0"));
-        }
-        UE_LOG(LogETUserSettings, Display, TEXT("[M3-05C1] StoreAccepted=%d"), bStored ? 1 : 0);
+        const bool bAccepted = Settings->ApplyAudioPreferences(Request, World);
+        UE_LOG(LogETUserSettings, Display, TEXT("[M3-05C2] ApplyAccepted=%d"), bAccepted ? 1 : 0);
     }
-
     const FETAudioPreferences Value = Settings->GetAudioPreferences();
-    float Music = 0.0f;
-    float Effects = 0.0f;
-    const bool bValid = Value.TryGetEffectiveVolumes(Music, Effects);
+    UGameInstance* GI = World->GetGameInstance();
+    UETAudioSubsystem* Audio = GI ? GI->GetSubsystem<UETAudioSubsystem>() : nullptr;
     UE_LOG(LogETUserSettings, Display,
-        TEXT("[M3-05C1] Audio Valid=%d Master=%.3f Music=%.3f Effects=%.3f CombinedMusic=%.3f CombinedEffects=%.3f RuntimeAudioApplied=0 Ini=%s"),
-        bValid ? 1 : 0, Value.MasterVolume, Value.MusicVolume, Value.EffectsVolume,
-        Music, Effects, *GGameUserSettingsIni);
+        TEXT("[M3-05C2] Audio Valid=%d Master=%.3f Music=%.3f Effects=%.3f RoutingApplied=%d"),
+        Value.IsValid() ? 1 : 0, Value.MasterVolume, Value.MusicVolume, Value.EffectsVolume,
+        Audio && Audio->IsRoutingApplied(World) ? 1 : 0);
 }
-
 FAutoConsoleCommandWithWorldAndArgs Command(
-    TEXT("et.AudioSettings"),
-    TEXT("Audio preferences only: query; store <master> <music> <effects>; runtime routing follows in C2"),
+    TEXT("et.AudioSettings"), TEXT("Audio preferences: query; apply <master> <music> <effects>"),
     FConsoleCommandWithWorldAndArgsDelegate::CreateStatic(&Execute), ECVF_Cheat);
 } // namespace ETAudioPreferencesConsole
 #endif

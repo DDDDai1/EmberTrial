@@ -44,8 +44,8 @@ public:
     UFUNCTION(BlueprintPure, Category = "EmberTrial|Settings")
     FETAudioPreferences GetAudioPreferences() const { return AudioPreferences; }
 
-    /** 仅更新本实例偏好内存，不混音 / 保存；调用方显式确认后请求SaveSettings。 */
-    bool SetAudioPreferences(const FETAudioPreferences& Preferences);
+    /** 仅独立游戏提交实际路由并请求保存；视频保护或路由未就绪时拒绝。 */
+    bool ApplyAudioPreferences(const FETAudioPreferences& Preferences, UWorld* ContextWorld);
 
     /** 只提交合法值到运行内存；调用者在整页确认后显式SaveSettings，不逐次滑动写盘。 */
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Settings")
