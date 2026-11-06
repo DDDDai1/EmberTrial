@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2阶段已完成](Docs/Reports/M2_Verification.md)；M3的三件遗物、祭坛装备、四类设置及[治疗装备管线](Docs/Reports/M3_06B2_02_Verification.md)均已验收。当前进入[B2-03第四件治疗遗物与比较界面](Docs/M3_06B2_03_HealingRelicAndComparison.md)，最终内容、美术与投递材料仍在开发。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2已完成](Docs/Reports/M2_Verification.md)；M3的四件遗物、祭坛装备、四类设置及[治疗装备 / UI闭环](Docs/Reports/M3_06B2_03_Verification.md)已验收。当前进入[B3-01体力恢复速率加成基础](Docs/M3_06B3_01_StaminaRecoveryBonusFoundation.md)，最终内容、美术与投递材料仍在开发。
 
 ## 已实现的体验
 
@@ -13,7 +13,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 - 生命 / 体力 / 治疗次数 / 破势冷却HUD，独立主菜单、暂停、失败重试和本次进程内的检查点继续。
 - 自由镜头输入偏好：0.25–3倍灵敏度与Y轴反转，个人设置可本地保存 / 重启读取；主菜单 / 暂停 / 祭坛页复用草稿、应用 / 取消与默认卡片。
 
-三件遗物提供稳定ID / 参数 / 槽位校验、GI库存与版本、身体自有GE和资源恢复；祭坛E打开同一遗物页，支持真实列表 / 中文搜索 / 排序筛选 / 两槽比较，确认后装备或卸装，普通P只读。初始空槽100生命 / 25伤害；生息与砺锋装备后上限120 / 伤害30；逆焰单件上限80 / 伤害35，与砺锋组合实际40，存活换装不治疗。Retry / 本进程Continue保留配装，新身体按最终上限恢复；NewRun空槽。角色和动画仍为UE模板 / Control Rig占位，完整6件、磁盘进度存档与最终美术后续，多人及手柄交付不在范围。
+四件遗物提供稳定ID / 参数 / 槽位校验、GI库存与版本、身体自有GE和资源恢复；祭坛E打开同一遗物页，支持真实列表 / 中文搜索 / 排序筛选 / 两槽比较，确认后装备或卸装，普通P只读。初始空槽100生命 / 25伤害；生息与砺锋装备后上限120 / 伤害30；逆焰单件上限80 / 伤害35，与砺锋组合实际40；回生护符使正式Q固定增加10治疗，移除后恢复基础40。存活换装不治疗。Retry / 本进程Continue保留配装，新身体按最终上限恢复；NewRun空槽。角色和动画仍为UE模板 / Control Rig占位，完整6件、磁盘进度存档与最终美术后续，多人及手柄交付不在范围。
 
 ## 获取与构建
 
@@ -51,7 +51,7 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M3-06B2-03第四件与比较](Docs/M3_06B2_03_HealingRelicAndComparison.md)：五旧Source / Config、回生护符与原面板高度；四专项 / 实际Q50与卸装40。[02报告](Docs/Reports/M3_06B2_02_Verification.md)记录三幅度管线与六Success。完整六件与列表压力见[M3路线](Docs/M3_Roadmap.md)。
+- [当前开发：M3-06B3-01体力恢复速率加成](Docs/M3_06B3_01_StaminaRecoveryBonusFoundation.md)：六旧Core、两相关专项与默认短查。[B2-03报告](Docs/Reports/M3_06B2_03_Verification.md)记录第四件 / 治疗比较、真实50与移除40。完整六件与列表压力见[M3路线](Docs/M3_Roadmap.md)。
 - [M3-02A验收](Docs/Reports/M3_02A_Verification.md)：两槽资格 / 汇总、替换 / 卸下 / 预览，双库存专项当次Success。
 - [M3-01验收](Docs/Reports/M3_01_Verification.md)：两遗物静态定义、两Valid与Definitions Success；[原操作步骤](Docs/M3_01_RelicDefinitions.md)供复查。
 - [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。

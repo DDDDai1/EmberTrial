@@ -1,6 +1,6 @@
 # M3-06B2-03：第四件治疗遗物与装备比较
 
-2026-11-07下发，UE **5.5.4**。[B2-02已验收](Reports/M3_06B2_02_Verification.md)，无待补。本章由你手动完成，**五份既有源码 + 一处Config、一件新Data Asset、原Panel高度调整**；当前只有Artifacts候选，正式文件 / 资产尚未修改。
+2026-11-07下发，UE **5.5.4**，**02:26验收通过**。[报告](Reports/M3_06B2_03_Verification.md)记录五源码 / Config与新实物、四专项、真实Q50 / 移除40及布局通过，无待补。实际手动65 / 等待5；下一步[B3-01体力恢复加成基础](M3_06B3_01_StaminaRecoveryBonusFoundation.md)。
 
 ## 1. 本章效果与边界
 
@@ -18,7 +18,7 @@
 
 列表仍是同一UListView、两槽、原确认权限和15个绑定；复用PreviewText增加一行，不加Tick / Timer / 额外属性订阅。装备变化由现有OnEquipmentChanged刷新。
 
-预计手动60–90分钟（代码与理解30–45、资产 / Designer15–20、检查记录10–20），构建等待另记。Source仍233 / 133cpp、42测试；完成后预计Content310→311、来源93→94，原Panel来源行更新实际指纹。现在不提前登记未创建的资产，不重打包。
+原估60–90分钟；实际代码与理解40 / 资产Designer15 / 检查记录10，共65分钟、构建等待5。验收规模233 Source / 133cpp、42测试、Content311 / 来源94，原93份指纹保持，Panel没有新内容变化；没有重打包。
 
 ## 2. 先在UE创建第四件原生Data Asset
 
@@ -444,7 +444,7 @@ Set-Location 'E:\UE_Project\Demo'
 ## 8. 为第三行留出空间（一个既有Widget）
 
 1. Content Browser进入**/Game/EmberTrial/ui/Inventory**，打开**WBP_ETRelicPanel** → **Designer**。
-2. Hierarchy选最上面的根**SizeBox：PanelSize**。Details搜索**Height Override**，勾选并将原460改为**520**；若你当前已高于520，保留更大值并在反馈注明实际高度。Width Override保持620。修改的是根SizeBox，不是List Entry高度或PreviewText字体。
+2. Hierarchy选最上面的根**SizeBox：PanelSize**。Details搜索**Height Override**，勾选并将原460改为**520**；若你当前已高于520，保留更大值并在反馈注明实际高度。Width Override保留现有值（参考620，当前用户报告720）；本轮实际高度620已高于520。修改的是根SizeBox，不是List Entry高度或PreviewText字体。
 3. Hierarchy选**PreviewText**，核对Is Variable勾选、Font16 / 中文字体、Auto Wrap Text=True；它的Vertical Box Slot仍**Fill 1**、水平Fill、Top Padding12。无需新增第三个TextBlock、改名称、创建Binding或Graph节点。
 4. Panel的原15个BindWidget / 父类 / Never与确认按钮保持。Compile → Save，再Validate本Panel，应有本项目Valid。
 5. 打开现有宿主暂停Widget **/Game/EmberTrial/ui/Menu/WBP_PauseMenu**，只Compile检查现有RelicPanel实例引用，不创建新宿主或替换Flow；若宿主因此标脏则Save。运行时第三行、已装备第四行及确认按钮应完整，不裁切或重叠。本章布局调整只需要根PanelSize，宿主无需重新排版。
@@ -502,16 +502,17 @@ Source-Config-资产Save All；失败或布局问题（无填无）：
 完成时分 / 手动代码与理解 / 资产Designer / 检查记录 / 构建等待：
 ```
 
-本章只创建一件数据资产；不因同机制复制GE / GA / Widget。第三行是装备贡献，实际治疗量仍由Gameplay权威计算。来源94与旧Panel新指纹在验收核对后登记，不预填已完成。
+本章只创建一件数据资产；不因同机制复制GE / GA / Widget。第三行是装备贡献，实际治疗量仍由Gameplay权威计算。来源已核对到94；旧Panel指纹保持，实际尺寸按用户报告720×620记录于验收报告。
 
 ## 12. Commit / Push（固定放在最后）
 
-本次B2-02收尾可提交以下**11份文档**。本地aa19954已有21份Core实现，无需重复Stage。03只有Artifacts候选，尚未写入正式源码 / Config / 资产。
+本次B2-03收尾可Stage以下**12份文档 / 来源清单**。本地4f8da23已经包含五份Source、Config和回生实物，原Panel指纹保持，不需要重复Stage实现。B3-01目前只有Artifacts候选。
 
 ```text
-Docs/Reports/M3_06B2_02_Verification.md
-Docs/M3_06B2_02_HealingEquipmentPipeline.md
+Docs/Reports/M3_06B2_03_Verification.md
 Docs/M3_06B2_03_HealingRelicAndComparison.md
+Docs/M3_06B3_01_StaminaRecoveryBonusFoundation.md
+Docs/AssetManifest.csv
 README.md
 Introduction.md
 Docs/Progress.md
@@ -522,25 +523,7 @@ Docs/AcceptanceWorkflow_Options.md
 Docs/VersionControl.md
 ```
 
-- 英文：`docs: verify healing equipment pipeline and plan relic UI`
-- 专业中文：`docs: 完成治疗装备管线验收并规划遗物界面`
+- 英文：`docs: verify healing relic and plan stamina recovery bonus`
+- 专业中文：`docs: 完成治疗遗物验收并规划体力恢复加成`
 
-原日志 / JSON / 编译预检 / 候选、包与个人ini留Artifacts本地。Stage后继续编辑需重新Stage → Review → Commit / Push，由你操作；助手未操作索引、提交或远端。
-
-**你实施并验收本小节后，再提交以下实际改动：**
-
-```text
-EmberTrial/Source/EmberTrialUI/Public/Inventory/ETRelicPresenter.h
-EmberTrial/Source/EmberTrialUI/Private/Inventory/ETRelicPresenter.cpp
-EmberTrial/Source/EmberTrialUI/Private/Widgets/ETRelicPanelWidget.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicDefinitionsTests.cpp
-EmberTrial/Source/EmberTrialUI/Tests/ETRelicPresenterTests.cpp
-EmberTrial/Config/DefaultGame.ini
-EmberTrial/Content/EmberTrial/Items/Relics/DA_ET_Relic_RenewalCharm.uasset
-EmberTrial/Content/EmberTrial/ui/Inventory/WBP_ETRelicPanel.uasset
-```
-
-原暂停宿主若Compile后确实改变内容，再追加`EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset`；不为凑清单提交其他资产。验收时补真实来源 / 报告 / 状态变化。Artifacts候选、日志 / 个人ini / 包不上传。
-
-- 英文：`feat: add healing relic and equipment bonus comparison`
-- 专业中文：`feat: 新增治疗遗物并展示装备加成比较`
+Artifacts候选 / 预检 / JSON / 原日志、包及个人ini保持本地。Stage后继续编辑需重新Stage → Review → Commit / Push，由你操作；助手未操作索引、提交或远端。
