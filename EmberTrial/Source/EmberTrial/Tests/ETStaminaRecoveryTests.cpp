@@ -5,6 +5,10 @@
 #include "Abilities/ETGameplayTags.h"
 #include "Attributes/ETStaminaAttributeSet.h"
 #include "Attributes/ETHealthAttributeSet.h"
+#include "Attributes/ETCombatAttributeSet.h"
+#include "GameplayEffect.h"
+#include "UObject/StrongObjectPtr.h"
+#include <limits>
 #include "Characters/EmberTrialCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Engine/World.h"
@@ -79,6 +83,120 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
     TestFalse(TEXT("No component Tick capability"), Recovery->PrimaryComponentTick.bCanEverTick);
     TestFalse(TEXT("No registered component Tick"),
               Recovery->PrimaryComponentTick.IsTickFunctionRegistered());
+    const FGameplayAttribute RecoveryBonus =
+        UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute();
+    TestEqual(TEXT("Recovery bonus initial Base zero"), ASC->GetNumericAttributeBase(RecoveryBonus), 0.0f);
+    TestEqual(TEXT("Recovery bonus initial Current zero"), ASC->GetNumericAttribute(RecoveryBonus), 0.0f);
+    TestTrue(TEXT("Rate observer bound"), ASC->GetGameplayAttributeValueChangeDelegate(RecoveryBonus)
+        .IsBoundToObject(Recovery));
+    float Rate = -1.0f;
+    TestTrue(TEXT("Base20 plus10 accepted"), Recovery->TryCalculateRecoveryRate(10.0f, Rate));
+    TestEqual(TEXT("Additive rate thirty"), Rate, 30.0f);
+    TestTrue(TEXT("Signed rate remains valid"), Recovery->TryCalculateRecoveryRate(-5.0f, Rate));
+    TestEqual(TEXT("Signed effective fifteen"), Rate, 15.0f);
+    TestFalse(TEXT("Nonpositive rate rejected"), Recovery->TryCalculateRecoveryRate(-20.0f, Rate));
+    TestEqual(TEXT("Rejected rate cleared"), Rate, 0.0f);
+    TestFalse(TEXT("Rate above thousand rejected"), Recovery->TryCalculateRecoveryRate(981.0f, Rate));
+    TestFalse(TEXT("NaN rate bonus rejected"), Recovery->TryCalculateRecoveryRate(
+        std::numeric_limits<float>::quiet_NaN(), Rate));
+
+    // 暂用零延迟隔离速率积分；通过真实GE / World Timer，不手动调用恢复成功路径。
+    Recovery->RecoveryDelay = 0.0f;
+    Recovery->RefreshObservation();
+    ApplyDelta(-80.0f);
+    if (!Advance(4))
+    {
+        return false;
+    }
+    // 移除后还要推进世界并复用这份GE，强持有隔离夹具，避免依赖GC时机。
+    const TStrongObjectPtr<UGameplayEffect> BonusEffect(NewObject<UGameplayEffect>(GetTransientPackage()));
+    BonusEffect->DurationPolicy = EGameplayEffectDurationType::Infinite;
+    FGameplayModifierInfo& Modifier = BonusEffect->Modifiers.AddDefaulted_GetRef();
+    Modifier.Attribute = RecoveryBonus;
+    Modifier.ModifierOp = EGameplayModOp::AddBase;
+    Modifier.ModifierMagnitude = FScalableFloat(10.0f);
+    const float BeforeRateChange = Value();
+    const double ExistingDeadline = Recovery->RecoveryNotBefore;
+    const FTimerHandle ExistingTimer = Recovery->RecoveryTimer;
+    const FActiveGameplayEffectHandle BonusHandle =
+        ASC->ApplyGameplayEffectToSelf(BonusEffect.Get(), 1.0f, ASC->MakeEffectContext());
+    if (!TestTrue(TEXT("Real recovery bonus GE active"), BonusHandle.IsValid()))
+    {
+        return false;
+    }
+    Same(TEXT("Rate change does not immediately recover"), BeforeRateChange);
+    TestEqual(TEXT("Rate change preserves spend deadline"), Recovery->RecoveryNotBefore, ExistingDeadline);
+    TestTrue(TEXT("Valid rate change keeps one timer"), Recovery->RecoveryTimer == ExistingTimer);
+    TestEqual(TEXT("GE keeps recovery Base zero"), ASC->GetNumericAttributeBase(RecoveryBonus), 0.0f);
+    TestEqual(TEXT("GE Current ten"), ASC->GetNumericAttribute(RecoveryBonus), 10.0f);
+    // 采样时刻以真实Timer最后结算时间为准，避免猜测TimerManager在某帧前后派发。
+    auto CheckRateWindow = [&](const TCHAR* Label, const float ExpectedRate)
+    {
+        const float Before = Value();
+        const double Start = Recovery->LastSampleTime;
+        if (!Advance(6))
+        {
+            return false;
+        }
+        const double PaidSeconds = Recovery->LastSampleTime - Start;
+        return TestTrue(Label, PaidSeconds > 0.1 &&
+            FMath::IsNearlyEqual(static_cast<double>(Value() - Before),
+                                PaidSeconds * ExpectedRate, 0.003));
+    };
+    if (!CheckRateWindow(TEXT("Real timer uses effective thirty"), 30.0f))
+    {
+        return false;
+    }
+    ASC->SetNumericAttributeBase(RecoveryBonus, std::numeric_limits<float>::quiet_NaN());
+    TestEqual(TEXT("NaN Base falls back to zero"), ASC->GetNumericAttributeBase(RecoveryBonus), 0.0f);
+    TestEqual(TEXT("NaN does not duplicate current bonus"), ASC->GetNumericAttribute(RecoveryBonus), 10.0f);
+    TestTrue(TEXT("Owned rate GE removed"), ASC->RemoveActiveGameplayEffect(BonusHandle));
+    TestEqual(TEXT("Removed bonus returns zero"), ASC->GetNumericAttribute(RecoveryBonus), 0.0f);
+    if (!CheckRateWindow(TEXT("Removal restores twenty for later interval"), 20.0f))
+    {
+        return false;
+    }
+    ASC->SetNumericAttributeBase(RecoveryBonus, -20.0f);
+    const float InvalidRateValue = Value();
+    TestFalse(TEXT("Invalid effective rate stops timer"), Recovery->IsRecoveryScheduled());
+    if (!Advance(20))
+    {
+        return false;
+    }
+    Same(TEXT("Invalid rate cannot recover"), InvalidRateValue);
+    ASC->SetNumericAttributeBase(RecoveryBonus, 0.0f);
+    TestTrue(TEXT("Valid rate event wakes deficit"), Recovery->IsRecoveryScheduled());
+    if (!CheckRateWindow(TEXT("Resume does not repay invalid duration"), 20.0f))
+    {
+        return false;
+    }
+
+    // 加成改变不能绕过正在等待的消费延迟。
+    ApplyDelta(1000.0f);
+    Recovery->RecoveryDelay = 0.75f;
+    Recovery->RefreshObservation();
+    ApplyDelta(-25.0f);
+    const double DelayedDeadline = Recovery->RecoveryNotBefore;
+    if (!Advance(4))
+    {
+        return false;
+    }
+    const FActiveGameplayEffectHandle DelayedBonus =
+        ASC->ApplyGameplayEffectToSelf(BonusEffect.Get(), 1.0f, ASC->MakeEffectContext());
+    if (!TestTrue(TEXT("Bonus during delay active"), DelayedBonus.IsValid()))
+    {
+        return false;
+    }
+    TestEqual(TEXT("Bonus during delay preserves original deadline"),
+              Recovery->RecoveryNotBefore, DelayedDeadline);
+    if (!Advance(8))
+    {
+        return false;
+    }
+    Same(TEXT("Bonus does not bypass pending delay"), 75.0f);
+    ASC->RemoveActiveGameplayEffect(DelayedBonus);
+    ApplyDelta(1000.0f);
+    // 恢复原默认20 / .75 / .10与满值前提，下面所有原场景保持。
     ApplyDelta(-25.0f);
     Same(TEXT("Real GE consumes 25"), 75.0f);
     TestTrue(TEXT("Deficit schedules timer"), Recovery->IsRecoveryScheduled());
@@ -194,10 +312,15 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("One handle per action tag after repeated observation"),
               Recovery->ActionTagHandles.Num(), ExpectedActionTagCount);
     CheckActionTagBindings(true);
+    TestTrue(TEXT("Rate subscription survives reobserve"),
+             ASC->GetGameplayAttributeValueChangeDelegate(RecoveryBonus).IsBoundToObject(Recovery));
     const uint64 OldSerial = Recovery->ObservationSerial;
     Recovery->Deactivate();
     TestFalse(TEXT("Deactivate clears timer"), Recovery->IsRecoveryScheduled());
     TestTrue(TEXT("Deactivate clears action handles"), Recovery->ActionTagHandles.IsEmpty());
+    TestFalse(TEXT("Deactivate clears rate handle"), Recovery->RecoveryBonusHandle.IsValid());
+    TestFalse(TEXT("Deactivate removes rate subscription"),
+              ASC->GetGameplayAttributeValueChangeDelegate(RecoveryBonus).IsBoundToObject(Recovery));
     CheckActionTagBindings(false);
     ApplyDelta(-5.0f);
     const float DisabledValue = Value();
@@ -211,6 +334,15 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
               Recovery->ActionTagHandles.Num(), ExpectedActionTagCount);
     CheckActionTagBindings(true);
     const double NewDeadline = Recovery->RecoveryNotBefore;
+    const double NewSample = Recovery->LastSampleTime;
+    FOnAttributeChangeData StaleRate;
+    StaleRate.Attribute = RecoveryBonus;
+    StaleRate.OldValue = 0.0f;
+    StaleRate.NewValue = 10.0f;
+    Recovery->HandleAttributeChanged(StaleRate, TWeakObjectPtr<UAbilitySystemComponent>(ASC), OldSerial);
+    TestEqual(TEXT("Old rate callback cannot reset new sample"), Recovery->LastSampleTime, NewSample);
+    TestTrue(TEXT("Reactivated rate observer bound"),
+             ASC->GetGameplayAttributeValueChangeDelegate(RecoveryBonus).IsBoundToObject(Recovery));
     FOnAttributeChangeData StaleChange;
     StaleChange.Attribute = Attribute;
     StaleChange.OldValue = 100.0f;
@@ -253,7 +385,11 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
     TestFalse(TEXT("EndPlay revokes Ready"), Body->IsGameplayReady());
     TestTrue(TEXT("EndPlay clears action handles"), Recovery->ActionTagHandles.IsEmpty());
     CheckActionTagBindings(false);
-    AddInfo(TEXT("Stamina recovery: all action blockers and balanced tag subscription cleanup"));
+    TestFalse(TEXT("EndPlay clears rate handle"), Recovery->RecoveryBonusHandle.IsValid());
+    TestFalse(TEXT("EndPlay removes rate subscription"),
+              ASC->GetGameplayAttributeValueChangeDelegate(RecoveryBonus).IsBoundToObject(Recovery));
+    AddInfo(TEXT("Stamina recovery: additive rate / GE removal / invalid restart, "
+                 "spend delay, all action blockers and balanced subscriptions"));
     TestWorld.ForwardErrorMessages(this);
     return !HasAnyErrors();
 }

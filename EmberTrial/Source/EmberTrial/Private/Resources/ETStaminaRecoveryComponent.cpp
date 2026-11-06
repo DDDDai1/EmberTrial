@@ -3,6 +3,7 @@
 #include "Abilities/GameplayAbilityTypes.h"
 #include "Abilities/ETGameplayTags.h"
 #include "Attributes/ETStaminaAttributeSet.h"
+#include "Attributes/ETCombatAttributeSet.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "AbilitySystemComponent.h"
 #include "Containers/ArrayView.h"
@@ -79,6 +80,30 @@ bool UETStaminaRecoveryComponent::IsRecoveryScheduled() const
     return World && World->GetTimerManager().TimerExists(RecoveryTimer);
 }
 
+// double中间值避免float相加溢出；有效速率必须大于0且不超过现有1000上限。
+bool UETStaminaRecoveryComponent::TryCalculateRecoveryRate(const float Bonus, float& OutRate) const
+{
+    OutRate = 0.0f;
+    const double Rate = static_cast<double>(RecoveryRate) + static_cast<double>(Bonus);
+    if (!FMath::IsFinite(RecoveryRate) || RecoveryRate <= 0.0f || RecoveryRate > 1000.0f ||
+        !FMath::IsFinite(Bonus) || !FMath::IsFinite(Rate) || Rate <= 0.0 || Rate > 1000.0)
+    {
+        return false;
+    }
+    OutRate = static_cast<float>(Rate);
+    return OutRate > 0.0f;
+}
+
+bool UETStaminaRecoveryComponent::ReadRecoveryRate(
+    UAbilitySystemComponent* ASC, float& OutRate) const
+{
+    OutRate = 0.0f;
+    return IsValid(ASC) && ASC->GetSet<UETCombatAttributeSet>() &&
+           TryCalculateRecoveryRate(
+               ASC->GetNumericAttribute(UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute()),
+               OutRate);
+}
+
 void UETStaminaRecoveryComponent::ClearRecoveryTimer(const TCHAR* Reason)
 {
     const bool bHadTimer = IsRecoveryScheduled();
@@ -107,6 +132,9 @@ void UETStaminaRecoveryComponent::StopObserving()
         ASC->GetGameplayAttributeValueChangeDelegate(
                UETStaminaAttributeSet::GetMaxStaminaAttribute())
             .Remove(MaxStaminaHandle);
+        ASC->GetGameplayAttributeValueChangeDelegate(
+               UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute())
+            .Remove(RecoveryBonusHandle);
         const TConstArrayView<FGameplayTag> Tags = GetStaminaRecoveryBlockingTags();
         for (int32 Index = 0; Index < ActionTagHandles.Num(); ++Index)
         {
@@ -118,6 +146,7 @@ void UETStaminaRecoveryComponent::StopObserving()
     }
     StaminaHandle.Reset();
     MaxStaminaHandle.Reset();
+    RecoveryBonusHandle.Reset();
     ActionTagHandles.Reset();
     BoundASC.Reset();
 }
@@ -178,6 +207,10 @@ void UETStaminaRecoveryComponent::RefreshObservation()
         ASC->GetGameplayAttributeValueChangeDelegate(
                UETStaminaAttributeSet::GetMaxStaminaAttribute())
             .AddUObject(this, &ThisClass::HandleAttributeChanged, BoundASC, ObservationSerial);
+    RecoveryBonusHandle =
+        ASC->GetGameplayAttributeValueChangeDelegate(
+               UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute())
+            .AddUObject(this, &ThisClass::HandleAttributeChanged, BoundASC, ObservationSerial);
     const TConstArrayView<FGameplayTag> Tags = GetStaminaRecoveryBlockingTags();
     for (const FGameplayTag Tag : Tags)
     {
@@ -220,6 +253,19 @@ void UETStaminaRecoveryComponent::HandleAttributeChanged(
     if (bEndingPlay || Serial != ObservationSerial || !SourceASC.IsValid() ||
         SourceASC.Get() != BoundASC.Get())
     {
+        return;
+    }
+    if (Change.Attribute == UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute())
+    {
+        // 以变化时刻作为新积分起点；未结算的旧小段不补发，也不把旧时间乘新速率。
+        // 不改RecoveryNotBefore，保留最近一次实际消费的截止时间。
+        LastSampleTime = GetWorld()->GetTimeSeconds();
+        float Rate = 0.0f;
+        const bool bValidRate = ReadRecoveryRate(SourceASC.Get(), Rate);
+        UE_LOG(LogETStaminaRecovery, Display,
+               TEXT("[M3-06B3-01] Rate changed Owner=%s Valid=%d Effective=%.1f"),
+               *GetNameSafe(GetOwner()), bValidRate ? 1 : 0, Rate);
+        SyncRecoveryTimer();
         return;
     }
     if (Change.Attribute == UETStaminaAttributeSet::GetStaminaAttribute() &&
@@ -279,6 +325,12 @@ void UETStaminaRecoveryComponent::SyncRecoveryTimer()
         ClearRecoveryTimer(TEXT("Full"));
         return;
     }
+    float EffectiveRate = 0.0f;
+    if (!ReadRecoveryRate(ASC, EffectiveRate))
+    {
+        ClearRecoveryTimer(TEXT("InvalidRate"));
+        return;
+    }
     if (!IsRecoveryScheduled())
     {
         LastSampleTime = GetWorld()->GetTimeSeconds();
@@ -305,12 +357,18 @@ void UETStaminaRecoveryComponent::HandleRecoveryTimer(uint64 Serial)
         SyncRecoveryTimer();
         return;
     }
+    float EffectiveRate = 0.0f;
+    if (!ReadRecoveryRate(ASC, EffectiveRate))
+    {
+        SyncRecoveryTimer();
+        return;
+    }
     const double Now = GetWorld()->GetTimeSeconds();
     // 同时裁掉已结算时间和延迟；按经过的世界秒计算，不按回调次数加固定值。
     const double EligibleTime =
         FMath::Max(0.0, Now - FMath::Max(LastSampleTime, RecoveryNotBefore));
-    const float Amount =
-        FMath::Min(MaxStamina - Before, static_cast<float>(EligibleTime * RecoveryRate));
+    const float Amount = static_cast<float>(FMath::Min(
+        static_cast<double>(MaxStamina - Before), EligibleTime * EffectiveRate));
     // Keep accumulating time until the float resource can represent the increment.
     if (Amount <= 0.0f || Before + Amount <= Before)
     {

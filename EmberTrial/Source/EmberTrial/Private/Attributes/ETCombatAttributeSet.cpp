@@ -13,6 +13,7 @@ UETCombatAttributeSet::UETCombatAttributeSet(const FObjectInitializer& ObjectIni
 {
     InitLightAttackBonus(0.0f);
     InitHealingBonus(0.0f);
+    InitStaminaRecoveryBonus(0.0f);
 }
 
 // Base与Current分别回退，不能将包含活动GE的Current再次写入Base。
@@ -30,6 +31,11 @@ void UETCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Att
         NewValue = ETCombatAttributeSetPrivate::FiniteOrFallback(
             NewValue, HealingBonus.GetBaseValue());
     }
+    else if (Attribute == GetStaminaRecoveryBonusAttribute())
+    {
+        NewValue = ETCombatAttributeSetPrivate::FiniteOrFallback(
+            NewValue, StaminaRecoveryBonus.GetBaseValue());
+    }
 }
 
 void UETCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -45,5 +51,10 @@ void UETCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
         NewValue = ETCombatAttributeSetPrivate::FiniteOrFallback(
             NewValue, HealingBonus.GetCurrentValue());
     }
-    // 有限负值合法；最终伤害 / 治疗是否可用，由对应能力预检。
+    else if (Attribute == GetStaminaRecoveryBonusAttribute())
+    {
+        NewValue = ETCombatAttributeSetPrivate::FiniteOrFallback(
+            NewValue, StaminaRecoveryBonus.GetCurrentValue());
+    }
+    // 有限负值合法；最终伤害 / 治疗 / 恢复速率由各自消费者预检。
 }

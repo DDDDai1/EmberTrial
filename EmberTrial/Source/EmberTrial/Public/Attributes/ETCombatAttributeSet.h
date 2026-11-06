@@ -19,6 +19,9 @@ public:
     GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UETCombatAttributeSet, HealingBonus)
     GAMEPLAYATTRIBUTE_VALUE_GETTER(HealingBonus)
 
+    GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UETCombatAttributeSet, StaminaRecoveryBonus)
+    GAMEPLAYATTRIBUTE_VALUE_GETTER(StaminaRecoveryBonus)
+
     virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute,
                                         float& NewValue) const override;
     virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
@@ -37,4 +40,11 @@ private:
     FGameplayAttributeData HealingBonus;
 
     GAMEPLAYATTRIBUTE_VALUE_INITTER(HealingBonus)
+
+    // 体力每秒恢复的固定加成，不改变消费、上限或消费后延迟。
+    UPROPERTY(BlueprintReadOnly, Category = "EmberTrial|Combat",
+              meta = (AllowPrivateAccess = "true"))
+    FGameplayAttributeData StaminaRecoveryBonus;
+
+    GAMEPLAYATTRIBUTE_VALUE_INITTER(StaminaRecoveryBonus)
 };

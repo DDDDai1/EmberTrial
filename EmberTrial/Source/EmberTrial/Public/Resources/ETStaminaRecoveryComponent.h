@@ -23,6 +23,9 @@ public:
     // 查询Timer是否存在；默认满值、忙碌、死亡时均不保留恢复Timer。
     bool IsRecoveryScheduled() const;
 
+    // 只计算基础速率 + 加成；不要求当前能恢复、不读世界或修改资源。
+    bool TryCalculateRecoveryRate(float Bonus, float& OutRate) const;
+
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -51,6 +54,7 @@ private:
     bool ReadBody(AEmberTrialCharacter*& Body, UAbilitySystemComponent*& ASC, float& Stamina,
                   float& MaxStamina) const;
     void HandleRecoveryTimer(uint64 Serial);
+    bool ReadRecoveryRate(UAbilitySystemComponent* ASC, float& OutRate) const;
 
     // ---- 身份 / 序号保护；拒绝上一轮观察的迟到回调 ----
     UFUNCTION()
@@ -66,6 +70,7 @@ private:
     TWeakObjectPtr<UAbilitySystemComponent> BoundASC;
     FDelegateHandle StaminaHandle;
     FDelegateHandle MaxStaminaHandle;
+    FDelegateHandle RecoveryBonusHandle;
     // 与cpp的阻断Tag列表顺序配对，注册和解绑共用同一列表。
     TArray<FDelegateHandle> ActionTagHandles;
     FTimerHandle RecoveryTimer;
