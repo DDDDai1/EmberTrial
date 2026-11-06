@@ -36,7 +36,8 @@ bool IsKnownSlot(const EETRelicSlot Slot)
 bool IsKnownKind(const EETRelicModifierKind Kind)
 {
     return Kind == EETRelicModifierKind::MaxHealth ||
-           Kind == EETRelicModifierKind::LightAttackBonus;
+           Kind == EETRelicModifierKind::LightAttackBonus ||
+           Kind == EETRelicModifierKind::HealingBonus;
 }
 }
 

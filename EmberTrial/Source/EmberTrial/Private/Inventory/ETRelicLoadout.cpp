@@ -23,6 +23,7 @@ EETRelicLoadoutResult ETRelicLoadoutRules::Evaluate(
     // 双精度中间和避免float加法先溢出；最终仍输出项目使用的float。
     double HealthAdditive = 0.0;
     double AttackAdditive = 0.0;
+    double HealingAdditive = 0.0;
     const FName Ids[] = {Loadout.SlotA, Loadout.SlotB};
     const EETRelicSlot Slots[] = {EETRelicSlot::First, EETRelicSlot::Second};
     for (int32 Index = 0; Index < static_cast<int32>(UE_ARRAY_COUNT(Ids)); ++Index)
@@ -61,18 +62,23 @@ EETRelicLoadoutResult ETRelicLoadoutRules::Evaluate(
             case EETRelicModifierKind::LightAttackBonus:
                 AttackAdditive += Modifier.AdditiveValue;
                 break;
+            case EETRelicModifierKind::HealingBonus:
+                HealingAdditive += Modifier.AdditiveValue;
+                break;
             default:
                 return EETRelicLoadoutResult::InvalidDefinition;
             }
         }
     }
     if (!ETRelicLoadoutPrivate::FitsFloat(HealthAdditive) ||
-        !ETRelicLoadoutPrivate::FitsFloat(AttackAdditive))
+        !ETRelicLoadoutPrivate::FitsFloat(AttackAdditive) ||
+        !ETRelicLoadoutPrivate::FitsFloat(HealingAdditive))
     {
         return EETRelicLoadoutResult::NumericOverflow;
     }
     OutTotals.MaxHealthAdditive = static_cast<float>(HealthAdditive);
     OutTotals.LightAttackBonus = static_cast<float>(AttackAdditive);
+    OutTotals.HealingBonus = static_cast<float>(HealingAdditive);
     return EETRelicLoadoutResult::Success;
 }
 
@@ -88,7 +94,9 @@ EETRelicLoadoutResult ETRelicLoadoutRules::MakePreview(
     }
     const double Health = static_cast<double>(BaseMaxHealth) + Totals.MaxHealthAdditive;
     const double Damage = static_cast<double>(BaseLightAttackDamage) + Totals.LightAttackBonus;
-    if (!ETRelicLoadoutPrivate::FitsFloat(Health) || !ETRelicLoadoutPrivate::FitsFloat(Damage))
+    // 最终Q治疗量需要身体能力配置，由装备适配层继续预检；纯规则只检查有限性。
+    if (!ETRelicLoadoutPrivate::FitsFloat(Health) || !ETRelicLoadoutPrivate::FitsFloat(Damage) ||
+        !FMath::IsFinite(Totals.HealingBonus))
     {
         return EETRelicLoadoutResult::NumericOverflow;
     }

@@ -2,6 +2,8 @@
 
 #include "Inventory/ETRelicEquipmentComponent.h"
 #include "Abilities/ETGA_LightAttack.h"
+#include "Abilities/ETGA_Heal.h"
+#include "Inventory/ETRelicDefinition.h"
 #include "Abilities/ETGameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "Attributes/ETCombatAttributeSet.h"
@@ -52,6 +54,7 @@ bool FETRelicEquipmentTransactionTest::RunTest(const FString& Parameters)
         {
             Result->CombatTeam = EETCombatTeam::Player;
             Result->LightAttackAbilityClass = UETGA_LightAttack::StaticClass();
+            Result->HealAbilityClass = UETGA_Heal::StaticClass();
         }
         return Result;
     };
@@ -219,8 +222,67 @@ bool FETRelicEquipmentTransactionTest::RunTest(const FString& Parameters)
         Inventory->GetSnapshot().Equipped.SlotA.IsNone() && Inventory->GetSnapshot().Equipped.SlotB.IsNone());
     TestEqual(TEXT("NewRun final100"), NewRunBody->GetAbilitySystemComponent()->GetNumericAttribute(Health), 100.0f);
 
-    // ---- 外部移除不能伪造成功；结束后解绑与清句柄仍精确 ----
+    // ---- 治疗参数预检 / 过期方案 / 同句柄更新；瞬态定义不写正式资产或配置 ----
     UAbilitySystemComponent* NewASC = NewRunBody->GetAbilitySystemComponent();
+    const FGameplayAttribute Healing = UETCombatAttributeSet::GetHealingBonusAttribute();
+    UETRelicDefinition* HealFixture = NewObject<UETRelicDefinition>(Inventory);
+    const FName HealId(TEXT("fixture_healing"));
+    HealFixture->RelicId = HealId;
+    HealFixture->DisplayName = FText::FromString(TEXT("Healing fixture"));
+    HealFixture->Description = FText::FromString(TEXT("Transient healing transaction fixture"));
+    FETRelicModifier HealModifier;
+    HealModifier.Kind = EETRelicModifierKind::HealingBonus;
+    HealModifier.AdditiveValue = 1000.0f;
+    HealFixture->Modifiers = {HealModifier};
+    Inventory->Definitions.Add(HealId, HealFixture);
+    Inventory->OwnedIds.Add(HealId);
+    Inventory->OwnedSet.Add(HealId);
+    Inventory->AdvanceRevision();
+    Inventory->PublishSnapshot();
+    const uint64 HealingRevision = Inventory->GetSnapshot().Revision;
+    auto EquipHealing = [&]()
+    {
+        return NewEquipment->TryEquip(
+            EETRelicSlot::First, HealId, Inventory->GetSnapshot().Revision).Result;
+    };
+    TestTrue(TEXT("Excess healing preview rejected"), NewEquipment->TryBuildPreview(
+        EETRelicSlot::First, HealId, HealingRevision, Preview).Result == EResult::RuleRejected);
+    TestTrue(TEXT("Excess healing commit rejected"), EquipHealing() == EResult::RuleRejected);
+    TestTrue(TEXT("Rejected healing keeps revision"), Inventory->GetSnapshot().Revision == HealingRevision);
+    TestEqual(TEXT("Rejected healing keeps zero"), NewASC->GetNumericAttribute(Healing), 0.0f);
+
+    HealFixture->Modifiers[0].AdditiveValue = 10.0f;
+    FETRelicInventoryPlan HealingPlan;
+    TestTrue(TEXT("Healing domain plan created"), Inventory->TryBuildPlan(
+        EETRelicSlot::First, HealId, 100.0f, 25.0f, HealingPlan).Result == EResult::Success);
+    HealFixture->Modifiers[0].AdditiveValue = 11.0f;
+    TestTrue(TEXT("Healing definition change invalidates old plan"),
+             Inventory->TryCommitPlan(HealingPlan).Result == EResult::StalePlan);
+    TestTrue(TEXT("Stale healing plan keeps revision"), Inventory->GetSnapshot().Revision == HealingRevision);
+    HealFixture->Modifiers[0].AdditiveValue = 10.0f;
+    NewRunBody->HealAbilityClass = nullptr;
+    TestTrue(TEXT("Missing heal consumer rejects nonzero contribution"), EquipHealing() == EResult::RuleRejected);
+    NewRunBody->HealAbilityClass = UETGA_Heal::StaticClass();
+    TestTrue(TEXT("Healing preview has no side effect"), NewEquipment->TryBuildPreview(
+        EETRelicSlot::First, HealId, HealingRevision, Preview).Result == EResult::Success);
+    TestEqual(TEXT("Healing preview carries ten"), Preview.AfterModifiers.HealingBonus, 10.0f);
+    TestEqual(TEXT("Preview leaves actual bonus zero"), NewASC->GetNumericAttribute(Healing), 0.0f);
+    const FActiveGameplayEffectHandle HealingHandle = NewEquipment->OwnedEffect;
+    TestTrue(TEXT("Equip healing contribution"), EquipHealing() == EResult::Success);
+    TestEqual(TEXT("Equipment aggregates healing ten"), NewASC->GetNumericAttribute(Healing), 10.0f);
+    TestEqual(TEXT("Equipment keeps healing Base zero"), NewASC->GetNumericAttributeBase(Healing), 0.0f);
+    TestTrue(TEXT("Healing updates same owned handle"), NewEquipment->OwnedEffect == HealingHandle);
+    NewASC->SetNumericAttributeBase(Health, 60.0f);
+    NewEquipment->Deactivate();
+    NewEquipment->Activate(false);
+    TestEqual(TEXT("Reactivation restores healing contribution"), NewASC->GetNumericAttribute(Healing), 10.0f);
+    TestEqual(TEXT("Healing restore does not heal living body"), NewASC->GetNumericAttribute(Health), 60.0f);
+    TestTrue(TEXT("Unequip healing"), NewEquipment->TryEquip(
+        EETRelicSlot::First, NAME_None, Inventory->GetSnapshot().Revision).Result == EResult::Success);
+    TestEqual(TEXT("Unequip clears own healing"), NewASC->GetNumericAttribute(Healing), 0.0f);
+    TestEqual(TEXT("Unequip does not heal"), NewASC->GetNumericAttribute(Health), 60.0f);
+
+    // ---- 外部移除不能伪造成功；结束后解绑与清句柄仍精确 ----
     NewASC->RemoveActiveGameplayEffect(NewEquipment->OwnedEffect);
     TestFalse(TEXT("Missing owned effect unavailable"), NewEquipment->IsEquipmentReady());
     const uint64 BeforeUnavailable = Inventory->GetSnapshot().Revision;

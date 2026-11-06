@@ -24,11 +24,12 @@ struct EMBERTRIAL_API FETRelicLoadout
     }
 };
 
-// 原生计算结果；当前只处理定义支持的两种加法，不模拟任意动态GAS效果。
+// 原生计算结果；仅汇总已支持的加法，不模拟任意动态GAS效果。
 struct EMBERTRIAL_API FETRelicModifierTotals
 {
     float MaxHealthAdditive = 0.0f;
     float LightAttackBonus = 0.0f;
+    float HealingBonus = 0.0f;
 };
 
 struct EMBERTRIAL_API FETRelicLoadoutPreview

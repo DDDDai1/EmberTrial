@@ -76,7 +76,7 @@ private:
     bool ReadPreviewBases(float& OutMaxHealth, float& OutAttackDamage) const;
     FETRelicInventoryReply TryMakePlan(EETRelicSlot Slot, FName RelicId,
         uint64 ExpectedRevision, FETRelicInventoryPlan& OutPlan) const;
-    bool IsFinalDamageValid(const FETRelicModifierTotals& Modifiers) const;
+    bool AreFinalAbilityValuesValid(const FETRelicModifierTotals& Modifiers) const;
     void WriteModifiersUnchecked(const FETRelicModifierTotals& Modifiers);
 
 

@@ -110,6 +110,30 @@ bool FETRelicLoadoutTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Finite inputs cannot overflow result silently"),
              ETRelicLoadoutRules::Evaluate(Both, Owned, Catalog, Totals) == EResult::NumericOverflow);
     TestEqual(TEXT("Overflow output cleared"), Totals.MaxHealthAdditive, 0.0f);
+
+    // 同样的两槽规则可汇总治疗参数；只有身体能力知道最终Q基础值。
+    Life->Modifiers[0].Kind = EETRelicModifierKind::HealingBonus;
+    Edge->Modifiers[0].Kind = EETRelicModifierKind::HealingBonus;
+    Life->Modifiers[0].AdditiveValue = 7.0f;
+    Edge->Modifiers[0].AdditiveValue = 3.0f;
+    TestTrue(TEXT("Healing kinds accepted by definition and sum"),
+             ETRelicLoadoutRules::Evaluate(Both, Owned, Catalog, Totals) == EResult::Success);
+    TestEqual(TEXT("Two healing contributions sum ten"), Totals.HealingBonus, 10.0f);
+    TestEqual(TEXT("Healing leaves attack sum zero"), Totals.LightAttackBonus, 0.0f);
+    TestTrue(TEXT("Healing replacement plan accepted"),
+             Build(Empty, EETRelicSlot::First, LifeId) == EResult::Success);
+    TestEqual(TEXT("Plan carries healing seven"), Plan.AfterModifiers.HealingBonus, 7.0f);
+    TestEqual(TEXT("Healing does not raise max"), Plan.AfterPreview.MaxHealth, 100.0f);
+    TestEqual(TEXT("Healing does not raise attack"), Plan.AfterPreview.LightAttackBaseDamage, 25.0f);
+    Life->Modifiers[0].AdditiveValue = -4.0f;
+    TestTrue(TEXT("Signed healing input remains legal"),
+             ETRelicLoadoutRules::Evaluate(Both, Owned, Catalog, Totals) == EResult::Success);
+    TestEqual(TEXT("Signed healing sum"), Totals.HealingBonus, -1.0f);
+    Life->Modifiers[0].AdditiveValue = std::numeric_limits<float>::max();
+    Edge->Modifiers[0].AdditiveValue = std::numeric_limits<float>::max();
+    TestTrue(TEXT("Healing overflow rejected"),
+             ETRelicLoadoutRules::Evaluate(Both, Owned, Catalog, Totals) == EResult::NumericOverflow);
+    TestEqual(TEXT("Healing overflow clears output"), Totals.HealingBonus, 0.0f);
     return !HasAnyErrors();
 }
 

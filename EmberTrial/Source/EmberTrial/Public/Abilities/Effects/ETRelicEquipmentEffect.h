@@ -4,7 +4,7 @@
 #include "GameplayEffect.h"
 #include "ETRelicEquipmentEffect.generated.h"
 
-// 无周期 / 无授予Tag的装备聚合GE；每份Spec必须提供两个SetByCaller，即使是0。
+// 无周期 / 无授予Tag的装备聚合GE；每份Spec必须提供三个SetByCaller，即使是0。
 UCLASS()
 class EMBERTRIAL_API UETRelicEquipmentEffect : public UGameplayEffect
 {

@@ -290,6 +290,7 @@ public:
     bool IsFormalActionIdle() const;
 
     const UETGA_LightAttack* GetLightAttackConfiguration() const;
+    const UETGA_Heal* GetHealConfiguration() const;
     bool IsRelicEquipmentReadyForInput() const;
 
     // 0仅查询，1 / 2为槽位；None表示卸下。写入仅允许Editor的PIE。

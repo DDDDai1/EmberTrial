@@ -219,7 +219,8 @@ FETRelicInventoryReply UETRelicInventorySubsystem::TryCommitPlan(const FETRelicI
     const FETRelicLoadoutPlan& B = Fresh.LoadoutPlan;
     auto SameTotals = [](const FETRelicModifierTotals& X, const FETRelicModifierTotals& Y)
     {
-        return X.MaxHealthAdditive == Y.MaxHealthAdditive && X.LightAttackBonus == Y.LightAttackBonus;
+        return X.MaxHealthAdditive == Y.MaxHealthAdditive &&
+               X.LightAttackBonus == Y.LightAttackBonus && X.HealingBonus == Y.HealingBonus;
     };
     auto SamePreview = [](const FETRelicLoadoutPreview& X, const FETRelicLoadoutPreview& Y)
     {

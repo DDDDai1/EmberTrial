@@ -11,12 +11,13 @@ enum class EETRelicSlot : uint8
     Second UMETA(DisplayName = "Slot B")
 };
 
-// 先实现两种确有消费者计划的加法效果；新机制在对应批次扩展。
+// 每一种数据参数都对应实际消费者；在尾部追加，保留已保存资产的枚举值。
 UENUM(BlueprintType)
 enum class EETRelicModifierKind : uint8
 {
     MaxHealth UMETA(DisplayName = "Max Health"),
-    LightAttackBonus UMETA(DisplayName = "Light Attack Bonus")
+    LightAttackBonus UMETA(DisplayName = "Light Attack Bonus"),
+    HealingBonus UMETA(DisplayName = "Healing Bonus")
 };
 
 USTRUCT(BlueprintType)

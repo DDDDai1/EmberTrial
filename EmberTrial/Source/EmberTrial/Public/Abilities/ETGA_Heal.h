@@ -22,6 +22,8 @@ public:
     // 配置校验与动画通知入口
     bool HasValidConfiguration() const;
     bool HasValidTagPolicy() const;
+    // 仅根据本能力基础配置与传入加成计算，不要求当前可施放、不读世界或消费次数。
+    bool TryCalculateHealAmount(float Bonus, float& OutAmount) const;
     void HandleHealCommit(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
                           int32 MontageInstanceID, UAnimNotify* NotifyToken);
 

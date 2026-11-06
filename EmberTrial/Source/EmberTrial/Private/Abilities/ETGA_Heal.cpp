@@ -99,23 +99,27 @@ bool UETGA_Heal::HasValidConfiguration() const
            Event.GetTime() < Length - FadeOut;
 }
 
-// 只读取本身体ASC，不依赖库存、遗物ID或UI。double中间值避免float相加溢出。
-bool UETGA_Heal::TryGetEffectiveHealAmount(UAbilitySystemComponent* ASC, float& OutAmount) const
+// 无副作用计算；范围与正式Q一致，装备预检不得另写一个固定40的公式。
+bool UETGA_Heal::TryCalculateHealAmount(const float Bonus, float& OutAmount) const
 {
     OutAmount = 0.0f;
-    if (!IsValid(ASC) || !ASC->GetSet<UETCombatAttributeSet>())
-    {
-        return false;
-    }
-    const float Bonus = ASC->GetNumericAttribute(UETCombatAttributeSet::GetHealingBonusAttribute());
     const double Total = static_cast<double>(HealAmount) + static_cast<double>(Bonus);
-    if (!FMath::IsFinite(HealAmount) || !FMath::IsFinite(Bonus) ||
-        !FMath::IsFinite(Total) || Total < 1.0 || Total > 1000.0)
+    if (!FMath::IsFinite(HealAmount) || HealAmount < 1.0f || HealAmount > 1000.0f ||
+        !FMath::IsFinite(Bonus) || !FMath::IsFinite(Total) || Total < 1.0 || Total > 1000.0)
     {
         return false;
     }
     OutAmount = static_cast<float>(Total);
     return true;
+}
+
+// 施放只读本身体ASC；生效通知继续使用B2-01捕获的ActiveHealAmount。
+bool UETGA_Heal::TryGetEffectiveHealAmount(UAbilitySystemComponent* ASC, float& OutAmount) const
+{
+    OutAmount = 0.0f;
+    return IsValid(ASC) && ASC->GetSet<UETCombatAttributeSet>() &&
+           TryCalculateHealAmount(
+               ASC->GetNumericAttribute(UETCombatAttributeSet::GetHealingBonusAttribute()), OutAmount);
 }
 
 // 生效点也调用：身体、控制器或暂停状态可能已在播放期间变化。

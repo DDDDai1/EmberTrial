@@ -942,6 +942,12 @@ const UETGA_LightAttack* AEmberTrialCharacter::GetLightAttackConfiguration() con
         ? LightAttackAbilityClass->GetDefaultObject<UETGA_LightAttack>() : nullptr;
 }
 
+const UETGA_Heal* AEmberTrialCharacter::GetHealConfiguration() const
+{
+    return !bAbilitySystemShuttingDown && IsValid(HealAbilityClass.Get())
+        ? HealAbilityClass->GetDefaultObject<UETGA_Heal>() : nullptr;
+}
+
 bool AEmberTrialCharacter::IsRelicEquipmentReadyForInput() const
 {
     // 这里只门控受玩家控制的输入；无人控制身体的原生能力专项仍可独立运行。
