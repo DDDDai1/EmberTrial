@@ -11,6 +11,8 @@ class USoundClass;
 class USoundMix;
 struct FSoundClassAdjuster;
 
+DECLARE_MULTICAST_DELEGATE(FETAudioRoutingChanged);
+
 /** 本机游戏音量路由；资产从共享配置读取，偏好由GameUserSettings持有。 */
 UCLASS(Config = Game, DefaultConfig)
 class EMBERTRIAL_API UETAudioSubsystem : public UGameInstanceSubsystem
@@ -26,6 +28,9 @@ public:
     bool ApplyRuntime(const FETAudioPreferences& Value, UWorld* World);
     bool IsRoutingApplied(const UWorld* World) const;
     void StopProbe();
+
+    // 路由可用性事件；监听者只刷新资格，不在回调里再次ApplyRuntime。
+    FETAudioRoutingChanged OnRoutingChanged;
 
 #if !UE_BUILD_SHIPPING
     bool PlayProbe(bool bMusic, UWorld* World);

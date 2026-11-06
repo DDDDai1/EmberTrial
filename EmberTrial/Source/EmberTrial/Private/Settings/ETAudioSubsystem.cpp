@@ -119,6 +119,7 @@ bool UETAudioSubsystem::ApplyRuntime(const FETAudioPreferences& Value, UWorld* W
     UE_LOG(LogETAudio, Display,
         TEXT("[M3-05C2] Routing applied World=%s Master=%.3f Music=%.3f Effects=%.3f"),
         *GetNameSafe(World), Value.MasterVolume, Value.MusicVolume, Value.EffectsVolume);
+    OnRoutingChanged.Broadcast();
     return true;
 }
 
@@ -162,6 +163,7 @@ void UETAudioSubsystem::ReleaseWorld()
     }
     bMixPushed = false;
     BoundWorld.Reset();
+    OnRoutingChanged.Broadcast();
 }
 
 // ---- 开发探针单次播放；换图 / 停止 / GI结束都清理 ----

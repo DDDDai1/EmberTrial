@@ -2,6 +2,7 @@
 #include "Widgets/ETInputSettingsWidget.h"
 #include "Widgets/ETVideoSettingsWidget.h"
 #include "Widgets/ETGraphicsSettingsWidget.h"
+#include "Widgets/ETAudioSettingsWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
@@ -15,7 +16,8 @@ bool UETMainMenuWidget::HasRequiredLayout() const
 {
     return IsValid(StartButton.Get()) && IsValid(ContinueButton.Get()) &&
         IsValid(QuitButton.Get()) && IsValid(StatusText.Get()) && IsValid(InputSettingsPanel.Get()) &&
-        IsValid(VideoSettingsPanel.Get()) && IsValid(GraphicsSettingsPanel.Get());
+        IsValid(VideoSettingsPanel.Get()) && IsValid(GraphicsSettingsPanel.Get()) &&
+        IsValid(AudioSettingsPanel.Get());
 }
 
 void UETMainMenuWidget::NativeOnInitialized()
@@ -36,6 +38,10 @@ void UETMainMenuWidget::NativeOnInitialized()
 
 void UETMainMenuWidget::NativeDestruct()
 {
+    if (AudioSettingsPanel)
+    {
+        AudioSettingsPanel->CloseView();
+    }
     if (GraphicsSettingsPanel)
     {
         GraphicsSettingsPanel->CloseView();
@@ -73,6 +79,10 @@ void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
     if (InputSettingsPanel)
     {
         InputSettingsPanel->SetHostBusy(bBusy);
+    }
+    if (AudioSettingsPanel)
+    {
+        AudioSettingsPanel->SetHostBusy(bBusy);
     }
     if (GraphicsSettingsPanel)
     {
