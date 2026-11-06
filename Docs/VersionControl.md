@@ -398,11 +398,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-05 B4-01收尾：Graphics03证实全新-game读取0-30-0，唯一窄补验关闭，实际手动71 / 等待5；源码在d20de4e、资产 / 来源不变。当前仅Stage报告 / 指南收尾、B4-02新指南与共享状态；02五新 / 四旧UI和一新 / 两旧WBP尚未实施，不提前写正式源码、Stage候选或登记来源。
 
+2026-11-06 B4-02收尾：本地1150a6c含五新 / 四旧UI与一新 / 两旧Widget，九源码候选归一一致、三实物SHA与HEAD LFS OID匹配；来源83、222 / 126 / 39。双Build / 一Success / 三Valid，真实应用与预览隔离、第二轮1-60-0只读查询通过；125 / 等待5。当前仅Stage报告 / 指南收尾、来源 / 状态与C1新指南；C1三新 / 两旧Core尚未正式实施。未联网核验远端，不将个人ini / 原日志加入Git。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B4-01五份Core实现已在本地`d20de4e`。当前Stage其验收报告 / 指南收尾、新B4-02指南与实际更新的共享状态文档；02五新 / 四旧UI及一新 / 两旧Widget尚未实施，不提前Stage候选、空报告或来源行。
+B4-02九源码 / 三Widget已在本地`1150a6c`。当前Stage其验收报告 / 指南收尾、AssetManifest、新C1音量偏好指南与实际更新的共享状态文档；C1三新 / 两旧Core尚未实施，不提前Stage候选、空报告或来源行。
 
-- 英文文档建议：`docs: verify graphics preferences and prepare shared graphics settings UI`
-- 专业中文：`docs: 完成画质偏好验收并准备共享画质设置界面`
+- 英文文档建议：`docs: verify graphics settings UI and prepare audio preferences`
+- 专业中文：`docs: 完成画质设置界面验收并准备音量偏好功能`
 
-02未来源码 / 资产提交建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+C1实施后源码范围与Commit建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

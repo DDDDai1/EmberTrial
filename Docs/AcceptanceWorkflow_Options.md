@@ -342,11 +342,17 @@ B1实际一Success / 双Build / 只读查询与短查通过，人工38 / 等待3
 
 五新 / 四旧UI，新草稿专项一次；一新 / 两旧Widget三Valid、PIE禁用与短查。两轮专用-game验证真控件浏览 / 应用 / 默认草稿、键盘 / 自动滚动、Pause关闭丢弃、显示预览期间禁用且保留草稿、重启只读查询。外部快照变化由纯规则覆盖，不再搭临时蓝图 / 额外控制台矩阵；不重复Core专项、全39项或Cook。
 
+B4-02已验收，125 / 等待5；一GraphicsDraft Success / 三Valid，真实控件与键盘结果按用户反馈，两轮日志确认实际应用、预览隔离与重启1-60-0。无待补，不重复旧组。
+
+## M3-05C1最小范围
+
+三新 / 两旧Core，仅一AudioPreferences纯规则专项；PIE只读拒绝 / P移动短查，两轮专用-game验证合法保存、非法拒绝、总0保留子通道与同ini新进程只查询。当前没有实际声音路由，RuntimeAudioApplied固定0；不以数学组合值充当听感验收。无新Widget / 资产 / 临时蓝图，不跑全40项或Cook；C2才做实际可听路由。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B4-01五份Core实现已在本地`d20de4e`。当前Stage其验收报告 / 指南收尾、新B4-02指南与实际更新的共享状态文档；02五新 / 四旧UI及一新 / 两旧Widget尚未实施，不提前Stage候选、空报告或来源行。
+B4-02九源码 / 三Widget已在本地`1150a6c`。当前Stage其验收报告 / 指南收尾、AssetManifest、新C1音量偏好指南与实际更新的共享状态文档；C1三新 / 两旧Core尚未实施，不提前Stage候选、空报告或来源行。
 
-- 英文文档建议：`docs: verify graphics preferences and prepare shared graphics settings UI`
-- 专业中文：`docs: 完成画质偏好验收并准备共享画质设置界面`
+- 英文文档建议：`docs: verify graphics settings UI and prepare audio preferences`
+- 专业中文：`docs: 完成画质设置界面验收并准备音量偏好功能`
 
-02未来源码 / 资产提交建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+C1实施后源码范围与Commit建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

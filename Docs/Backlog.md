@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-11-05。[B4-01已验收](Reports/M3_05B4_01_Verification.md)，重启读取待补项关闭；当前[B4-02共享画质设置卡](M3_05B4_02_GraphicsSettingsUI.md)待手动。实时规模 / 工时见Progress，历史口径保留。
+更新2026-11-06。[B4-02共享画质卡已验收](Reports/M3_05B4_02_Verification.md)，无待补；当前[C1音量偏好](M3_05C1_AudioPreferences.md)待手动。实时规模 / 工时见Progress，历史口径保留。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -114,7 +114,7 @@
 | M2-07A | [新版独立包与集成检查](Reports/M2_07A_Verification.md) | 你操作，我核对 | 完成 | Attempt01 / 23项全Success、两轮Runtime / 四能力-HUD-AI及检查点 / 清理通过；手动30 / 等待10 |
 | M2-07B | [新版包性能分析](Reports/M2_07B_Verification.md) | 你采集，我分析 | 完成 | 同一A包、真实AI / 四动作、正式导出；内窗与完整Region尖峰、实际PNG尺寸 / 环境限制均记录；手动30 / 等待10，无补采或工程修改 |
 | M2-07C | [技术复盘交付 / 收尾](Reports/M2_07C_Verification.md) | 我整理，你后续可查阅 | 完成（材料） | 用户要求继续下一章，M2 / 07总报告保存；无逐项理解答卷 / C实耗，不追加旧测试 |
-| M3 | [遗物装备、构筑界面与设置](M3_Roadmap.md) | 共同 | 进行中 | 01 / 02及03A列表模型已验收；03B暂停页浏览下发，确认 / 祭坛后续，6件 / 2槽目标保持 |
+| M3 | [遗物装备、构筑界面与设置](M3_Roadmap.md) | 共同 | 进行中 | 两件遗物祭坛闭环、输入与显示 / 画质已验收；当前音量偏好，6件 / 2槽与阶段新包目标保持 |
 | M3-01 | [静态遗物定义与ID契约](Reports/M3_01_Verification.md) | 你实现，我审查 | 完成 | 161 / 88 / 来源77，双Build / 三索引、两Valid / Definitions Success与短基线；代码40 / 检查2 / 等待5，无待补 |
 | M3-02A | [两槽方案与纯数值预览](Reports/M3_02A_Verification.md) | 你实现，我审查 | 完成 | 164 / 90 / 25、双Build / 三索引、两库存Success与短基线，实际42 / 等待10，无待补 |
 | M3-02B | [战斗属性 / 原生装备效果](Reports/M3_02B_Verification.md) | 你手动实现，我审查 | 完成 | 169 / 93 / 26，四相关Success、双Build与短查；实际52 / 等待5，无待补 |
@@ -137,7 +137,8 @@
 | M3-05B3-01 | [显示设置草稿与候选目录](Reports/M3_05B3_01_Verification.md) | 你手动实现，我审查 | 完成 | 212 / 120 / 37，双Build / 一Success / 短查；62 / 等待10 |
 | M3-05B3-02 | [共享显示卡验收](Reports/M3_05B3_02_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 主体双Build / 两Success / 三Valid；首屏窄补修按用户全新进程反馈通过，未另存独立日志；170 / 等待10 |
 | M3-05B4-01 | [原生画质 / 帧率验收](Reports/M3_05B4_01_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 217 / 123 / 38，双Build / 一Success / 原生应用与拒绝；Graphics03重启0-30-0查询通过，71 / 等待5 |
-| M3-05B4-02 | [共享画质设置卡](M3_05B4_02_GraphicsSettingsUI.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 五新 / 四旧UI；新八绑定与宿主七绑定、右列滚动；一专项 / 三Valid / 两轮独立窗口 |
+| M3-05B4-02 | [共享画质设置卡](Reports/M3_05B4_02_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 222 / 126 / 39、双Build / 一Success / 三Valid；真实控件与预览隔离 / 新进程1-60-0，125 / 等待5 |
+| M3-05C1 | [音量偏好与本机保存](M3_05C1_AudioPreferences.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 三新 / 两旧Core；一专项 / 两轮专用-game保存与只读，不提前声称实际混音 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -155,7 +156,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 01–04、05A / B1 / B2 / B3 / B4-01已验收，无待补；B4-02共享画质卡待实施，音量 / 完整6件与新包后续 |
+| M3当前开发 | 01–04与05A / B已验收，无待补；C1音量偏好待实施，C2真实声音路由 / C3共享音量卡、完整6件与新包后续 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -163,9 +164,9 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-B4-01五份Core实现已在本地`d20de4e`。当前Stage其验收报告 / 指南收尾、新B4-02指南与实际更新的共享状态文档；02五新 / 四旧UI及一新 / 两旧Widget尚未实施，不提前Stage候选、空报告或来源行。
+B4-02九源码 / 三Widget已在本地`1150a6c`。当前Stage其验收报告 / 指南收尾、AssetManifest、新C1音量偏好指南与实际更新的共享状态文档；C1三新 / 两旧Core尚未实施，不提前Stage候选、空报告或来源行。
 
-- 英文文档建议：`docs: verify graphics preferences and prepare shared graphics settings UI`
-- 专业中文：`docs: 完成画质偏好验收并准备共享画质设置界面`
+- 英文文档建议：`docs: verify graphics settings UI and prepare audio preferences`
+- 专业中文：`docs: 完成画质设置界面验收并准备音量偏好功能`
 
-02未来源码 / 资产提交建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+C1实施后源码范围与Commit建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

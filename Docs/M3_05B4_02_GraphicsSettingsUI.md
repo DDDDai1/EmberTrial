@@ -1,6 +1,6 @@
 # M3-05B4-02：主菜单与暂停页共用画质设置卡
 
-2026-11-05，UE **5.5.4**。[B4-01已验收](Reports/M3_05B4_01_Verification.md)，Graphics03证实重启读取0 / 30 / 0，无待补。以下为本批手动实施指南；新源码 / 新WBP尚未写入正式工程，没有本批Build或实机成功结论。
+2026-11-05 23:16用户完成，2026-11-06复核。**[本章验收通过](Reports/M3_05B4_02_Verification.md)，无待补，进入[M3-05C1音量偏好](M3_05C1_AudioPreferences.md)。** 以下保留完整手动实施 / 复查步骤，不要求再次执行旧矩阵。
 
 ## 1. 体验、职责与范围
 
@@ -8,7 +8,7 @@
 
 离开页面丢弃未应用草稿；重新打开读当前已应用值。显示预览进行中，本卡编辑 / 应用禁用，但草稿保留；确认 / 取消显示预览后恢复。PIE只读、独立-game可改。Core仍负责保存与保护，View不建立另一份设置单例、窗口事务、Tick或Timer。
 
-本批五新 / 四旧UI，一新WBP / 两旧宿主。当前217 Source / 123cpp（Core85 / UI35 / Editor3）、38测试、301 Content / 来源82；实施后预计222 Source / 126cpp（Core85 / UI38 / Editor3）、39测试，新WBP保存后Content302 / 来源83。预算代码60–90 / Designer30–45 / 阅读5–10 / 检查10–15分钟，构建等待另记，不提前计实耗。
+本批五新 / 四旧UI，一新WBP / 两旧宿主均已实施。实际222 Source / 126cpp（Core85 / UI38 / Editor3）、39测试、302 Content / 来源83。用户代码70 / Designer40 / 阅读5 / 检查10，合计125分钟、构建启动等待5；两轮独立日志与重启1 / 60 / 0查询通过。
 
 ## 2. 文件与准备
 
@@ -1112,20 +1112,11 @@ Source / 三资产Save All，配置留专用ini；失败或布局问题（无填
 
 ## 11. Commit / Push（固定放在最后）
 
-### 11.1 当前B4-01收尾与新指南
+本章九源码 / 三Widget已在本地`1150a6c`，实现建议留作历史：英文`feat: add shared graphics settings UI with draft application`；专业中文`feat: 新增支持草稿确认的共享画质设置界面`。已提交的实现无需重新Stage，远端状态由你确认。
 
-B4-01五源码已在本地d20de4e，当前Stage其验收报告 / 指南收尾、本指南与实际更新的共享状态文档。英文：`docs: verify graphics preferences and prepare shared graphics settings UI`；专业中文：`docs: 完成画质偏好验收并准备共享画质设置界面`。新源码 / WBP尚未实施，不提前Stage候选 / 空报告。
+当前Stage本指南收尾、[验收报告](Reports/M3_05B4_02_Verification.md)、AssetManifest新增新卡 / 更新两宿主、[C1新指南](M3_05C1_AudioPreferences.md)与实际修改的共享状态文档。
 
-### 11.2 本章手动实施后
+- 英文：`docs: verify graphics settings UI and prepare audio preferences`
+- 专业中文：`docs: 完成画质设置界面验收并准备音量偏好功能`
 
-Stage第2节五新 / 四旧UI，及以下真实保存的三个资产：
-
-```text
-EmberTrial/Content/EmberTrial/ui/Settings/WBP_ETGraphicsSettings.uasset  新
-EmberTrial/Content/EmberTrial/ui/Menu/WBP_ETMainMenu.uasset              旧
-EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset               旧
-```
-
-英文：`feat: add shared graphics settings UI with draft application`；专业中文：`feat: 新增支持草稿确认的共享画质设置界面`。文档单独提交可用`docs: record shared graphics settings UI verification`；专业中文：`docs: 记录共享画质设置界面验证结果`。
-
-来源清单只在真实资产保存后更新SHA，不预填来源。Artifacts候选 / Runtime / 个人ini、Saved / Intermediate / Binaries、.idea与生成索引留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作。
+C1正式源码尚未实施，不Stage候选、空报告或未来来源行。Artifacts / 个人ini / 日志、缓存和生成索引留本地；Stage后继续修改需重新Stage → Review → Commit / Push由用户操作。

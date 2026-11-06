@@ -182,13 +182,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **B4-01已验收。** [非分辨率偏好](Reports/M3_05B4_01_Verification.md)由引擎同一GameUserSettings持有；独立设置十组画质保留ResolutionQuality，混合值-1保持当前组。PIE / 视频保护期间拒绝，ApplyNonResolutionSettings与显式Save不启动窗口预览。Graphics03证实最后合法0 / 30 / 0重启读取，无新服务或常驻轮询。
 
-**B4-02仅指南 / 候选。** [共用画质卡](M3_05B4_02_GraphicsSettingsUI.md)计划由纯草稿维护编辑、应用前重验Core公开快照；默认只填本卡1 / 60 / 0。新View订阅原视频服务的状态事件以禁用 / 恢复，不在倒计时中覆盖草稿；宿主关闭先解绑画质卡再取消视频，旧View不能确认。两个宿主第七绑定，右列滚动且焦点自动进入视野。无新设置服务 / Widget Tick / 世界Timer，正式实现与资产尚未创建。
+**B4-02已验收。** [共用画质卡](Reports/M3_05B4_02_Verification.md)由纯草稿维护编辑、应用前重验Core公开快照；默认只填本卡1 / 60 / 0。View订阅原视频服务事件以禁用 / 恢复，不在倒计时中覆盖草稿；宿主先解绑画质卡再取消视频，旧View不能确认。两个宿主第七绑定，右列滚动且焦点自动进入视野。无新设置服务 / Widget Tick / 世界Timer；真实应用 / 预览隔离与重启1-60-0已通过。
+
+**C1只有指南 / 候选。** [音量偏好](M3_05C1_AudioPreferences.md)计划在同一GameUserSettings保存三个独立0–1值，非法拒绝、缺失用默认，显式确认才保存；当前不混音。C2再接父子SoundClass / SoundMix与实际听感，C3共享草稿卡；原始通道值与诊断组合增益分开，避免Master重复相乘。Core不依赖项目UI。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B4-01五份Core实现已在本地`d20de4e`。当前Stage其验收报告 / 指南收尾、新B4-02指南与实际更新的共享状态文档；02五新 / 四旧UI及一新 / 两旧Widget尚未实施，不提前Stage候选、空报告或来源行。
+B4-02九源码 / 三Widget已在本地`1150a6c`。当前Stage其验收报告 / 指南收尾、AssetManifest、新C1音量偏好指南与实际更新的共享状态文档；C1三新 / 两旧Core尚未实施，不提前Stage候选、空报告或来源行。
 
-- 英文文档建议：`docs: verify graphics preferences and prepare shared graphics settings UI`
-- 专业中文：`docs: 完成画质偏好验收并准备共享画质设置界面`
+- 英文文档建议：`docs: verify graphics settings UI and prepare audio preferences`
+- 专业中文：`docs: 完成画质设置界面验收并准备音量偏好功能`
 
-02未来源码 / 资产提交建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+C1实施后源码范围与Commit建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

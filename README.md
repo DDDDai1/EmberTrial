@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2阶段已收尾](Docs/Reports/M2_Verification.md)，[M3-01至04的两件遗物正式闭环已验收](Docs/Reports/M3_04C2_Verification.md)。[M3-05B2-02原生预览已验收](Docs/Reports/M3_05B2_02_Verification.md)，[B3-01显示草稿已验收](Docs/Reports/M3_05B3_01_Verification.md)，[02共享显示设置卡](Docs/Reports/M3_05B3_02_Verification.md)已验收，[B4-01原生画质 / 帧率接口](Docs/Reports/M3_05B4_01_Verification.md)已验收，当前[B4-02共享画质卡](Docs/M3_05B4_02_GraphicsSettingsUI.md)待手动；最终内容、美术与投递材料仍在开发。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2阶段已收尾](Docs/Reports/M2_Verification.md)，[M3-01至04的两件遗物正式闭环已验收](Docs/Reports/M3_04C2_Verification.md)。[M3-05B2-02原生预览已验收](Docs/Reports/M3_05B2_02_Verification.md)，[B3-01显示草稿已验收](Docs/Reports/M3_05B3_01_Verification.md)，[02共享显示设置卡](Docs/Reports/M3_05B3_02_Verification.md)已验收，[B4-01原生画质 / 帧率接口](Docs/Reports/M3_05B4_01_Verification.md)已验收，[B4-02共享画质卡](Docs/Reports/M3_05B4_02_Verification.md)已验收，当前[C1音量偏好](Docs/M3_05C1_AudioPreferences.md)待手动；最终内容、美术与投递材料仍在开发。
 
 ## 已实现的体验
 
@@ -51,7 +51,7 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：B4-02共享画质设置卡](Docs/M3_05B4_02_GraphicsSettingsUI.md)：五新 / 四旧UI、新卡与两宿主滚动布局待手动；[B4-01原生接口已验收](Docs/Reports/M3_05B4_01_Verification.md)，重启0 / 30 / 0读取已确认。[M3路线](Docs/M3_Roadmap.md)。
+- [当前开发：C1音量偏好与本机保存](Docs/M3_05C1_AudioPreferences.md)：三新 / 两旧Core待手动，先完成数据；C2实际声音路由 / C3共享卡后续。[B4-02共享画质卡已验收](Docs/Reports/M3_05B4_02_Verification.md)，重启1 / 60 / 0读取已确认。[M3路线](Docs/M3_Roadmap.md)。
 - [M3-02A验收](Docs/Reports/M3_02A_Verification.md)：两槽资格 / 汇总、替换 / 卸下 / 预览，双库存专项当次Success。
 - [M3-01验收](Docs/Reports/M3_01_Verification.md)：两遗物静态定义、两Valid与Definitions Success；[原操作步骤](Docs/M3_01_RelicDefinitions.md)供复查。
 - [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。
@@ -68,4 +68,4 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [验收方案B](Docs/AcceptanceWorkflow_Options.md)：按影响范围测试、复用入口与阶段验收。
 - [资产来源清单](Docs/AssetManifest.csv)：来源、用途及授权记录；复用资产时需分别核对原授权。
 
-核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。当前38项自动化；M2-07A的23项阶段全组Success沿用，M3定义 / 规则 / 装备效果 / 会话库存专项已过，03A两相关项当次Success；B扩原Combo.Flow的真实三段伤害快照沿用，覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。
+核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。当前39项自动化；M2-07A的23项阶段全组Success沿用，M3定义 / 规则 / 装备效果 / 会话库存专项已过，03A两相关项当次Success；B扩原Combo.Flow的真实三段伤害快照沿用，覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。
