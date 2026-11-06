@@ -190,13 +190,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **C3已验收。** [共用音量卡](Reports/M3_05C3_Verification.md)用纯值草稿管理三滑条，显式应用 / 取消 / 默认与关闭解绑；Audio原生就绪事件解决首次菜单时序，视频事件只刷新资格不覆盖草稿。宿主第八绑定、原右列ScrollBox，Audio先于Video关闭；没有Tick / Timer或第二个Mix。首屏与重启0.5-0.5-1已通过。
 
-**06A集成待执行。** [新版包](M3_06A_IntegratedPackage.md)将当前两件遗物与四类设置实际Cook；启动工具为M3强制明确目录、两轮共用专用个人ini，试炼状态仍在GI。旧能力测试的受伤准备已移至出生装备恢复之后，42项阶段全组Success；尚未生成M3新包，不把旧M2包当当前代码证明。正式装备 / 能力逻辑未改。
+**06A集成已验收。** [新版包](M3_06A_IntegratedPackage.md)将当前两件遗物与四类设置实际Cook；启动工具为M3强制明确目录、两轮共用专用个人ini，试炼状态仍在GI。旧能力测试的受伤准备移至出生装备恢复之后，42项阶段全组Success；Attempt01实际包内确认祭坛 / 设置与两次新身体恢复，Run02偏好保留 / 试炼装备重置。正式装备 / 能力逻辑未改。
+
+**B1仅指南 / 候选。** 第三件通过既有MaxHealth / LightAttackBonus加法组合形成代价收益，沿用同一装备句柄 / 事务 / UI投影；四既有测试解除真实目录固定两件的前提，正式生产文件尚未实施。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-C3十一源码 / 三Widget已在本地`f363841`。当前Stage其验收报告 / 指南收尾、AssetManifest新卡 / 两宿主、M3-06A新指南与Run-StageBuild.ps1，以及实际更新的共享状态文档。06A的42项阶段回归经三份测试准备补修后全部Success，新包尚未构建。本轮还需Stage三份测试修改，准确清单见06A指南第9节。
+06A已通过，本地c03948c含三份受伤测试修复，9c0f9d5含准备文档 / 启动工具。当前只Stage06A验收报告 / 指南收尾、M3-06B1新指南及实际更新的共享状态文档；准确清单见B1末尾。B1四份测试候选、Config与新资产尚未正式实施，不提前Stage、登记来源或预填成功。
 
-- 英文文档建议：`fix: arrange wounded test fixtures after equipment restoration`
-- 专业中文：`fix: 将受伤测试状态设置移至装备恢复完成之后`
+- 英文：`docs: verify M3 package and prepare tradeoff relic`
+- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
 
-准确清单见新指南末尾。Artifacts证据 / 包 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+包 / UAT / Runtime / JSON / 个人ini与Artifacts候选保持本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

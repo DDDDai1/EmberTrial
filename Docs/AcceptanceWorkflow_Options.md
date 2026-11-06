@@ -368,11 +368,17 @@ C3已验收，125 / 等待5；一AudioDraft Success / 三Valid，实际首屏、
 
 本轮首次39成功 / 3失败；三份旧能力测试在出生恢复后显式构造受伤状态，保留原断言。助手正常Editor Build后复跑42项全部Success，0警告；用户无需再跑全组，从打包继续。自动化结果不替代包内焦点 / 听感。
 
+06A已验收：42 Success、UAT / 两轮及独立锁定补测证据齐全，80 / 等待10；视觉 / 听感与日志边界分别记录。
+
+## M3-06B1的检查边界
+
+第三件复用已有两种效果，不扩测试框架。只跑Definitions / Session / UI.ViewModels / UI.Presenter四项及一条祭坛预览、80 / 35、组合40、卸装不治疗短查。真实目录可变、两项纯样本固定是不同合同；不把2直接改成3，不跳过所有者 / 生命周期断言。无需全42项、Cook或重复AI / 设置矩阵。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-C3十一源码 / 三Widget已在本地`f363841`。当前Stage其验收报告 / 指南收尾、AssetManifest新卡 / 两宿主、M3-06A新指南与Run-StageBuild.ps1，以及实际更新的共享状态文档。06A的42项阶段回归经三份测试准备补修后全部Success，新包尚未构建。本轮还需Stage三份测试修改，准确清单见06A指南第9节。
+06A已通过，本地c03948c含三份受伤测试修复，9c0f9d5含准备文档 / 启动工具。当前只Stage06A验收报告 / 指南收尾、M3-06B1新指南及实际更新的共享状态文档；准确清单见B1末尾。B1四份测试候选、Config与新资产尚未正式实施，不提前Stage、登记来源或预填成功。
 
-- 英文文档建议：`fix: arrange wounded test fixtures after equipment restoration`
-- 专业中文：`fix: 将受伤测试状态设置移至装备恢复完成之后`
+- 英文：`docs: verify M3 package and prepare tradeoff relic`
+- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
 
-准确清单见新指南末尾。Artifacts证据 / 包 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+包 / UAT / Runtime / JSON / 个人ini与Artifacts候选保持本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

@@ -1,6 +1,6 @@
 # M3-06A：当前遗物与设置闭环的新版独立包
 
-2026-11-06，UE **5.5.4 / Win64 Development**。[C3音量卡已验收](Reports/M3_05C3_Verification.md)，无待补。本章生成包含当前M3代码 / 资源的新包。第2.3节的测试准备补修及42项阶段回归已由助手完成；**现在从第3节打包继续**，尚无本批打包或包内运行成功结论。
+2026-11-06，UE **5.5.4 / Win64 Development**。[C3音量卡已验收](Reports/M3_05C3_Verification.md)，无待补。本章生成包含当前M3代码 / 资源的新包。**本章已于23:35验收通过**：42项回归、Attempt01与两轮真实包内流程均完成，无待补。见[验收报告](Reports/M3_06A_Verification.md)，当前进入[M3-06B1代价型遗物](M3_06B1_TradeoffRelic.md)。以下原操作步骤保留供查阅，无需重跑。
 
 ## 1. 本章目的与范围
 
@@ -189,7 +189,7 @@ Set-Location 'E:\UE_Project\Demo'
 - 包内试听：音乐0%、音效100%时，用户确认音乐探针无声、音效探针有声；日志显示两路探针均启动。随后助手将音量恢复为总50% / 音乐50% / 音效100%，并从菜单正常退出Run01。
 - **Tab锁定补测通过：** Run01遗漏此项，另用同一新版包启动独立的`LockSupplement_20261106_232951_035`进程。用户靠近敌人并按Tab，确认单标记与镜头正常；日志先记一次无候选拒绝，随后23:30:24成功锁定`BP_ETMeleeEnemy_C_1`，标记投影启用。助手恢复游戏后也观察到一个标记和朝向敌人的视角。补测从菜单正常退出，日志保存在`Artifacts/M3_06A/Runtime/`，不冒充Run01。
 
-第5节按上述实际操作与用户反馈完成。电脑操作接口无法持续按住移动键，移动、部分战斗和真实听感由用户协助；**第6节Run02仍待执行**，本节完成不等同整个M3-06A验收完成。
+第5节按上述实际操作与用户反馈完成。电脑操作接口无法持续按住移动键，移动、部分战斗和真实听感由用户协助；第6节Run02随后由用户完成并已核对，本章结果见验收报告。
 
 ## 6. Run02新进程只读（约2分钟）
 
@@ -205,6 +205,11 @@ Set-Location 'E:\UE_Project\Demo'
 3. 移动 / 转向、左键或2任选一次，P继续一次，再正常退出。不重跑第一轮战斗或再装备。
 
 两轮完整Runtime日志 / JSON / 专用ini原样保留。我会读取，不要求你复制长成功日志或计算SHA。
+
+### 6.1 Run02核对记录（完成）
+
+实际Run02_20261106_233205_616：23:32:34音量只读0.5 / 0.5 / 1、RoutingApplied1，23:32:41画质只读1 / 60 / 0；之前无UI Apply。23:32:54 Entry / Owned2 / 空槽 / 100生命，音效探针启动与用户试听通过；最短输入 / P按用户反馈通过，23:33:11菜单正常退出。完整42项、UAT / Game二进制与两轮证据已核对，本章无待补。用户80分钟 / 等待10，详见验收报告。
+
 
 ## 7. 助手复核与阶段后续
 
@@ -235,33 +240,9 @@ Source资产已保存、临时配置恢复或未改；失败或明显差异（�
 
 ## 9. Commit / Push（固定放在最后）
 
-C3十一源码 / 三Widget已在本地`f363841`。当前Stage以下文档 / 工具及本次直接补修的三份既有测试；没有正式Gameplay实现、Content或共享Config改动：
+本地c03948c已含三份受伤测试修复，9c0f9d5已含06A准备文档 / 启动工具。当前只Stage本指南收尾、[验收报告](Reports/M3_06A_Verification.md)、[M3-06B1指南](M3_06B1_TradeoffRelic.md)及实际更新的共享状态；准确十二文件清单见B1末尾。
 
-```text
-Tools/Run-StageBuild.ps1
-EmberTrial/Source/EmberTrial/Tests/ETBreakPulseAbilityTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETStaggerAbilityTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETHealAbilityTests.cpp
-Docs/Reports/M3_05C3_Verification.md
-Docs/M3_05C3_AudioSettingsUI.md
-Docs/M3_06A_IntegratedPackage.md
-Docs/AssetManifest.csv
-Docs/Progress.md
-Docs/Backlog.md
-Docs/M3_Roadmap.md
-Docs/M2_Roadmap.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Introduction.md
-README.md
-```
+- 英文：`docs: verify M3 package and prepare tradeoff relic`
+- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
 
-- 英文：`fix: arrange wounded test fixtures after equipment restoration`
-- 专业中文：`fix: 将受伤测试状态设置移至装备恢复完成之后`
-
-以上可与尚未提交的C3收尾 / 06A准备文档一起Commit；说明里可补充“完成共用音量卡验收，修复三项旧能力测试，42项阶段回归通过，独立包待构建”。若C3收尾文档已先提交，只提交本轮实际增量，不重复Stage旧版本。
-
-本章完成后只追加实际验收报告 / 指南收尾及修改过的状态文档；若没有排错修改，Source / Content / 共享Config不应多出改动。英文可用`docs: record M3 integrated package verification`；专业中文`docs: 记录M3集成开发包验证结果`。
-
-包 / UAT与Runtime / JSON / 个人ini、Artifacts / Saved / Binaries / Intermediate与索引留本地，不上传exe或为结果创建空报告。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作；助手未联网核验远端。
+本章无额外生产文件改动，不重复Stage旧源码或资产。包 / Runtime / UAT / JSON / 个人ini / 候选留本地，Git提交由用户操作，助手未核验远端。

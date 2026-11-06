@@ -408,11 +408,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-06 06A补修：直接修改BreakPulseAbility / StaggerAbility / HealAbility三份旧测试，把受伤40的准备移到新身体装备恢复之后，新增Current / Base前置断言；正式Gameplay、Content、共享Config未改。正常Editor Build通过，21:21命令行42项Success / 0警告，原39成功 / 3失败日志保留。测试源文件与当前文档一并Stage，包仍待构建；助手未操作Git索引 / 提交 / 远端。
 
+2026-11-06 06A收尾：c03948c含三份受伤测试准备修复，9c0f9d5含指南与工具；起点干净。42项全Success、Attempt01与Run01 / Run02及独立锁定补测通过，80 / 等待10；包与92份来源指纹核对。当前只Stage验收报告 / 指南收尾、B1新指南及状态；B1一新资产 / Config / 四测试只有候选，正式文件未写，不预填来源或提交产物。助手未核验远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-C3十一源码 / 三Widget已在本地`f363841`。当前Stage其验收报告 / 指南收尾、AssetManifest新卡 / 两宿主、M3-06A新指南与Run-StageBuild.ps1，以及实际更新的共享状态文档。06A的42项阶段回归经三份测试准备补修后全部Success，新包尚未构建。本轮还需Stage三份测试修改，准确清单见06A指南第9节。
+06A已通过，本地c03948c含三份受伤测试修复，9c0f9d5含准备文档 / 启动工具。当前只Stage06A验收报告 / 指南收尾、M3-06B1新指南及实际更新的共享状态文档；准确清单见B1末尾。B1四份测试候选、Config与新资产尚未正式实施，不提前Stage、登记来源或预填成功。
 
-- 英文文档建议：`fix: arrange wounded test fixtures after equipment restoration`
-- 专业中文：`fix: 将受伤测试状态设置移至装备恢复完成之后`
+- 英文：`docs: verify M3 package and prepare tradeoff relic`
+- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
 
-准确清单见新指南末尾。Artifacts证据 / 包 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+包 / UAT / Runtime / JSON / 个人ini与Artifacts候选保持本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M3-01至04与已实施05设置批次已验收，无待补；当前[M3-06A新版独立包](Docs/M3_06A_IntegratedPackage.md)待操作。实际233 Source / 133cpp、42自动化，实耗见[Progress](Docs/Progress.md)。完整六件 / 压力与体验反馈扩展仍后续，M3尚未总完成。
+当前进度：M3-01至04、已实施05设置及[06A新版独立包](Docs/Reports/M3_06A_Verification.md)已验收，无待补；当前[M3-06B1第三件代价型遗物](Docs/M3_06B1_TradeoffRelic.md)待手动。实际233 Source / 133cpp、42自动化，实耗见[Progress](Docs/Progress.md)。完整六件 / 压力与体验反馈扩展仍后续，M3尚未总完成。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-06，M0、M1、M2与清理已收尾，M3-01至04和已实施05设置批次已验收。** [C3报告](Docs/Reports/M3_05C3_Verification.md)记录双Build / 一Success / 三Valid、真实共用音量卡、首次就绪 / 显示预览隔离及重启0.5-0.5-1，无待补。实际233 Source / 133cpp / 42测试 / 来源92，M3累计2063 / 等待131，项目5474 / 明确等待455；本章人工125 / 等待5。当前[06A独立包](Docs/M3_06A_IntegratedPackage.md)阶段全组已在三份测试准备补修后42项全Success，Build-Cook仍待执行，先验现有两件 / 两槽与四类设置；完整六遗物、列表压力、镜头震动随反馈系统接入、M5磁盘进度与最终美术后续，M3不总关闭，原70h / M8复盘保持。个人偏好不等于试炼存档；旧M2_07A/Attempt01不含M3，普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-06，M0、M1、M2与清理已收尾，M3-01至04、已实施05设置与06A两件集成包已验收。** [06A报告](Docs/Reports/M3_06A_Verification.md)记录42项全Success、Attempt01 / 两轮、真实祭坛换装与30伤害、新身体120 / 新进程空槽100、偏好只读保存，无待补。实际233 Source / 133cpp / 42测试 / 来源92；M3累计2143 / 等待141，项目5554 / 等待465；本章80 / 等待10。当前[B1代价型第三件遗物](Docs/M3_06B1_TradeoffRelic.md)仅指南 / 四测试候选与一Data Asset / Config待手动，未写正式文件。完整六件、列表压力、镜头震动随反馈接入、M5磁盘存档与最终美术后续，M3不总关闭，原70h / M8复盘保持。个人偏好不等于试炼存档；当前实际包M3_06A/Attempt01仍两件，普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,9 +868,9 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-C3十一源码 / 三Widget已在本地`f363841`。当前Stage其验收报告 / 指南收尾、AssetManifest新卡 / 两宿主、M3-06A新指南与Run-StageBuild.ps1，以及实际更新的共享状态文档。06A的42项阶段回归经三份测试准备补修后全部Success，新包尚未构建。本轮还需Stage三份测试修改，准确清单见06A指南第9节。
+06A已通过，本地c03948c含三份受伤测试修复，9c0f9d5含准备文档 / 启动工具。当前只Stage06A验收报告 / 指南收尾、M3-06B1新指南及实际更新的共享状态文档；准确清单见B1末尾。B1四份测试候选、Config与新资产尚未正式实施，不提前Stage、登记来源或预填成功。
 
-- 英文文档建议：`fix: arrange wounded test fixtures after equipment restoration`
-- 专业中文：`fix: 将受伤测试状态设置移至装备恢复完成之后`
+- 英文：`docs: verify M3 package and prepare tradeoff relic`
+- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
 
-准确清单见新指南末尾。Artifacts证据 / 包 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+包 / UAT / Runtime / JSON / 个人ini与Artifacts候选保持本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
