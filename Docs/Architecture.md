@@ -194,13 +194,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **06B1已验收。** 第三件逆焰通过既有MaxHealth -20 / LightAttackBonus +10形成代价收益，沿用原装备句柄 / 事务 / UI投影；四既有测试解除真实目录固定两件的前提。真实组合40伤害、换装80/100不治疗与Owned3通过，无新增Gameplay分支。
 
-**06B2-01待实施。** 候选在原CombatAttributeSet加入HealingBonus，Q预检读取聚合值、接受施放时捕获基础40+加成，通知只用本次快照；资源组件仍负责实际治疗 / 次数，能力不引用库存或UI。六旧Core / 两相关专项，无新Tick / Timer；第四件与装备预览由02另接，不提前声明完成。
+**06B2-01已验收。** 原CombatAttributeSet已有HealingBonus0，Q读取聚合值并在接受施放时捕获基础40+加成，通知只用快照。真实GE移除后本次50 / 下次40与默认Q50→90通过，资源组件仍负责治疗 / 次数；无新增Tick / Timer或重复属性集。
+
+**06B2-02待实施。** 21旧Core候选把新Kind接入汇总、第三SetByCaller、自有句柄与事务重验；Q公开纯数值计算供预检复用，避免装备代码硬写40。正式组件保留外部GE贡献并拒绝无消费者 / 非法总量；第四件与UI比较改到03，不提前声明完成。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B1通过，本地bcdfe6a已包含一资产 / Config / 四测试；当前只Stage B1报告 / 指南收尾、来源93、B2-01新指南及实际修改的共享文档，准确12文件清单见[B2-01末尾](M3_06B2_01_HealingBonusFoundation.md)。后者六既有Source仍为本地候选，待用户手动实施。
+B2-01通过，本地c354f4f已有六份Core实现。当前只Stage B2-01报告 / 指南收尾、B2-02新指南及实际修改的共享文档，准确11文件清单见[B2-02末尾](M3_06B2_02_HealingEquipmentPipeline.md)。02的21份既有Core仅候选，来源93 / 资产不变；第四件与UI改为03另批完成。
 
-- 英文：`docs: verify tradeoff relic and plan healing bonus`
-- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
+- 英文：`docs: verify healing snapshot and plan equipment pipeline`
+- 专业中文：`docs: 完成治疗施放快照验收并规划装备增益管线`
 
-原日志 / JSON / Artifacts候选 / 包与个人ini保持本地。重新Stage后Review → Commit / Push由用户操作，助手未核验远端。
+原日志 / JSON / 候选 / 包与个人ini留Artifacts本地。重新Stage / Review后由用户Commit / Push，助手未操作索引、提交或远端。

@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-11-07。[B1第三件代价型已验收](Reports/M3_06B1_Verification.md)，无待补；当前[B2-01治疗加成基础](M3_06B2_01_HealingBonusFoundation.md)待用户操作。实时规模 / 工时见Progress，历史口径保留。
+更新2026-11-07。[B2-01治疗加成快照已验收](Reports/M3_06B2_01_Verification.md)，无待补；当前[B2-02核心装备管线](M3_06B2_02_HealingEquipmentPipeline.md)待用户操作，第四件 / UI拆到03。实时规模 / 工时见Progress。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -143,7 +143,8 @@
 | M3-05C3 | [共用音量设置卡](Reports/M3_05C3_Verification.md) | 你实现，我设计 / 审查 | 完成 | 233 / 133 / 42、双Build / 一Success / 三Valid，真实卡片与重启0.5-0.5-1；125 / 等待5 |
 | M3-06A | [当前闭环新版独立包](Reports/M3_06A_Verification.md) | 你构建，实机协作 / 我核对 | 完成 | 42项Success、Attempt01与两轮包内遗物 / 设置 / 新身体恢复，锁定独立补测；80 / 等待10，无待补 |
 | M3-06B1 | [第三件代价型遗物](M3_06B1_TradeoffRelic.md) | 你手动实现，我设计 / 审查 | 完成 | [报告](Reports/M3_06B1_Verification.md)：四Success / 来源93，三行 / 80与35 / 真实40 / 不治疗通过；70 / 等待5 |
-| M3-06B2-01 | [治疗加成属性与Q快照](M3_06B2_01_HealingBonusFoundation.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 六旧Core、原治疗专项扩场景；02再接第四件，不提前登记来源 |
+| M3-06B2-01 | [治疗加成属性与Q快照](M3_06B2_01_HealingBonusFoundation.md) | 你手动实现，我设计 / 审查 | 完成 | [报告](Reports/M3_06B2_01_Verification.md)：六源码一致、两Success、Q50→90 / 次数2与重开；65 / 等待5 |
+| M3-06B2-02 | [治疗核心装备管线](M3_06B2_02_HealingEquipmentPipeline.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 21旧Core / 六相关专项，三幅度同句柄与正式数值预检；03再接第四件 / UI |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M3_06A/Attempt01（两件遗物）；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -161,7 +162,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 01–04与已实施05设置批次均通过；06A两遗物 / 设置新版包通过，第三件代价型已通过，当前治疗加成基础；完整六件 / 列表压力 / 反馈扩展后续，M3不总关闭 |
+| M3当前开发 | 01–04与已实施05设置批次均通过；06A两遗物 / 设置新版包通过，第三件代价型已通过，治疗快照已通过，当前核心装备管线；完整六件 / 列表压力 / 反馈扩展后续，M3不总关闭 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -169,9 +170,9 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-B1通过，本地bcdfe6a已包含一资产 / Config / 四测试；当前只Stage B1报告 / 指南收尾、来源93、B2-01新指南及实际修改的共享文档，准确12文件清单见[B2-01末尾](M3_06B2_01_HealingBonusFoundation.md)。后者六既有Source仍为本地候选，待用户手动实施。
+B2-01通过，本地c354f4f已有六份Core实现。当前只Stage B2-01报告 / 指南收尾、B2-02新指南及实际修改的共享文档，准确11文件清单见[B2-02末尾](M3_06B2_02_HealingEquipmentPipeline.md)。02的21份既有Core仅候选，来源93 / 资产不变；第四件与UI改为03另批完成。
 
-- 英文：`docs: verify tradeoff relic and plan healing bonus`
-- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
+- 英文：`docs: verify healing snapshot and plan equipment pipeline`
+- 专业中文：`docs: 完成治疗施放快照验收并规划装备增益管线`
 
-原日志 / JSON / Artifacts候选 / 包与个人ini保持本地。重新Stage后Review → Commit / Push由用户操作，助手未核验远端。
+原日志 / JSON / 候选 / 包与个人ini留Artifacts本地。重新Stage / Review后由用户Commit / Push，助手未操作索引、提交或远端。

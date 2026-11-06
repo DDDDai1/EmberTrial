@@ -1,6 +1,6 @@
 # M3-06B2-01：治疗加成属性与正式Q施放快照
 
-2026-11-07下发，UE **5.5.4**。[B1第三件已通过](Reports/M3_06B1_Verification.md)。本章由你手动修改**六份既有Core源码**；当前只有Artifacts中的候选，正式文件尚未改动。
+2026-11-07下发，UE **5.5.4**，**00:57验收通过**。[报告](Reports/M3_06B2_01_Verification.md)记录六源码一致、双Build与两专项、真实Q50→90 / 次数2，无待补。实际65分钟 / 等待5；下一步[B2-02核心装备管线](M3_06B2_02_HealingEquipmentPipeline.md)，第四件与UI拆到03。
 
 ## 1. 这一小节做什么
 
@@ -14,9 +14,9 @@
 | 暂停 / 受击 / 死亡 / 旧通知 | 沿用既有门控、取消与实例 / 代次隔离 |
 | 存活换装与新身体 | 这次不改原生命恢复规则；加成只在新身体一次初始化时归零 |
 
-本章先建立真实消费者，**下一小节B2-02**再加入第四件治疗遗物、原生装备GE参数与详情比较。现在不要新增第四条StartingRelics、修改治疗基础值来冒充遗物加成，或创建额外AttributeSet。
+本章先建立真实消费者，**B2-02**先接核心装备GE / 事务，**B2-03**再加入第四件治疗遗物与详情比较。现在不要新增第四条StartingRelics、修改治疗基础值来冒充遗物加成，或创建额外AttributeSet。
 
-预计手动60–90分钟（代码与理解约50–75、检查5–10、记录约5），正常构建等待另记。无新文件、资产、Designer配置或蓝图测试脚手架，规模仍233 Source / 133cpp / 42测试 / Content310，来源93不变。
+原估60–90分钟；实际手动代码与理解60 / 检查记录5，共65分钟，构建等待5。无新文件、资产、Designer配置或蓝图测试脚手架，规模仍233 Source / 133cpp / 42测试 / Content310，来源93不变。
 
 ## 2. 开始前
 
@@ -635,13 +635,12 @@ Source保存、资产配置保持；失败或不理解处（无填无）：
 
 ## 11. Commit / Push（固定放在最后）
 
-本次收尾可提交以下**12份文档 / 来源清单**。本地bcdfe6a已包含B1资产、Config与四份测试，无需重复Stage。B2-01仅下发候选，未改正式Source，不把未实施内容写进功能提交。
+本轮B2-01验收收尾只提交下面**11份文档**。本地c354f4f已包含B2-01六份Core实现，不需要重复Stage；B2-02候选未写正式Source，当前不提交候选或未实现功能。
 
 ```text
-Docs/Reports/M3_06B1_Verification.md
-Docs/M3_06B1_TradeoffRelic.md
+Docs/Reports/M3_06B2_01_Verification.md
 Docs/M3_06B2_01_HealingBonusFoundation.md
-Docs/AssetManifest.csv
+Docs/M3_06B2_02_HealingEquipmentPipeline.md
 README.md
 Introduction.md
 Docs/Progress.md
@@ -652,23 +651,7 @@ Docs/AcceptanceWorkflow_Options.md
 Docs/VersionControl.md
 ```
 
-- 英文：`docs: verify tradeoff relic and plan healing bonus`
-- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
+- 英文：`docs: verify healing snapshot and plan equipment pipeline`
+- 专业中文：`docs: 完成治疗施放快照验收并规划装备增益管线`
 
-原日志、JSON、候选、包与个人ini仍留Artifacts本地。若Stage后继续编辑，重新Stage → Review → Commit / Push由你操作；助手未操作索引、提交或远端。
-
-**你实施并验收本小节后，另外提交以下六份既有Source的实际改动：**
-
-```text
-EmberTrial/Source/EmberTrial/Public/Attributes/ETCombatAttributeSet.h
-EmberTrial/Source/EmberTrial/Private/Attributes/ETCombatAttributeSet.cpp
-EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_Heal.h
-EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_Heal.cpp
-EmberTrial/Source/EmberTrial/Tests/ETHealAbilityTests.cpp
-```
-
-- 英文：`feat: snapshot additive healing bonus for heal ability`
-- 专业中文：`feat: 为治疗能力接入加法增益与施放快照`
-
-届时有新的验收报告 / 状态改动，一并检查后再Stage；不要把Artifacts中的候选作为源码提交。此批没有第四件资产、Config或UI文件需要Push，Git仍由你操作。
+Artifacts候选 / 编译预检 / 日志 / JSON、包和个人ini保持本地。Stage后继续编辑需重新Stage → Review → Commit / Push，由你操作，助手未核验远端。

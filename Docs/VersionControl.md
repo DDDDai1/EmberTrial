@@ -412,11 +412,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-07 06B1收尾：本地bcdfe6a已含四旧测试、唯一三条启动配置与原生BloodPact，候选归一 / SHA与LFS匹配；233 / 133 / 42、Content310 / 来源93，原92行不变。四专项与三行 / 真实40 / 不治疗通过；70 / 等待5。当前只Stage报告 / 来源 / 指南收尾、B2-01新指南及共享状态；六既有Core候选没有写正式Source。助手未操作Git索引 / 提交 / 远端。
 
+2026-11-07 B2-01收尾：起点干净，本地c354f4f包含六旧Core实现，候选归一一致；双Build按用户反馈、两Success / 真实Q50→90与快照50后40有本地日志，65 / 等待5。233 / 133 / 42、Content310 / 来源93不变。当前只Stage报告 / 指南收尾、B2-02新指南与共享状态；21旧Core仍为候选，第四件 / UI改03另做，未写正式源码或操作Git。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B1通过，本地bcdfe6a已包含一资产 / Config / 四测试；当前只Stage B1报告 / 指南收尾、来源93、B2-01新指南及实际修改的共享文档，准确12文件清单见[B2-01末尾](M3_06B2_01_HealingBonusFoundation.md)。后者六既有Source仍为本地候选，待用户手动实施。
+B2-01通过，本地c354f4f已有六份Core实现。当前只Stage B2-01报告 / 指南收尾、B2-02新指南及实际修改的共享文档，准确11文件清单见[B2-02末尾](M3_06B2_02_HealingEquipmentPipeline.md)。02的21份既有Core仅候选，来源93 / 资产不变；第四件与UI改为03另批完成。
 
-- 英文：`docs: verify tradeoff relic and plan healing bonus`
-- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
+- 英文：`docs: verify healing snapshot and plan equipment pipeline`
+- 专业中文：`docs: 完成治疗施放快照验收并规划装备增益管线`
 
-原日志 / JSON / Artifacts候选 / 包与个人ini保持本地。重新Stage后Review → Commit / Push由用户操作，助手未核验远端。
+原日志 / JSON / 候选 / 包与个人ini留Artifacts本地。重新Stage / Review后由用户Commit / Push，助手未操作索引、提交或远端。

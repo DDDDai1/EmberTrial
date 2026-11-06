@@ -378,13 +378,17 @@ B1已验收：四专项Success，三行 / 80与35 / 组合实际40 / 存活换�
 
 ## M3-06B2-01的检查边界
 
-六旧Core只扩真实消费者与既有Healing.Ability，原13场景保留并追加2场景；真实GE得到+10、启动后移除并等待实际通知，验证50快照与下次40、非法合计拒绝不消费。另跑EquipmentEffects保护同一个Combat属性集的原轻击 / 生命路径。两项各一次，加默认Q 50→90 / 次数3→2及P短查，无临时蓝图、全42项或Cook；第四件资产 / UI由02再验。
+六旧Core只扩真实消费者与既有Healing.Ability，原13场景保留并追加2场景；真实GE得到+10、启动后移除并等待实际通知，验证50快照与下次40、非法合计拒绝不消费。另跑EquipmentEffects保护同一个Combat属性集的原轻击 / 生命路径。两项各一次，加默认Q 50→90 / 次数3→2及P短查，无临时蓝图、全42项或Cook。01已通过，65 / 等待5；第四件资产 / UI拆到03。
+
+## M3-06B2-02的检查边界
+
+21份旧Core中5份是既有测试。六相关专项各一次：纯汇总、GE三幅度、自有句柄、正式事务、原治疗与连段。只加三幅度 / 过期方案等直接相关断言，保留旧行为。实机约3分钟默认Q / P / 最短输入，无新蓝图或精确通知抓点，不全42项 / Cook；第四件与UI由03接入并实机确认。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B1通过，本地bcdfe6a已包含一资产 / Config / 四测试；当前只Stage B1报告 / 指南收尾、来源93、B2-01新指南及实际修改的共享文档，准确12文件清单见[B2-01末尾](M3_06B2_01_HealingBonusFoundation.md)。后者六既有Source仍为本地候选，待用户手动实施。
+B2-01通过，本地c354f4f已有六份Core实现。当前只Stage B2-01报告 / 指南收尾、B2-02新指南及实际修改的共享文档，准确11文件清单见[B2-02末尾](M3_06B2_02_HealingEquipmentPipeline.md)。02的21份既有Core仅候选，来源93 / 资产不变；第四件与UI改为03另批完成。
 
-- 英文：`docs: verify tradeoff relic and plan healing bonus`
-- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
+- 英文：`docs: verify healing snapshot and plan equipment pipeline`
+- 专业中文：`docs: 完成治疗施放快照验收并规划装备增益管线`
 
-原日志 / JSON / Artifacts候选 / 包与个人ini保持本地。重新Stage后Review → Commit / Push由用户操作，助手未核验远端。
+原日志 / JSON / 候选 / 包与个人ini留Artifacts本地。重新Stage / Review后由用户Commit / Push，助手未操作索引、提交或远端。
