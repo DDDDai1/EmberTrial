@@ -12,17 +12,23 @@ UETCombatAttributeSet::UETCombatAttributeSet(const FObjectInitializer& ObjectIni
     : Super(ObjectInitializer)
 {
     InitLightAttackBonus(0.0f);
+    InitHealingBonus(0.0f);
 }
 
+// Base与Current分别回退，不能将包含活动GE的Current再次写入Base。
 void UETCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute,
                                                   float& NewValue) const
 {
     Super::PreAttributeBaseChange(Attribute, NewValue);
     if (Attribute == GetLightAttackBonusAttribute())
     {
-        // Base回退必须读Base，不能把含活动GE的Current写回Base再多叠一层。
         NewValue = ETCombatAttributeSetPrivate::FiniteOrFallback(
             NewValue, LightAttackBonus.GetBaseValue());
+    }
+    else if (Attribute == GetHealingBonusAttribute())
+    {
+        NewValue = ETCombatAttributeSetPrivate::FiniteOrFallback(
+            NewValue, HealingBonus.GetBaseValue());
     }
 }
 
@@ -31,8 +37,13 @@ void UETCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribu
     Super::PreAttributeChange(Attribute, NewValue);
     if (Attribute == GetLightAttackBonusAttribute())
     {
-        // 有限负值合法，最终攻击是否仍为正数由能力 / 装备预检决定。
         NewValue = ETCombatAttributeSetPrivate::FiniteOrFallback(
             NewValue, LightAttackBonus.GetCurrentValue());
     }
+    else if (Attribute == GetHealingBonusAttribute())
+    {
+        NewValue = ETCombatAttributeSetPrivate::FiniteOrFallback(
+            NewValue, HealingBonus.GetCurrentValue());
+    }
+    // 有限负值合法；最终伤害 / 治疗是否可用，由对应能力预检。
 }

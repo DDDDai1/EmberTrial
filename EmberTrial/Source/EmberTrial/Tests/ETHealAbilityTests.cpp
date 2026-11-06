@@ -9,7 +9,9 @@
 #include "Animation/AnimMontage.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "AbilitySystemComponent.h"
+#include "Attributes/ETCombatAttributeSet.h"
 #include "Attributes/ETHealthAttributeSet.h"
+#include "GameplayEffect.h"
 #include "Attributes/ETStaminaAttributeSet.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "Combat/ETCombatLifeComponent.h"
@@ -36,7 +38,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETHealingAbilityTest, "EmberTrial.M2.Healing.A
 bool FETHealingAbilityTest::RunTest(const FString& Parameters)
 {
     (void)Parameters;
-    // 原0..12场景按原顺序列出；这是测试选择，不是生产能力状态。
+    // 原13个场景保留；追加加成快照 / 非法加成，不新增自动化入口。
     enum class EHealingTestScenario : uint8
     {
         NormalAndStaleCallbacks,
@@ -52,6 +54,8 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
         CancelFromHealthCallback,
         UnpossessBeforeCommit,
         FullHealthBeforeCommit,
+        BonusSnapshot,
+        InvalidBonus,
     };
     constexpr EHealingTestScenario Scenarios[] = {
         EHealingTestScenario::NormalAndStaleCallbacks,
@@ -67,6 +71,8 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
         EHealingTestScenario::CancelFromHealthCallback,
         EHealingTestScenario::UnpossessBeforeCommit,
         EHealingTestScenario::FullHealthBeforeCommit,
+        EHealingTestScenario::BonusSnapshot,
+        EHealingTestScenario::InvalidBonus,
     };
     // ---- 保存的GA / Montage / Notify契约；每个场景创建独立瞬态世界 ----
     UClass* HealClass =
@@ -194,7 +200,16 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
         UAnimInstance* Anim = Body->GetMesh()->GetAnimInstance();
         const FGameplayAttribute Health = UETHealthAttributeSet::GetHealthAttribute();
         const FGameplayAttribute Stamina = UETStaminaAttributeSet::GetStaminaAttribute();
-        // 每个治疗场景都在出生装备恢复之后受伤，保持40→80的真实Notify / GE断言。
+        const FGameplayAttribute HealingBonus = UETCombatAttributeSet::GetHealingBonusAttribute();
+        if (!TestNotNull(TEXT("Combat attribute set"), ASC->GetSet<UETCombatAttributeSet>()) ||
+            !TestEqual(TEXT("Initial healing bonus Base"),
+                       ASC->GetNumericAttributeBase(HealingBonus), 0.0f) ||
+            !TestEqual(TEXT("Initial healing bonus Current"),
+                       ASC->GetNumericAttribute(HealingBonus), 0.0f))
+        {
+            return false;
+        }
+        // 在出生装备恢复之后受伤；40→80或90，避免满血夹限掩盖真实治疗量。
         ASC->SetNumericAttributeBase(Health, 40.0f);
         if (!TestEqual(TEXT("Wounded baseline Current"), ASC->GetNumericAttribute(Health), 40.0f) ||
             !TestEqual(TEXT("Wounded baseline Base"), ASC->GetNumericAttributeBase(Health), 40.0f))
@@ -217,6 +232,53 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
         };
         auto Idle = [&Until, &Advance, Body]()
         { return Until([Body]() { return Body->IsFormalActionIdle(); }, 3.0f) && Advance(.25f); };
+        FActiveGameplayEffectHandle BonusHandle;
+        if (Scenario == EHealingTestScenario::BonusSnapshot)
+        {
+            // 真实活动GE负责聚合；不是直接改能力快照制造通过。
+            UGameplayEffect* BonusEffect = NewObject<UGameplayEffect>(GetTransientPackage());
+            BonusEffect->DurationPolicy = EGameplayEffectDurationType::Infinite;
+            FGameplayModifierInfo& Modifier = BonusEffect->Modifiers.AddDefaulted_GetRef();
+            Modifier.Attribute = HealingBonus;
+            Modifier.ModifierOp = EGameplayModOp::AddBase;
+            Modifier.ModifierMagnitude = FScalableFloat(10.0f);
+            BonusHandle = ASC->ApplyGameplayEffectToSelf(BonusEffect, 1.0f, ASC->MakeEffectContext());
+            if (!TestTrue(TEXT("Bonus GE active"), BonusHandle.IsValid()) ||
+                !TestEqual(TEXT("GE leaves bonus Base zero"),
+                           ASC->GetNumericAttributeBase(HealingBonus), 0.0f) ||
+                !TestEqual(TEXT("GE aggregates bonus Current ten"),
+                           ASC->GetNumericAttribute(HealingBonus), 10.0f))
+            {
+                return false;
+            }
+        }
+        else if (Scenario == EHealingTestScenario::InvalidBonus)
+        {
+            ASC->SetNumericAttributeBase(HealingBonus, -40.0f);
+            TestEqual(TEXT("Finite signed bonus preserved"),
+                      ASC->GetNumericAttribute(HealingBonus), -40.0f);
+            TestFalse(TEXT("Nonpositive total rejects before montage"), Body->RequestHeal());
+            Check(TEXT("Zero total has no side effect"), 40.0f, 3);
+            ASC->SetNumericAttributeBase(HealingBonus, 1000.0f);
+            TestFalse(TEXT("Total above resource limit rejects"), Body->RequestHeal());
+            Check(TEXT("Excess total has no side effect"), 40.0f, 3);
+            TestFalse(TEXT("Invalid total owns no Healing tag"),
+                      ASC->HasMatchingGameplayTag(ETGameplayTags::State_Healing));
+
+            float Amount = -1.0f;
+            ASC->SetNumericAttributeBase(HealingBonus, -39.0f);
+            TestTrue(TEXT("Total one accepted by calculation"),
+                     Heal->TryGetEffectiveHealAmount(ASC, Amount));
+            TestEqual(TEXT("Lower inclusive limit"), Amount, 1.0f);
+            ASC->SetNumericAttributeBase(HealingBonus, 960.0f);
+            TestTrue(TEXT("Total thousand accepted by calculation"),
+                     Heal->TryGetEffectiveHealAmount(ASC, Amount));
+            TestEqual(TEXT("Upper inclusive limit"), Amount, 1000.0f);
+            TestFalse(TEXT("Missing ASC rejects"), Heal->TryGetEffectiveHealAmount(nullptr, Amount));
+            TestEqual(TEXT("Rejected amount cleared"), Amount, 0.0f);
+            ASC->SetNumericAttributeBase(HealingBonus, 0.0f);
+            // 以下仍走正式Request / Montage / Notify，证明拒绝后可正常恢复。
+        }
         if (Scenario == EHealingTestScenario::NormalAndStaleCallbacks)
         {
             Heal->HealMontage = nullptr;
@@ -264,6 +326,14 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
                 !TestTrue(TEXT("Actual montage instance"), FirstID != INDEX_NONE))
             {
                 return false;
+            }
+            if (Scenario == EHealingTestScenario::BonusSnapshot)
+            {
+                TestEqual(TEXT("Accepted cast snapshots fifty"), Heal->ActiveHealAmount, 50.0f);
+                TestTrue(TEXT("Remove only owned bonus GE"), ASC->RemoveActiveGameplayEffect(BonusHandle));
+                TestEqual(TEXT("Bonus Current restored before notify"),
+                          ASC->GetNumericAttribute(HealingBonus), 0.0f);
+                TestEqual(TEXT("In-flight snapshot unchanged"), Heal->ActiveHealAmount, 50.0f);
             }
             if (!TestFalse(TEXT("Busy repeat refuses"), Body->RequestHeal()))
             {
@@ -411,9 +481,11 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
                 else
                 {
                     // ---- 真正Montage分支点已提交；重复 / 旧通知不得再次治疗或影响新激活 ----
-                    Check(TEXT("One real notify commit"), 80.0f, 2);
+                    const float ExpectedAfterCommit =
+                        Scenario == EHealingTestScenario::BonusSnapshot ? 90.0f : 80.0f;
+                    Check(TEXT("One real notify commit"), ExpectedAfterCommit, 2);
                     Heal->HandleHealCommit(Body->GetMesh(), Montage, FirstID, Token);
-                    Check(TEXT("Duplicate ignored"), 80.0f, 2);
+                    Check(TEXT("Duplicate ignored"), ExpectedAfterCommit, 2);
                     if (Scenario == EHealingTestScenario::NormalAndStaleCallbacks)
                     {
                         TestEqual(TEXT("No Stamina regeneration during Healing"),
@@ -435,10 +507,11 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
                     {
                         return false;
                     }
-                    Check(TEXT("Completion or cancel no refund"), 80.0f, 2);
+                    Check(TEXT("Completion or cancel no refund"), ExpectedAfterCommit, 2);
                     TestTrue(TEXT("Ended heal releases ASC montage ownership"),
                              ASC->GetAnimatingAbility() != Heal);
-                    if (Scenario == EHealingTestScenario::NormalAndStaleCallbacks)
+                    if (Scenario == EHealingTestScenario::NormalAndStaleCallbacks ||
+                        Scenario == EHealingTestScenario::BonusSnapshot)
                     {
                         ASC->SetNumericAttributeBase(Health, 40.0f);
                         if (!TestTrue(TEXT("A later independent heal can start"),
@@ -446,6 +519,7 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
                         {
                             return false;
                         }
+                        TestEqual(TEXT("Next cast reads current bonus"), Heal->ActiveHealAmount, 40.0f);
                         TestTrue(TEXT("New montage instance"),
                                  Heal->ActiveMontageInstanceID != FirstID);
                         Heal->HandleHealCommit(Body->GetMesh(), Montage, FirstID, Token);
@@ -481,7 +555,7 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
     }
     AddInfo(TEXT("[M2-04B2] Healing.Ability: actual saved montage / notify / GE; pre/post cancel, "
                  "duplicate/old callbacks, pause, rejection, death, EndPlay, possession, "
-                 "synchronous cancel checked."));
+                 "synchronous cancel, additive bonus snapshot, removal and invalid totals checked."));
     return !HasAnyErrors();
 }
 #endif

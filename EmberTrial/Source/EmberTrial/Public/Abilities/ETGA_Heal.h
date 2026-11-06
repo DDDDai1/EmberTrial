@@ -59,6 +59,7 @@ private:
     TWeakObjectPtr<UAnimNotify> ActiveCommitToken;
     uint32 ActivationSerial = 0;
     int32 ActiveMontageInstanceID = INDEX_NONE;
+    // 本次接受施放时的基础值 + 聚合加成；中途GE变化只影响下一次施放。
     float ActiveHealAmount = 0.0f;
     float ActiveCommitTime = 0.0f;
     // 在可重入回调前先封锁本次提交；取消后不重试。
@@ -66,6 +67,9 @@ private:
     // 启动时拒绝通知，结束时拒绝递归结束。
     bool bStarting = false;
     bool bEnding = false;
+
+    // 预检与启动共用：读取当前聚合加成，失败清空输出；生效通知使用施放快照。
+    bool TryGetEffectiveHealAmount(UAbilitySystemComponent* ASC, float& OutAmount) const;
 
     // 生效点重新核对身体与控制权，不依赖激活时的裸指针。
     bool ReadContext(const FGameplayAbilityActorInfo* ActorInfo, AEmberTrialCharacter*& OutBody,

@@ -3,6 +3,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Animation/ETAN_HealCommit.h"
 #include "AbilitySystemComponent.h"
+#include "Attributes/ETCombatAttributeSet.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
 #include "Animation/AnimSequenceBase.h"
@@ -98,6 +99,25 @@ bool UETGA_Heal::HasValidConfiguration() const
            Event.GetTime() < Length - FadeOut;
 }
 
+// 只读取本身体ASC，不依赖库存、遗物ID或UI。double中间值避免float相加溢出。
+bool UETGA_Heal::TryGetEffectiveHealAmount(UAbilitySystemComponent* ASC, float& OutAmount) const
+{
+    OutAmount = 0.0f;
+    if (!IsValid(ASC) || !ASC->GetSet<UETCombatAttributeSet>())
+    {
+        return false;
+    }
+    const float Bonus = ASC->GetNumericAttribute(UETCombatAttributeSet::GetHealingBonusAttribute());
+    const double Total = static_cast<double>(HealAmount) + static_cast<double>(Bonus);
+    if (!FMath::IsFinite(HealAmount) || !FMath::IsFinite(Bonus) ||
+        !FMath::IsFinite(Total) || Total < 1.0 || Total > 1000.0)
+    {
+        return false;
+    }
+    OutAmount = static_cast<float>(Total);
+    return true;
+}
+
 // 生效点也调用：身体、控制器或暂停状态可能已在播放期间变化。
 bool UETGA_Heal::ReadContext(const FGameplayAbilityActorInfo* ActorInfo,
                              AEmberTrialCharacter*& OutBody, UAbilitySystemComponent*& OutASC) const
@@ -140,7 +160,9 @@ bool UETGA_Heal::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
     const UETHealingResourceComponent* Resource =
         Body->FindComponentByClass<UETHealingResourceComponent>();
     UAnimInstance* Anim = ActorInfo->GetAnimInstance();
-    return IsValid(Resource) && Resource->CanApplyHealing(HealAmount) &&
+    float EffectiveHealAmount = 0.0f;
+    return TryGetEffectiveHealAmount(ASC, EffectiveHealAmount) &&
+           IsValid(Resource) && Resource->CanApplyHealing(EffectiveHealAmount) &&
            !Anim->GetCurrentActiveMontage() &&
            Anim->GetSkelMeshComponent()->GetSkeletalMeshAsset() &&
            Anim->GetSkelMeshComponent()->GetSkeletalMeshAsset()->GetSkeleton() ==
@@ -185,13 +207,15 @@ void UETGA_Heal::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     }
     const UETHealingResourceComponent* Resource =
         Body->FindComponentByClass<UETHealingResourceComponent>();
-    if (!IsValid(Resource) || !Resource->CanApplyHealing(HealAmount))
+    float EffectiveHealAmount = 0.0f;
+    if (!TryGetEffectiveHealAmount(ASC, EffectiveHealAmount) ||
+        !IsValid(Resource) || !Resource->CanApplyHealing(EffectiveHealAmount))
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
     }
     ActiveMontage = HealMontage;
-    ActiveHealAmount = HealAmount;
+    ActiveHealAmount = EffectiveHealAmount;
     ActiveCommitToken = ActiveMontage->Notifies[0].Notify;
     ActiveCommitTime = ActiveMontage->Notifies[0].GetTime();
     Body->StopJumping();
