@@ -1,6 +1,6 @@
 # M3-05C2：实际音量路由与原创试听声音
 
-2026-11-06，UE **5.5.4**。[C1音量偏好已验收](Reports/M3_05C1_Verification.md)，无待补。本批尚未写入正式工程，以下由你手动实施；没有本批Build或听感成功结论。
+2026-11-06 19:45用户完成。**[本章验收通过](Reports/M3_05C2_Verification.md)，无待补，进入[C3共用音量设置卡](M3_05C3_AudioSettingsUI.md)。** 以下保留完整代码与资源步骤，6.2–6.4的助手实际操作记录保留，不要求重跑旧矩阵。
 
 ## 1. 玩家效果与职责
 
@@ -15,7 +15,7 @@
 | 三个SoundClass / 一个SoundMix | 音乐 / 音效归类及乘法音量路由，不放业务蓝图 |
 | 两段SoundWave | 单次2D开发试听，无循环或自动背景播放 |
 
-当前实际225 Source / 128cpp（Core87 / UI38 / Editor3）、40自动化、302 Content / 来源83。实施后预计**228 Source / 130cpp（Core89 / UI38 / Editor3）、41自动化**；六新UAsset保存后Content308，来源登记六UAsset与两WAV后91行，验收前不预填。预算代码60–90 / 资产20–30 / 阅读5–10 / 检查10–15分钟，构建启动等待另记。
+本批三新 / 两旧Core、DefaultGame.ini、六新UAsset与两源WAV均已实施。实际228 Source / 130cpp（Core89 / UI38 / Editor3）、41自动化、308 Content / 来源91。代码60 / 资产30 / 阅读10 / 检查10，共110分钟、等待5；一专项、真实听感 / 切图与新进程恢复已验收。
 
 ## 2. 文件与准备
 
@@ -792,7 +792,7 @@ SC_ET_Master ──→ SC_ET_Music
 4. 分别点编辑器内预览播放，应能听到和弦 / 铃声，停止后保存。这一步只验证资源可解码，不用于判断运行时个人音量；编辑器预览没有本章游戏服务。
 5. Save All；Content Browser确认三个Class / 一个Mix / 两个SoundWave共六个，目录名 / 类型与第4.6节配置路径一致。所有已有Widget父类、地图与Controller配置保持。
 
-**6.4 实际操作记录：** 助手导入两份现有 WAV，创建 SW_ET_MusicProbe 和 SW_ET_EffectsProbe，分别绑定 SC_ET_Music、SC_ET_Effects；两者 Volume / Pitch 均为 1，Looping 关闭、单声道 / 44100 Hz。已保存，编辑器显示 All Saved。尚需由用户确认实际听感；第 7 节仍需完成真实路由与重启验收。
+**6.4 实际操作记录：** 助手导入两份现有 WAV，创建 SW_ET_MusicProbe 和 SW_ET_EffectsProbe，分别绑定 SC_ET_Music、SC_ET_Effects；两者 Volume / Pitch 均为 1，Looping 关闭、单声道 / 44100 Hz。已保存，编辑器显示 All Saved。当次只确认配置；用户随后已完成第7节实际听感 / 路由与重启验收，结果见本章报告。
 
 ## 7. 实际声音、自有Mix与切图
 
@@ -805,7 +805,7 @@ Set-Location 'E:\UE_Project\Demo'
 $routingRuntime = 'E:\UE_Project\Demo\Artifacts\M3_05C2\Runtime'
 New-Item -ItemType Directory -Path $routingRuntime -Force | Out-Null
 $routingIni = Join-Path $routingRuntime 'AudioRoutingUser.ini'
-$routingLog = Join-Path $routingRuntime 'AudioRouting02.log'
+$routingLog = Join-Path $routingRuntime 'AudioRouting01.log'
 $routingArgs = @(
     '"E:\UE_Project\Demo\EmberTrial\EmberTrial.uproject"'
     '-game'
@@ -875,46 +875,11 @@ Source / Config / 六资产保存；原HUD-P-移动短查；失败或听感问�
 
 ## 9. Commit / Push（固定放在最后）
 
-### 9.1 当前C1收尾与本指南
+本章源码 / Config、六UAsset / 两WAV已在本地`1a2a81b`。历史实现建议：英文`feat: route audio preferences through project sound classes`；专业中文`feat: 通过项目声音类应用音量偏好并支持切图恢复`。已提交内容不重复Stage，远端状态由你确认。
 
-C1实现已在本地`99b8146`。现在只Stage实际修改的文档：
+当前Stage本指南收尾（包括授权编辑器操作记录）、[验收报告](Reports/M3_05C2_Verification.md)、AssetManifest八新行、[C3新指南](M3_05C3_AudioSettingsUI.md)及实际修改的状态文档；准确清单见C3第10.1节。
 
-```text
-Docs/Reports/M3_05C1_Verification.md
-Docs/M3_05C1_AudioPreferences.md
-Docs/M3_05C2_AudioRouting.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/M3_Roadmap.md
-Docs/M2_Roadmap.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Introduction.md
-README.md
-```
+- 英文：`docs: verify audio routing and prepare shared audio settings UI`
+- 专业中文：`docs: 完成声音路由验收并准备共享音量设置界面`
 
-- 英文：`docs: verify audio preferences and prepare runtime audio routing`
-- 专业中文：`docs: 完成音量偏好验收并准备运行时声音路由`
-
-C2源码 / 配置 / 资产目前未实施，候选与空报告不Stage，来源83保持。
-
-### 9.2 本章实际实施后
-
-Stage第2节五源码 / DefaultGame.ini，及实际创建的以下资源；WAV与UAsset已有LFS规则，不改.gitignore：
-
-```text
-SourceAssets/Audio/Probes/SW_ET_MusicProbe.wav
-SourceAssets/Audio/Probes/SW_ET_EffectsProbe.wav
-EmberTrial/Content/EmberTrial/Audio/Classes/SC_ET_Master.uasset
-EmberTrial/Content/EmberTrial/Audio/Classes/SC_ET_Music.uasset
-EmberTrial/Content/EmberTrial/Audio/Classes/SC_ET_Effects.uasset
-EmberTrial/Content/EmberTrial/Audio/Mixes/SM_ET_User.uasset
-EmberTrial/Content/EmberTrial/Audio/Probes/SW_ET_MusicProbe.uasset
-EmberTrial/Content/EmberTrial/Audio/Probes/SW_ET_EffectsProbe.uasset
-```
-
-- 英文：`feat: route audio preferences through project sound classes`
-- 专业中文：`feat: 通过项目声音类应用音量偏好并支持切图恢复`
-
-验收后再按实物更新AssetManifest与报告 / 状态，原声生成方法保存在6.1，不把占位声音描述成正式配乐。Artifacts候选 / Runtime / 个人ini与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作；助手未核验远端。
+C3源码 / 新WBP尚未实施，不Stage候选或空报告；Artifacts证据 / 个人ini与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作。

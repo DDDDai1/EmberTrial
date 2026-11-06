@@ -184,15 +184,17 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **B4-02已验收。** [共用画质卡](Reports/M3_05B4_02_Verification.md)由纯草稿维护编辑、应用前重验Core公开快照；默认只填本卡1 / 60 / 0。View订阅原视频服务事件以禁用 / 恢复，不在倒计时中覆盖草稿；宿主先解绑画质卡再取消视频，旧View不能确认。两个宿主第七绑定，右列滚动且焦点自动进入视野。无新设置服务 / Widget Tick / 世界Timer；真实应用 / 预览隔离与重启1-60-0已通过。
 
-**C1已验收。** [音量偏好](Reports/M3_05C1_Verification.md)由同一GameUserSettings保存三个独立0–1值，非法拒绝、缺失用默认，显式确认才保存；两轮只读恢复0.6 / 0.3 / 0.8通过，当前仍不混音。
+**C1已验收。** [音量偏好](Reports/M3_05C1_Verification.md)由同一GameUserSettings保存三个独立0–1值，非法拒绝、缺失用默认，显式确认才保存；该批两轮只读恢复0.6 / 0.3 / 0.8通过，实际声音随后由C2接入。
 
-**C2只有指南 / 候选。** [声音路由](M3_05C2_AudioRouting.md)计划由原生游戏GI服务管理专用三类树 / 常驻Mix，世界结束精确释放本Mix与试听，PostLoadMap后自动应用保存值。Master覆盖递归一次、叶子原始值不递归；配置软引用与Cook规则分开，两个原创低峰值探针作实际听感证据。旧数据Setter / store迁移到ApplyAudioPreferences / apply，C3音量卡复用该入口。Core不依赖UI，不增加Tick。
+**C2已验收。** [声音路由](Reports/M3_05C2_Verification.md)由原生游戏GI服务管理专用三类树 / 常驻Mix，世界结束精确释放本Mix与试听，PostLoadMap后应用保存值。Master覆盖递归一次、叶子原始值不递归；配置软引用与Cook规则分开，用户真实听感及切图 / 重启0.6-0.3-0.8已通过。数据Setter / store已迁移到ApplyAudioPreferences / apply。
+
+**C3仅指南 / 候选。** [共用音量卡](M3_05C3_AudioSettingsUI.md)计划以纯值草稿管理三滑条，应用 / 取消 / 默认与关闭解绑复用原模式；Audio新增原生就绪事件处理首次菜单时序，视频事件只刷新资格而不覆盖草稿。宿主第八绑定、原右列ScrollBox，Audio先于Video关闭；不增加Tick / Timer或第二个Mix，Core不依赖UI。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-C1五源码已在本地`99b8146`。当前Stage其验收报告 / 指南收尾、新C2实际声音路由指南与实际更新的共享状态文档。C2三新 / 两旧Core、共享Config与新声音资源未实施，不提前Stage候选 / 空报告或预填来源。
+C2源码 / Config、六UAsset / 两源WAV已在本地`1a2a81b`。当前Stage其验收报告 / 指南收尾、AssetManifest八新行、新C3共用音量卡指南及实际更新的共享状态文档。C3五新 / 六旧源码与新WBP未实施，不提前Stage候选、空报告或预填来源。
 
-- 英文文档建议：`docs: verify audio preferences and prepare runtime audio routing`
-- 专业中文：`docs: 完成音量偏好验收并准备运行时声音路由`
+- 英文文档建议：`docs: verify audio routing and prepare shared audio settings UI`
+- 专业中文：`docs: 完成声音路由验收并准备共享音量设置界面`
 
-当前及C2实施后的准确清单见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+准确清单与C3实施后建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

@@ -402,11 +402,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-06 C1收尾：本地99b8146恰好包含三新 / 两旧Core，候选归一一致；225 / 128 / 40，资产 / Config与来源83保持。双Build / 一Success、PIE拒绝 / 两轮保存及新进程0.6-0.3-0.8只读通过；60 / 等待5。当前只Stage报告 / 指南收尾、状态与C2指南，后者源码 / Config / 声音资产尚未实施，不预填来源或提交候选。未联网核验远端。
 
+2026-11-06 C2收尾：本地1a2a81b含五Core / DefaultGame.ini、六UAsset / 两源WAV；候选归一一致，八资源SHA与HEAD LFS OID匹配，原83行保留、来源91。双Build / 一Success、真实分流与切图 / 重启恢复已验收；110 / 等待5。起点仅C2指南有上轮授权UI记录未提交改动，当前一并收尾。只Stage报告 / 来源 / 状态与C3新指南，后者源码 / 新卡未正式实施，未核验远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-C1五源码已在本地`99b8146`。当前Stage其验收报告 / 指南收尾、新C2实际声音路由指南与实际更新的共享状态文档。C2三新 / 两旧Core、共享Config与新声音资源未实施，不提前Stage候选 / 空报告或预填来源。
+C2源码 / Config、六UAsset / 两源WAV已在本地`1a2a81b`。当前Stage其验收报告 / 指南收尾、AssetManifest八新行、新C3共用音量卡指南及实际更新的共享状态文档。C3五新 / 六旧源码与新WBP未实施，不提前Stage候选、空报告或预填来源。
 
-- 英文文档建议：`docs: verify audio preferences and prepare runtime audio routing`
-- 专业中文：`docs: 完成音量偏好验收并准备运行时声音路由`
+- 英文文档建议：`docs: verify audio routing and prepare shared audio settings UI`
+- 专业中文：`docs: 完成声音路由验收并准备共享音量设置界面`
 
-当前及C2实施后的准确清单见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+准确清单与C3实施后建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

@@ -1,6 +1,6 @@
 # M2：四类战斗能力、资源与锁定
 
-更新2026-11-06。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-05B4-02共享画质卡已验收](Reports/M3_05B4_02_Verification.md)，[C1音量偏好](Reports/M3_05C1_Verification.md)已验收，当前[C2实际声音路由](M3_05C2_AudioRouting.md)待手动；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
+更新2026-11-06。[M2阶段已收尾](Reports/M2_Verification.md)，[M3-05B4-02共享画质卡已验收](Reports/M3_05B4_02_Verification.md)，[C1音量偏好](Reports/M3_05C1_Verification.md)已验收，[C2实际声音路由](Reports/M3_05C2_Verification.md)已验收，当前[C3共用音量卡](M3_05C3_AudioSettingsUI.md)待手动；实时规模 / 工时见[Progress](Progress.md)。M2仍1400 / 等待139分钟，06C及07C阅读未登记，首次PIE等待需求关闭。以下原预算保留作规划比较。
 
 ## 1. 本阶段交付
 
@@ -53,15 +53,15 @@ M1登记手动22h18不同于全项目设计 /理解总成本，不能将后续�
 
 [M2总报告](Reports/M2_Verification.md)、[07总报告](Reports/M2_07_Verification.md)与[C材料收尾](Reports/M2_07C_Verification.md)已保存，用户本轮要求继续下一章。A的23项与两进程包、B真实性能分析沿用，无新执行；C没有逐项理解答卷或实耗，不将继续开发当成独立面试能力认证。
 
-[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05B2-02原生预览](Reports/M3_05B2_02_Verification.md)已验收，[B3-01显示草稿](Reports/M3_05B3_01_Verification.md)已验收，[B3-02共享显示卡](Reports/M3_05B3_02_Verification.md)已验收，[B4-01已验收](Reports/M3_05B4_01_Verification.md)，[B4-02共用画质卡](Reports/M3_05B4_02_Verification.md)已验收，[C1音量偏好](Reports/M3_05C1_Verification.md)已验收，当前[C2实际声音路由](M3_05C2_AudioRouting.md)待手动。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
+[M3-01至04两件遗物正式闭环](Reports/M3_04C2_Verification.md)已验收：静态数据 / 事务、身体GE / 新身体恢复、真实列表 / 查询比较与祭坛确认 / 卸装；普通P只读。[M3-05B2-02原生预览](Reports/M3_05B2_02_Verification.md)已验收，[B3-01显示草稿](Reports/M3_05B3_01_Verification.md)已验收，[B3-02共享显示卡](Reports/M3_05B3_02_Verification.md)已验收，[B4-01已验收](Reports/M3_05B4_01_Verification.md)，[B4-02共用画质卡](Reports/M3_05B4_02_Verification.md)已验收，[C1音量偏好](Reports/M3_05C1_Verification.md)已验收，[C2实际声音路由](Reports/M3_05C2_Verification.md)已验收，当前[C3共用音量卡](M3_05C3_AudioSettingsUI.md)待手动。完整6件 / 2槽目标保持，初始空槽100 / 原25，正式装备可见上限120与伤害30；完整设置与新包后续。
 
-M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目5239 / 明确等待445，M3实际1828 / 等待121分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
+M2实际1400 / 等待139分钟，06C与07C阅读未登记；当前全项目5349 / 明确等待450，M3实际1938 / 等待126分钟。后续预计不计实耗。性能B的尺寸差异、3个孤立Tick尖峰与Shipping限制保留，不为阶段关闭补造达标结果。
 
 ## 7. 本次 Commit / Push（固定放在最后）
 
-C1五源码已在本地`99b8146`。当前Stage其验收报告 / 指南收尾、新C2实际声音路由指南与实际更新的共享状态文档。C2三新 / 两旧Core、共享Config与新声音资源未实施，不提前Stage候选 / 空报告或预填来源。
+C2源码 / Config、六UAsset / 两源WAV已在本地`1a2a81b`。当前Stage其验收报告 / 指南收尾、AssetManifest八新行、新C3共用音量卡指南及实际更新的共享状态文档。C3五新 / 六旧源码与新WBP未实施，不提前Stage候选、空报告或预填来源。
 
-- 英文文档建议：`docs: verify audio preferences and prepare runtime audio routing`
-- 专业中文：`docs: 完成音量偏好验收并准备运行时声音路由`
+- 英文文档建议：`docs: verify audio routing and prepare shared audio settings UI`
+- 专业中文：`docs: 完成声音路由验收并准备共享音量设置界面`
 
-当前及C2实施后的准确清单见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+准确清单与C3实施后建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

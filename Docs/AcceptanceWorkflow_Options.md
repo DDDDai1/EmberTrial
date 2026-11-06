@@ -354,11 +354,17 @@ C1已验收，60 / 等待5；一Success、PIE拒绝与两轮同ini只读通过�
 
 三新 / 两旧Core与共享Config、一AudioRouting专项；六声音资产 / 两原创WAV。PIE拒绝短查，两轮原生-game实际音乐 / 音效独立静音、总音量、一次非法拒绝、暂停试听、切图释放 / 重应用及重启只读。无需临时蓝图、全41项 / Cook或精确时间点截图；听感由用户确认，日志核对资源就绪 / 应用 / 清理，二者不能互相冒充。正式战斗3D音效与C3界面另开发。
 
+C2已验收，110 / 等待5；一Success、六真实资产 / 两WAV、分流听感、切图与新进程只读通过。PIE短查按用户反馈，原生请求 / 生命周期与听感各有证据，不重复旧专项。
+
+## M3-05C3最小范围
+
+五新UI / 六旧Core+UI，一AudioDraft专项；一新 / 两旧WBP三Valid与PIE禁用短查。两轮-game验证首次主菜单自行就绪、滑条草稿 / 默认无副作用、真实音乐静音、键盘 / 原滚动、Pause关闭丢弃与视频预览保留、新进程只读0.5-0.5-1及试听。旧三路组合与路由专项沿用C2，不搭临时蓝图、全42项或Cook。没有启动真实音量采集，不把日志当听感。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-C1五源码已在本地`99b8146`。当前Stage其验收报告 / 指南收尾、新C2实际声音路由指南与实际更新的共享状态文档。C2三新 / 两旧Core、共享Config与新声音资源未实施，不提前Stage候选 / 空报告或预填来源。
+C2源码 / Config、六UAsset / 两源WAV已在本地`1a2a81b`。当前Stage其验收报告 / 指南收尾、AssetManifest八新行、新C3共用音量卡指南及实际更新的共享状态文档。C3五新 / 六旧源码与新WBP未实施，不提前Stage候选、空报告或预填来源。
 
-- 英文文档建议：`docs: verify audio preferences and prepare runtime audio routing`
-- 专业中文：`docs: 完成音量偏好验收并准备运行时声音路由`
+- 英文文档建议：`docs: verify audio routing and prepare shared audio settings UI`
+- 专业中文：`docs: 完成声音路由验收并准备共享音量设置界面`
 
-当前及C2实施后的准确清单见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+准确清单与C3实施后建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
