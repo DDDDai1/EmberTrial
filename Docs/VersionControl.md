@@ -400,11 +400,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-06 B4-02收尾：本地1150a6c含五新 / 四旧UI与一新 / 两旧Widget，九源码候选归一一致、三实物SHA与HEAD LFS OID匹配；来源83、222 / 126 / 39。双Build / 一Success / 三Valid，真实应用与预览隔离、第二轮1-60-0只读查询通过；125 / 等待5。当前仅Stage报告 / 指南收尾、来源 / 状态与C1新指南；C1三新 / 两旧Core尚未正式实施。未联网核验远端，不将个人ini / 原日志加入Git。
 
+2026-11-06 C1收尾：本地99b8146恰好包含三新 / 两旧Core，候选归一一致；225 / 128 / 40，资产 / Config与来源83保持。双Build / 一Success、PIE拒绝 / 两轮保存及新进程0.6-0.3-0.8只读通过；60 / 等待5。当前只Stage报告 / 指南收尾、状态与C2指南，后者源码 / Config / 声音资产尚未实施，不预填来源或提交候选。未联网核验远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B4-02九源码 / 三Widget已在本地`1150a6c`。当前Stage其验收报告 / 指南收尾、AssetManifest、新C1音量偏好指南与实际更新的共享状态文档；C1三新 / 两旧Core尚未实施，不提前Stage候选、空报告或来源行。
+C1五源码已在本地`99b8146`。当前Stage其验收报告 / 指南收尾、新C2实际声音路由指南与实际更新的共享状态文档。C2三新 / 两旧Core、共享Config与新声音资源未实施，不提前Stage候选 / 空报告或预填来源。
 
-- 英文文档建议：`docs: verify graphics settings UI and prepare audio preferences`
-- 专业中文：`docs: 完成画质设置界面验收并准备音量偏好功能`
+- 英文文档建议：`docs: verify audio preferences and prepare runtime audio routing`
+- 专业中文：`docs: 完成音量偏好验收并准备运行时声音路由`
 
-C1实施后源码范围与Commit建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+当前及C2实施后的准确清单见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

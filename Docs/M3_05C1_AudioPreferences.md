@@ -1,6 +1,6 @@
 # M3-05C1：音量偏好、合法值与本机保存
 
-2026-11-06，UE **5.5.4**。[共享画质设置卡已验收](Reports/M3_05B4_02_Verification.md)，无待补。以下是新一批手动实施指南；本批候选尚未写入正式工程，没有本批Build或实机成功结论。
+2026-11-06 18:55完成。**[本章验收通过](Reports/M3_05C1_Verification.md)，无待补，进入[C2实际声音路由](M3_05C2_AudioRouting.md)。** 以下保留原C1实施步骤；C1的store数据入口会在C2迁移为apply，不要求重跑本章。
 
 ## 1. 本批交付与后续声音效果
 
@@ -16,7 +16,7 @@
 
 工程当前尚未建立本项目正式声音路由，本批不购买素材，不在蓝图中搭临时验收系统。后续父子SoundClass分别设置**原始Master / Music / Effects**，由层级合成；不能把已相乘的Combined值再次乘Master，否则总音量会重复衰减。
 
-当前实际222 Source / 126cpp（Core85 / UI38 / Editor3）、39自动化、302 Content / 来源83；本批**三新 / 两旧Core**实施后预计225 Source / 128cpp（Core87 / UI38 / Editor3）、40自动化，资产与来源数量不变。预算代码35–50 / 阅读5–10 / 检查5–8分钟，构建启动等待另记；预算不提前计入实耗。
+本批三新 / 两旧Core均已实施。实际225 Source / 128cpp（Core87 / UI38 / Editor3）、40自动化、302 Content / 来源83。代码40 / 阅读10 / 检查10，共60分钟、构建启动等待5；一专项与两轮独立保存 / 重启读取通过。
 
 ## 2. 文件、准备与修改边界
 
@@ -530,36 +530,11 @@ Source已保存，资产 / 共享Config未改；失败或不理解处（无填�
 
 ## 9. Commit / Push（固定放在最后）
 
-### 9.1 当前B4-02收尾与本指南
+C1五源码已在本地`99b8146`。历史实现建议：英文`feat: add validated audio preferences with local persistence`；专业中文`feat: 新增带合法值校验与本机保存的音量偏好`。已提交实现不重复Stage，远端状态由你确认。
 
-B4-02实现及三份Widget已在本地`1150a6c`。当前Stage其验收报告、指南收尾、AssetManifest与实际更新的状态文档，以及本C1指南。C1三新 / 两旧Core尚未写入正式工程，**不Stage候选或空报告**。
+当前Stage本指南收尾、[验收报告](Reports/M3_05C1_Verification.md)、[C2新指南](M3_05C2_AudioRouting.md)与实际修改的状态文档；具体当前清单见C2第9.1节。
 
-本轮实际文档清单如下；只Stage当前确有差异的文件，不需要重新Stage已在1150a6c中的源码 / 资产：
+- 英文：`docs: verify audio preferences and prepare runtime audio routing`
+- 专业中文：`docs: 完成音量偏好验收并准备运行时声音路由`
 
-```text
-Docs/Reports/M3_05B4_02_Verification.md
-Docs/M3_05B4_02_GraphicsSettingsUI.md
-Docs/M3_05C1_AudioPreferences.md
-Docs/AssetManifest.csv
-Docs/Progress.md
-Docs/Backlog.md
-Docs/M3_Roadmap.md
-Docs/M2_Roadmap.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Introduction.md
-README.md
-```
-
-- 英文：`docs: verify graphics settings UI and prepare audio preferences`
-- 专业中文：`docs: 完成画质设置界面验收并准备音量偏好功能`
-
-### 9.2 本章手动实施后
-
-Stage第2节**三新 / 两旧Core**。本批没有新资产 / Build.cs / 共享Config，资产数量与来源83保持。同步提交当次实际修改的指南 / 报告 / 状态文档。
-
-- 英文：`feat: add validated audio preferences with local persistence`
-- 专业中文：`feat: 新增带合法值校验与本机保存的音量偏好`
-
-Artifacts候选 / Runtime / 个人ini、Saved / Intermediate / Binaries与.idea索引留本地。Stage后继续修改需重新Stage → Review → Commit / Push由你在CLion操作；助手不操作Git提交，也未核验远端。
+来源83保持。C2尚未实施，不Stage候选 / 空报告 / 未来资源行；Artifacts证据 / 个人ini与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作。

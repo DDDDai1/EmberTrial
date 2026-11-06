@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M3-01至04与05A / B已验收，无待补；当前[C1音量偏好与本机保存](Docs/M3_05C1_AudioPreferences.md)待手动。实际222 Source / 126cpp、39自动化，实耗见[Progress](Docs/Progress.md)。
+当前进度：M3-01至04与05A / B / C1已验收，无待补；当前[C2实际声音路由](Docs/M3_05C2_AudioRouting.md)待手动。实际225 Source / 128cpp、40自动化，实耗见[Progress](Docs/Progress.md)。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-06，M0、M1、M2与清理已收尾，M3-01至04及05A / B已验收。** [B4-02报告](Docs/Reports/M3_05B4_02_Verification.md)记录双Build / 一Success / 三Valid、真实共享画质卡与预览隔离、重启1-60-0查询，无待补。实际222 Source / 126cpp / 39测试 / 来源83，M3累计1768 / 等待116，项目5179 / 明确等待440；本章人工125 / 等待5。当前[C1音量偏好](Docs/M3_05C1_AudioPreferences.md)三新 / 两旧Core仅指南 / 候选，先保存数据，C2真实声音路由、C3共享音量卡后续。个人偏好不等于试炼存档；完整6件 / 2槽、磁盘进度与最终美术后续，M3原70h / M8复盘保持。旧M2_07A/Attempt01不含M3，普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-06，M0、M1、M2与清理已收尾，M3-01至04及05A / B / C1已验收。** [C1报告](Docs/Reports/M3_05C1_Verification.md)记录双Build / 一Success、PIE拒绝 / 合法保存 / 非法保留，以及新进程0.6-0.3-0.8只读，无待补。实际225 Source / 128cpp / 40测试 / 来源83，M3累计1828 / 等待121，项目5239 / 明确等待445；本章人工60 / 等待5。当前[C2声音路由](Docs/M3_05C2_AudioRouting.md)三新 / 两旧Core、共享Config与三类 / 一Mix / 两原创声音只有指南 / 候选，尚未实际混音；C3共用音量卡后续。个人偏好不等于试炼存档；完整6件 / 2槽、磁盘进度与最终美术后续，M3原70h / M8复盘保持。旧M2_07A/Attempt01不含M3，普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,9 +868,9 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-B4-02九源码 / 三Widget已在本地`1150a6c`。当前Stage其验收报告 / 指南收尾、AssetManifest、新C1音量偏好指南与实际更新的共享状态文档；C1三新 / 两旧Core尚未实施，不提前Stage候选、空报告或来源行。
+C1五源码已在本地`99b8146`。当前Stage其验收报告 / 指南收尾、新C2实际声音路由指南与实际更新的共享状态文档。C2三新 / 两旧Core、共享Config与新声音资源未实施，不提前Stage候选 / 空报告或预填来源。
 
-- 英文文档建议：`docs: verify graphics settings UI and prepare audio preferences`
-- 专业中文：`docs: 完成画质设置界面验收并准备音量偏好功能`
+- 英文文档建议：`docs: verify audio preferences and prepare runtime audio routing`
+- 专业中文：`docs: 完成音量偏好验收并准备运行时声音路由`
 
-C1实施后源码范围与Commit建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+当前及C2实施后的准确清单见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

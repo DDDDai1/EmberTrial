@@ -348,11 +348,17 @@ B4-02已验收，125 / 等待5；一GraphicsDraft Success / 三Valid，真实控
 
 三新 / 两旧Core，仅一AudioPreferences纯规则专项；PIE只读拒绝 / P移动短查，两轮专用-game验证合法保存、非法拒绝、总0保留子通道与同ini新进程只查询。当前没有实际声音路由，RuntimeAudioApplied固定0；不以数学组合值充当听感验收。无新Widget / 资产 / 临时蓝图，不跑全40项或Cook；C2才做实际可听路由。
 
+C1已验收，60 / 等待5；一Success、PIE拒绝与两轮同ini只读通过，声音生效留C2。不重复已通过纯值 / 非法完整矩阵。
+
+## M3-05C2最小范围
+
+三新 / 两旧Core与共享Config、一AudioRouting专项；六声音资产 / 两原创WAV。PIE拒绝短查，两轮原生-game实际音乐 / 音效独立静音、总音量、一次非法拒绝、暂停试听、切图释放 / 重应用及重启只读。无需临时蓝图、全41项 / Cook或精确时间点截图；听感由用户确认，日志核对资源就绪 / 应用 / 清理，二者不能互相冒充。正式战斗3D音效与C3界面另开发。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B4-02九源码 / 三Widget已在本地`1150a6c`。当前Stage其验收报告 / 指南收尾、AssetManifest、新C1音量偏好指南与实际更新的共享状态文档；C1三新 / 两旧Core尚未实施，不提前Stage候选、空报告或来源行。
+C1五源码已在本地`99b8146`。当前Stage其验收报告 / 指南收尾、新C2实际声音路由指南与实际更新的共享状态文档。C2三新 / 两旧Core、共享Config与新声音资源未实施，不提前Stage候选 / 空报告或预填来源。
 
-- 英文文档建议：`docs: verify graphics settings UI and prepare audio preferences`
-- 专业中文：`docs: 完成画质设置界面验收并准备音量偏好功能`
+- 英文文档建议：`docs: verify audio preferences and prepare runtime audio routing`
+- 专业中文：`docs: 完成音量偏好验收并准备运行时声音路由`
 
-C1实施后源码范围与Commit建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+当前及C2实施后的准确清单见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
