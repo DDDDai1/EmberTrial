@@ -1,6 +1,6 @@
 # M3-06B1：第三件遗物与数据驱动的代价组合
 
-2026-11-06下发，UE **5.5.4**。[M3-06A独立包已验收](Reports/M3_06A_Verification.md)。2026-11-07实施中：四份测试、Config与新资产已由用户写入；助手已修正新资产ID拼写和重复启动配置，四相关专项通过，详见第5.3节。第6节实机尚待完成，本章未整体验收。
+2026-11-06下发，UE **5.5.4**。2026-11-07 **00:13已验收通过**：[验收报告](Reports/M3_06B1_Verification.md)。四相关专项、三行 / 80与35 / 真实40 / 换装不治疗均通过，无待补。ID拼写修复保留在第5.3节；下一步[M3-06B2-01治疗加成基础](M3_06B2_01_HealingBonusFoundation.md)。
 
 ## 1. 这一章做出什么
 
@@ -17,7 +17,7 @@
 
 四份**既有测试**要调整：会话 / Presenter不再把真实库存数量固定成2；ViewModels明确区分真实目录投影与两项纯值样本；Definitions补查第三件实物。数量断言保留为“每个配置ID都有数据”，没有把2简单换成3。仍42项自动化。
 
-预计手动55–80分钟（代码25–40、资产15–20、阅读与检查15–20），构建 / 重启另记。实际规模仍233 Source / 133cpp；完成后预计Content309→310、来源92→93，验收时核对实物再登记。当前Attempt01只代表已验收的两件版本。
+原估手动55–80分钟；实际代码35 / 资产15 / 阅读10 / 检查10，共70分钟、构建等待5。验收规模233 Source / 133cpp、42测试、Content310 / 来源93，原92份来源保持；Attempt01仍只代表此前两件版本。
 
 ## 2. 在UE中创建原生Data Asset
 
@@ -354,42 +354,28 @@ Source-Config-资产Save All / 最短基线；失败或不理解处（无填无�
 完成时分 / 手动代码 / 资产配置 / 阅读 / 检查 / 构建等待：
 ```
 
-助手复核实物、测试与日志后再登记来源与验收结论。Details / UI问题发截图，编译与自动化发首条文字error；不复制长成功日志。
+2026-11-07已复核并登记：本章70 / 等待5，四测试候选一致、第三件SHA与本地LFS匹配、来源93，实机与日志通过。Details / UI问题发截图，编译与自动化发首条文字error；不复制长成功日志。
 
 ## 8. Commit / Push（固定放在最后）
 
-**当前只提交06A收尾与本章指南：**
+本次收尾可提交以下**12份文档 / 来源清单**。本地bcdfe6a已包含B1资产、Config与四份测试，无需重复Stage。B2-01仅下发候选，未改正式Source，不把未实施内容写进功能提交。
 
 ```text
-Docs/Reports/M3_06A_Verification.md
-Docs/M3_06A_IntegratedPackage.md
+Docs/Reports/M3_06B1_Verification.md
 Docs/M3_06B1_TradeoffRelic.md
+Docs/M3_06B2_01_HealingBonusFoundation.md
+Docs/AssetManifest.csv
+README.md
+Introduction.md
 Docs/Progress.md
 Docs/Backlog.md
 Docs/M3_Roadmap.md
-Docs/M2_Roadmap.md
 Docs/Architecture.md
 Docs/AcceptanceWorkflow_Options.md
 Docs/VersionControl.md
-Introduction.md
-README.md
 ```
 
-- 英文：`docs: verify M3 package and prepare tradeoff relic`
-- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
+- 英文：`docs: verify tradeoff relic and plan healing bonus`
+- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
 
-**实施完成后**再Stage以下真实增量，不提前创建空资产 / 报告或提交候选：
-
-```text
-EmberTrial/Content/EmberTrial/Items/Relics/DA_ET_Relic_BloodPact.uasset
-EmberTrial/Config/DefaultGame.ini
-EmberTrial/Source/EmberTrial/Tests/ETRelicDefinitionsTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicInventorySessionTests.cpp
-EmberTrial/Source/EmberTrialUI/Tests/ETRelicViewModelsTests.cpp
-EmberTrial/Source/EmberTrialUI/Tests/ETRelicPresenterTests.cpp
-```
-
-- 英文：`feat: add a data-driven tradeoff relic`
-- 专业中文：`feat: 新增数据驱动的代价型遗物`
-
-验收时再追加实际来源清单 / 报告 / 状态变化。c03948c三份受伤测试修复已在本地，不重复Stage。包 / 日志 / JSON / 个人ini及Artifacts候选留本地；Stage后再编辑要重新Stage → Review → Commit / Push，Git由你操作，助手未核验远端。
+原日志、JSON、候选、包与个人ini仍留Artifacts本地。若Stage后继续编辑，重新Stage → Review → Commit / Push由你操作；助手未操作索引、提交或远端。

@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2阶段已收尾](Docs/Reports/M2_Verification.md)，[M3-01至04的两件遗物正式闭环已验收](Docs/Reports/M3_04C2_Verification.md)。[M3-05B2-02原生预览已验收](Docs/Reports/M3_05B2_02_Verification.md)，[B3-01显示草稿已验收](Docs/Reports/M3_05B3_01_Verification.md)，[02共享显示设置卡](Docs/Reports/M3_05B3_02_Verification.md)已验收，[B4-01原生画质 / 帧率接口](Docs/Reports/M3_05B4_01_Verification.md)已验收，[B4-02共享画质卡](Docs/Reports/M3_05B4_02_Verification.md)已验收，[C1音量偏好](Docs/Reports/M3_05C1_Verification.md)已验收，[C2声音路由](Docs/Reports/M3_05C2_Verification.md)已验收，[C3共用音量卡](Docs/Reports/M3_05C3_Verification.md)已验收，[06A新版独立包](Docs/Reports/M3_06A_Verification.md)已验收，当前[B1第三件代价型遗物](Docs/M3_06B1_TradeoffRelic.md)待手动；最终内容、美术与投递材料仍在开发。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2阶段已收尾](Docs/Reports/M2_Verification.md)，M3祭坛装备、四类设置及[06A独立包](Docs/Reports/M3_06A_Verification.md)已验收。[B1第三件代价型遗物](Docs/Reports/M3_06B1_Verification.md)现已通过，当前进入[B2-01治疗加成基础](Docs/M3_06B2_01_HealingBonusFoundation.md)。最终内容、美术与投递材料仍在开发。
 
 ## 已实现的体验
 
@@ -13,7 +13,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 - 生命 / 体力 / 治疗次数 / 破势冷却HUD，独立主菜单、暂停、失败重试和本次进程内的检查点继续。
 - 自由镜头输入偏好：0.25–3倍灵敏度与Y轴反转，个人设置可本地保存 / 重启读取；主菜单 / 暂停 / 祭坛页复用草稿、应用 / 取消与默认卡片。
 
-两件遗物提供稳定ID / 参数 / 槽位校验、GI库存与版本、身体自有GE和资源恢复；祭坛E打开同一遗物页，支持真实列表 / 中文搜索 / 排序筛选 / 两槽比较，确认后装备或卸装，普通P只读。初始空槽100生命 / 25伤害；两件装备后上限120 / 伤害30，存活换装不治疗。Retry / 本进程Continue保留配装，新身体按最终上限恢复；NewRun空槽。角色和动画仍为UE模板 / Control Rig占位，完整6件、磁盘进度存档与最终美术后续，多人及手柄交付不在范围。
+三件遗物提供稳定ID / 参数 / 槽位校验、GI库存与版本、身体自有GE和资源恢复；祭坛E打开同一遗物页，支持真实列表 / 中文搜索 / 排序筛选 / 两槽比较，确认后装备或卸装，普通P只读。初始空槽100生命 / 25伤害；生息与砺锋装备后上限120 / 伤害30；逆焰单件上限80 / 伤害35，与砺锋组合实际40，存活换装不治疗。Retry / 本进程Continue保留配装，新身体按最终上限恢复；NewRun空槽。角色和动画仍为UE模板 / Control Rig占位，完整6件、磁盘进度存档与最终美术后续，多人及手柄交付不在范围。
 
 ## 获取与构建
 
@@ -28,7 +28,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 
 Refresh-CLion会正常构建Editor目标并生成三个模块各自的索引信息。随后打开[EmberTrial.uproject](EmberTrial/EmberTrial.uproject)；正式试玩从`/Game/EmberTrial/Maps/L_ET_MainMenu`开始，编辑器开发地图为`L_ET_VerticalSlice`。
 
-Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说明见[IDE配置 / 切换说明](Docs/CodeEditor_CLion_VS2022.md)与[源码创建 / 索引刷新](Docs/CLion_UEClassCreation.md)。这是源码工程入口，仓库未提供可下载Release。最新本地验证包为`Artifacts/Builds/M2_07A/Attempt01/Windows/EmberTrial.exe`，已包括四能力 / 五HUD、Poise / F、锁定 / 镜头与检查点；两轮独立运行及23项阶段回归见[A报告](Docs/Reports/M2_07A_Verification.md)。完整Windows目录留本地，Cleanup / M1包只代表历史版本。
+Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说明见[IDE配置 / 切换说明](Docs/CodeEditor_CLion_VS2022.md)与[源码创建 / 索引刷新](Docs/CLion_UEClassCreation.md)。这是源码工程入口，仓库未提供可下载Release。最新本地验证包为`Artifacts/Builds/M3_06A/Attempt01/Windows/EmberTrial.exe`，包括两件祭坛装备与四类设置、正式战斗 / 锁定 / 检查点；42项阶段回归与两轮独立运行见[06A报告](Docs/Reports/M3_06A_Verification.md)。B1第三件尚未打入该包。完整Windows目录留本地，Cleanup / M1包只代表历史版本。
 
 ## 默认操作
 
@@ -51,7 +51,7 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M3-06B1第三件代价型遗物](Docs/M3_06B1_TradeoffRelic.md)：复用既有效果、一Data Asset / Config与四既有测试适配待手动。[06A集成包已验收](Docs/Reports/M3_06A_Verification.md)，42项Success / Attempt01与两轮通过。完整六件与列表压力仍后续，[M3路线](Docs/M3_Roadmap.md)。
+- [当前开发：M3-06B2-01治疗加成基础](Docs/M3_06B2_01_HealingBonusFoundation.md)：六既有Core代码手动修改、两相关专项与默认Q短查。[B1报告](Docs/Reports/M3_06B1_Verification.md)记录第三件、真实40伤害及不治疗；第四件数据 / 装备接入留02。完整六件与列表压力见[M3路线](Docs/M3_Roadmap.md)。
 - [M3-02A验收](Docs/Reports/M3_02A_Verification.md)：两槽资格 / 汇总、替换 / 卸下 / 预览，双库存专项当次Success。
 - [M3-01验收](Docs/Reports/M3_01_Verification.md)：两遗物静态定义、两Valid与Definitions Success；[原操作步骤](Docs/M3_01_RelicDefinitions.md)供复查。
 - [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。

@@ -1,25 +1,25 @@
 # 当前开发进度
 
-更新2026-11-07。[M3-06A新版独立包已验收](Reports/M3_06A_Verification.md)；当前[M3-06B1第三件代价型遗物](M3_06B1_TradeoffRelic.md)实施中：用户已写入四份测试、Config与资产，助手修正blood_pack→blood_pact并复跑四项Success，待第6节实机。
+更新2026-11-07。[M3-06B1第三件代价型遗物已验收](Reports/M3_06B1_Verification.md)，无待补。当前进入[M3-06B2-01治疗加成属性与正式Q施放快照](M3_06B2_01_HealingBonusFoundation.md)，六份既有Core源码候选已准备，待用户手动实施。
 
 ## 当前实际工程
 
-- **最近完整验收规模为233 Source / 133cpp（Core89 / UI41 / Editor3）、42自动化、309 Content / 来源92**。B1新资产已写入，实际Content现为310；新增来源待B1完整验收再登记，助手本次只修资产ID与重复启动配置，未修改C++。
-- 一次测试准备补修后42项全Success；Attempt01 UAT成功，归档Game二进制与当前构建相同。Run01两件装备、真实30伤害、资源 / AI / Retry_A / Continue_A与Run02新进程0.5-0.5-1、1-60-0读取和空槽100通过；锁定另有独立补测。
-- 当前可验证包为Artifacts/Builds/M3_06A/Attempt01，两件版本；原M2包仅历史证据。新指南第三件尚未创建，不将候选当已实现内容。
-- 完整六遗物消费者与数据、列表压力、镜头震动随反馈接入、M5磁盘存档与最终美术仍后续，M3未总关闭。
+- **233 Source / 133cpp（Core89 / UI41 / Editor3）、42自动化、310 Content / 来源93**。B1四测试候选归一一致、唯一三条StartingRelics、新资产SHA与本地bcdfe6a的LFS OID一致，原92来源保持。
+- B1四专项Success；实际Owned3、逆焰80 / 35、组合真实40、换生息80/100不治疗、卸装与新会话空槽通过。blood_pack→blood_pact拼写问题已关闭。
+- 当前可验证独立包仍Artifacts/Builds/M3_06A/Attempt01，**两件版本**。42项全组Success是06A时点；B1四项和编辑器检查不冒充第三件已Cook。
+- B2-01只扩原CombatAttributeSet与Q消费者 / 既有治疗测试，不创建第四件；B2-02再接治疗遗物、装备与预览。体力恢复 / 破势效率、六件与列表压力、M5存档、最终美术仍后续，M3不总关闭。
 
 ## 工时与协作
 
-06A准备30 / 检查40 / 记录10，共**80分钟 / 等待10**；按用户汇总只记一次。M3累计**2143分钟（35小时43分）/ 等待141**；项目累计**5554分钟（92小时34分）/ 明确等待465分钟（7小时45分）**。M2仍1400 / 等待139，助手操作不另叠加用户实耗。
+B1代码35 / 资产15 / 阅读10 / 检查10，共**70分钟 / 等待5**。M3累计**2213分钟（36小时53分）/ 等待146**；项目累计**5624分钟（93小时44分）/ 明确等待470分钟（7小时50分）**。M2仍1400 / 等待139，助手修复 / 归档不叠加用户实耗。
 
-B1预计手动55–80分钟，Editor构建 / 重启另记；四相关专项已成功，待一条祭坛短检查，不全42项 / Cook。11月7日补修由助手操作，不额外记作用户实耗；B1实际工时等完成反馈。普通C++由用户手动，复杂排错按当次授权；首次PIE等待需求保持关闭，Git由用户操作。
+B2-01预计手动60–90分钟，构建等待另记；只跑Healing.Ability与EquipmentEffects各一次、默认40的一条短查，无新BP脚手架 / 全42项 / Cook。正式Source尚未改，候选四cpp仅编译通过不替代真实UHT / 链接 / 运行。普通C++手动、方案B与用户Git约定保持，首次PIE等待需求继续关闭。
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-06A已通过，本地c03948c含三份受伤测试修复，9c0f9d5含准备文档 / 启动工具。06A收尾文档沿用原清单；B1四份测试、Config与新资产已写入，修复后的资产 / 配置随本章实现清单提交。第6节实机尚未完成，不提前登记来源或生成整章通过结论。
+B1通过，本地bcdfe6a已包含一资产 / Config / 四测试；当前只Stage B1报告 / 指南收尾、来源93、B2-01新指南及实际修改的共享文档，准确12文件清单见[B2-01末尾](M3_06B2_01_HealingBonusFoundation.md)。后者六既有Source仍为本地候选，待用户手动实施。
 
-- 英文：`docs: verify M3 package and prepare tradeoff relic`
-- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
+- 英文：`docs: verify tradeoff relic and plan healing bonus`
+- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
 
-包 / UAT / Runtime / JSON / 个人ini与Artifacts候选保持本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+原日志 / JSON / Artifacts候选 / 包与个人ini保持本地。重新Stage后Review → Commit / Push由用户操作，助手未核验远端。

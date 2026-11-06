@@ -192,13 +192,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **06A集成已验收。** [新版包](M3_06A_IntegratedPackage.md)将当前两件遗物与四类设置实际Cook；启动工具为M3强制明确目录、两轮共用专用个人ini，试炼状态仍在GI。旧能力测试的受伤准备移至出生装备恢复之后，42项阶段全组Success；Attempt01实际包内确认祭坛 / 设置与两次新身体恢复，Run02偏好保留 / 试炼装备重置。正式装备 / 能力逻辑未改。
 
-**B1仅指南 / 候选。** 第三件通过既有MaxHealth / LightAttackBonus加法组合形成代价收益，沿用同一装备句柄 / 事务 / UI投影；四既有测试解除真实目录固定两件的前提，正式生产文件尚未实施。
+**06B1已验收。** 第三件逆焰通过既有MaxHealth -20 / LightAttackBonus +10形成代价收益，沿用原装备句柄 / 事务 / UI投影；四既有测试解除真实目录固定两件的前提。真实组合40伤害、换装80/100不治疗与Owned3通过，无新增Gameplay分支。
+
+**06B2-01待实施。** 候选在原CombatAttributeSet加入HealingBonus，Q预检读取聚合值、接受施放时捕获基础40+加成，通知只用本次快照；资源组件仍负责实际治疗 / 次数，能力不引用库存或UI。六旧Core / 两相关专项，无新Tick / Timer；第四件与装备预览由02另接，不提前声明完成。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-06A已通过，本地c03948c含三份受伤测试修复，9c0f9d5含准备文档 / 启动工具。当前只Stage06A验收报告 / 指南收尾、M3-06B1新指南及实际更新的共享状态文档；准确清单见B1末尾。B1四份测试候选、Config与新资产尚未正式实施，不提前Stage、登记来源或预填成功。
+B1通过，本地bcdfe6a已包含一资产 / Config / 四测试；当前只Stage B1报告 / 指南收尾、来源93、B2-01新指南及实际修改的共享文档，准确12文件清单见[B2-01末尾](M3_06B2_01_HealingBonusFoundation.md)。后者六既有Source仍为本地候选，待用户手动实施。
 
-- 英文：`docs: verify M3 package and prepare tradeoff relic`
-- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
+- 英文：`docs: verify tradeoff relic and plan healing bonus`
+- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
 
-包 / UAT / Runtime / JSON / 个人ini与Artifacts候选保持本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+原日志 / JSON / Artifacts候选 / 包与个人ini保持本地。重新Stage后Review → Commit / Push由用户操作，助手未核验远端。

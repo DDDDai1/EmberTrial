@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M3-01至04、已实施05设置及[06A新版独立包](Docs/Reports/M3_06A_Verification.md)已验收，无待补；当前[M3-06B1第三件代价型遗物](Docs/M3_06B1_TradeoffRelic.md)待手动。实际233 Source / 133cpp、42自动化，实耗见[Progress](Docs/Progress.md)。完整六件 / 压力与体验反馈扩展仍后续，M3尚未总完成。
+当前进度：M3-01至04、已实施05设置与06A两件独立包已验收；[B1第三件代价型遗物](Docs/Reports/M3_06B1_Verification.md)也已通过，无待补。当前[B2-01治疗加成基础](Docs/M3_06B2_01_HealingBonusFoundation.md)六旧Core待手动；实际233 Source / 133cpp、42自动化 / 来源93，实耗见[Progress](Docs/Progress.md)。完整六件 / 压力与体验反馈扩展仍后续，M3尚未总完成。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-06，M0、M1、M2与清理已收尾，M3-01至04、已实施05设置与06A两件集成包已验收。** [06A报告](Docs/Reports/M3_06A_Verification.md)记录42项全Success、Attempt01 / 两轮、真实祭坛换装与30伤害、新身体120 / 新进程空槽100、偏好只读保存，无待补。实际233 Source / 133cpp / 42测试 / 来源92；M3累计2143 / 等待141，项目5554 / 等待465；本章80 / 等待10。当前[B1代价型第三件遗物](Docs/M3_06B1_TradeoffRelic.md)仅指南 / 四测试候选与一Data Asset / Config待手动，未写正式文件。完整六件、列表压力、镜头震动随反馈接入、M5磁盘存档与最终美术后续，M3不总关闭，原70h / M8复盘保持。个人偏好不等于试炼存档；当前实际包M3_06A/Attempt01仍两件，普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-07，M0、M1、M2与清理已收尾，M3-01至04、已实施05设置、06A两件集成包及B1第三件均已验收。** [B1报告](Docs/Reports/M3_06B1_Verification.md)记录四专项、Owned3 / 真实40与换装不治疗，无待补。实际233 Source / 133cpp / 42测试 / 来源93；M3累计2213 / 等待146，项目5624 / 等待470；本章70 / 等待5。当前[B2-01治疗加成基础](Docs/M3_06B2_01_HealingBonusFoundation.md)仅六份既有Core候选，尚未改正式Source；02再接第四件、GE与比较。完整六件、列表压力、镜头震动随反馈、M5磁盘存档与最终美术后续，M3不总关闭，原70h / M8复盘保持。当前实际包M3_06A/Attempt01仍两件，普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,9 +868,9 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-06A已通过，本地c03948c含三份受伤测试修复，9c0f9d5含准备文档 / 启动工具。当前只Stage06A验收报告 / 指南收尾、M3-06B1新指南及实际更新的共享状态文档；准确清单见B1末尾。B1四份测试候选、Config与新资产尚未正式实施，不提前Stage、登记来源或预填成功。
+B1通过，本地bcdfe6a已包含一资产 / Config / 四测试；当前只Stage B1报告 / 指南收尾、来源93、B2-01新指南及实际修改的共享文档，准确12文件清单见[B2-01末尾](Docs/M3_06B2_01_HealingBonusFoundation.md)。后者六既有Source仍为本地候选，待用户手动实施。
 
-- 英文：`docs: verify M3 package and prepare tradeoff relic`
-- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
+- 英文：`docs: verify tradeoff relic and plan healing bonus`
+- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
 
-包 / UAT / Runtime / JSON / 个人ini与Artifacts候选保持本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+原日志 / JSON / Artifacts候选 / 包与个人ini保持本地。重新Stage后Review → Commit / Push由用户操作，助手未核验远端。

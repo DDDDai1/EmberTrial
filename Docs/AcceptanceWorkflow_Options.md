@@ -374,11 +374,17 @@ C3已验收，125 / 等待5；一AudioDraft Success / 三Valid，实际首屏、
 
 第三件复用已有两种效果，不扩测试框架。只跑Definitions / Session / UI.ViewModels / UI.Presenter四项及一条祭坛预览、80 / 35、组合40、卸装不治疗短查。真实目录可变、两项纯样本固定是不同合同；不把2直接改成3，不跳过所有者 / 生命周期断言。无需全42项、Cook或重复AI / 设置矩阵。
 
+B1已验收：四专项Success，三行 / 80与35 / 组合实际40 / 存活换装不治疗通过，70 / 等待5。ID拼写修复与功能结果分别归档，无待补。
+
+## M3-06B2-01的检查边界
+
+六旧Core只扩真实消费者与既有Healing.Ability，原13场景保留并追加2场景；真实GE得到+10、启动后移除并等待实际通知，验证50快照与下次40、非法合计拒绝不消费。另跑EquipmentEffects保护同一个Combat属性集的原轻击 / 生命路径。两项各一次，加默认Q 50→90 / 次数3→2及P短查，无临时蓝图、全42项或Cook；第四件资产 / UI由02再验。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-06A已通过，本地c03948c含三份受伤测试修复，9c0f9d5含准备文档 / 启动工具。当前只Stage06A验收报告 / 指南收尾、M3-06B1新指南及实际更新的共享状态文档；准确清单见B1末尾。B1四份测试候选、Config与新资产尚未正式实施，不提前Stage、登记来源或预填成功。
+B1通过，本地bcdfe6a已包含一资产 / Config / 四测试；当前只Stage B1报告 / 指南收尾、来源93、B2-01新指南及实际修改的共享文档，准确12文件清单见[B2-01末尾](M3_06B2_01_HealingBonusFoundation.md)。后者六既有Source仍为本地候选，待用户手动实施。
 
-- 英文：`docs: verify M3 package and prepare tradeoff relic`
-- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
+- 英文：`docs: verify tradeoff relic and plan healing bonus`
+- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
 
-包 / UAT / Runtime / JSON / 个人ini与Artifacts候选保持本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+原日志 / JSON / Artifacts候选 / 包与个人ini保持本地。重新Stage后Review → Commit / Push由用户操作，助手未核验远端。

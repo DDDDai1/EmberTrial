@@ -410,11 +410,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-06 06A收尾：c03948c含三份受伤测试准备修复，9c0f9d5含指南与工具；起点干净。42项全Success、Attempt01与Run01 / Run02及独立锁定补测通过，80 / 等待10；包与92份来源指纹核对。当前只Stage验收报告 / 指南收尾、B1新指南及状态；B1一新资产 / Config / 四测试只有候选，正式文件未写，不预填来源或提交产物。助手未核验远端。
 
+2026-11-07 06B1收尾：本地bcdfe6a已含四旧测试、唯一三条启动配置与原生BloodPact，候选归一 / SHA与LFS匹配；233 / 133 / 42、Content310 / 来源93，原92行不变。四专项与三行 / 真实40 / 不治疗通过；70 / 等待5。当前只Stage报告 / 来源 / 指南收尾、B2-01新指南及共享状态；六既有Core候选没有写正式Source。助手未操作Git索引 / 提交 / 远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-06A已通过，本地c03948c含三份受伤测试修复，9c0f9d5含准备文档 / 启动工具。当前只Stage06A验收报告 / 指南收尾、M3-06B1新指南及实际更新的共享状态文档；准确清单见B1末尾。B1四份测试候选、Config与新资产尚未正式实施，不提前Stage、登记来源或预填成功。
+B1通过，本地bcdfe6a已包含一资产 / Config / 四测试；当前只Stage B1报告 / 指南收尾、来源93、B2-01新指南及实际修改的共享文档，准确12文件清单见[B2-01末尾](M3_06B2_01_HealingBonusFoundation.md)。后者六既有Source仍为本地候选，待用户手动实施。
 
-- 英文：`docs: verify M3 package and prepare tradeoff relic`
-- 专业中文：`docs: 完成M3开发包验收并准备代价型遗物`
+- 英文：`docs: verify tradeoff relic and plan healing bonus`
+- 专业中文：`docs: 完成代价型遗物验收并规划治疗加成`
 
-包 / UAT / Runtime / JSON / 个人ini与Artifacts候选保持本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+原日志 / JSON / Artifacts候选 / 包与个人ini保持本地。重新Stage后Review → Commit / Push由用户操作，助手未核验远端。
