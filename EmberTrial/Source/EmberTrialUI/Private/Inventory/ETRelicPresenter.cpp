@@ -21,6 +21,8 @@ bool FETRelicPanelData::operator==(const FETRelicPanelData& Other) const
            Name.EqualTo(Other.Name) && Description.EqualTo(Other.Description) && bSlotB == Other.bSlotB &&
            BeforeMax == Other.BeforeMax && AfterMax == Other.AfterMax &&
                BeforeAttack == Other.BeforeAttack && AfterAttack == Other.AfterAttack &&
+               BeforeHealingBonus == Other.BeforeHealingBonus &&
+               AfterHealingBonus == Other.AfterHealingBonus &&
                bHasCommands == Other.bHasCommands && bCanEquip == Other.bCanEquip &&
                bCanUnequip == Other.bCanUnequip && CommandMessage.EqualTo(Other.CommandMessage);
 }
@@ -337,19 +339,25 @@ FETRelicPanelData UETRelicPresenter::BuildData() const
         Data.AfterMax = Preview.AfterPreview.MaxHealth;
         Data.BeforeAttack = Preview.BeforePreview.LightAttackBaseDamage;
         Data.AfterAttack = Preview.AfterPreview.LightAttackBaseDamage;
+        Data.BeforeHealingBonus = Preview.BeforeModifiers.HealingBonus;
+        Data.AfterHealingBonus = Preview.AfterModifiers.HealingBonus;
     }
     else if (Reply.Result == EETRelicInventoryResult::NoChange)
     {
         float Health = 0.0f;
         float Bonus = 0.0f;
+        FETRelicModifierTotals Applied;
         const UETGA_LightAttack* Attack = Body->GetLightAttackConfiguration();
-        if (Attack && Body->GetGameplayHealthSnapshot(Health, Data.BeforeMax) &&
+        if (Attack && Equipment->GetAppliedModifiers(Applied) &&
+            Body->GetGameplayHealthSnapshot(Health, Data.BeforeMax) &&
             Body->GetGameplayLightAttackBonusSnapshot(Bonus) && UETGA_LightAttack::TryCalculateStageDamage(
                 Attack->GetBaseAttackDamage(), Bonus, 1.0f, Data.BeforeAttack))
         {
             Data.PreviewState = EETRelicPreviewState::AlreadyEquipped;
             Data.AfterMax = Data.BeforeMax;
             Data.AfterAttack = Data.BeforeAttack;
+            Data.BeforeHealingBonus = Applied.HealingBonus;
+            Data.AfterHealingBonus = Applied.HealingBonus;
         }
     }
     else if (Reply.Result == EETRelicInventoryResult::RuleRejected)

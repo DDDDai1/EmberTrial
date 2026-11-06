@@ -48,6 +48,9 @@ struct EMBERTRIALUI_API FETRelicPanelData
     float AfterMax = 0.0f;
     float BeforeAttack = 0.0f;
     float AfterAttack = 0.0f;
+    // 只比较两槽装备的固定治疗加成；不包含GA基础值或其他临时效果。
+    float BeforeHealingBonus = 0.0f;
+    float AfterHealingBonus = 0.0f;
     bool operator==(const FETRelicPanelData& Other) const;
 };
 

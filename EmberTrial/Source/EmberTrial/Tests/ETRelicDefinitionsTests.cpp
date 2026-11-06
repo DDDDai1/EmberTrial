@@ -156,6 +156,30 @@ bool FETRelicDefinitionsTest::RunTest(const FString& Parameters)
     { return Modifier.Kind == EETRelicModifierKind::LightAttackBonus; });
     TestTrue(TEXT("Tradeoff health cost is minus20"), HealthCost && HealthCost->AdditiveValue == -20.0f);
     TestTrue(TEXT("Tradeoff attack gain is plus10"), AttackGain && AttackGain->AdditiveValue == 10.0f);
+
+    const UETRelicDefinition* Renewal = nullptr;
+    for (const UETRelicDefinition* Definition : Catalog)
+    {
+        if (Definition->GetRelicId() == FName(TEXT("renewal_charm")))
+        {
+            Renewal = Definition;
+            break;
+        }
+    }
+    if (!TestNotNull(TEXT("Renewal Charm saved definition registered"), Renewal))
+    {
+        return false;
+    }
+    TestTrue(TEXT("Renewal supports both slots"), Renewal->SupportsSlot(EETRelicSlot::First) &&
+             Renewal->SupportsSlot(EETRelicSlot::Second));
+    TestEqual(TEXT("Renewal sort order forty"), Renewal->GetSortOrder(), 40);
+    const TArray<FETRelicModifier>& HealingModifiers = Renewal->GetModifiers();
+    if (TestEqual(TEXT("Renewal has exactly one effect"), HealingModifiers.Num(), 1))
+    {
+        TestTrue(TEXT("Renewal healing bonus is plus ten"),
+                 HealingModifiers[0].Kind == EETRelicModifierKind::HealingBonus &&
+                 HealingModifiers[0].AdditiveValue == 10.0f);
+    }
     return !HasAnyErrors();
 }
 

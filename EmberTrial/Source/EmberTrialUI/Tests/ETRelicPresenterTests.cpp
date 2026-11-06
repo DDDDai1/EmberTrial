@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/WorldSettings.h"
 #include "Abilities/ETGA_LightAttack.h"
+#include "Abilities/ETGA_Heal.h"
+#include "Attributes/ETCombatAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Attributes/ETHealthAttributeSet.h"
 #include "Characters/EmberTrialCharacter.h"
@@ -43,13 +45,16 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
         {
             Body->CombatTeam = EETCombatTeam::Player;
             Body->LightAttackAbilityClass = UETGA_LightAttack::StaticClass();
+            Body->HealAbilityClass = UETGA_Heal::StaticClass();
         }
         return Body;
     };
     AEmberTrialCharacter* Body = SpawnBody(0);
     AEmberTrialCharacter* OtherBody = SpawnBody(400);
+    AEmberTrialCharacter* HealingRestoreBody = SpawnBody(800);
     APlayerController* PC = World->SpawnActor<APlayerController>();
     if (!TestNotNull(TEXT("Body"), Body) || !TestNotNull(TEXT("Other body"), OtherBody) ||
+        !TestNotNull(TEXT("Healing restore body"), HealingRestoreBody) ||
         !TestNotNull(TEXT("PC"), PC) || !TestNotNull(TEXT("Engine"), GEngine))
     {
         return false;
@@ -131,6 +136,79 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
             Body->GetAbilitySystemComponent()->GetNumericAttribute(
                 UETHealthAttributeSet::GetHealthAttribute()), 100.0f);
     }
+    // ---- 正式第四件：比较无副作用、已装备显示、外部贡献隔离与关闭重建 ----
+    {
+        const FName HealingId(TEXT("renewal_charm"));
+        UETRelicListItem* HealingItem = Presenter->FindItem(HealingId);
+        if (!TestNotNull(TEXT("Configured healing item"), HealingItem))
+        {
+            return false;
+        }
+        UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
+        const FGameplayAttribute Healing = UETCombatAttributeSet::GetHealingBonusAttribute();
+        const FGameplayAttribute Health = UETHealthAttributeSet::GetHealthAttribute();
+        const uint64 BeforeHealingPreview = Inventory->GetSnapshot().Revision;
+        const int32 EffectsBefore = ASC->GetActiveEffects(FGameplayEffectQuery()).Num();
+        TestTrue(TEXT("Select saved healing relic"), Presenter->SelectId(HealingId));
+        TestEqual(TEXT("Before equipment healing zero"), Presenter->GetSnapshot().BeforeHealingBonus, 0.0f);
+        TestEqual(TEXT("Proposed equipment healing ten"), Presenter->GetSnapshot().AfterHealingBonus, 10.0f);
+        TestEqual(TEXT("Preview leaves real healing zero"), ASC->GetNumericAttribute(Healing), 0.0f);
+        TestTrue(TEXT("Healing preview keeps revision"), Inventory->GetSnapshot().Revision == BeforeHealingPreview);
+        TestEqual(TEXT("Healing preview adds no effects"),
+                  ASC->GetActiveEffects(FGameplayEffectQuery()).Num(), EffectsBefore);
+
+        // 去重合同也必须识别新增字段，不能吞掉只有治疗数值变化的快照。
+        FETRelicPanelData Changed = Presenter->GetSnapshot();
+        Changed.BeforeHealingBonus += 1.0f;
+        TestFalse(TEXT("Before healing participates in equality"), Changed == Presenter->GetSnapshot());
+        Changed = Presenter->GetSnapshot();
+        Changed.AfterHealingBonus += 1.0f;
+        TestFalse(TEXT("After healing participates in equality"), Changed == Presenter->GetSnapshot());
+
+        ASC->SetNumericAttributeBase(Health, 60.0f);
+        TestTrue(TEXT("Real saved healing relic equips"), Equipment->TryEquip(
+            EETRelicSlot::First, HealingId, Inventory->GetSnapshot().Revision).Result ==
+                EETRelicInventoryResult::Success);
+        TestTrue(TEXT("Healing already equipped state"),
+                 Presenter->GetSnapshot().PreviewState == EETRelicPreviewState::AlreadyEquipped);
+        TestEqual(TEXT("Equipped healing before ten"), Presenter->GetSnapshot().BeforeHealingBonus, 10.0f);
+        TestEqual(TEXT("Equipped healing after ten"), Presenter->GetSnapshot().AfterHealingBonus, 10.0f);
+        TestEqual(TEXT("Real healing Current ten"), ASC->GetNumericAttribute(Healing), 10.0f);
+        TestEqual(TEXT("Equipping does not heal"), ASC->GetNumericAttribute(Health), 60.0f);
+
+        // 额外基础加成不是装备贡献；重新打开观察也不能把13误标为装备加成。
+        ASC->SetNumericAttributeBase(Healing, 3.0f);
+        Presenter->StartObserving(Subsystem.Get());
+        TestTrue(TEXT("Reopen keeps stable healing item"), Presenter->FindItem(HealingId) == HealingItem);
+        TestEqual(TEXT("Total healing includes external source"), ASC->GetNumericAttribute(Healing), 13.0f);
+        TestEqual(TEXT("Reopened equipment contribution remains ten"),
+                  Presenter->GetSnapshot().BeforeHealingBonus, 10.0f);
+        PC->Possess(HealingRestoreBody);
+        UAbilitySystemComponent* RestoredASC = HealingRestoreBody->GetAbilitySystemComponent();
+        TestTrue(TEXT("New healing body ready without manual refresh"),
+                 Presenter->GetSnapshot().State == EETRelicPanelState::Ready);
+        TestEqual(TEXT("New body restores committed healing ten"),
+                  RestoredASC->GetNumericAttribute(Healing), 10.0f);
+        TestEqual(TEXT("New body exposes healing comparison ten"),
+                  Presenter->GetSnapshot().BeforeHealingBonus, 10.0f);
+        PC->Possess(Body);
+        TestEqual(TEXT("Return keeps original wounded health"),
+                  ASC->GetNumericAttribute(Health), 60.0f);
+        TestEqual(TEXT("Return retains independent external contribution"),
+                  ASC->GetNumericAttribute(Healing), 13.0f);
+        TestTrue(TEXT("Real healing unequip"), Equipment->TryEquip(
+            EETRelicSlot::First, NAME_None, Inventory->GetSnapshot().Revision).Result ==
+                EETRelicInventoryResult::Success);
+        TestEqual(TEXT("Unequip preserves external healing"), ASC->GetNumericAttribute(Healing), 3.0f);
+        TestEqual(TEXT("Unequip comparison returns zero"),
+                  Presenter->GetSnapshot().BeforeHealingBonus, 0.0f);
+        TestEqual(TEXT("Unequip does not heal"), ASC->GetNumericAttribute(Health), 60.0f);
+
+        // 恢复原生命 / 攻击场景的前提，不删除换控 / 命令等既有断言。
+        ASC->SetNumericAttributeBase(Healing, 0.0f);
+        ASC->SetNumericAttributeBase(Health, 100.0f);
+        Presenter->SelectId(LifeId);
+    }
     const FDelegateHandle ViewHandle = Presenter->OnChanged.AddLambda([&](const FETRelicPanelData&) { ++ViewEvents; });
     auto Equip = [&](EETRelicSlot Slot, FName Id)
     {
@@ -164,7 +242,9 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
     UAbilitySystemComponent* OldASC = Body->GetAbilitySystemComponent();
     PC->UnPossess();
     TestTrue(TEXT("NoPawn clears comparison"), Presenter->GetSnapshot().State == EETRelicPanelState::NoPawn &&
-        Presenter->GetSnapshot().AfterMax == 0.0f);
+        Presenter->GetSnapshot().AfterMax == 0.0f &&
+        Presenter->GetSnapshot().BeforeHealingBonus == 0.0f &&
+        Presenter->GetSnapshot().AfterHealingBonus == 0.0f);
     const int32 BeforeOldBody = ViewEvents;
     OldASC->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(), 75.0f);
     TestEqual(TEXT("Old body cannot drive current presenter"), ViewEvents, BeforeOldBody);
