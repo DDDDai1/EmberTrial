@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameUserSettings.h"
+#include "Settings/ETAudioSettingsTypes.h"
 #include "ETGameUserSettings.generated.h"
 
 struct FETGraphicsPreferences;
@@ -39,6 +40,12 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "EmberTrial|Settings")
     FETInputPreferences GetInputPreferences() const { return InputPreferences; }
+
+    UFUNCTION(BlueprintPure, Category = "EmberTrial|Settings")
+    FETAudioPreferences GetAudioPreferences() const { return AudioPreferences; }
+
+    /** 仅更新本实例偏好内存，不混音 / 保存；调用方显式确认后请求SaveSettings。 */
+    bool SetAudioPreferences(const FETAudioPreferences& Preferences);
 
     /** 只提交合法值到运行内存；调用者在整页确认后显式SaveSettings，不逐次滑动写盘。 */
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Settings")
@@ -79,4 +86,7 @@ private:
 
     UPROPERTY(Config)
     FETInputPreferences InputPreferences;
+
+    UPROPERTY(Config)
+    FETAudioPreferences AudioPreferences;
 };
