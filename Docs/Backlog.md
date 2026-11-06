@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-11-06。[C2实际声音路由已验收](Reports/M3_05C2_Verification.md)，无待补；当前[C3共用音量设置卡](M3_05C3_AudioSettingsUI.md)待手动。实时规模 / 工时见Progress，历史口径保留。
+更新2026-11-06。[C3共用音量卡已验收](Reports/M3_05C3_Verification.md)，无待补；当前[M3-06A新版独立包](M3_06A_IntegratedPackage.md)待操作。实时规模 / 工时见Progress，历史口径保留。
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -114,7 +114,7 @@
 | M2-07A | [新版独立包与集成检查](Reports/M2_07A_Verification.md) | 你操作，我核对 | 完成 | Attempt01 / 23项全Success、两轮Runtime / 四能力-HUD-AI及检查点 / 清理通过；手动30 / 等待10 |
 | M2-07B | [新版包性能分析](Reports/M2_07B_Verification.md) | 你采集，我分析 | 完成 | 同一A包、真实AI / 四动作、正式导出；内窗与完整Region尖峰、实际PNG尺寸 / 环境限制均记录；手动30 / 等待10，无补采或工程修改 |
 | M2-07C | [技术复盘交付 / 收尾](Reports/M2_07C_Verification.md) | 我整理，你后续可查阅 | 完成（材料） | 用户要求继续下一章，M2 / 07总报告保存；无逐项理解答卷 / C实耗，不追加旧测试 |
-| M3 | [遗物装备、构筑界面与设置](M3_Roadmap.md) | 共同 | 进行中 | 两件遗物祭坛闭环、输入与显示 / 画质已验收；声音路由已验收、当前共用音量卡，6件 / 2槽与阶段新包目标保持 |
+| M3 | [遗物装备、构筑界面与设置](M3_Roadmap.md) | 共同 | 进行中 | 两件遗物祭坛闭环、输入与显示 / 画质已验收；当前设置闭环已验收、准备新版包，6件 / 2槽与阶段新包目标保持 |
 | M3-01 | [静态遗物定义与ID契约](Reports/M3_01_Verification.md) | 你实现，我审查 | 完成 | 161 / 88 / 来源77，双Build / 三索引、两Valid / Definitions Success与短基线；代码40 / 检查2 / 等待5，无待补 |
 | M3-02A | [两槽方案与纯数值预览](Reports/M3_02A_Verification.md) | 你实现，我审查 | 完成 | 164 / 90 / 25、双Build / 三索引、两库存Success与短基线，实际42 / 等待10，无待补 |
 | M3-02B | [战斗属性 / 原生装备效果](Reports/M3_02B_Verification.md) | 你手动实现，我审查 | 完成 | 169 / 93 / 26，四相关Success、双Build与短查；实际52 / 等待5，无待补 |
@@ -140,7 +140,8 @@
 | M3-05B4-02 | [共享画质设置卡](Reports/M3_05B4_02_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 222 / 126 / 39、双Build / 一Success / 三Valid；真实控件与预览隔离 / 新进程1-60-0，125 / 等待5 |
 | M3-05C1 | [音量偏好与本机保存](Reports/M3_05C1_Verification.md) | 你手动实现，我设计 / 审查 | 完成 | 225 / 128 / 40、双Build / 一Success与新进程0.6-0.3-0.8只读；60 / 等待5，无实际混音 |
 | M3-05C2 | [实际声音路由与试听](Reports/M3_05C2_Verification.md) | 你实现，助手获授权配置资源 / 复核 | 完成 | 228 / 130 / 41、双Build / 一Success；真实分流、切图 / 新进程恢复，110 / 等待5 |
-| M3-05C3 | [共用音量设置卡](M3_05C3_AudioSettingsUI.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 五新UI / 六旧Core+UI、十一绑定 / 宿主八绑定；一专项 / 三Valid / 两轮原生UI |
+| M3-05C3 | [共用音量设置卡](Reports/M3_05C3_Verification.md) | 你实现，我设计 / 审查 | 完成 | 233 / 133 / 42、双Build / 一Success / 三Valid，真实卡片与重启0.5-0.5-1；125 / 等待5 |
+| M3-06A | [当前闭环新版独立包](M3_06A_IntegratedPackage.md) | 你构建 / 操作，我核对 | 进行中 | 三份旧能力测试准备已修复、42项全Success；待Build-Cook与两轮包内遗物 / 设置 / 新身体恢复，不代表完整六件完成 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M2_07A/Attempt01；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -158,7 +159,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 01–04与05A / B / C1 / C2已验收；当前C3共用音量卡，完整6件 / 压力与新包后续 |
+| M3当前开发 | 01–04与已实施05设置批次均通过；当前06A两遗物 / 设置新版包，完整六件 / 列表压力 / 反馈扩展后续，M3不总关闭 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -166,9 +167,9 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-C2源码 / Config、六UAsset / 两源WAV已在本地`1a2a81b`。当前Stage其验收报告 / 指南收尾、AssetManifest八新行、新C3共用音量卡指南及实际更新的共享状态文档。C3五新 / 六旧源码与新WBP未实施，不提前Stage候选、空报告或预填来源。
+C3十一源码 / 三Widget已在本地`f363841`。当前Stage其验收报告 / 指南收尾、AssetManifest新卡 / 两宿主、M3-06A新指南与Run-StageBuild.ps1，以及实际更新的共享状态文档。06A的42项阶段回归经三份测试准备补修后全部Success，新包尚未构建。本轮还需Stage三份测试修改，准确清单见06A指南第9节。
 
-- 英文文档建议：`docs: verify audio routing and prepare shared audio settings UI`
-- 专业中文：`docs: 完成声音路由验收并准备共享音量设置界面`
+- 英文文档建议：`fix: arrange wounded test fixtures after equipment restoration`
+- 专业中文：`fix: 将受伤测试状态设置移至装备恢复完成之后`
 
-准确清单与C3实施后建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+准确清单见新指南末尾。Artifacts证据 / 包 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

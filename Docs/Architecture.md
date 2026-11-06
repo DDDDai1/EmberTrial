@@ -188,13 +188,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **C2已验收。** [声音路由](Reports/M3_05C2_Verification.md)由原生游戏GI服务管理专用三类树 / 常驻Mix，世界结束精确释放本Mix与试听，PostLoadMap后应用保存值。Master覆盖递归一次、叶子原始值不递归；配置软引用与Cook规则分开，用户真实听感及切图 / 重启0.6-0.3-0.8已通过。数据Setter / store已迁移到ApplyAudioPreferences / apply。
 
-**C3仅指南 / 候选。** [共用音量卡](M3_05C3_AudioSettingsUI.md)计划以纯值草稿管理三滑条，应用 / 取消 / 默认与关闭解绑复用原模式；Audio新增原生就绪事件处理首次菜单时序，视频事件只刷新资格而不覆盖草稿。宿主第八绑定、原右列ScrollBox，Audio先于Video关闭；不增加Tick / Timer或第二个Mix，Core不依赖UI。
+**C3已验收。** [共用音量卡](Reports/M3_05C3_Verification.md)用纯值草稿管理三滑条，显式应用 / 取消 / 默认与关闭解绑；Audio原生就绪事件解决首次菜单时序，视频事件只刷新资格不覆盖草稿。宿主第八绑定、原右列ScrollBox，Audio先于Video关闭；没有Tick / Timer或第二个Mix。首屏与重启0.5-0.5-1已通过。
+
+**06A集成待执行。** [新版包](M3_06A_IntegratedPackage.md)将当前两件遗物与四类设置实际Cook；启动工具为M3强制明确目录、两轮共用专用个人ini，试炼状态仍在GI。旧能力测试的受伤准备已移至出生装备恢复之后，42项阶段全组Success；尚未生成M3新包，不把旧M2包当当前代码证明。正式装备 / 能力逻辑未改。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-C2源码 / Config、六UAsset / 两源WAV已在本地`1a2a81b`。当前Stage其验收报告 / 指南收尾、AssetManifest八新行、新C3共用音量卡指南及实际更新的共享状态文档。C3五新 / 六旧源码与新WBP未实施，不提前Stage候选、空报告或预填来源。
+C3十一源码 / 三Widget已在本地`f363841`。当前Stage其验收报告 / 指南收尾、AssetManifest新卡 / 两宿主、M3-06A新指南与Run-StageBuild.ps1，以及实际更新的共享状态文档。06A的42项阶段回归经三份测试准备补修后全部Success，新包尚未构建。本轮还需Stage三份测试修改，准确清单见06A指南第9节。
 
-- 英文文档建议：`docs: verify audio routing and prepare shared audio settings UI`
-- 专业中文：`docs: 完成声音路由验收并准备共享音量设置界面`
+- 英文文档建议：`fix: arrange wounded test fixtures after equipment restoration`
+- 专业中文：`fix: 将受伤测试状态设置移至装备恢复完成之后`
 
-准确清单与C3实施后建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+准确清单见新指南末尾。Artifacts证据 / 包 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

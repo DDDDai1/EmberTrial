@@ -404,11 +404,15 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-06 C2收尾：本地1a2a81b含五Core / DefaultGame.ini、六UAsset / 两源WAV；候选归一一致，八资源SHA与HEAD LFS OID匹配，原83行保留、来源91。双Build / 一Success、真实分流与切图 / 重启恢复已验收；110 / 等待5。起点仅C2指南有上轮授权UI记录未提交改动，当前一并收尾。只Stage报告 / 来源 / 状态与C3新指南，后者源码 / 新卡未正式实施，未核验远端。
 
+2026-11-06 C3收尾：本地f363841含十一源码 / 三Widget，候选归一一致、三实物SHA匹配HEAD LFS；233 / 133 / 42，Content309 / 来源92。双Build / 一Success / 三Valid，首屏与控件 / 视频隔离、新进程0.5-0.5-1通过；125 / 等待5。当前只Stage报告 / 来源 / 状态、06A指南及启动工具M3归档 / 专用ini；新包与阶段42项未执行，不上传产物 / 个人配置，未核验远端。
+
+2026-11-06 06A补修：直接修改BreakPulseAbility / StaggerAbility / HealAbility三份旧测试，把受伤40的准备移到新身体装备恢复之后，新增Current / Base前置断言；正式Gameplay、Content、共享Config未改。正常Editor Build通过，21:21命令行42项Success / 0警告，原39成功 / 3失败日志保留。测试源文件与当前文档一并Stage，包仍待构建；助手未操作Git索引 / 提交 / 远端。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-C2源码 / Config、六UAsset / 两源WAV已在本地`1a2a81b`。当前Stage其验收报告 / 指南收尾、AssetManifest八新行、新C3共用音量卡指南及实际更新的共享状态文档。C3五新 / 六旧源码与新WBP未实施，不提前Stage候选、空报告或预填来源。
+C3十一源码 / 三Widget已在本地`f363841`。当前Stage其验收报告 / 指南收尾、AssetManifest新卡 / 两宿主、M3-06A新指南与Run-StageBuild.ps1，以及实际更新的共享状态文档。06A的42项阶段回归经三份测试准备补修后全部Success，新包尚未构建。本轮还需Stage三份测试修改，准确清单见06A指南第9节。
 
-- 英文文档建议：`docs: verify audio routing and prepare shared audio settings UI`
-- 专业中文：`docs: 完成声音路由验收并准备共享音量设置界面`
+- 英文文档建议：`fix: arrange wounded test fixtures after equipment restoration`
+- 专业中文：`fix: 将受伤测试状态设置移至装备恢复完成之后`
 
-准确清单与C3实施后建议见新指南末尾。Artifacts证据 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+准确清单见新指南末尾。Artifacts证据 / 包 / 个人ini、候选与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。

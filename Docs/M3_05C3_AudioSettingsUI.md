@@ -1,6 +1,6 @@
 # M3-05C3：主菜单与暂停页共用音量设置卡
 
-2026-11-06，UE **5.5.4**。[C2声音路由已验收](Reports/M3_05C2_Verification.md)，无待补。以下是下一批手动实施指南；本批正式源码 / Widget尚未创建，没有本批Build或实机成功结论。
+2026-11-06 20:55用户完成。**[本章验收通过](Reports/M3_05C3_Verification.md)，无待补，进入[M3-06A新版独立包](M3_06A_IntegratedPackage.md)。** 以下保留完整手动代码 / 装配步骤，不要求重跑本章矩阵。
 
 ## 1. 本批交付与体验
 
@@ -15,7 +15,7 @@
 | 原Core AudioSubsystem | 新增原生就绪事件；原路由 / Mix所有权 / 清理不变 |
 | 原两个宿主 | 第八项AudioSettingsPanel绑定，透传Busy，先关闭音量卡再清理视频页 |
 
-当前实际**228 Source / 130cpp（Core89 / UI38 / Editor3）、41自动化、308 Content / 来源91**。本批五新UI / 六旧Core+UI实施后预计233 Source / 133cpp（Core89 / UI41 / Editor3）、42自动化；一新WBP保存后Content309 / 来源92，两个宿主来源只更新实物SHA。预算代码70–100 / Designer30–45 / 阅读5–10 / 检查10–15分钟，构建启动等待另记。
+本批五新UI / 六旧Core+UI、一新 / 两旧Widget均已实施。实际233 Source / 133cpp（Core89 / UI41 / Editor3）、42自动化、309 Content / 来源92。代码70 / Designer35 / 阅读10 / 检查10，共125分钟、等待5；一专项 / 三Valid与两轮真实界面及重启读取通过。
 
 ## 2. 文件与准备
 
@@ -1147,42 +1147,11 @@ Source / 三资产Save All，专用ini保持；失败或布局问题（无填无
 
 ## 10. Commit / Push（固定放在最后）
 
-### 10.1 当前C2收尾与本指南
+本章十一源码 / 三Widget已在本地`f363841`。历史实现建议：英文`feat: add shared audio settings UI with explicit draft application`；专业中文`feat: 新增支持草稿确认与实际音量应用的共享设置界面`。已提交内容不重复Stage，远端由你确认。
 
-C2源码 / Config / 六UAsset / 两源WAV已在本地`1a2a81b`。当前Stage实际修改的文档；其中C2指南还含前两轮授权编辑器操作记录，需要一并提交：
+当前Stage本指南收尾、[验收报告](Reports/M3_05C3_Verification.md)、AssetManifest新卡 / 两宿主、[M3-06A指南](M3_06A_IntegratedPackage.md)、Run-StageBuild.ps1及实际修改的共享状态文档；准确清单见新指南第9节。
 
-```text
-Docs/Reports/M3_05C2_Verification.md
-Docs/M3_05C2_AudioRouting.md
-Docs/M3_05C3_AudioSettingsUI.md
-Docs/AssetManifest.csv
-Docs/Progress.md
-Docs/Backlog.md
-Docs/M3_Roadmap.md
-Docs/M2_Roadmap.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Introduction.md
-README.md
-```
+- 英文：`docs: verify audio settings UI and prepare M3 package integration`
+- 专业中文：`docs: 完成音量设置界面验收并准备M3开发包集成`
 
-- 英文：`docs: verify audio routing and prepare shared audio settings UI`
-- 专业中文：`docs: 完成声音路由验收并准备共享音量设置界面`
-
-C3源码 / 新WBP尚未实施，候选 / 空报告不Stage，不预填来源。
-
-### 10.2 本章实际实施后
-
-Stage第2节**五新UI / 六旧Core+UI**，以及三份真实保存的Widget：
-
-```text
-EmberTrial/Content/EmberTrial/ui/Settings/WBP_ETAudioSettings.uasset   新
-EmberTrial/Content/EmberTrial/ui/Menu/WBP_ETMainMenu.uasset           旧
-EmberTrial/Content/EmberTrial/ui/Menu/WBP_PauseMenu.uasset            旧
-```
-
-- 英文：`feat: add shared audio settings UI with explicit draft application`
-- 专业中文：`feat: 新增支持草稿确认与实际音量应用的共享设置界面`
-
-声音源 / Config本章不改；来源清单只在真实资产保存后更新新卡与两宿主。同步提交当次实际指南 / 报告 / 状态，Artifacts候选 / Runtime / 个人ini与缓存留本地。Stage后继续修改需重新Stage → Review → Commit / Push由用户操作，助手未核验远端。
+C3实现不变；后续06A已补修三份旧测试准备，42项阶段回归全Success，新包尚未构建。该增量与建议fix Commit见06A指南第2.3 / 9节，不需重存C3资产。Artifacts证据 / 个人ini与缓存留本地；Stage后继续修改需重新Stage → Review → Commit / Push由用户操作。
