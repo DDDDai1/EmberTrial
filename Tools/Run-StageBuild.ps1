@@ -7,15 +7,18 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
-    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B')]
+    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A')]
     [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline
 )
 
 $ErrorActionPreference = 'Stop'
-## 保留M1默认包；Cleanup / M2新包显式指定目录与阶段，避免混入历史证据。
+## 保留历史默认；M3功能包必须显式指定目录，避免把旧包当作本轮结果。
 $stageRepo = Split-Path $PSScriptRoot -Parent
+if ($EvidenceStage -eq 'M3_06A' -and [string]::IsNullOrWhiteSpace($BuildDirectory)) {
+    throw 'M3_06A requires an explicit -BuildDirectory for the new package.'
+}
 if ([string]::IsNullOrWhiteSpace($BuildDirectory)) {
     $BuildDirectory = Join-Path $stageRepo 'Artifacts\Builds\M1_07A\Attempt01'
 }
@@ -38,6 +41,12 @@ $stageLog = Join-Path $stageOutput ($stageBase + '.log')
 $stageMeta = Join-Path $stageOutput ($stageBase + '.json')
 $stageTrace = Join-Path $stageOutput ($stageBase + '.utrace')
 $stageArguments = @('-windowed', "-ResX=$Width", "-ResY=$Height", '-log', ('"-abslog=' + $stageLog + '"'))
+$stageSettingsIni = $null
+if ($EvidenceStage -eq 'M3_06A') {
+    ## 两轮共用专用个人设置，既证明跨进程保存，也不污染旧包 / 编辑器偏好。
+    $stageSettingsIni = Join-Path $stageOutput 'M3PackageUser.ini'
+    $stageArguments += ('"-GameUserSettingsINI=' + $stageSettingsIni + '"')
+}
 $stageProfileCommands = $null
 if ($PerformanceBaseline) {
     ## M2按Introduction的中等画质目标采集；M1保持原High=2口径，禁止混作同条件对比。
@@ -81,6 +90,7 @@ $stageProcess = Start-Process -FilePath $stageExe -WorkingDirectory (Split-Path 
     LogPath = $stageLog
     TracePath = $(if ($Trace) { $stageTrace } else { $null })
     Arguments = $stageArguments
+    UserSettingsIni = $stageSettingsIni
     Purpose = 'Launch and evidence locations only; gameplay acceptance remains a separate observation.'
 } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $stageMeta -Encoding UTF8
 Write-Host "Metadata: $stageMeta"

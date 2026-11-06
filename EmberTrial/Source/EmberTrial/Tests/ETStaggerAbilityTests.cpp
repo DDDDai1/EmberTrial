@@ -105,7 +105,6 @@ bool FETStaggerAbilityTest::RunTest(const FString& Parameters)
             return false;
         }
         Body->CombatTeam = EETCombatTeam::Player;
-        Body->InitialHealth = 40.0f;
         Body->LightAttackAbilityClass = AttackClass;
         Body->DodgeAbilityClass = DodgeClass;
         Body->HealAbilityClass = HealClass;
@@ -147,6 +146,18 @@ bool FETStaggerAbilityTest::RunTest(const FString& Parameters)
             return false;
         }
         UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
+        if (!TestNotNull(TEXT("Initialized ASC"), ASC))
+        {
+            return false;
+        }
+        // 先完成新身体 / 装备恢复，再构造受伤状态，避免被合法的出生补满覆盖。
+        const FGameplayAttribute Health = UETHealthAttributeSet::GetHealthAttribute();
+        ASC->SetNumericAttributeBase(Health, 40.0f);
+        if (!TestEqual(TEXT("Wounded baseline Current"), ASC->GetNumericAttribute(Health), 40.0f) ||
+            !TestEqual(TEXT("Wounded baseline Base"), ASC->GetNumericAttributeBase(Health), 40.0f))
+        {
+            return false;
+        }
         const FGameplayAbilitySpecHandle ReactionHandle = Poise->StaggerHandle;
         FGameplayAbilitySpec* ReactionSpec = ASC->FindAbilitySpecFromHandle(ReactionHandle);
         UETGA_Stagger* Reaction =

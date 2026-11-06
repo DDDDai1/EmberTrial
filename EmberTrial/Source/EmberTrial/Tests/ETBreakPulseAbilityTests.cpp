@@ -105,7 +105,6 @@ bool FETBreakPulseAbilityTest::RunTest(const FString& Parameters)
             return false;
         }
         Body->CombatTeam = EETCombatTeam::Player;
-        Body->InitialHealth = 40.0f;
         Body->LightAttackAbilityClass = AttackClass;
         Body->DodgeAbilityClass = DodgeClass;
         Body->HealAbilityClass = HealClass;
@@ -142,6 +141,18 @@ bool FETBreakPulseAbilityTest::RunTest(const FString& Parameters)
             return false;
         }
         UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
+        if (!TestNotNull(TEXT("Initialized ASC"), ASC))
+        {
+            return false;
+        }
+        // M3新身体会在装备恢复后补满生命；受伤基线必须在初始化完成后建立。
+        const FGameplayAttribute Health = UETHealthAttributeSet::GetHealthAttribute();
+        ASC->SetNumericAttributeBase(Health, 40.0f);
+        if (!TestEqual(TEXT("Wounded baseline Current"), ASC->GetNumericAttribute(Health), 40.0f) ||
+            !TestEqual(TEXT("Wounded baseline Base"), ASC->GetNumericAttributeBase(Health), 40.0f))
+        {
+            return false;
+        }
         FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(Body->BreakPulseAbilityHandle);
         UETGA_BreakPulse* Ability =
             Spec ? Cast<UETGA_BreakPulse>(Spec->GetPrimaryInstance()) : nullptr;

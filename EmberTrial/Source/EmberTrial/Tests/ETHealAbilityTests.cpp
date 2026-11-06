@@ -127,7 +127,6 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
             return false;
         }
         Body->CombatTeam = EETCombatTeam::Player;
-        Body->InitialHealth = 40.0f;
         Body->HealAbilityClass = HealClass;
         Body->LightAttackAbilityClass = AttackClass;
         Body->DodgeAbilityClass = DodgeClass;
@@ -175,6 +174,10 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
             return false;
         }
         UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
+        if (!TestNotNull(TEXT("Initialized ASC"), ASC))
+        {
+            return false;
+        }
         FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(Body->HealAbilityHandle);
         UETGA_Heal* Heal = Spec ? Cast<UETGA_Heal>(Spec->GetPrimaryInstance()) : nullptr;
         UETHealingResourceComponent* Resource =
@@ -191,6 +194,13 @@ bool FETHealingAbilityTest::RunTest(const FString& Parameters)
         UAnimInstance* Anim = Body->GetMesh()->GetAnimInstance();
         const FGameplayAttribute Health = UETHealthAttributeSet::GetHealthAttribute();
         const FGameplayAttribute Stamina = UETStaminaAttributeSet::GetStaminaAttribute();
+        // 每个治疗场景都在出生装备恢复之后受伤，保持40→80的真实Notify / GE断言。
+        ASC->SetNumericAttributeBase(Health, 40.0f);
+        if (!TestEqual(TEXT("Wounded baseline Current"), ASC->GetNumericAttribute(Health), 40.0f) ||
+            !TestEqual(TEXT("Wounded baseline Base"), ASC->GetNumericAttributeBase(Health), 40.0f))
+        {
+            return false;
+        }
         auto Charges = [Resource]()
         {
             int32 C = 0, M = 0;
