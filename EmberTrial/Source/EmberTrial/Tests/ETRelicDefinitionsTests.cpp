@@ -131,6 +131,31 @@ bool FETRelicDefinitionsTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Saved definitions satisfy catalog contract"), bCatalogValid);
     TestTrue(TEXT("Life Ember registered"), RegisteredIds.Contains(FName(TEXT("life_ember"))));
     TestTrue(TEXT("Keen Edge registered"), RegisteredIds.Contains(FName(TEXT("keen_edge"))));
+
+    // 实物配置合同：一件遗物可组合两种已支持效果，不为ID增加专用玩法分支。
+    const UETRelicDefinition* Tradeoff = nullptr;
+    for (const UETRelicDefinition* Definition : Catalog)
+    {
+        if (Definition->GetRelicId() == FName(TEXT("blood_pact")))
+        {
+            Tradeoff = Definition;
+            break;
+        }
+    }
+    if (!TestNotNull(TEXT("Blood Pact saved definition registered"), Tradeoff))
+    {
+        return false;
+    }
+    TestTrue(TEXT("Tradeoff supports both slots"), Tradeoff->SupportsSlot(EETRelicSlot::First) &&
+             Tradeoff->SupportsSlot(EETRelicSlot::Second));
+    const TArray<FETRelicModifier>& Modifiers = Tradeoff->GetModifiers();
+    TestEqual(TEXT("Tradeoff has exactly two effects"), Modifiers.Num(), 2);
+    const FETRelicModifier* HealthCost = Modifiers.FindByPredicate([](const FETRelicModifier& Modifier)
+    { return Modifier.Kind == EETRelicModifierKind::MaxHealth; });
+    const FETRelicModifier* AttackGain = Modifiers.FindByPredicate([](const FETRelicModifier& Modifier)
+    { return Modifier.Kind == EETRelicModifierKind::LightAttackBonus; });
+    TestTrue(TEXT("Tradeoff health cost is minus20"), HealthCost && HealthCost->AdditiveValue == -20.0f);
+    TestTrue(TEXT("Tradeoff attack gain is plus10"), AttackGain && AttackGain->AdditiveValue == 10.0f);
     return !HasAnyErrors();
 }
 

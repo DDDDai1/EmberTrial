@@ -73,7 +73,6 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
         Presenter->GetSnapshot().State == EETRelicPanelState::Ready &&
         Presenter->GetSnapshot().PreviewState == EETRelicPreviewState::Available);
     TestEqual(TEXT("First life comparison120"), Presenter->GetSnapshot().AfterMax, 120.0f);
-    TestEqual(TEXT("Two stable items"), Presenter->GetItems().Num(), 2);
     const FName LifeId(TEXT("life_ember"));
     const FName EdgeId(TEXT("keen_edge"));
     UETRelicListItem* LifeItem = Presenter->FindItem(LifeId);
@@ -84,6 +83,13 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
         !TestNotNull(TEXT("Inventory"), Inventory) || !TestNotNull(TEXT("Equipment"), Equipment))
     {
         return false;
+    }
+    const FETRelicInventorySnapshot InitialInventory = Inventory->GetSnapshot();
+    const int32 ExpectedItemCount = InitialInventory.OwnedIds.Num();
+    TestEqual(TEXT("One stable item for every owned ID"), Presenter->GetItems().Num(), ExpectedItemCount);
+    for (const FName Id : InitialInventory.OwnedIds)
+    {
+        TestNotNull(TEXT("Every configured item is cached"), Presenter->FindItem(Id));
     }
     int32 ViewEvents = 0;
     // ---- 查询改变可见集合，不改变领域库存或丢弃仍拥有的Item ----
@@ -112,7 +118,7 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
             Presenter->GetSnapshot().State == EETRelicPanelState::Ready);
         Presenter->SetQuery({});
         TestTrue(TEXT("Clearing query restores rows and default selection"),
-            Presenter->GetItems().Num() == 2 && Presenter->GetSnapshot().SelectedId == LifeId &&
+            Presenter->GetItems().Num() == ExpectedItemCount && Presenter->GetSnapshot().SelectedId == LifeId &&
             Presenter->FindItem(LifeId) == LifeItem && Presenter->FindItem(EdgeId) == EdgeItem);
         TestFalse(TEXT("Same query is a no-op"), Presenter->SetQuery({}));
         TestTrue(TEXT("Queries never commit inventory"),

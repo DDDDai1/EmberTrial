@@ -27,14 +27,26 @@ bool FETRelicViewModelsTest::RunTest(const FString& Parameters)
     {
         return false;
     }
-    const FETRelicInventorySnapshot Original = Inventory->GetSnapshot();
+    const FETRelicInventorySnapshot DomainBefore = Inventory->GetSnapshot();
     const FName LifeId(TEXT("life_ember"));
     const FName EdgeId(TEXT("keen_edge"));
     FETRelicListQuery Query;
     TArray<FETRelicListRow> Rows;
+    if (!TestTrue(TEXT("Entire configured inventory projects"),
+                  ETRelicPresentation::BuildRows(DomainBefore, Inventory, Query, Rows) == EResult::Success) ||
+        !TestEqual(TEXT("One row for every configured item"), Rows.Num(), DomainBefore.OwnedIds.Num()) ||
+        !TestTrue(TEXT("Reference items remain owned"),
+                  DomainBefore.OwnedIds.Contains(LifeId) && DomainBefore.OwnedIds.Contains(EdgeId)))
+    {
+        return false;
+    }
+    // 以下是独立的两项纯值样本，专测既有排序 / 搜索 / 过滤；不改真实库存。
+    FETRelicInventorySnapshot Original = DomainBefore;
+    Original.OwnedIds = {LifeId, EdgeId};
+    Original.Equipped = {};
     if (!TestTrue(TEXT("Default rows succeed"),
                   ETRelicPresentation::BuildRows(Original, Inventory, Query, Rows) == EResult::Success) ||
-        !TestEqual(TEXT("Two actual owned items"), Rows.Num(), 2))
+        !TestEqual(TEXT("Two explicit projection sample items"), Rows.Num(), 2))
     {
         return false;
     }
@@ -84,7 +96,7 @@ bool FETRelicViewModelsTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Invalid enum rejected"),
         ETRelicPresentation::BuildRows(Original, Inventory, Query, Rows) == EResult::InvalidQuery);
     TestTrue(TEXT("Projection never changes domain"),
-        Inventory->GetSnapshot().Revision == Original.Revision && Inventory->GetSnapshot().Equipped == Original.Equipped);
+        Inventory->GetSnapshot().Revision == DomainBefore.Revision && Inventory->GetSnapshot().Equipped == DomainBefore.Equipped);
 
     // 数据Item和未来池化Widget是不同对象。相同数据去重，解除监听后无旧回调。
     TStrongObjectPtr<UETRelicListItem> Item(NewObject<UETRelicListItem>());

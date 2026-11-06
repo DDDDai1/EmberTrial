@@ -30,7 +30,17 @@ bool FETRelicInventorySessionTest::RunTest(const FString& Parameters)
     auto Snapshot = Inventory->GetSnapshot();
     TestTrue(TEXT("Ready version1 empty slots"), Snapshot.bReady && Snapshot.Revision == 1 &&
              Snapshot.Equipped.SlotA.IsNone() && Snapshot.Equipped.SlotB.IsNone());
-    TestEqual(TEXT("Two starting owned IDs"), Snapshot.OwnedIds.Num(), 2);
+    // 启动拥有项由配置决定；未来增加遗物不应破坏会话 / NewRun契约。
+    TSet<FName> ExpectedStartingIds;
+    for (const FPrimaryAssetId& Id : Inventory->StartingRelics)
+    {
+        TestTrue(TEXT("Configured primary type"), Id.PrimaryAssetType == FPrimaryAssetType(TEXT("ETRelic")));
+        TestFalse(TEXT("Starting IDs are unique"), ExpectedStartingIds.Contains(Id.PrimaryAssetName));
+        ExpectedStartingIds.Add(Id.PrimaryAssetName);
+        TestTrue(TEXT("Configured ID is owned"), Snapshot.OwnedIds.Contains(Id.PrimaryAssetName));
+        TestNotNull(TEXT("Configured definition cached"), Inventory->FindDefinition(Id.PrimaryAssetName));
+    }
+    TestEqual(TEXT("All configured starting IDs owned"), Snapshot.OwnedIds.Num(), ExpectedStartingIds.Num());
     TestTrue(TEXT("Both configured IDs present"), Snapshot.OwnedIds.Contains(LifeId) &&
              Snapshot.OwnedIds.Contains(EdgeId));
     TestNotNull(TEXT("Definition cached"), Inventory->FindDefinition(LifeId));
@@ -111,8 +121,13 @@ bool FETRelicInventorySessionTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("No confirmed intent changes nothing"), Inventory->GetSnapshot().Revision == BeforeNone);
     Inventory->ApplyConfirmedIntent(EETRunTravelIntent::NewRun);
     Snapshot = Inventory->GetSnapshot();
-    TestTrue(TEXT("NewRun keeps starting ownership, clears slots"), Snapshot.OwnedIds.Num() == 2 &&
+    TestTrue(TEXT("NewRun keeps starting ownership, clears slots"),
+             Snapshot.OwnedIds.Num() == ExpectedStartingIds.Num() &&
              Snapshot.Equipped.SlotA.IsNone() && Snapshot.Equipped.SlotB.IsNone());
+    for (const FName Id : ExpectedStartingIds)
+    {
+        TestTrue(TEXT("NewRun preserves each configured ID"), Snapshot.OwnedIds.Contains(Id));
+    }
 
     Inventory->OnChanged.Remove(Observer);
     TestTrue(TEXT("Plan before end"), Build(EETRelicSlot::First, LifeId, Scratch) == EResult::Success);
