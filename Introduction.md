@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-当前进度：M3-01至04、已实施05设置、06A两件包、B1第三件与[B2-01治疗快照](Docs/Reports/M3_06B2_01_Verification.md)已验收，无待补。当前[B2-02核心装备管线](Docs/M3_06B2_02_HealingEquipmentPipeline.md)21旧Core待手动，第四件 / UI由03接入；实际233 Source / 133cpp、42测试 / 来源93，实耗见[Progress](Docs/Progress.md)。完整六件 / 压力与反馈仍后续，M3不总关闭。
+当前进度：M3-01至04、已实施05设置、06A两件包、B1第三件、B2-01快照与[B2-02核心治疗装备管线](Docs/Reports/M3_06B2_02_Verification.md)已验收，无待补。当前[B2-03第四件与比较](Docs/M3_06B2_03_HealingRelicAndComparison.md)待手动；实际233 Source / 133cpp、42测试 / 来源93，实耗见[Progress](Docs/Progress.md)。完整六件 / 压力与反馈仍后续，M3不总关闭。
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-07，M0、M1、M2与清理已收尾，M3-01至04、已实施05设置、06A两件包、B1第三件与B2-01治疗快照已验收。** [01报告](Docs/Reports/M3_06B2_01_Verification.md)记录两专项、真实Q50→90 / 次数2、快照50与下次40，无待补。实际233 Source / 133cpp / 42测试 / 来源93；M3累计2278 / 等待151，项目5689 / 等待475；本章65 / 等待5。当前[B2-02核心装备管线](Docs/M3_06B2_02_HealingEquipmentPipeline.md)仅21份旧Core候选，未改正式Source；第四件与UI从原02拆到03。完整六件、列表压力、镜头震动随反馈、M5存档与最终美术后续，M3不总关闭，原70h / M8复盘保持。当前独立包M3_06A/Attempt01仍两件，普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
+**截至2026-11-07，M0、M1、M2与清理已收尾，M3-01至04、已实施05设置、06A两件包、B1第三件与B2-01 / 02治疗核心已验收。** [02报告](Docs/Reports/M3_06B2_02_Verification.md)记录21源码一致、六专项与真实默认Q / 新会话，无待补。实际233 Source / 133cpp / 42测试 / 来源93；M3累计2353 / 等待156，项目5764 / 等待480；本章75 / 等待5。当前[B2-03第四件与比较](Docs/M3_06B2_03_HealingRelicAndComparison.md)仅五旧Source / Config候选，新Data Asset与Panel高度待手动，尚未改正式文件。完整六件、列表压力、镜头震动随反馈、M5存档与最终美术后续，M3不总关闭，原70h / M8复盘保持。独立包仍M3_06A/Attempt01两件，普通C++手动 / 方案B / 用户Git约定保持，首次PIE等待需求关闭。以下保留原M0起点：
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,9 +868,9 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-B2-01通过，本地c354f4f已有六份Core实现。当前只Stage B2-01报告 / 指南收尾、B2-02新指南及实际修改的共享文档，准确11文件清单见[B2-02末尾](Docs/M3_06B2_02_HealingEquipmentPipeline.md)。02的21份既有Core仅候选，来源93 / 资产不变；第四件与UI改为03另批完成。
+B2-02通过，本地aa19954已有21份Core实现。当前只Stage 02验收报告 / 指南收尾、03新指南与实际更新的共享文档，准确11文件清单见[B2-03末尾](Docs/M3_06B2_03_HealingRelicAndComparison.md)。五源码 / Config / 新资产与面板调整待用户实施，来源仍93，不提交候选或预填第四件来源。
 
-- 英文：`docs: verify healing snapshot and plan equipment pipeline`
-- 专业中文：`docs: 完成治疗施放快照验收并规划装备增益管线`
+- 英文：`docs: verify healing equipment pipeline and plan relic UI`
+- 专业中文：`docs: 完成治疗装备管线验收并规划遗物界面`
 
-原日志 / JSON / 候选 / 包与个人ini留Artifacts本地。重新Stage / Review后由用户Commit / Push，助手未操作索引、提交或远端。
+Artifacts产物 / 包 / 个人ini不上传。Stage后再编辑需重新Stage / Review；Git由用户操作，助手未核验远端。

@@ -382,13 +382,17 @@ B1已验收：四专项Success，三行 / 80与35 / 组合实际40 / 存活换�
 
 ## M3-06B2-02的检查边界
 
-21份旧Core中5份是既有测试。六相关专项各一次：纯汇总、GE三幅度、自有句柄、正式事务、原治疗与连段。只加三幅度 / 过期方案等直接相关断言，保留旧行为。实机约3分钟默认Q / P / 最短输入，无新蓝图或精确通知抓点，不全42项 / Cook；第四件与UI由03接入并实机确认。
+21份旧Core中5份是既有测试。六相关专项各一次：纯汇总、GE三幅度、自有句柄、正式事务、原治疗与连段。只加三幅度 / 过期方案等直接相关断言，保留旧行为。实机约3分钟默认Q / P / 最短输入，无新蓝图或精确通知抓点，不全42项 / Cook；第四件与UI由03接入并实机确认。02已验收：六Success与默认Q / 新会话通过，75 / 等待5，无待补。
+
+## M3-06B2-03的检查边界
+
+五旧Source / Config、一新Data Asset与旧Panel高度。四相关专项各一次：Definitions / Session / UI.ViewModels / UI.Presenter。新增第三具隔离身体专测治疗恢复，不提前消耗旧换控身体的初始恢复前提；外部贡献3不冒充装备10。实机仅四行 / 比较无副作用、实际Q50 / 卸装后40、普通P与Stop短查，不重跑02六项 / 全42项 / Cook，不搭临时蓝图。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B2-01通过，本地c354f4f已有六份Core实现。当前只Stage B2-01报告 / 指南收尾、B2-02新指南及实际修改的共享文档，准确11文件清单见[B2-02末尾](M3_06B2_02_HealingEquipmentPipeline.md)。02的21份既有Core仅候选，来源93 / 资产不变；第四件与UI改为03另批完成。
+B2-02通过，本地aa19954已有21份Core实现。当前只Stage 02验收报告 / 指南收尾、03新指南与实际更新的共享文档，准确11文件清单见[B2-03末尾](M3_06B2_03_HealingRelicAndComparison.md)。五源码 / Config / 新资产与面板调整待用户实施，来源仍93，不提交候选或预填第四件来源。
 
-- 英文：`docs: verify healing snapshot and plan equipment pipeline`
-- 专业中文：`docs: 完成治疗施放快照验收并规划装备增益管线`
+- 英文：`docs: verify healing equipment pipeline and plan relic UI`
+- 专业中文：`docs: 完成治疗装备管线验收并规划遗物界面`
 
-原日志 / JSON / 候选 / 包与个人ini留Artifacts本地。重新Stage / Review后由用户Commit / Push，助手未操作索引、提交或远端。
+Artifacts产物 / 包 / 个人ini不上传。Stage后再编辑需重新Stage / Review；Git由用户操作，助手未核验远端。

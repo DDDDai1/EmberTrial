@@ -196,13 +196,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **06B2-01已验收。** 原CombatAttributeSet已有HealingBonus0，Q读取聚合值并在接受施放时捕获基础40+加成，通知只用快照。真实GE移除后本次50 / 下次40与默认Q50→90通过，资源组件仍负责治疗 / 次数；无新增Tick / Timer或重复属性集。
 
-**06B2-02待实施。** 21旧Core候选把新Kind接入汇总、第三SetByCaller、自有句柄与事务重验；Q公开纯数值计算供预检复用，避免装备代码硬写40。正式组件保留外部GE贡献并拒绝无消费者 / 非法总量；第四件与UI比较改到03，不提前声明完成。
+**06B2-02已验收。** 治疗Kind、双槽汇总 / 方案重验和原装备GE第三SetByCaller完成；自有句柄校验 / 更新 / 清理均含新贡献。装备预检复用Q纯数值计算并保留外部贡献，六相关专项与默认路径通过。
+
+**06B2-03待实施。** 五旧Source / Config候选、新回生数据与Panel高度由用户手动；UI投影Plan / AppliedModifiers的装备贡献，普通P仍只读，原15绑定与装备事件保持。第四件真实Q50与卸装40由实机验证，候选不声明已完成，无新增Tick / Timer。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B2-01通过，本地c354f4f已有六份Core实现。当前只Stage B2-01报告 / 指南收尾、B2-02新指南及实际修改的共享文档，准确11文件清单见[B2-02末尾](M3_06B2_02_HealingEquipmentPipeline.md)。02的21份既有Core仅候选，来源93 / 资产不变；第四件与UI改为03另批完成。
+B2-02通过，本地aa19954已有21份Core实现。当前只Stage 02验收报告 / 指南收尾、03新指南与实际更新的共享文档，准确11文件清单见[B2-03末尾](M3_06B2_03_HealingRelicAndComparison.md)。五源码 / Config / 新资产与面板调整待用户实施，来源仍93，不提交候选或预填第四件来源。
 
-- 英文：`docs: verify healing snapshot and plan equipment pipeline`
-- 专业中文：`docs: 完成治疗施放快照验收并规划装备增益管线`
+- 英文：`docs: verify healing equipment pipeline and plan relic UI`
+- 专业中文：`docs: 完成治疗装备管线验收并规划遗物界面`
 
-原日志 / JSON / 候选 / 包与个人ini留Artifacts本地。重新Stage / Review后由用户Commit / Push，助手未操作索引、提交或远端。
+Artifacts产物 / 包 / 个人ini不上传。Stage后再编辑需重新Stage / Review；Git由用户操作，助手未核验远端。

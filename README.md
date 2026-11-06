@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2阶段已收尾](Docs/Reports/M2_Verification.md)，M3祭坛装备、四类设置及[06A独立包](Docs/Reports/M3_06A_Verification.md)已验收。[B1第三件代价型遗物](Docs/Reports/M3_06B1_Verification.md)现已通过，[B2-01治疗加成快照](Docs/Reports/M3_06B2_01_Verification.md)也已通过，当前进入[B2-02核心装备管线](Docs/M3_06B2_02_HealingEquipmentPipeline.md)。最终内容、美术与投递材料仍在开发。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2阶段已完成](Docs/Reports/M2_Verification.md)；M3的三件遗物、祭坛装备、四类设置及[治疗装备管线](Docs/Reports/M3_06B2_02_Verification.md)均已验收。当前进入[B2-03第四件治疗遗物与比较界面](Docs/M3_06B2_03_HealingRelicAndComparison.md)，最终内容、美术与投递材料仍在开发。
 
 ## 已实现的体验
 
@@ -51,7 +51,7 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M3-06B2-02核心装备管线](Docs/M3_06B2_02_HealingEquipmentPipeline.md)：21既有Core源码手动修改、六相关专项与默认短查。[01报告](Docs/Reports/M3_06B2_01_Verification.md)记录治疗快照 / 真实Q；第四件与UI比较拆到03。完整六件与列表压力见[M3路线](Docs/M3_Roadmap.md)。
+- [当前开发：M3-06B2-03第四件与比较](Docs/M3_06B2_03_HealingRelicAndComparison.md)：五旧Source / Config、回生护符与原面板高度；四专项 / 实际Q50与卸装40。[02报告](Docs/Reports/M3_06B2_02_Verification.md)记录三幅度管线与六Success。完整六件与列表压力见[M3路线](Docs/M3_Roadmap.md)。
 - [M3-02A验收](Docs/Reports/M3_02A_Verification.md)：两槽资格 / 汇总、替换 / 卸下 / 预览，双库存专项当次Success。
 - [M3-01验收](Docs/Reports/M3_01_Verification.md)：两遗物静态定义、两Valid与Definitions Success；[原操作步骤](Docs/M3_01_RelicDefinitions.md)供复查。
 - [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。

@@ -1,6 +1,6 @@
 # M3-06B2-02：治疗加成的核心装备管线
 
-2026-11-07下发，UE **5.5.4**。[B2-01已通过](Reports/M3_06B2_01_Verification.md)，无待补。本章仍由你手动修改C++，**21份既有Core文件，无新增文件 / 资产 / Config**；正式源码尚未改动。第四件遗物与UI比较放到B2-03。
+2026-11-07下发，UE **5.5.4**，**01:48验收通过**。[报告](Reports/M3_06B2_02_Verification.md)记录21源码一致、双Build / 三索引、六专项及默认Q通过，无待补。实际手动75 / 等待5；下一步[B2-03第四件与比较界面](M3_06B2_03_HealingRelicAndComparison.md)。
 
 ## 1. 本章做出什么、为何分批
 
@@ -23,7 +23,7 @@ HealingBonus类型参数 → 两槽纯汇总 → 库存方案重验
 
 21份文件中，5份是既有测试，16份是生产声明 / 实现；修改较分散，因此UI与第四件不同时加入。这次不搭Designer或临时蓝图；仍三件、原比较两行是预期，不能把“核心支持”当作第四件已完成。
 
-预计手动120–180分钟（理解与编码约105–160、专项 / 短查5–10、记录约5–10），可先完成第3–5节保存，再继续第6–8节；**第8节完成后再统一正常Build**。构建等待另记。规模仍233 Source / 133cpp（Core89 / UI41 / Editor3）/ 42测试 / Content310 / 来源93。
+原估手动120–180分钟；实际代码与理解70 / 检查记录5，共75分钟，构建等待5。以下完整步骤保留复查；分批手动时先保存第3–5节，再完成第6–8节后统一正常Build。规模仍233 Source / 133cpp（Core89 / UI41 / Editor3）/ 42测试 / Content310 / 来源93。
 
 ## 2. 开始前与操作方式
 
@@ -1172,12 +1172,12 @@ Source已保存、资产配置保持；失败或不理解处（无填无）：
 
 ## 13. Commit / Push（固定放在最后）
 
-本轮B2-01验收收尾只提交下面**11份文档**。本地c354f4f已包含B2-01六份Core实现，不需要重复Stage；B2-02候选未写正式Source，当前不提交候选或未实现功能。
+本次B2-02收尾可提交以下**11份文档**。本地aa19954已有21份Core实现，无需重复Stage。03只有Artifacts候选，尚未写入正式源码 / Config / 资产。
 
 ```text
-Docs/Reports/M3_06B2_01_Verification.md
-Docs/M3_06B2_01_HealingBonusFoundation.md
+Docs/Reports/M3_06B2_02_Verification.md
 Docs/M3_06B2_02_HealingEquipmentPipeline.md
+Docs/M3_06B2_03_HealingRelicAndComparison.md
 README.md
 Introduction.md
 Docs/Progress.md
@@ -1188,38 +1188,7 @@ Docs/AcceptanceWorkflow_Options.md
 Docs/VersionControl.md
 ```
 
-- 英文：`docs: verify healing snapshot and plan equipment pipeline`
-- 专业中文：`docs: 完成治疗施放快照验收并规划装备增益管线`
+- 英文：`docs: verify healing equipment pipeline and plan relic UI`
+- 专业中文：`docs: 完成治疗装备管线验收并规划遗物界面`
 
-Artifacts候选 / 编译预检 / 日志 / JSON、包和个人ini保持本地。Stage后继续编辑需重新Stage → Review → Commit / Push，由你操作，助手未核验远端。
-
-**你实施并验收本小节后，再提交以下21份既有Core的真实改动：**
-
-```text
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicTypes.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicDefinition.cpp
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicLoadout.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicLoadout.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/ETGameplayTags.h
-EmberTrial/Source/EmberTrial/Private/Abilities/ETGameplayTags.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETRelicEquipmentEffect.h
-EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETRelicEquipmentEffect.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/ETGA_Heal.h
-EmberTrial/Source/EmberTrial/Private/Abilities/ETGA_Heal.cpp
-EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h
-EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicEquipmentComponent.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicEquipmentComponent.cpp
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicInventorySubsystem.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentEffectsTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETLightComboFlowTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentOwnershipTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicLoadoutTests.cpp
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicDefinition.h
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentTransactionTests.cpp
-```
-
-- 英文：`feat: extend relic equipment pipeline with healing bonus`
-- 专业中文：`feat: 扩展遗物装备管线以支持治疗加成`
-
-届时新验收报告 / 状态有实际修改再一并Stage；不要提交Artifacts候选、第四件空资产、个人配置或构建产物。
+原日志 / JSON / 编译预检 / 候选、包与个人ini留Artifacts本地。Stage后继续编辑需重新Stage → Review → Commit / Push，由你操作；助手未操作索引、提交或远端。
