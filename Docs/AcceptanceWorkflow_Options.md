@@ -390,13 +390,17 @@ B1已验收：四专项Success，三行 / 80与35 / 组合实际40 / 存活换�
 
 ## M3-06B3-01的检查边界
 
-六旧Core、无新资产 / 配置。扩既有StaminaRecovery：真实GE30 / 移除20、非法恢复、消费延迟 / 速率切换、原暂停 / Tag与新增属性订阅清理。另跑Dodge.CostContract保护主要体力消费路径；两项各一次。实机只看2扣25后恢复满值、P / 输入与新身体默认，约3分钟，不抓精确时点、不新增蓝图或全42项 / Cook。第五件装备 / 数据另批。
+六旧Core、无新资产 / 配置。扩既有StaminaRecovery：真实GE30 / 移除20、非法恢复、消费延迟 / 速率切换、原暂停 / Tag与新增属性订阅清理。另跑Dodge.CostContract保护主要体力消费路径；两项各一次。实机只看2扣25后恢复满值、P / 输入与新身体默认，约3分钟，不抓精确时点、不新增蓝图或全42项 / Cook。第五件装备 / 数据另批。01已通过两专项与默认恢复，70 / 等待5；额外新Play按用户反馈，当前正式PIE日志一轮。
+
+## M3-06B3-02的检查边界
+
+19旧Core中6份既有测试，六专项各一次：LoadoutRules / EquipmentEffects / EquipmentOwnership / EquipmentTransactions / StaminaRecovery / Combo.Flow。事务在受控身体体力50时验证更新 / 重激活 / 卸装后仍有Timer且不立即回体力；同值用例保留未结算片段。无新资产 / Config，实机约3分钟原四件、2恢复 / P / 新身体，不抓时点、不临时蓝图或全42项 / Cook。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B2-03通过，本地4f8da23已有五Source / Config / 回生资产，原Panel指纹保持。当前只Stage 03报告 / 指南收尾、来源94、B3-01新指南及实际共享状态，准确12文件清单见[B3-01末尾](M3_06B3_01_StaminaRecoveryBonusFoundation.md)。六份Core候选尚未写正式源码，不提前提交第五件 / 新配置。
+B3-01通过，本地13dd9da已有六份Core实现。当前只Stage 01报告 / 指南收尾、02新指南及实际共享状态，准确11文件清单见[B3-02末尾](M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)。19份Core候选未写正式源码，来源94 / 资产 / Config保持，第五件与UI仍03接入。
 
-- 英文：`docs: verify healing relic and plan stamina recovery bonus`
-- 专业中文：`docs: 完成治疗遗物验收并规划体力恢复加成`
+- 英文：`docs: verify stamina recovery bonus and plan equipment integration`
+- 专业中文：`docs: 完成体力恢复加成验收并规划装备接入`
 
 Artifacts产物 / 包 / 个人ini不上传。Stage后再改需重新Stage / Review，Git由用户操作，助手未核验远端。

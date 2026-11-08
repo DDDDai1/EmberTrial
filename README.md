@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2已完成](Docs/Reports/M2_Verification.md)；M3的四件遗物、祭坛装备、四类设置及[治疗装备 / UI闭环](Docs/Reports/M3_06B2_03_Verification.md)已验收。当前进入[B3-01体力恢复速率加成基础](Docs/M3_06B3_01_StaminaRecoveryBonusFoundation.md)，最终内容、美术与投递材料仍在开发。
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。[M2已完成](Docs/Reports/M2_Verification.md)；M3四件遗物、祭坛 / 设置与治疗闭环已验收，[体力恢复加成基础](Docs/Reports/M3_06B3_01_Verification.md)也已通过。当前进入[B3-02装备接入](Docs/M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)，最终内容、美术与投递材料仍在开发。
 
 ## 已实现的体验
 
@@ -51,7 +51,7 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- [当前开发：M3-06B3-01体力恢复速率加成](Docs/M3_06B3_01_StaminaRecoveryBonusFoundation.md)：六旧Core、两相关专项与默认短查。[B2-03报告](Docs/Reports/M3_06B2_03_Verification.md)记录第四件 / 治疗比较、真实50与移除40。完整六件与列表压力见[M3路线](Docs/M3_Roadmap.md)。
+- [当前开发：M3-06B3-02体力恢复装备管线](Docs/M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)：19旧Core、六相关专项与默认短查。[01报告](Docs/Reports/M3_06B3_01_Verification.md)记录30 / 20、非法恢复与配对清理。第五件 / UI留03，完整六件与压力见[M3路线](Docs/M3_Roadmap.md)。
 - [M3-02A验收](Docs/Reports/M3_02A_Verification.md)：两槽资格 / 汇总、替换 / 卸下 / 预览，双库存专项当次Success。
 - [M3-01验收](Docs/Reports/M3_01_Verification.md)：两遗物静态定义、两Valid与Definitions Success；[原操作步骤](Docs/M3_01_RelicDefinitions.md)供复查。
 - [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。

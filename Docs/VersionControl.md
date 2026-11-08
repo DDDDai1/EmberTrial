@@ -418,11 +418,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-07 B2-03收尾：起点干净，本地4f8da23含五Source / Config / 回生实物，候选归一 / LFS匹配；四Success与Q50 / 移除40 / 不治疗有日志，双Build / 三索引和布局按用户反馈，65 / 等待5。233 / 133 / 42、Content311 / 来源94，原93份资产保持，Panel没有新内容改动。当前只Stage报告 / 来源 / 指南收尾、B3-01新指南与状态；六Core仍候选，不提前提交第五件或产物，助手未操作Git。
 
+2026-11-07 B3-01收尾：起点干净，本地13dd9da含六Core，候选归一一致；两Success、实际恢复与满值停表有日志，双Build / 三索引与额外新Play按用户反馈，70 / 等待5。233 / 133 / 42、Content311 / 来源94及全部资产指纹保持。当前只Stage报告 / 指南收尾、02新指南与共享状态；19Core仍候选，第五件 / UI留03，助手未写生产代码或操作Git。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B2-03通过，本地4f8da23已有五Source / Config / 回生资产，原Panel指纹保持。当前只Stage 03报告 / 指南收尾、来源94、B3-01新指南及实际共享状态，准确12文件清单见[B3-01末尾](M3_06B3_01_StaminaRecoveryBonusFoundation.md)。六份Core候选尚未写正式源码，不提前提交第五件 / 新配置。
+B3-01通过，本地13dd9da已有六份Core实现。当前只Stage 01报告 / 指南收尾、02新指南及实际共享状态，准确11文件清单见[B3-02末尾](M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)。19份Core候选未写正式源码，来源94 / 资产 / Config保持，第五件与UI仍03接入。
 
-- 英文：`docs: verify healing relic and plan stamina recovery bonus`
-- 专业中文：`docs: 完成治疗遗物验收并规划体力恢复加成`
+- 英文：`docs: verify stamina recovery bonus and plan equipment integration`
+- 专业中文：`docs: 完成体力恢复加成验收并规划装备接入`
 
 Artifacts产物 / 包 / 个人ini不上传。Stage后再改需重新Stage / Review，Git由用户操作，助手未核验远端。

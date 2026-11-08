@@ -200,13 +200,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **06B2-03已验收。** 回生数据通过原生HealingBonus10进入原GE / 事务 / Q快照；UI第三行投影Plan / AppliedModifiers的装备贡献，普通P只读、原15绑定与事件保持。四专项、真实Q50 / 移除40、外部贡献隔离与新身体恢复成立，无新增Tick / Timer。
 
-**06B3-01待实施。** 六旧Core候选加入StaminaRecoveryBonus，原组件用基础速率+聚合Current恢复；速率变化以当前世界时间重启积分起点、舍弃此前未结算片段，消费截止时间保持，实际GE只在原Timer回调发生。独立速率Handle沿用弱ASC / Serial配对解绑；非法停表、合法事件唤醒，第五件另批，不提前声明已完成。
+**06B3-01已验收。** StaminaRecoveryBonus初始0，原组件用基础速率+聚合Current按世界时间恢复；变化前未结算片段按合同舍弃，消费截止时间保持。真实30 / 移除20、非法停表 / 合法唤醒、原阻断与独立属性Handle配对清理通过。
+
+**06B3-02待实施。** 19Core候选接第四幅度、正式速率预检 / 方案重验；装备写锁退出后通过统一发布点请求资源复核资格，再广播既有事件。恢复组件无库存依赖，同值通知保留积分起点；第五件 / UI仍03，无新增Tick / 资源即时补发，不提前声明已实现。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B2-03通过，本地4f8da23已有五Source / Config / 回生资产，原Panel指纹保持。当前只Stage 03报告 / 指南收尾、来源94、B3-01新指南及实际共享状态，准确12文件清单见[B3-01末尾](M3_06B3_01_StaminaRecoveryBonusFoundation.md)。六份Core候选尚未写正式源码，不提前提交第五件 / 新配置。
+B3-01通过，本地13dd9da已有六份Core实现。当前只Stage 01报告 / 指南收尾、02新指南及实际共享状态，准确11文件清单见[B3-02末尾](M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)。19份Core候选未写正式源码，来源94 / 资产 / Config保持，第五件与UI仍03接入。
 
-- 英文：`docs: verify healing relic and plan stamina recovery bonus`
-- 专业中文：`docs: 完成治疗遗物验收并规划体力恢复加成`
+- 英文：`docs: verify stamina recovery bonus and plan equipment integration`
+- 专业中文：`docs: 完成体力恢复加成验收并规划装备接入`
 
 Artifacts产物 / 包 / 个人ini不上传。Stage后再改需重新Stage / Review，Git由用户操作，助手未核验远端。

@@ -1,6 +1,6 @@
 # M3-06B3-01：体力恢复速率加成基础
 
-2026-11-07下发，UE **5.5.4**。[B2-03回生遗物已验收](Reports/M3_06B2_03_Verification.md)，治疗三小节已通过。本章由你手动修改**六份既有Core源码**；只有Artifacts候选，正式文件尚未修改。
+2026-11-07下发，UE **5.5.4**，**02:55验收通过**。[报告](Reports/M3_06B3_01_Verification.md)记录六源码一致、双Build / 两专项与默认恢复通过，无待补。实际手动70 / 等待5；下一步[B3-02体力恢复装备管线](M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)。
 
 ## 1. 做什么与结算规则
 
@@ -20,7 +20,7 @@
 
 本章只做真实消费者，不加入第五件、第四个装备SetByCaller或新UI行；后续B3批次再接装备 / 数据 / 比较。测试+10用于清楚区分20与30，不代表已经发放一件新遗物。
 
-预计手动60–90分钟（代码与理解约50–75、检查记录约10–15），正常构建等待另记。无新文件 / 资产 / Config，规模保持233 Source / 133cpp / 42测试、Content311 / 来源94；无蓝图接线或Designer工作。
+原估60–90分钟；实际代码与理解60 / 检查记录10，共70分钟，构建等待5。无新文件 / 资产 / Config，规模保持233 Source / 133cpp / 42测试、Content311 / 来源94；无蓝图接线或Designer工作。
 
 ## 2. 开始前
 
@@ -731,13 +731,12 @@ Source保存，资产配置保持；失败或不理解处（无填无）：
 
 ## 11. Commit / Push（固定放在最后）
 
-本次B2-03收尾可Stage以下**12份文档 / 来源清单**。本地4f8da23已经包含五份Source、Config和回生实物，原Panel指纹保持，不需要重复Stage实现。B3-01目前只有Artifacts候选。
+B3-01收尾当前只提交以下**11份文档**。本地13dd9da已包含六份Core实现，来源94 / 资产 / Config保持；B3-02的19份Core仅候选，未写入正式源码。
 
 ```text
-Docs/Reports/M3_06B2_03_Verification.md
-Docs/M3_06B2_03_HealingRelicAndComparison.md
+Docs/Reports/M3_06B3_01_Verification.md
 Docs/M3_06B3_01_StaminaRecoveryBonusFoundation.md
-Docs/AssetManifest.csv
+Docs/M3_06B3_02_StaminaRecoveryEquipmentPipeline.md
 README.md
 Introduction.md
 Docs/Progress.md
@@ -748,23 +747,7 @@ Docs/AcceptanceWorkflow_Options.md
 Docs/VersionControl.md
 ```
 
-- 英文：`docs: verify healing relic and plan stamina recovery bonus`
-- 专业中文：`docs: 完成治疗遗物验收并规划体力恢复加成`
+- 英文：`docs: verify stamina recovery bonus and plan equipment integration`
+- 专业中文：`docs: 完成体力恢复加成验收并规划装备接入`
 
-Artifacts候选 / 预检 / JSON / 原日志、包及个人ini保持本地。Stage后继续编辑需重新Stage → Review → Commit / Push，由你操作；助手未操作索引、提交或远端。
-
-**你实施并验收本小节后，再提交以下六份既有Core源码的真实改动：**
-
-```text
-EmberTrial/Source/EmberTrial/Public/Attributes/ETCombatAttributeSet.h
-EmberTrial/Source/EmberTrial/Private/Attributes/ETCombatAttributeSet.cpp
-EmberTrial/Source/EmberTrial/Private/Characters/EmberTrialCharacter.cpp
-EmberTrial/Source/EmberTrial/Public/Resources/ETStaminaRecoveryComponent.h
-EmberTrial/Source/EmberTrial/Private/Resources/ETStaminaRecoveryComponent.cpp
-EmberTrial/Source/EmberTrial/Tests/ETStaminaRecoveryTests.cpp
-```
-
-- 英文：`feat: support additive stamina recovery rates`
-- 专业中文：`feat: 支持体力恢复速率加成`
-
-届时有新的报告 / 状态变化再一并Stage；本批没有资产、Config、UI或第五件需要Push，不提交Artifacts候选。
+Artifacts候选 / 编译预检 / 原日志 / JSON、包与个人ini保持本地。Stage后继续编辑需重新Stage → Review → Commit / Push，由你操作；助手未操作索引、提交或远端。
