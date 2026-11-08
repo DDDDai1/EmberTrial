@@ -1,19 +1,19 @@
 # 当前开发进度
 
-更新于2026-11-08。B4-01验收通过，B4-02待手动接入破势装备管线。[B4-01验收](Reports/M3_06B4_01_Verification.md) · [B4-02操作](M3_06B4_02_BreakPulseRelicEquipmentPipeline.md)
+更新于2026-11-08。B4-02破势装备管线已验收，B4-03待手动接入裂势印和第五比较行。[B4-02验收](Reports/M3_06B4_02_Verification.md) · [B4-03操作](M3_06B4_03_ShatterSealAndComparison.md)
 
 - 当前有233份Source、133个cpp（Core89 / UI41 / Editor3）、42个自动化入口、312份Content和95项资产来源。
-- B4-01两项专项通过，日志确认快照80、实机F扣60与新身体加成0。正式库存五件。
-- B4-02提供19份既有Core源码的替换步骤，覆盖第五装备幅度、真实F配置预检和过期方案。13份候选cpp通过编译预检，正式Build与运行待手动实施。
-- 后续为第六件与第五比较行、列表压力、M5存档及最终美术。已验收的独立包为M3_06A/Attempt01两件版。
+- B4-02的19份Core源码与候选一致，六项专项通过。实机确认五件、凝息装配、F基础60和新身体加成0。
+- B4-03准备五份源码与启动Config。裂势印提供F架势伤害+20。四份候选cpp通过编译预检，正式构建、资产与实机待手动实施。
+- 后续为六件列表压力与集成、M5存档及最终美术。已验收的独立包为M3_06A/Attempt01两件版。
 
 ## 工时
 
-B4-01手动40分钟，等待5分钟。M3累计2653分钟（44小时13分），等待181分钟。项目累计6064分钟（101小时04分），等待505分钟（8小时25分）。B4-02预计手动75–105分钟。
+B4-02手动80分钟，等待5分钟。M3累计2733分钟（45小时33分），等待186分钟。项目累计6144分钟（102小时24分），等待510分钟（8小时30分）。B4-03预计手动45–70分钟。
 
 ## 当前批次 Commit / Push
 
-B4-01功能已在本地提交`764f98e`。本轮提交验收报告、B4-02指南和进度文档。[11份文档及Push清单](M3_06B4_02_BreakPulseRelicEquipmentPipeline.md)
+B4-02功能已在本地提交`06318c7`。本轮提交验收报告、B4-03指南和进度文档。[11份文档及Push清单](M3_06B4_03_ShatterSealAndComparison.md)
 
-- 英文 `docs: verify break pulse bonus and plan relic equipment integration`
-- 中文 `docs: 完成破势加成验收并规划遗物装备接入`
+- 英文 `docs: verify break pulse equipment and plan sixth relic`
+- 中文 `docs: 完成破势装备验收并规划第六件遗物`

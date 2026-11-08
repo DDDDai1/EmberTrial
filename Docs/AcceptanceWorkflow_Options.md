@@ -414,9 +414,15 @@ B4-01两项专项与实机通过。手动40分钟，等待5分钟。
 
 扩展既有四项装备专项，验证双槽汇总、真实GE、句柄及超界拒绝和旧方案失效。复用范围F与连段两个入口。实机走一次既有祭坛装配、基础F与Stop重开。新遗物的UI和命中收益在B4-03验收。
 
+B4-02六项专项与实机通过。手动80分钟，等待5分钟。
+
+## M3-06B4-03的检查边界
+
+四项现有专项覆盖新实物、六件目录与真实祭坛命令。实机核对第五行、F真实80／60与新世界复位。六件目录集成与列表压力留到后续集中验证。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B4-01功能已在本地提交`764f98e`。本轮提交验收报告、B4-02指南和进度文档。[11份文档及Push清单](M3_06B4_02_BreakPulseRelicEquipmentPipeline.md)
+B4-02功能已在本地提交`06318c7`。本轮提交验收报告、B4-03指南和进度文档。[11份文档及Push清单](M3_06B4_03_ShatterSealAndComparison.md)
 
-- 英文 `docs: verify break pulse bonus and plan relic equipment integration`
-- 中文 `docs: 完成破势加成验收并规划遗物装备接入`
+- 英文 `docs: verify break pulse equipment and plan sixth relic`
+- 中文 `docs: 完成破势装备验收并规划第六件遗物`

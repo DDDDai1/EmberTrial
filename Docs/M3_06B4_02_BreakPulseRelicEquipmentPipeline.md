@@ -1057,6 +1057,10 @@ Automation RunTests EmberTrial.M2.Combo.Flow
 
 反馈时记录双Build／三索引、六项专项、祭坛五件与装配、F实际扣60、Stop新身体0、手动工时与构建等待。遇到失败，贴首条错误与测试名称或实机步骤。
 
+## B4-02验收结果
+
+2026-11-08通过。双Build、三索引、六项专项、五件祭坛与实际装配均通过。日志记录F实际扣60及新身体加成0。手动80分钟，构建等待5分钟。本地功能提交为`06318c7`。[验收报告](Reports/M3_06B4_02_Verification.md) · [B4-03操作指南](M3_06B4_03_ShatterSealAndComparison.md)
+
 ## 11. Commit / Push
 
 B4-01实现已在本地提交`764f98e`。在CLion Review并Stage本轮11份文档。

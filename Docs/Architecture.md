@@ -208,11 +208,13 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **06B4-01已验收。** F施放时读取施法者ASC的Current，与资产基础值一并快照。Notify按该值结算，目标架势系统负责归零和破势反应。实机基础60和专项快照80已通过。
 
-**06B4-02待实施。** 现有原生装备GE接收第五个SetByCaller。装备预检从ASC聚合值扣旧加新，再读取角色实际F配置并复用施放数值校验。旧方案重验比较第五项贡献。
+**06B4-02已验收。** 现有原生装备GE接收第五个SetByCaller。预检从ASC聚合值扣旧加新，再读取实际F配置并复用施放数值校验。旧方案重验比较第五项贡献。
+
+**06B4-03待实施。** 裂势印以原生数据定义提供+20点，启动目录登记第六件。Presenter通过现有方案和已应用总和投影第五项，原PreviewText渲染。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B4-01功能已在本地提交`764f98e`。本轮提交验收报告、B4-02指南和进度文档。[11份文档及Push清单](M3_06B4_02_BreakPulseRelicEquipmentPipeline.md)
+B4-02功能已在本地提交`06318c7`。本轮提交验收报告、B4-03指南和进度文档。[11份文档及Push清单](M3_06B4_03_ShatterSealAndComparison.md)
 
-- 英文 `docs: verify break pulse bonus and plan relic equipment integration`
-- 中文 `docs: 完成破势加成验收并规划遗物装备接入`
+- 英文 `docs: verify break pulse equipment and plan sixth relic`
+- 中文 `docs: 完成破势装备验收并规划第六件遗物`
