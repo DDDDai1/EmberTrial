@@ -28,23 +28,32 @@ namespace ETBreakPulsePrivate
     constexpr float MinPoiseDamage = 1.0f;
     constexpr float MaxPoiseDamage = 1000.0f;
 
-    bool TryResolvePoiseDamage(const UAbilitySystemComponent& ASC, float BaseDamage,
-                               float& OutDamage)
+    bool IsPoiseDamageInRange(const double Damage)
     {
-        if (!ASC.GetSet<UETCombatAttributeSet>())
-        {
-            return false;
-        }
-        const float Bonus =
-            ASC.GetNumericAttribute(UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute());
-        const double Total = static_cast<double>(BaseDamage) + Bonus;
-        if (!FMath::IsFinite(Total) || Total < MinPoiseDamage || Total > MaxPoiseDamage)
-        {
-            return false;
-        }
-        OutDamage = static_cast<float>(Total);
-        return true;
+        return FMath::IsFinite(Damage) && Damage >= MinPoiseDamage && Damage <= MaxPoiseDamage;
     }
+}
+
+bool UETGA_BreakPulse::TryCalculatePoiseDamage(const double Bonus, float& OutDamage) const
+{
+    OutDamage = 0.0f;
+    const double Total = static_cast<double>(PoiseDamage) + Bonus;
+    if (!ETBreakPulsePrivate::IsPoiseDamageInRange(PoiseDamage) ||
+        !ETBreakPulsePrivate::IsPoiseDamageInRange(Total))
+    {
+        return false;
+    }
+    OutDamage = static_cast<float>(Total);
+    return true;
+}
+
+bool UETGA_BreakPulse::TryGetEffectivePoiseDamage(
+    const UAbilitySystemComponent& ASC, float& OutDamage) const
+{
+    OutDamage = 0.0f;
+    return ASC.GetSet<UETCombatAttributeSet>() && TryCalculatePoiseDamage(
+        ASC.GetNumericAttribute(UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute()),
+        OutDamage);
 }
 
 // ---- 配置与互斥；普通受击 / 破势 / 死亡可以中断施放 ----
@@ -117,9 +126,7 @@ bool UETGA_BreakPulse::HasValidConfiguration() const
         CastMontage->CompositeSections.Num() != 1 ||
         !CastMontage->CompositeSections[0].NextSectionName.IsNone() ||
         CastMontage->Notifies.Num() != 1 || !FMath::IsFinite(PulseRadius) || PulseRadius < 1.0f ||
-        PulseRadius > 3000.0f || !FMath::IsFinite(PoiseDamage) ||
-        PoiseDamage < ETBreakPulsePrivate::MinPoiseDamage ||
-        PoiseDamage > ETBreakPulsePrivate::MaxPoiseDamage)
+        PulseRadius > 3000.0f || !ETBreakPulsePrivate::IsPoiseDamageInRange(PoiseDamage))
     {
         return false;
     }
@@ -195,7 +202,7 @@ bool UETGA_BreakPulse::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
     if (!HasValidConfiguration() || !ReadContext(ActorInfo, Body, ASC) ||
         !Body->IsFormalActionIdle() ||
         ASC->HasMatchingGameplayTag(ETGameplayTags::Cooldown_BreakPulse) ||
-        !ETBreakPulsePrivate::TryResolvePoiseDamage(*ASC, PoiseDamage, EffectivePoiseDamage) ||
+        !TryGetEffectivePoiseDamage(*ASC, EffectivePoiseDamage) ||
         !Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
     {
         return false;
@@ -228,7 +235,7 @@ void UETGA_BreakPulse::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     if (!HasValidConfiguration() || !ReadContext(ActorInfo, Body, ASC) ||
         ActorInfo->GetAnimInstance()->GetCurrentActiveMontage() ||
         ASC->HasMatchingGameplayTag(ETGameplayTags::Cooldown_BreakPulse) ||
-        !ETBreakPulsePrivate::TryResolvePoiseDamage(*ASC, PoiseDamage, EffectivePoiseDamage))
+        !TryGetEffectivePoiseDamage(*ASC, EffectivePoiseDamage))
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;

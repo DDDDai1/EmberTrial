@@ -38,7 +38,8 @@ bool IsKnownKind(const EETRelicModifierKind Kind)
     return Kind == EETRelicModifierKind::MaxHealth ||
            Kind == EETRelicModifierKind::LightAttackBonus ||
            Kind == EETRelicModifierKind::HealingBonus ||
-           Kind == EETRelicModifierKind::StaminaRecoveryBonus;
+           Kind == EETRelicModifierKind::StaminaRecoveryBonus ||
+           Kind == EETRelicModifierKind::BreakPulsePoiseBonus;
 }
 }
 

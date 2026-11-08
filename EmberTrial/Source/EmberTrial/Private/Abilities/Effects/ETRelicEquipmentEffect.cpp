@@ -37,4 +37,11 @@ UETRelicEquipmentEffect::UETRelicEquipmentEffect(const FObjectInitializer& Objec
     RecoveryModifier.Attribute = UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute();
     RecoveryModifier.ModifierOp = EGameplayModOp::AddBase;
     RecoveryModifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(RecoveryMagnitude);
+
+    FSetByCallerFloat BreakPulseMagnitude;
+    BreakPulseMagnitude.DataTag = ETGameplayTags::SetByCaller_EquipmentBreakPulsePoiseBonus;
+    FGameplayModifierInfo& BreakPulseModifier = Modifiers.AddDefaulted_GetRef();
+    BreakPulseModifier.Attribute = UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute();
+    BreakPulseModifier.ModifierOp = EGameplayModOp::AddBase;
+    BreakPulseModifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(BreakPulseMagnitude);
 }

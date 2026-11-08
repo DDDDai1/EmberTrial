@@ -3,6 +3,7 @@
 #include "Inventory/ETRelicEquipmentComponent.h"
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_Heal.h"
+#include "Abilities/ETGA_BreakPulse.h"
 #include "Resources/ETStaminaRecoveryComponent.h"
 #include "Attributes/ETStaminaAttributeSet.h"
 #include "Inventory/ETRelicDefinition.h"
@@ -47,6 +48,12 @@ bool FETRelicEquipmentTransactionTest::RunTest(const FString& Parameters)
     }
     FActorSpawnParameters Spawn;
     Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    UClass* BreakPulseClass = LoadClass<UETGA_BreakPulse>(
+        nullptr, TEXT("/Game/EmberTrial/Abilities/GA_ET_BreakPulse.GA_ET_BreakPulse_C"));
+    if (!TestNotNull(TEXT("Saved Break Pulse class"), BreakPulseClass))
+    {
+        return false;
+    }
     APlayerController* PC = World->SpawnActor<APlayerController>();
     auto SpawnPlayerBody = [&](const float X)
     {
@@ -57,6 +64,7 @@ bool FETRelicEquipmentTransactionTest::RunTest(const FString& Parameters)
             Result->CombatTeam = EETCombatTeam::Player;
             Result->LightAttackAbilityClass = UETGA_LightAttack::StaticClass();
             Result->HealAbilityClass = UETGA_Heal::StaticClass();
+            Result->BreakPulseAbilityClass = BreakPulseClass;
         }
         return Result;
     };
@@ -357,6 +365,78 @@ bool FETRelicEquipmentTransactionTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Unequip clears recovery contribution"), NewASC->GetNumericAttribute(RecoveryBonus), 0.0f);
     TestTrue(TEXT("Unequip completion preserves recovery eligibility"), Recovery->IsRecoveryScheduled());
     TestEqual(TEXT("Unequip does not refill stamina"), NewASC->GetNumericAttribute(Stamina), 50.0f);
+
+    // ---- 破势：换装预检、同句柄提交与旧方案失效 ----
+    const FGameplayAttribute BreakPulseBonus = UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute();
+    NewASC->SetNumericAttributeBase(BreakPulseBonus, 2.0f);
+    UETRelicDefinition* PulseFixture = NewObject<UETRelicDefinition>(Inventory);
+    const FName PulseId(TEXT("fixture_break_pulse"));
+    PulseFixture->RelicId = PulseId;
+    PulseFixture->DisplayName = FText::FromString(TEXT("Break Pulse fixture"));
+    PulseFixture->Description = FText::FromString(TEXT("Transient Break Pulse transaction fixture"));
+    PulseFixture->Modifiers = {{EETRelicModifierKind::BreakPulsePoiseBonus, 20.0f}};
+    Inventory->Definitions.Add(PulseId, PulseFixture);
+    Inventory->OwnedIds.Add(PulseId);
+    Inventory->OwnedSet.Add(PulseId);
+    Inventory->AdvanceRevision();
+    Inventory->PublishSnapshot();
+
+    const uint64 PulseRevision = Inventory->GetSnapshot().Revision;
+    for (const float InvalidBonus : {-62.0f, 939.0f})
+    {
+        PulseFixture->Modifiers[0].AdditiveValue = InvalidBonus;
+        const FETRelicInventoryReply PreviewReply = NewEquipment->TryBuildPreview(
+            EETRelicSlot::First, PulseId, PulseRevision, Preview);
+        const FETRelicInventoryReply EquipReply = NewEquipment->TryEquip(
+            EETRelicSlot::First, PulseId, PulseRevision);
+        TestTrue(TEXT("Out-of-range Break Pulse preview rejected by final value"),
+                 PreviewReply.Result == EResult::RuleRejected &&
+                 PreviewReply.Rule == EETRelicLoadoutResult::InvalidFinalValues);
+        TestTrue(TEXT("Out-of-range Break Pulse equip rejected by final value"),
+                 EquipReply.Result == EResult::RuleRejected &&
+                 EquipReply.Rule == EETRelicLoadoutResult::InvalidFinalValues);
+    }
+    TestTrue(TEXT("Rejected Break Pulse leaves revision"), Inventory->GetSnapshot().Revision == PulseRevision);
+    TestEqual(TEXT("Rejected Break Pulse preserves existing contribution"),
+              NewASC->GetNumericAttribute(BreakPulseBonus), 2.0f);
+    PulseFixture->Modifiers[0].AdditiveValue = 20.0f;
+    FETRelicInventoryPlan PulsePlan;
+    TestTrue(TEXT("Break Pulse plan created"), Inventory->TryBuildPlan(
+        EETRelicSlot::First, PulseId, 100.0f, 25.0f, PulsePlan).Result == EResult::Success);
+    PulseFixture->Modifiers[0].AdditiveValue = 21.0f;
+    TestTrue(TEXT("Break Pulse-only edit invalidates plan"),
+             Inventory->TryCommitPlan(PulsePlan).Result == EResult::StalePlan);
+    PulseFixture->Modifiers[0].AdditiveValue = 20.0f;
+    TestTrue(TEXT("Break Pulse preview succeeds"), NewEquipment->TryBuildPreview(
+        EETRelicSlot::First, PulseId, PulseRevision, Preview).Result == EResult::Success);
+    TestEqual(TEXT("Preview carries twenty"), Preview.AfterModifiers.BreakPulsePoiseBonus, 20.0f);
+    TestEqual(TEXT("Preview leaves real bonus two"), NewASC->GetNumericAttribute(BreakPulseBonus), 2.0f);
+    const FActiveGameplayEffectHandle PulseHandle = NewEquipment->OwnedEffect;
+    TestTrue(TEXT("Equip Break Pulse contribution"), NewEquipment->TryEquip(
+        EETRelicSlot::First, PulseId, PulseRevision).Result == EResult::Success);
+    TestTrue(TEXT("Break Pulse equip keeps handle"), NewEquipment->OwnedEffect == PulseHandle);
+    TestEqual(TEXT("Break Pulse equipment leaves Base two"),
+              NewASC->GetNumericAttributeBase(BreakPulseBonus), 2.0f);
+    TestEqual(TEXT("Break Pulse equipment aggregates to twenty-two"),
+              NewASC->GetNumericAttribute(BreakPulseBonus), 22.0f);
+    float EffectivePoiseDamage = 0.0f;
+    const UETGA_BreakPulse* Pulse = NewRunBody->GetBreakPulseConfiguration();
+    if (!TestNotNull(TEXT("Configured Break Pulse"), Pulse))
+    {
+        return false;
+    }
+    TestTrue(TEXT("Actual F configuration accepts equipped value"),
+             Pulse->TryCalculatePoiseDamage(NewASC->GetNumericAttribute(BreakPulseBonus), EffectivePoiseDamage));
+    TestEqual(TEXT("F configured damage eighty-two"), EffectivePoiseDamage, 82.0f);
+    NewEquipment->Deactivate();
+    TestEqual(TEXT("Deactivate leaves external two"), NewASC->GetNumericAttribute(BreakPulseBonus), 2.0f);
+    NewEquipment->Activate(false);
+    TestEqual(TEXT("Reactivation restores equipped contribution"),
+              NewASC->GetNumericAttribute(BreakPulseBonus), 22.0f);
+    TestTrue(TEXT("Unequip Break Pulse"), NewEquipment->TryEquip(
+        EETRelicSlot::First, NAME_None, Inventory->GetSnapshot().Revision).Result == EResult::Success);
+    TestEqual(TEXT("Unequip leaves external two"), NewASC->GetNumericAttribute(BreakPulseBonus), 2.0f);
+    NewASC->SetNumericAttributeBase(BreakPulseBonus, 0.0f);
 
     // ---- 外部移除不能伪造成功；结束后解绑与清句柄仍精确 ----
     NewASC->RemoveActiveGameplayEffect(NewEquipment->OwnedEffect);

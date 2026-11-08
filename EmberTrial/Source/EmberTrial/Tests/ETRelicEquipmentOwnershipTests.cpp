@@ -144,6 +144,20 @@ bool FETRelicEquipmentOwnershipTest::RunTest(const FString& Parameters)
     ASC->UpdateActiveGameplayEffectSetByCallerMagnitudes(InitialHandle, Tamper);
     TestTrue(TEXT("Fourth magnitude restored"), Equipment->GetAppliedModifiers(Snapshot));
 
+    const FETRelicModifierTotals WithBreakPulse{40.0f, 7.0f, 10.0f, 5.0f, 20.0f};
+    TestTrue(TEXT("Break Pulse-only change applies"),
+             Equipment->TrySetModifiers(WithBreakPulse) == EWrite::Applied);
+    TestTrue(TEXT("Break Pulse update keeps handle"), Equipment->OwnedEffect == InitialHandle);
+    TestTrue(TEXT("Same five totals unchanged"),
+             Equipment->TrySetModifiers(WithBreakPulse) == EWrite::Unchanged);
+    Tamper.Reset();
+    Tamper.Add(ETGameplayTags::SetByCaller_EquipmentBreakPulsePoiseBonus, 99.0f);
+    ASC->UpdateActiveGameplayEffectSetByCallerMagnitudes(InitialHandle, Tamper);
+    TestFalse(TEXT("Fifth magnitude tampering detected"), Equipment->GetAppliedModifiers(Snapshot));
+    Tamper[ETGameplayTags::SetByCaller_EquipmentBreakPulsePoiseBonus] = 20.0f;
+    ASC->UpdateActiveGameplayEffectSetByCallerMagnitudes(InitialHandle, Tamper);
+    TestTrue(TEXT("Fifth magnitude restored"), Equipment->GetAppliedModifiers(Snapshot));
+
     // ---- 降上限只夹最终越界值；夹限没有伤害GE来源 ----
     bool bClampHadDamageSource = false;
     const FDelegateHandle HealthObserver = ASC->GetGameplayAttributeValueChangeDelegate(Health).AddLambda(
@@ -176,6 +190,8 @@ bool FETRelicEquipmentOwnershipTest::RunTest(const FString& Parameters)
     ForeignSpec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentLightAttackBonus, 2.0f);
     ForeignSpec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentHealingBonus, 3.0f);
     ForeignSpec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, 2.0f);
+    ForeignSpec.Data->SetSetByCallerMagnitude(
+        ETGameplayTags::SetByCaller_EquipmentBreakPulsePoiseBonus, 3.0f);
     const FActiveGameplayEffectHandle Foreign = ASC->ApplyGameplayEffectSpecToSelf(*ForeignSpec.Data.Get());
     if (!TestTrue(TEXT("Independent active effect"), Foreign.IsValid()))
     {

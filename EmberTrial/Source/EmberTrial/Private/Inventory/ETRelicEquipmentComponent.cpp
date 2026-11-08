@@ -3,6 +3,7 @@
 #include "Abilities/ETGameplayTags.h"
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_Heal.h"
+#include "Abilities/ETGA_BreakPulse.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "Flow/ETRunSessionSubsystem.h"
@@ -129,11 +130,14 @@ bool UETRelicEquipmentComponent::HasIntactOwnedEffect(UAbilitySystemComponent* A
         ETGameplayTags::SetByCaller_EquipmentHealingBonus, false, Missing);
     const float Recovery = Active->Spec.GetSetByCallerMagnitude(
         ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, false, Missing);
+    const float BreakPulse = Active->Spec.GetSetByCallerMagnitude(
+        ETGameplayTags::SetByCaller_EquipmentBreakPulsePoiseBonus, false, Missing);
     return FMath::IsFinite(Health) && FMath::IsFinite(Attack) &&
-           FMath::IsFinite(Healing) && FMath::IsFinite(Recovery) &&
+           FMath::IsFinite(Healing) && FMath::IsFinite(Recovery) && FMath::IsFinite(BreakPulse) &&
            Health == AppliedModifiers.MaxHealthAdditive &&
            Attack == AppliedModifiers.LightAttackBonus && Healing == AppliedModifiers.HealingBonus &&
-           Recovery == AppliedModifiers.StaminaRecoveryBonus;
+           Recovery == AppliedModifiers.StaminaRecoveryBonus &&
+           BreakPulse == AppliedModifiers.BreakPulsePoiseBonus;
 }
 
 void UETRelicEquipmentComponent::PublishEquipmentChanged()
@@ -193,6 +197,8 @@ bool UETRelicEquipmentComponent::EnsureOwnedEffect()
     Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentLightAttackBonus, 0.0f);
     Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentHealingBonus, 0.0f);
     Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, 0.0f);
+    Spec.Data->SetSetByCallerMagnitude(
+        ETGameplayTags::SetByCaller_EquipmentBreakPulsePoiseBonus, 0.0f);
     const FActiveGameplayEffectHandle Created = ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
 
     // Apply可触发同步观察者；期间失活 / 结束时只清刚创建的句柄，不能泄漏。
@@ -222,7 +228,8 @@ bool UETRelicEquipmentComponent::AreModifiersValid(
 {
     if (!FMath::IsFinite(Modifiers.MaxHealthAdditive) ||
         !FMath::IsFinite(Modifiers.LightAttackBonus) || !FMath::IsFinite(Modifiers.HealingBonus) ||
-        !FMath::IsFinite(Modifiers.StaminaRecoveryBonus))
+        !FMath::IsFinite(Modifiers.StaminaRecoveryBonus) ||
+        !FMath::IsFinite(Modifiers.BreakPulsePoiseBonus))
     {
         return false;
     }
@@ -238,11 +245,15 @@ bool UETRelicEquipmentComponent::AreModifiersValid(
     const double NewRecovery = static_cast<double>(ASC->GetNumericAttribute(
         UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute())) -
         AppliedModifiers.StaminaRecoveryBonus + Modifiers.StaminaRecoveryBonus;
+    const double NewBreakPulse = static_cast<double>(ASC->GetNumericAttribute(
+        UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute())) -
+        AppliedModifiers.BreakPulsePoiseBonus + Modifiers.BreakPulsePoiseBonus;
     const double Limit = std::numeric_limits<float>::max();
     return FMath::IsFinite(NewMax) && NewMax >= 1.0 && NewMax <= Limit &&
            FMath::IsFinite(NewBonus) && FMath::Abs(NewBonus) <= Limit &&
            FMath::IsFinite(NewHealing) && FMath::Abs(NewHealing) <= Limit &&
-           FMath::IsFinite(NewRecovery) && FMath::Abs(NewRecovery) <= Limit;
+           FMath::IsFinite(NewRecovery) && FMath::Abs(NewRecovery) <= Limit &&
+           FMath::IsFinite(NewBreakPulse) && FMath::Abs(NewBreakPulse) <= Limit;
 }
 
 EETRelicEffectWriteResult UETRelicEquipmentComponent::TrySetModifiers(
@@ -265,7 +276,8 @@ EETRelicEffectWriteResult UETRelicEquipmentComponent::TrySetModifiers(
     if (Modifiers.MaxHealthAdditive == AppliedModifiers.MaxHealthAdditive &&
         Modifiers.LightAttackBonus == AppliedModifiers.LightAttackBonus &&
         Modifiers.HealingBonus == AppliedModifiers.HealingBonus &&
-        Modifiers.StaminaRecoveryBonus == AppliedModifiers.StaminaRecoveryBonus)
+        Modifiers.StaminaRecoveryBonus == AppliedModifiers.StaminaRecoveryBonus &&
+        Modifiers.BreakPulsePoiseBonus == AppliedModifiers.BreakPulsePoiseBonus)
     {
         return EETRelicEffectWriteResult::Unchanged;
     }
@@ -312,8 +324,10 @@ void UETRelicEquipmentComponent::WriteModifiersUnchecked(const FETRelicModifierT
     Magnitudes.Add(ETGameplayTags::SetByCaller_EquipmentHealingBonus, Modifiers.HealingBonus);
     Magnitudes.Add(ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus,
                    Modifiers.StaminaRecoveryBonus);
+    Magnitudes.Add(ETGameplayTags::SetByCaller_EquipmentBreakPulsePoiseBonus,
+                   Modifiers.BreakPulsePoiseBonus);
     {
-        // 四个聚合器更新后才派发脏通知；这不是任意GAS / 库存事务的原子锁。
+        // 批量更新后才派发聚合器通知。库存提交仍由原事务负责。
         FScopedAggregatorOnDirtyBatch DirtyBatch;
         AppliedModifiers = Modifiers;
         ASC->UpdateActiveGameplayEffectSetByCallerMagnitudes(OwnedEffect, Magnitudes);
@@ -514,6 +528,17 @@ bool UETRelicEquipmentComponent::AreFinalAbilityValuesValid(
     {
         return false;
     }
+    const UETGA_BreakPulse* BreakPulse = Body->GetBreakPulseConfiguration();
+    const double BreakPulseBonus = static_cast<double>(ASC->GetNumericAttribute(
+        UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute())) -
+        AppliedModifiers.BreakPulsePoiseBonus + Modifiers.BreakPulsePoiseBonus;
+    float PoiseDamage = 0.0f;
+    if (IsValid(BreakPulse) ? !BreakPulse->TryCalculatePoiseDamage(BreakPulseBonus, PoiseDamage)
+                           : Modifiers.BreakPulsePoiseBonus != 0.0f)
+    {
+        return false;
+    }
+
     const double RecoveryBonus = static_cast<double>(ASC->GetNumericAttribute(
         UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute())) -
         AppliedModifiers.StaminaRecoveryBonus + Modifiers.StaminaRecoveryBonus;

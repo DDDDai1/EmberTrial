@@ -25,6 +25,7 @@ EETRelicLoadoutResult ETRelicLoadoutRules::Evaluate(
     double AttackAdditive = 0.0;
     double HealingAdditive = 0.0;
     double RecoveryAdditive = 0.0;
+    double BreakPulseAdditive = 0.0;
     const FName Ids[] = {Loadout.SlotA, Loadout.SlotB};
     const EETRelicSlot Slots[] = {EETRelicSlot::First, EETRelicSlot::Second};
     for (int32 Index = 0; Index < static_cast<int32>(UE_ARRAY_COUNT(Ids)); ++Index)
@@ -69,6 +70,9 @@ EETRelicLoadoutResult ETRelicLoadoutRules::Evaluate(
             case EETRelicModifierKind::StaminaRecoveryBonus:
                 RecoveryAdditive += Modifier.AdditiveValue;
                 break;
+            case EETRelicModifierKind::BreakPulsePoiseBonus:
+                BreakPulseAdditive += Modifier.AdditiveValue;
+                break;
             default:
                 return EETRelicLoadoutResult::InvalidDefinition;
             }
@@ -77,7 +81,8 @@ EETRelicLoadoutResult ETRelicLoadoutRules::Evaluate(
     if (!ETRelicLoadoutPrivate::FitsFloat(HealthAdditive) ||
         !ETRelicLoadoutPrivate::FitsFloat(AttackAdditive) ||
         !ETRelicLoadoutPrivate::FitsFloat(HealingAdditive) ||
-        !ETRelicLoadoutPrivate::FitsFloat(RecoveryAdditive))
+        !ETRelicLoadoutPrivate::FitsFloat(RecoveryAdditive) ||
+        !ETRelicLoadoutPrivate::FitsFloat(BreakPulseAdditive))
     {
         return EETRelicLoadoutResult::NumericOverflow;
     }
@@ -85,6 +90,7 @@ EETRelicLoadoutResult ETRelicLoadoutRules::Evaluate(
     OutTotals.LightAttackBonus = static_cast<float>(AttackAdditive);
     OutTotals.HealingBonus = static_cast<float>(HealingAdditive);
     OutTotals.StaminaRecoveryBonus = static_cast<float>(RecoveryAdditive);
+    OutTotals.BreakPulsePoiseBonus = static_cast<float>(BreakPulseAdditive);
     return EETRelicLoadoutResult::Success;
 }
 
@@ -100,10 +106,11 @@ EETRelicLoadoutResult ETRelicLoadoutRules::MakePreview(
     }
     const double Health = static_cast<double>(BaseMaxHealth) + Totals.MaxHealthAdditive;
     const double Damage = static_cast<double>(BaseLightAttackDamage) + Totals.LightAttackBonus;
-    // 最终治疗量 / 恢复速率由身体配置继续预检；纯规则检查参数有限性。
+    // 治疗量、恢复速率与破势值按身体配置继续预检。
     if (!ETRelicLoadoutPrivate::FitsFloat(Health) || !ETRelicLoadoutPrivate::FitsFloat(Damage) ||
         !FMath::IsFinite(Totals.HealingBonus) ||
-        !FMath::IsFinite(Totals.StaminaRecoveryBonus))
+        !FMath::IsFinite(Totals.StaminaRecoveryBonus) ||
+        !FMath::IsFinite(Totals.BreakPulsePoiseBonus))
     {
         return EETRelicLoadoutResult::NumericOverflow;
     }

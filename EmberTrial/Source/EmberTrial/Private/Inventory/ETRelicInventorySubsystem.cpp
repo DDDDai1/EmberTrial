@@ -221,7 +221,8 @@ FETRelicInventoryReply UETRelicInventorySubsystem::TryCommitPlan(const FETRelicI
     {
         return X.MaxHealthAdditive == Y.MaxHealthAdditive &&
                X.LightAttackBonus == Y.LightAttackBonus && X.HealingBonus == Y.HealingBonus &&
-               X.StaminaRecoveryBonus == Y.StaminaRecoveryBonus;
+               X.StaminaRecoveryBonus == Y.StaminaRecoveryBonus &&
+               X.BreakPulsePoiseBonus == Y.BreakPulsePoiseBonus;
     };
     auto SamePreview = [](const FETRelicLoadoutPreview& X, const FETRelicLoadoutPreview& Y)
     {

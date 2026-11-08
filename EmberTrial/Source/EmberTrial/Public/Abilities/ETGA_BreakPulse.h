@@ -20,6 +20,9 @@ class EMBERTRIAL_API UETGA_BreakPulse : public UGameplayAbility
 public:
     UETGA_BreakPulse();
     bool HasValidConfiguration() const;
+
+    // 装备预检与施放使用同一个范围，结果单位为架势点。
+    bool TryCalculatePoiseDamage(double Bonus, float& OutDamage) const;
     void HandleBreakPulseCommit(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
                                 int32 MontageInstanceID, UAnimNotify* NotifyToken);
     virtual const FGameplayTagContainer* GetCooldownTags() const override;
@@ -77,6 +80,7 @@ private:
 
     bool ReadContext(const FGameplayAbilityActorInfo* ActorInfo, AEmberTrialCharacter*& Body,
                      UAbilitySystemComponent*& ASC) const;
+    bool TryGetEffectivePoiseDamage(const UAbilitySystemComponent& ASC, float& OutDamage) const;
     bool IsCurrentCast(uint32 Serial) const;
     void ResolvePulse(uint32 Serial, const FVector& Origin, float Radius, float Damage);
     void ReleaseMontage();

@@ -81,8 +81,11 @@ bool FETRelicEquipmentEffectsTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Exactly one combat set"), CombatSetCount, 1);
     const FGameplayAttribute Healing = UETCombatAttributeSet::GetHealingBonusAttribute();
     const FGameplayAttribute RecoveryBonus = UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute();
+    const FGameplayAttribute BreakPulseBonus =
+        UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute();
     auto Apply = [ASC](const float HealthAdditive, const float AttackAdditive,
-                       const float HealingAdditive = 0.0f, const float RecoveryAdditive = 0.0f)
+                       const float HealingAdditive, const float RecoveryAdditive,
+                       const float BreakPulseAdditive)
     {
         FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(
             UETRelicEquipmentEffect::StaticClass(), 1.0f, ASC->MakeEffectContext());
@@ -95,10 +98,12 @@ bool FETRelicEquipmentEffectsTest::RunTest(const FString& Parameters)
         Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentHealingBonus, HealingAdditive);
         Spec.Data->SetSetByCallerMagnitude(
             ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, RecoveryAdditive);
+        Spec.Data->SetSetByCallerMagnitude(
+            ETGameplayTags::SetByCaller_EquipmentBreakPulsePoiseBonus, BreakPulseAdditive);
         return ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
     };
     ASC->SetNumericAttributeBase(Health, 80.0f);
-    const FActiveGameplayEffectHandle OwnedHandle = Apply(20.0f, 5.0f, 10.0f, 5.0f);
+    const FActiveGameplayEffectHandle OwnedHandle = Apply(20.0f, 5.0f, 10.0f, 5.0f, 20.0f);
     if (!TestTrue(TEXT("Infinite effect has a live handle"), OwnedHandle.IsValid()))
     {
         return false;
@@ -111,6 +116,9 @@ bool FETRelicEquipmentEffectsTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Healing Base remains zero"), ASC->GetNumericAttributeBase(Healing), 0.0f);
     TestEqual(TEXT("Recovery Current five"), ASC->GetNumericAttribute(RecoveryBonus), 5.0f);
     TestEqual(TEXT("Recovery Base remains zero"), ASC->GetNumericAttributeBase(RecoveryBonus), 0.0f);
+    TestEqual(TEXT("Break Pulse Current twenty"), ASC->GetNumericAttribute(BreakPulseBonus), 20.0f);
+    TestEqual(TEXT("Break Pulse Base remains zero"), ASC->GetNumericAttributeBase(BreakPulseBonus),
+              0.0f);
     TestEqual(TEXT("Increasing max does not heal"), ASC->GetNumericAttribute(Health), 80.0f);
     TestTrue(TEXT("Repeated Ensure stays initialized"), Body->EnsureGameplayInitialized());
     TestEqual(TEXT("Repeated Ensure keeps equipment"), ASC->GetNumericAttribute(BonusAttribute), 5.0f);
@@ -124,6 +132,7 @@ bool FETRelicEquipmentEffectsTest::RunTest(const FString& Parameters)
     Replacement.Add(ETGameplayTags::SetByCaller_EquipmentLightAttackBonus, 3.0f);
     Replacement.Add(ETGameplayTags::SetByCaller_EquipmentHealingBonus, 7.0f);
     Replacement.Add(ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, 8.0f);
+    Replacement.Add(ETGameplayTags::SetByCaller_EquipmentBreakPulsePoiseBonus, 12.0f);
     ASC->UpdateActiveGameplayEffectSetByCallerMagnitudes(OwnedHandle, Replacement);
     TestEqual(TEXT("Same handle updates max"), ASC->GetNumericAttribute(MaxHealth), 110.0f);
     TestEqual(TEXT("Same handle updates bonus"), ASC->GetNumericAttribute(BonusAttribute), 3.0f);
@@ -131,7 +140,9 @@ bool FETRelicEquipmentEffectsTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Same handle updates recovery"), ASC->GetNumericAttribute(RecoveryBonus), 8.0f);
     TestTrue(TEXT("Owned handle still live"), ASC->GetActiveGameplayEffect(OwnedHandle) != nullptr);
 
-    const FActiveGameplayEffectHandle OtherHandle = Apply(0.0f, 2.0f, 4.0f, 2.0f);
+    TestEqual(TEXT("Same handle updates Break Pulse"), ASC->GetNumericAttribute(BreakPulseBonus),
+              12.0f);
+    const FActiveGameplayEffectHandle OtherHandle = Apply(0.0f, 2.0f, 4.0f, 2.0f, 3.0f);
     if (!TestTrue(TEXT("Independent effect active"), OtherHandle.IsValid()))
     {
         return false;
@@ -140,7 +151,13 @@ bool FETRelicEquipmentEffectsTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Other effect survives exact removal"), ASC->GetNumericAttribute(BonusAttribute), 2.0f);
     TestEqual(TEXT("Other healing survives exact removal"), ASC->GetNumericAttribute(Healing), 4.0f);
     TestEqual(TEXT("Other recovery survives exact removal"), ASC->GetNumericAttribute(RecoveryBonus), 2.0f);
+    TestEqual(TEXT("Other Break Pulse survives exact removal"),
+              ASC->GetNumericAttribute(BreakPulseBonus), 3.0f);
     TestTrue(TEXT("Remove second handle"), ASC->RemoveActiveGameplayEffect(OtherHandle));
+    TestEqual(TEXT("Removing all effects clears Break Pulse"), ASC->GetNumericAttribute(BreakPulseBonus),
+              0.0f);
+    TestEqual(TEXT("Other body Break Pulse isolated"), OtherASC->GetNumericAttribute(BreakPulseBonus),
+              0.0f);
     TestEqual(TEXT("Removed healing returns zero"), ASC->GetNumericAttribute(Healing), 0.0f);
     TestEqual(TEXT("Removed recovery returns zero"), ASC->GetNumericAttribute(RecoveryBonus), 0.0f);
     TestEqual(TEXT("Other body recovery isolated"), OtherASC->GetNumericAttribute(RecoveryBonus), 0.0f);

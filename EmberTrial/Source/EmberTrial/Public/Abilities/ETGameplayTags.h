@@ -17,6 +17,7 @@ namespace ETGameplayTags
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_EquipmentLightAttackBonus);
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_EquipmentHealingBonus);
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_EquipmentStaminaRecoveryBonus);
+    EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_EquipmentBreakPulsePoiseBonus);
     // ---- 受击与死亡状态 ----
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_HitReact);
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_HitReact);

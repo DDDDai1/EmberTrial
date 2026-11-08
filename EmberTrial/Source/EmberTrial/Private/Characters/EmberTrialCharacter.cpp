@@ -954,6 +954,12 @@ const UETGA_Heal* AEmberTrialCharacter::GetHealConfiguration() const
         ? HealAbilityClass->GetDefaultObject<UETGA_Heal>() : nullptr;
 }
 
+const UETGA_BreakPulse* AEmberTrialCharacter::GetBreakPulseConfiguration() const
+{
+    return !bAbilitySystemShuttingDown && IsValid(BreakPulseAbilityClass.Get())
+        ? BreakPulseAbilityClass->GetDefaultObject<UETGA_BreakPulse>() : nullptr;
+}
+
 bool AEmberTrialCharacter::IsRelicEquipmentReadyForInput() const
 {
     // 这里只门控受玩家控制的输入；无人控制身体的原生能力专项仍可独立运行。
