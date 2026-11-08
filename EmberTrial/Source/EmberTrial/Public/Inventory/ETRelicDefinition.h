@@ -41,6 +41,7 @@ private:
     friend class FETRelicDefinitionsTest;
     friend class FETRelicLoadoutTest;
     friend class FETRelicEquipmentTransactionTest;
+    friend class FETRelicViewModelsTest;
 
     // ---- 稳定身份与本地化展示；更名资产不应更改已经发出的RelicId ----
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Relic|Identity",

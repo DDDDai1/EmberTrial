@@ -80,6 +80,7 @@ private:
     friend class UETRelicEquipmentComponent;
     friend class FETRelicInventorySessionTest;
     friend class FETRelicEquipmentTransactionTest;
+    friend class FETRelicViewModelsTest;
 
     bool InitializeDataFromConfig();
     ETRelicLoadoutRules::FDefinitionMap MakeDefinitionMap() const;

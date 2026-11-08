@@ -1,6 +1,8 @@
 #if WITH_DEV_AUTOMATION_TESTS
 
 #include "Inventory/ETRelicViewModels.h"
+#include "Inventory/ETRelicDefinition.h"
+#include "HAL/PlatformTime.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
 #include "Engine/World.h"
@@ -116,6 +118,115 @@ bool FETRelicViewModelsTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Empty item cleared previous fields"), Item->GetSnapshot().RelicId.IsNone() &&
         Item->GetSnapshot().DisplayName.IsEmpty() && Item->GetSnapshot().Icon.IsNull());
     TestEqual(TEXT("No event to detached listener"), Changes, 1);
+    // ---- 500条合成数据只进入本测试GI的定义表；真实拥有列表与装备不参与改写 ----
+    constexpr int32 StressCount = 500;
+    const auto StressId = [](const int32 Index)
+    {
+        return FName(*FString::Printf(TEXT("stress_relic_r%03d"), Index));
+    };
+    FETRelicInventorySnapshot Stress = DomainBefore;
+    Stress.OwnedIds.Reset(StressCount);
+    Stress.Equipped.SlotA = StressId(0);
+    Stress.Equipped.SlotB = StressId(499);
+    const FSoftObjectPath IconPath(TEXT("/Game/Tests/T_UnloadedStressIcon.T_UnloadedStressIcon"));
+    for (int32 Index = StressCount - 1; Index >= 0; --Index)
+    {
+        const FName Id = StressId(Index);
+        if (Inventory->Definitions.Contains(Id))
+        {
+            AddError(FString::Printf(TEXT("Synthetic relic ID already exists: %s"), *Id.ToString()));
+            return false;
+        }
+        UETRelicDefinition* Definition = NewObject<UETRelicDefinition>(Inventory);
+        Definition->RelicId = Id;
+        Definition->DisplayName = FText::FromString(FString::Printf(TEXT("压测遗物 %03d"), Index));
+        Definition->Description = FText::FromString(TEXT("临时列表压力样本"));
+        Definition->SortOrder = Index % 5;
+        Definition->AllowedSlots = {Index % 2 == 0 ? EETRelicSlot::First : EETRelicSlot::Second};
+        Definition->Modifiers = {{EETRelicModifierKind::MaxHealth, 1.0f}};
+        Definition->Icon = TSoftObjectPtr<UTexture2D>(IconPath);
+        Inventory->Definitions.Add(Id, Definition);
+        Stress.OwnedIds.Add(Id);
+    }
+
+    Query = {};
+    if (!TestTrue(TEXT("Project 500 synthetic rows"),
+                  ETRelicPresentation::BuildRows(Stress, Inventory, Query, Rows) == EResult::Success) ||
+        !TestEqual(TEXT("Unfiltered stress count"), Rows.Num(), StressCount))
+    {
+        return false;
+    }
+    TestTrue(TEXT("Sort order ties break by stable ID"),
+             Rows[0].RelicId == StressId(0) && Rows[1].RelicId == StressId(5) &&
+             Rows.Last().RelicId == StressId(499));
+    TestTrue(TEXT("Stress icons keep the soft path and stay unloaded"),
+             Rows[0].Icon.ToSoftObjectPath() == IconPath && Rows[0].Icon.IsPending());
+
+    Query.Sort = EETRelicListSort::StableId;
+    TestTrue(TEXT("Stable sort ignores design-order groups"),
+             ETRelicPresentation::BuildRows(Stress, Inventory, Query, Rows) == EResult::Success &&
+             Rows.Num() == StressCount && Rows[1].RelicId == StressId(1) &&
+             Rows.Last().RelicId == StressId(499));
+    Query.SearchText = TEXT("  STRESS_RELIC_R499  ");
+    TestTrue(TEXT("Trimmed ID search on 500 rows"),
+             ETRelicPresentation::BuildRows(Stress, Inventory, Query, Rows) == EResult::Success &&
+             Rows.Num() == 1 && Rows[0].RelicId == StressId(499));
+    Query.SearchText = TEXT("压测遗物 042");
+    TestTrue(TEXT("Chinese display-name search on 500 rows"),
+             ETRelicPresentation::BuildRows(Stress, Inventory, Query, Rows) == EResult::Success &&
+             Rows.Num() == 1 && Rows[0].RelicId == StressId(42));
+
+    Query.SearchText.Reset();
+    Query.Filter = EETRelicListFilter::CompatibleWithSlotA;
+    TestTrue(TEXT("Slot A returns exactly the even sample set"),
+             ETRelicPresentation::BuildRows(Stress, Inventory, Query, Rows) == EResult::Success &&
+             Rows.Num() == 250 && Rows[0].RelicId == StressId(0) &&
+             Rows.Last().RelicId == StressId(498));
+    Query.Filter = EETRelicListFilter::CompatibleWithSlotB;
+    TestTrue(TEXT("Slot B returns exactly the odd sample set"),
+             ETRelicPresentation::BuildRows(Stress, Inventory, Query, Rows) == EResult::Success &&
+             Rows.Num() == 250 && Rows[0].RelicId == StressId(1) &&
+             Rows.Last().RelicId == StressId(499));
+    Query.Filter = EETRelicListFilter::Equipped;
+    TestTrue(TEXT("Equipped filter preserves both slot badges"),
+             ETRelicPresentation::BuildRows(Stress, Inventory, Query, Rows) == EResult::Success &&
+             Rows.Num() == 2 && Rows[0].RelicId == StressId(0) && Rows[0].bEquippedInSlotA &&
+             Rows[1].RelicId == StressId(499) && Rows[1].bEquippedInSlotB);
+
+    Query = {};
+    Query.SearchText = TEXT("stress_relic_r499");
+    FETRelicInventorySnapshot Broken = Stress;
+    Broken.OwnedIds.Last() = FName(TEXT("missing_stress_definition"));
+    TestTrue(TEXT("Search does not hide a missing definition in the 500-row sample"),
+             ETRelicPresentation::BuildRows(Broken, Inventory, Query, Rows) ==
+                 EResult::InvalidCatalog && Rows.IsEmpty());
+
+    // 热路径取样只量BuildRows，不含构造500个定义、断言或Slate。
+    constexpr int32 SampleCount = 30;
+    double TotalMs = 0.0;
+    double MaxMs = 0.0;
+    for (int32 Index = 0; Index < SampleCount; ++Index)
+    {
+        const bool bSearch = Index % 2 != 0;
+        Query.SearchText = bSearch ? TEXT("stress_relic_r499") : TEXT("");
+        const double Start = FPlatformTime::Seconds();
+        const EResult Result = ETRelicPresentation::BuildRows(Stress, Inventory, Query, Rows);
+        const double ElapsedMs = (FPlatformTime::Seconds() - Start) * 1000.0;
+        if (!TestTrue(TEXT("Repeated projection returns the expected count"),
+                      Result == EResult::Success && Rows.Num() == (bSearch ? 1 : StressCount)))
+        {
+            return false;
+        }
+        TotalMs += ElapsedMs;
+        MaxMs = FMath::Max(MaxMs, ElapsedMs);
+    }
+    AddInfo(FString::Printf(TEXT("[M3-06C1] Rows=%d Samples=%d MeanMs=%.3f MaxMs=%.3f"),
+                           StressCount, SampleCount, TotalMs / SampleCount, MaxMs));
+    const FETRelicInventorySnapshot DomainAfterStress = Inventory->GetSnapshot();
+    TestTrue(TEXT("Stress leaves session inventory untouched"),
+             DomainAfterStress.OwnedIds == DomainBefore.OwnedIds &&
+             DomainAfterStress.Equipped == DomainBefore.Equipped &&
+             DomainAfterStress.Revision == DomainBefore.Revision);
     Fixture.ForwardErrorMessages(this);
     return !HasAnyErrors();
 }
