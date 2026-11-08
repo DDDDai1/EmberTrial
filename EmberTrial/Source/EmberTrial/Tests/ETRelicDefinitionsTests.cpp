@@ -180,6 +180,30 @@ bool FETRelicDefinitionsTest::RunTest(const FString& Parameters)
                  HealingModifiers[0].Kind == EETRelicModifierKind::HealingBonus &&
                  HealingModifiers[0].AdditiveValue == 10.0f);
     }
+
+    const UETRelicDefinition* Breath = nullptr;
+    for (const UETRelicDefinition* Definition : Catalog)
+    {
+        if (Definition->GetRelicId() == FName(TEXT("breath_charm")))
+        {
+            Breath = Definition;
+            break;
+        }
+    }
+    if (!TestNotNull(TEXT("Breath Charm saved definition registered"), Breath))
+    {
+        return false;
+    }
+    TestTrue(TEXT("Breath Charm supports both slots"), Breath->SupportsSlot(EETRelicSlot::First) &&
+             Breath->SupportsSlot(EETRelicSlot::Second));
+    TestEqual(TEXT("Breath Charm sort order fifty"), Breath->GetSortOrder(), 50);
+    const TArray<FETRelicModifier>& RecoveryModifiers = Breath->GetModifiers();
+    if (TestEqual(TEXT("Breath Charm has exactly one effect"), RecoveryModifiers.Num(), 1))
+    {
+        TestTrue(TEXT("Breath Charm recovery bonus is plus five"),
+                 RecoveryModifiers[0].Kind == EETRelicModifierKind::StaminaRecoveryBonus &&
+                 RecoveryModifiers[0].AdditiveValue == 5.0f);
+    }
     return !HasAnyErrors();
 }
 

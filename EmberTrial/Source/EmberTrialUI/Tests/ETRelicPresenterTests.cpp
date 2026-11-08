@@ -10,6 +10,8 @@
 #include "Attributes/ETCombatAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Attributes/ETHealthAttributeSet.h"
+#include "Attributes/ETStaminaAttributeSet.h"
+#include "Resources/ETStaminaRecoveryComponent.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -244,7 +246,9 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("NoPawn clears comparison"), Presenter->GetSnapshot().State == EETRelicPanelState::NoPawn &&
         Presenter->GetSnapshot().AfterMax == 0.0f &&
         Presenter->GetSnapshot().BeforeHealingBonus == 0.0f &&
-        Presenter->GetSnapshot().AfterHealingBonus == 0.0f);
+        Presenter->GetSnapshot().AfterHealingBonus == 0.0f &&
+        Presenter->GetSnapshot().BeforeStaminaRecoveryBonus == 0.0f &&
+        Presenter->GetSnapshot().AfterStaminaRecoveryBonus == 0.0f);
     const int32 BeforeOldBody = ViewEvents;
     OldASC->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(), 75.0f);
     TestEqual(TEXT("Old body cannot drive current presenter"), ViewEvents, BeforeOldBody);
@@ -316,6 +320,53 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
             Presenter->GetSnapshot().bCanUnequip && !Presenter->GetSnapshot().bCanEquip);
         TestTrue(TEXT("Unequip does not require selection"), Presenter->UnequipPreviewSlot().Result == EResult::Success);
         Presenter->SetQuery({});
+        const FName BreathId(TEXT("breath_charm"));
+        UETStaminaRecoveryComponent* Recovery =
+            OtherBody->FindComponentByClass<UETStaminaRecoveryComponent>();
+        if (TestNotNull(TEXT("Paused altar recovery consumer"), Recovery))
+        {
+            const FGameplayAttribute Stamina = UETStaminaAttributeSet::GetStaminaAttribute();
+            const FGameplayAttribute RecoveryBonus =
+                UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute();
+            OtherASC->SetNumericAttributeBase(Stamina, 50.0f);
+            OtherASC->SetNumericAttributeBase(RecoveryBonus, 2.0f);
+            const uint64 BeforePreview = Inventory->GetSnapshot().Revision;
+            TestTrue(TEXT("Select saved recovery relic"), Presenter->SelectId(BreathId));
+            const FETRelicPanelData Preview = Presenter->GetSnapshot();
+            TestEqual(TEXT("Before equipment recovery zero"), Preview.BeforeStaminaRecoveryBonus, 0.0f);
+            TestEqual(TEXT("Proposed equipment recovery five"), Preview.AfterStaminaRecoveryBonus, 5.0f);
+            TestEqual(TEXT("Preview preserves external recovery"), OtherASC->GetNumericAttribute(RecoveryBonus), 2.0f);
+            TestTrue(TEXT("Recovery preview keeps revision"), Inventory->GetSnapshot().Revision == BeforePreview);
+
+            FETRelicPanelData Changed = Preview;
+            Changed.BeforeStaminaRecoveryBonus += 1.0f;
+            TestFalse(TEXT("Before recovery participates in equality"), Changed == Preview);
+            Changed = Preview;
+            Changed.AfterStaminaRecoveryBonus += 1.0f;
+            TestFalse(TEXT("After recovery participates in equality"), Changed == Preview);
+
+            TestTrue(TEXT("Paused altar confirms saved recovery relic"),
+                     Presenter->ConfirmSelected().Result == EResult::Success);
+            const FETRelicPanelData Equipped = Presenter->GetSnapshot();
+            TestTrue(TEXT("Recovery already equipped state"),
+                     Equipped.PreviewState == EETRelicPreviewState::AlreadyEquipped);
+            TestEqual(TEXT("Equipped recovery before five"), Equipped.BeforeStaminaRecoveryBonus, 5.0f);
+            TestEqual(TEXT("Equipped recovery after five"), Equipped.AfterStaminaRecoveryBonus, 5.0f);
+            TestEqual(TEXT("Current recovery includes external two"), OtherASC->GetNumericAttribute(RecoveryBonus), 7.0f);
+            TestEqual(TEXT("Equip does not immediately restore stamina"), OtherASC->GetNumericAttribute(Stamina), 50.0f);
+            TestTrue(TEXT("Paused commit leaves timer scheduled"), Recovery->IsRecoveryScheduled());
+            const double PausedTime = World->GetTimeSeconds();
+            TestTrue(TEXT("Advance paused test world"), Fixture.TickTestWorld(1.0f));
+            TestEqual(TEXT("Altar pause freezes world time"), World->GetTimeSeconds(), PausedTime);
+            TestEqual(TEXT("Altar pause freezes stamina"), OtherASC->GetNumericAttribute(Stamina), 50.0f);
+            TestTrue(TEXT("Paused altar unequips recovery"),
+                     Presenter->UnequipPreviewSlot().Result == EResult::Success);
+            TestEqual(TEXT("Unequip preserves external recovery"), OtherASC->GetNumericAttribute(RecoveryBonus), 2.0f);
+            TestEqual(TEXT("Unequip resets equipped recovery"), Presenter->GetSnapshot().BeforeStaminaRecoveryBonus, 0.0f);
+            TestTrue(TEXT("Paused unequip leaves timer scheduled"), Recovery->IsRecoveryScheduled());
+            OtherASC->SetNumericAttributeBase(RecoveryBonus, 0.0f);
+            OtherASC->SetNumericAttributeBase(Stamina, 100.0f);
+        }
         Presenter->SelectId(LifeId);
         --Presenter->ObservedRevision;
         TestTrue(TEXT("Observed stale revision reaches real rejection"), Presenter->ConfirmSelected().Result == EResult::StalePlan);
