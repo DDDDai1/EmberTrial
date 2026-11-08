@@ -484,6 +484,8 @@ bool FETLightComboFlowTest::RunTest(const FString& Parameters)
             ETGameplayTags::SetByCaller_EquipmentLightAttackBonus, 5.0f);
         EquipmentSpec.Data->SetSetByCallerMagnitude(
             ETGameplayTags::SetByCaller_EquipmentHealingBonus, 0.0f);
+        EquipmentSpec.Data->SetSetByCallerMagnitude(
+            ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, 0.0f);
         const FActiveGameplayEffectHandle EquipmentHandle =
             ASC->ApplyGameplayEffectSpecToSelf(*EquipmentSpec.Data.Get());
         if (!TestTrue(TEXT("Equipment effect active"), EquipmentHandle.IsValid()) ||

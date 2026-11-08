@@ -134,6 +134,27 @@ bool FETRelicLoadoutTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Healing overflow rejected"),
              ETRelicLoadoutRules::Evaluate(Both, Owned, Catalog, Totals) == EResult::NumericOverflow);
     TestEqual(TEXT("Healing overflow clears output"), Totals.HealingBonus, 0.0f);
+
+    Life->Modifiers[0].Kind = EETRelicModifierKind::StaminaRecoveryBonus;
+    Edge->Modifiers[0].Kind = EETRelicModifierKind::StaminaRecoveryBonus;
+    Life->Modifiers[0].AdditiveValue = 3.0f;
+    Edge->Modifiers[0].AdditiveValue = 2.0f;
+    TestTrue(TEXT("Recovery kind validated and summed"),
+             ETRelicLoadoutRules::Evaluate(Both, Owned, Catalog, Totals) == EResult::Success);
+    TestEqual(TEXT("Recovery contributions sum five"), Totals.StaminaRecoveryBonus, 5.0f);
+    TestTrue(TEXT("Recovery replacement plan accepted"),
+             Build(Empty, EETRelicSlot::First, LifeId) == EResult::Success);
+    TestEqual(TEXT("Plan carries recovery three"), Plan.AfterModifiers.StaminaRecoveryBonus, 3.0f);
+    TestEqual(TEXT("Recovery leaves healing zero"), Plan.AfterModifiers.HealingBonus, 0.0f);
+    Life->Modifiers[0].AdditiveValue = -4.0f;
+    TestTrue(TEXT("Signed recovery contribution supported"),
+             ETRelicLoadoutRules::Evaluate(Both, Owned, Catalog, Totals) == EResult::Success);
+    TestEqual(TEXT("Signed recovery sum"), Totals.StaminaRecoveryBonus, -2.0f);
+    Life->Modifiers[0].AdditiveValue = std::numeric_limits<float>::max();
+    Edge->Modifiers[0].AdditiveValue = std::numeric_limits<float>::max();
+    TestTrue(TEXT("Recovery sum overflow rejected"),
+             ETRelicLoadoutRules::Evaluate(Both, Owned, Catalog, Totals) == EResult::NumericOverflow);
+    TestEqual(TEXT("Recovery overflow clears output"), Totals.StaminaRecoveryBonus, 0.0f);
     return !HasAnyErrors();
 }
 

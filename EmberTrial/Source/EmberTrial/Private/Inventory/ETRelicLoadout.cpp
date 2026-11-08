@@ -24,6 +24,7 @@ EETRelicLoadoutResult ETRelicLoadoutRules::Evaluate(
     double HealthAdditive = 0.0;
     double AttackAdditive = 0.0;
     double HealingAdditive = 0.0;
+    double RecoveryAdditive = 0.0;
     const FName Ids[] = {Loadout.SlotA, Loadout.SlotB};
     const EETRelicSlot Slots[] = {EETRelicSlot::First, EETRelicSlot::Second};
     for (int32 Index = 0; Index < static_cast<int32>(UE_ARRAY_COUNT(Ids)); ++Index)
@@ -65,6 +66,9 @@ EETRelicLoadoutResult ETRelicLoadoutRules::Evaluate(
             case EETRelicModifierKind::HealingBonus:
                 HealingAdditive += Modifier.AdditiveValue;
                 break;
+            case EETRelicModifierKind::StaminaRecoveryBonus:
+                RecoveryAdditive += Modifier.AdditiveValue;
+                break;
             default:
                 return EETRelicLoadoutResult::InvalidDefinition;
             }
@@ -72,13 +76,15 @@ EETRelicLoadoutResult ETRelicLoadoutRules::Evaluate(
     }
     if (!ETRelicLoadoutPrivate::FitsFloat(HealthAdditive) ||
         !ETRelicLoadoutPrivate::FitsFloat(AttackAdditive) ||
-        !ETRelicLoadoutPrivate::FitsFloat(HealingAdditive))
+        !ETRelicLoadoutPrivate::FitsFloat(HealingAdditive) ||
+        !ETRelicLoadoutPrivate::FitsFloat(RecoveryAdditive))
     {
         return EETRelicLoadoutResult::NumericOverflow;
     }
     OutTotals.MaxHealthAdditive = static_cast<float>(HealthAdditive);
     OutTotals.LightAttackBonus = static_cast<float>(AttackAdditive);
     OutTotals.HealingBonus = static_cast<float>(HealingAdditive);
+    OutTotals.StaminaRecoveryBonus = static_cast<float>(RecoveryAdditive);
     return EETRelicLoadoutResult::Success;
 }
 
@@ -94,9 +100,10 @@ EETRelicLoadoutResult ETRelicLoadoutRules::MakePreview(
     }
     const double Health = static_cast<double>(BaseMaxHealth) + Totals.MaxHealthAdditive;
     const double Damage = static_cast<double>(BaseLightAttackDamage) + Totals.LightAttackBonus;
-    // 最终Q治疗量需要身体能力配置，由装备适配层继续预检；纯规则只检查有限性。
+    // 最终治疗量 / 恢复速率由身体配置继续预检；纯规则检查参数有限性。
     if (!ETRelicLoadoutPrivate::FitsFloat(Health) || !ETRelicLoadoutPrivate::FitsFloat(Damage) ||
-        !FMath::IsFinite(Totals.HealingBonus))
+        !FMath::IsFinite(Totals.HealingBonus) ||
+        !FMath::IsFinite(Totals.StaminaRecoveryBonus))
     {
         return EETRelicLoadoutResult::NumericOverflow;
     }

@@ -3,6 +3,8 @@
 #include "Inventory/ETRelicEquipmentComponent.h"
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_Heal.h"
+#include "Resources/ETStaminaRecoveryComponent.h"
+#include "Attributes/ETStaminaAttributeSet.h"
 #include "Inventory/ETRelicDefinition.h"
 #include "Abilities/ETGameplayTags.h"
 #include "AbilitySystemComponent.h"
@@ -281,6 +283,80 @@ bool FETRelicEquipmentTransactionTest::RunTest(const FString& Parameters)
         EETRelicSlot::First, NAME_None, Inventory->GetSnapshot().Revision).Result == EResult::Success);
     TestEqual(TEXT("Unequip clears own healing"), NewASC->GetNumericAttribute(Healing), 0.0f);
     TestEqual(TEXT("Unequip does not heal"), NewASC->GetNumericAttribute(Health), 60.0f);
+
+    // ---- 恢复参数：正式预检、过期拒绝与组件写锁退出后的Timer复核 ----
+    UETStaminaRecoveryComponent* Recovery =
+        NewRunBody->FindComponentByClass<UETStaminaRecoveryComponent>();
+    if (!TestNotNull(TEXT("Recovery consumer"), Recovery))
+    {
+        return false;
+    }
+    const FGameplayAttribute Stamina = UETStaminaAttributeSet::GetStaminaAttribute();
+    const FGameplayAttribute RecoveryBonus = UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute();
+    NewASC->SetNumericAttributeBase(Stamina, 50.0f);
+    TestTrue(TEXT("Deficit starts baseline recovery timer"), Recovery->IsRecoveryScheduled());
+    UETRelicDefinition* RecoveryFixture = NewObject<UETRelicDefinition>(Inventory);
+    const FName RecoveryId(TEXT("fixture_recovery"));
+    RecoveryFixture->RelicId = RecoveryId;
+    RecoveryFixture->DisplayName = FText::FromString(TEXT("Recovery fixture"));
+    RecoveryFixture->Description = FText::FromString(TEXT("Transient recovery transaction fixture"));
+    FETRelicModifier RecoveryModifier;
+    RecoveryModifier.Kind = EETRelicModifierKind::StaminaRecoveryBonus;
+    RecoveryModifier.AdditiveValue = 1000.0f;
+    RecoveryFixture->Modifiers = {RecoveryModifier};
+    Inventory->Definitions.Add(RecoveryId, RecoveryFixture);
+    Inventory->OwnedIds.Add(RecoveryId);
+    Inventory->OwnedSet.Add(RecoveryId);
+    Inventory->AdvanceRevision();
+    Inventory->PublishSnapshot();
+    const uint64 RecoveryRevision = Inventory->GetSnapshot().Revision;
+    auto EquipRecovery = [&]()
+    {
+        return NewEquipment->TryEquip(
+            EETRelicSlot::First, RecoveryId, Inventory->GetSnapshot().Revision).Result;
+    };
+    TestTrue(TEXT("Excess recovery preview rejected"), NewEquipment->TryBuildPreview(
+        EETRelicSlot::First, RecoveryId, RecoveryRevision, Preview).Result == EResult::RuleRejected);
+    TestTrue(TEXT("Excess recovery commit rejected"), EquipRecovery() == EResult::RuleRejected);
+    RecoveryFixture->Modifiers[0].AdditiveValue = -20.0f;
+    TestTrue(TEXT("Zero effective recovery rejected"), EquipRecovery() == EResult::RuleRejected);
+    TestTrue(TEXT("Invalid recovery keeps revision"), Inventory->GetSnapshot().Revision == RecoveryRevision);
+    TestEqual(TEXT("Invalid recovery keeps stamina"), NewASC->GetNumericAttribute(Stamina), 50.0f);
+
+    RecoveryFixture->Modifiers[0].AdditiveValue = 5.0f;
+    FETRelicInventoryPlan RecoveryPlan;
+    TestTrue(TEXT("Recovery plan created"), Inventory->TryBuildPlan(
+        EETRelicSlot::First, RecoveryId, 100.0f, 25.0f, RecoveryPlan).Result == EResult::Success);
+    RecoveryFixture->Modifiers[0].AdditiveValue = 6.0f;
+    TestTrue(TEXT("Recovery parameter invalidates old plan"),
+             Inventory->TryCommitPlan(RecoveryPlan).Result == EResult::StalePlan);
+    RecoveryFixture->Modifiers[0].AdditiveValue = 5.0f;
+    TestTrue(TEXT("Recovery preview has no side effect"), NewEquipment->TryBuildPreview(
+        EETRelicSlot::First, RecoveryId, RecoveryRevision, Preview).Result == EResult::Success);
+    TestEqual(TEXT("Preview carries recovery five"), Preview.AfterModifiers.StaminaRecoveryBonus, 5.0f);
+    TestEqual(TEXT("Preview leaves actual recovery zero"), NewASC->GetNumericAttribute(RecoveryBonus), 0.0f);
+    const FActiveGameplayEffectHandle RecoveryHandle = NewEquipment->OwnedEffect;
+    TestTrue(TEXT("Recovery equips"), EquipRecovery() == EResult::Success);
+    TestTrue(TEXT("Recovery update keeps owned handle"), NewEquipment->OwnedEffect == RecoveryHandle);
+    TestEqual(TEXT("Equipment Current recovery five"), NewASC->GetNumericAttribute(RecoveryBonus), 5.0f);
+    TestEqual(TEXT("Equipment Base recovery zero"), NewASC->GetNumericAttributeBase(RecoveryBonus), 0.0f);
+    float EffectiveRate = 0.0f;
+    TestTrue(TEXT("Actual consumer accepts equipment bonus"),
+             Recovery->TryCalculateRecoveryRate(NewASC->GetNumericAttribute(RecoveryBonus), EffectiveRate));
+    TestEqual(TEXT("Actual configured effective rate25"), EffectiveRate, 25.0f);
+    TestEqual(TEXT("Equip does not immediately restore stamina"), NewASC->GetNumericAttribute(Stamina), 50.0f);
+    TestTrue(TEXT("Commit completion wakes timer after transient Busy"), Recovery->IsRecoveryScheduled());
+    NewEquipment->Deactivate();
+    TestFalse(TEXT("Inactive equipment stops controlled-body recovery"), Recovery->IsRecoveryScheduled());
+    NewEquipment->Activate(false);
+    TestEqual(TEXT("Reactivation restores recovery bonus"), NewASC->GetNumericAttribute(RecoveryBonus), 5.0f);
+    TestTrue(TEXT("Restored ready equipment wakes recovery"), Recovery->IsRecoveryScheduled());
+    TestEqual(TEXT("Reactivation does not refill stamina"), NewASC->GetNumericAttribute(Stamina), 50.0f);
+    TestTrue(TEXT("Recovery unequip"), NewEquipment->TryEquip(
+        EETRelicSlot::First, NAME_None, Inventory->GetSnapshot().Revision).Result == EResult::Success);
+    TestEqual(TEXT("Unequip clears recovery contribution"), NewASC->GetNumericAttribute(RecoveryBonus), 0.0f);
+    TestTrue(TEXT("Unequip completion preserves recovery eligibility"), Recovery->IsRecoveryScheduled());
+    TestEqual(TEXT("Unequip does not refill stamina"), NewASC->GetNumericAttribute(Stamina), 50.0f);
 
     // ---- 外部移除不能伪造成功；结束后解绑与清句柄仍精确 ----
     NewASC->RemoveActiveGameplayEffect(NewEquipment->OwnedEffect);

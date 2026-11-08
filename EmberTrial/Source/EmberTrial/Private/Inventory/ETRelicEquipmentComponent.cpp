@@ -11,6 +11,7 @@
 #include "AbilitySystemComponent.h"
 #include "Attributes/ETCombatAttributeSet.h"
 #include "Attributes/ETHealthAttributeSet.h"
+#include "Resources/ETStaminaRecoveryComponent.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "GameplayEffect.h"
 #include "GameplayEffectAggregator.h"
@@ -126,9 +127,30 @@ bool UETRelicEquipmentComponent::HasIntactOwnedEffect(UAbilitySystemComponent* A
         ETGameplayTags::SetByCaller_EquipmentLightAttackBonus, false, Missing);
     const float Healing = Active->Spec.GetSetByCallerMagnitude(
         ETGameplayTags::SetByCaller_EquipmentHealingBonus, false, Missing);
-    return FMath::IsFinite(Health) && FMath::IsFinite(Attack) && FMath::IsFinite(Healing) &&
+    const float Recovery = Active->Spec.GetSetByCallerMagnitude(
+        ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, false, Missing);
+    return FMath::IsFinite(Health) && FMath::IsFinite(Attack) &&
+           FMath::IsFinite(Healing) && FMath::IsFinite(Recovery) &&
            Health == AppliedModifiers.MaxHealthAdditive &&
-           Attack == AppliedModifiers.LightAttackBonus && Healing == AppliedModifiers.HealingBonus;
+           Attack == AppliedModifiers.LightAttackBonus && Healing == AppliedModifiers.HealingBonus &&
+           Recovery == AppliedModifiers.StaminaRecoveryBonus;
+}
+
+void UETRelicEquipmentComponent::PublishEquipmentChanged()
+{
+    // 属性回调可能在bChanging期间暂时停表；完整写入后重查资格，不立即补资源。
+    if (!bEndingPlay)
+    {
+        if (AEmberTrialCharacter* Body = BodyOwner.Get())
+        {
+            if (UETStaminaRecoveryComponent* Recovery =
+                    Body->FindComponentByClass<UETStaminaRecoveryComponent>())
+            {
+                Recovery->RefreshRecoveryState();
+            }
+        }
+    }
+    OnEquipmentChanged.Broadcast(this);
 }
 
 bool UETRelicEquipmentComponent::GetAppliedModifiers(FETRelicModifierTotals& OutModifiers) const
@@ -170,6 +192,7 @@ bool UETRelicEquipmentComponent::EnsureOwnedEffect()
     Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentMaxHealth, 0.0f);
     Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentLightAttackBonus, 0.0f);
     Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentHealingBonus, 0.0f);
+    Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, 0.0f);
     const FActiveGameplayEffectHandle Created = ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
 
     // Apply可触发同步观察者；期间失活 / 结束时只清刚创建的句柄，不能泄漏。
@@ -198,7 +221,8 @@ bool UETRelicEquipmentComponent::AreModifiersValid(
     UAbilitySystemComponent* ASC, const FETRelicModifierTotals& Modifiers) const
 {
     if (!FMath::IsFinite(Modifiers.MaxHealthAdditive) ||
-        !FMath::IsFinite(Modifiers.LightAttackBonus) || !FMath::IsFinite(Modifiers.HealingBonus))
+        !FMath::IsFinite(Modifiers.LightAttackBonus) || !FMath::IsFinite(Modifiers.HealingBonus) ||
+        !FMath::IsFinite(Modifiers.StaminaRecoveryBonus))
     {
         return false;
     }
@@ -211,10 +235,14 @@ bool UETRelicEquipmentComponent::AreModifiersValid(
     const double NewHealing = static_cast<double>(ASC->GetNumericAttribute(
         UETCombatAttributeSet::GetHealingBonusAttribute())) - AppliedModifiers.HealingBonus +
         Modifiers.HealingBonus;
+    const double NewRecovery = static_cast<double>(ASC->GetNumericAttribute(
+        UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute())) -
+        AppliedModifiers.StaminaRecoveryBonus + Modifiers.StaminaRecoveryBonus;
     const double Limit = std::numeric_limits<float>::max();
     return FMath::IsFinite(NewMax) && NewMax >= 1.0 && NewMax <= Limit &&
            FMath::IsFinite(NewBonus) && FMath::Abs(NewBonus) <= Limit &&
-           FMath::IsFinite(NewHealing) && FMath::Abs(NewHealing) <= Limit;
+           FMath::IsFinite(NewHealing) && FMath::Abs(NewHealing) <= Limit &&
+           FMath::IsFinite(NewRecovery) && FMath::Abs(NewRecovery) <= Limit;
 }
 
 EETRelicEffectWriteResult UETRelicEquipmentComponent::TrySetModifiers(
@@ -236,7 +264,8 @@ EETRelicEffectWriteResult UETRelicEquipmentComponent::TrySetModifiers(
     }
     if (Modifiers.MaxHealthAdditive == AppliedModifiers.MaxHealthAdditive &&
         Modifiers.LightAttackBonus == AppliedModifiers.LightAttackBonus &&
-        Modifiers.HealingBonus == AppliedModifiers.HealingBonus)
+        Modifiers.HealingBonus == AppliedModifiers.HealingBonus &&
+        Modifiers.StaminaRecoveryBonus == AppliedModifiers.StaminaRecoveryBonus)
     {
         return EETRelicEffectWriteResult::Unchanged;
     }
@@ -245,7 +274,7 @@ EETRelicEffectWriteResult UETRelicEquipmentComponent::TrySetModifiers(
         TGuardValue<bool> ChangeGuard(bChanging, true);
         WriteModifiersUnchecked(Modifiers);
     }
-    OnEquipmentChanged.Broadcast(this);
+    PublishEquipmentChanged();
     // Applied表示已向自有GE发出更新；同步回调可以继续改变世界，不在这里伪造回滚。
     return EETRelicEffectWriteResult::Applied;
 }
@@ -269,7 +298,7 @@ void UETRelicEquipmentComponent::ReleaseOwnedEffect()
     }
     if (bHadIdentity)
     {
-        OnEquipmentChanged.Broadcast(this);
+        PublishEquipmentChanged();
     }
 }
 
@@ -281,8 +310,10 @@ void UETRelicEquipmentComponent::WriteModifiersUnchecked(const FETRelicModifierT
     Magnitudes.Add(ETGameplayTags::SetByCaller_EquipmentMaxHealth, Modifiers.MaxHealthAdditive);
     Magnitudes.Add(ETGameplayTags::SetByCaller_EquipmentLightAttackBonus, Modifiers.LightAttackBonus);
     Magnitudes.Add(ETGameplayTags::SetByCaller_EquipmentHealingBonus, Modifiers.HealingBonus);
+    Magnitudes.Add(ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus,
+                   Modifiers.StaminaRecoveryBonus);
     {
-        // 三个聚合器更新后才派发脏通知；这不是任意GAS / 库存事务的原子锁。
+        // 四个聚合器更新后才派发脏通知；这不是任意GAS / 库存事务的原子锁。
         FScopedAggregatorOnDirtyBatch DirtyBatch;
         AppliedModifiers = Modifiers;
         ASC->UpdateActiveGameplayEffectSetByCallerMagnitudes(OwnedEffect, Magnitudes);
@@ -448,7 +479,7 @@ void UETRelicEquipmentComponent::RefreshEquipmentState()
            TEXT("[M3-02C2-02] Restore Body=%s Revision=%llu A=%s B=%s Initial=%d"),
            *GetNameSafe(GetOwner()), static_cast<unsigned long long>(Snapshot.Revision),
            *Snapshot.Equipped.SlotA.ToString(), *Snapshot.Equipped.SlotB.ToString(), bRefillNewBody ? 1 : 0);
-    OnEquipmentChanged.Broadcast(this);
+    PublishEquipmentChanged();
 }
 
 bool UETRelicEquipmentComponent::AreFinalAbilityValuesValid(
@@ -478,8 +509,24 @@ bool UETRelicEquipmentComponent::AreFinalAbilityValuesValid(
     // 没有治疗能力的隔离身体只允许零装备治疗贡献；正式玩家读取真实GA基础值。
     const UETGA_Heal* Heal = Body->GetHealConfiguration();
     float Amount = 0.0f;
-    return IsValid(Heal) ? Heal->TryCalculateHealAmount(static_cast<float>(HealingBonus), Amount)
-                         : Modifiers.HealingBonus == 0.0f;
+    if (IsValid(Heal) ? !Heal->TryCalculateHealAmount(static_cast<float>(HealingBonus), Amount)
+                      : Modifiers.HealingBonus != 0.0f)
+    {
+        return false;
+    }
+    const double RecoveryBonus = static_cast<double>(ASC->GetNumericAttribute(
+        UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute())) -
+        AppliedModifiers.StaminaRecoveryBonus + Modifiers.StaminaRecoveryBonus;
+    if (!FMath::IsFinite(RecoveryBonus) || FMath::Abs(RecoveryBonus) > Limit)
+    {
+        return false;
+    }
+    const UETStaminaRecoveryComponent* Recovery =
+        Body->FindComponentByClass<UETStaminaRecoveryComponent>();
+    float Rate = 0.0f;
+    return IsValid(Recovery)
+        ? Recovery->TryCalculateRecoveryRate(static_cast<float>(RecoveryBonus), Rate)
+        : Modifiers.StaminaRecoveryBonus == 0.0f;
 }
 
 bool UETRelicEquipmentComponent::ReadPreviewBases(float& OutMaxHealth, float& OutAttackDamage) const
@@ -617,6 +664,6 @@ FETRelicInventoryReply UETRelicEquipmentComponent::TryEquipInternal(
                 AppliedRevision = Revision;
                 WriteModifiersUnchecked(Committed.AfterModifiers);
             }
-            OnEquipmentChanged.Broadcast(this);
+            PublishEquipmentChanged();
         });
 }

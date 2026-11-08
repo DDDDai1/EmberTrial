@@ -30,6 +30,7 @@ struct EMBERTRIAL_API FETRelicModifierTotals
     float MaxHealthAdditive = 0.0f;
     float LightAttackBonus = 0.0f;
     float HealingBonus = 0.0f;
+    float StaminaRecoveryBonus = 0.0f;
 };
 
 struct EMBERTRIAL_API FETRelicLoadoutPreview

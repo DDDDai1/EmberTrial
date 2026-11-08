@@ -17,7 +17,8 @@ enum class EETRelicModifierKind : uint8
 {
     MaxHealth UMETA(DisplayName = "Max Health"),
     LightAttackBonus UMETA(DisplayName = "Light Attack Bonus"),
-    HealingBonus UMETA(DisplayName = "Healing Bonus")
+    HealingBonus UMETA(DisplayName = "Healing Bonus"),
+    StaminaRecoveryBonus UMETA(DisplayName = "Stamina Recovery Bonus")
 };
 
 USTRUCT(BlueprintType)

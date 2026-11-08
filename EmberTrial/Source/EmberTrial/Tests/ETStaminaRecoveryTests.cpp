@@ -147,6 +147,28 @@ bool FETStaminaRecoveryTest::RunTest(const FString& Parameters)
     {
         return false;
     }
+    // 等到真实采样间隔中的未结算片段，验证相同值通知不能丢弃它。
+    for (int32 Step = 0; Step < 3 &&
+         World->GetTimeSeconds() <= Recovery->LastSampleTime + 0.001; ++Step)
+    {
+        if (!Advance(1))
+        {
+            return false;
+        }
+    }
+    if (!TestTrue(TEXT("Unpaid sampling interval exists"),
+                  World->GetTimeSeconds() > Recovery->LastSampleTime + 0.001))
+    {
+        return false;
+    }
+    const double BeforeNoOpSample = Recovery->LastSampleTime;
+    FOnAttributeChangeData SameRate;
+    SameRate.Attribute = RecoveryBonus;
+    SameRate.OldValue = 10.0f;
+    SameRate.NewValue = 10.0f;
+    Recovery->HandleAttributeChanged(SameRate, TWeakObjectPtr<UAbilitySystemComponent>(ASC),
+                                     Recovery->ObservationSerial);
+    TestEqual(TEXT("Same rate notification preserves sample"), Recovery->LastSampleTime, BeforeNoOpSample);
     ASC->SetNumericAttributeBase(RecoveryBonus, std::numeric_limits<float>::quiet_NaN());
     TestEqual(TEXT("NaN Base falls back to zero"), ASC->GetNumericAttributeBase(RecoveryBonus), 0.0f);
     TestEqual(TEXT("NaN does not duplicate current bonus"), ASC->GetNumericAttribute(RecoveryBonus), 10.0f);

@@ -104,6 +104,11 @@ bool UETStaminaRecoveryComponent::ReadRecoveryRate(
                OutRate);
 }
 
+void UETStaminaRecoveryComponent::RefreshRecoveryState()
+{
+    SyncRecoveryTimer();
+}
+
 void UETStaminaRecoveryComponent::ClearRecoveryTimer(const TCHAR* Reason)
 {
     const bool bHadTimer = IsRecoveryScheduled();
@@ -257,6 +262,10 @@ void UETStaminaRecoveryComponent::HandleAttributeChanged(
     }
     if (Change.Attribute == UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute())
     {
+        if (Change.NewValue == Change.OldValue)
+        {
+            return;
+        }
         // 以变化时刻作为新积分起点；未结算的旧小段不补发，也不把旧时间乘新速率。
         // 不改RecoveryNotBefore，保留最近一次实际消费的截止时间。
         LastSampleTime = GetWorld()->GetTimeSeconds();

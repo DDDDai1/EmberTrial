@@ -63,6 +63,7 @@ bool FETRelicEquipmentOwnershipTest::RunTest(const FString& Parameters)
     const FGameplayAttribute Health = UETHealthAttributeSet::GetHealthAttribute();
     const FGameplayAttribute Bonus = UETCombatAttributeSet::GetLightAttackBonusAttribute();
     const FGameplayAttribute Healing = UETCombatAttributeSet::GetHealingBonusAttribute();
+    const FGameplayAttribute RecoveryBonus = UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute();
     auto CountOwned = [](UAbilitySystemComponent* SourceASC, UETRelicEquipmentComponent* Source)
     {
         int32 Count = 0;
@@ -129,6 +130,19 @@ bool FETRelicEquipmentOwnershipTest::RunTest(const FString& Parameters)
     Tamper[ETGameplayTags::SetByCaller_EquipmentHealingBonus] = 10.0f;
     ASC->UpdateActiveGameplayEffectSetByCallerMagnitudes(InitialHandle, Tamper);
     TestTrue(TEXT("Exact spec restored"), Equipment->GetAppliedModifiers(Snapshot));
+    TestTrue(TEXT("Recovery-only change applies"),
+             Equipment->TrySetModifiers({40.0f, 7.0f, 10.0f, 5.0f}) == EWrite::Applied);
+    TestEqual(TEXT("Owned recovery five"), ASC->GetNumericAttribute(RecoveryBonus), 5.0f);
+    TestTrue(TEXT("Recovery update keeps handle"), Equipment->OwnedEffect == InitialHandle);
+    TestTrue(TEXT("Same four totals unchanged"),
+             Equipment->TrySetModifiers({40.0f, 7.0f, 10.0f, 5.0f}) == EWrite::Unchanged);
+    Tamper.Reset();
+    Tamper.Add(ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, 99.0f);
+    ASC->UpdateActiveGameplayEffectSetByCallerMagnitudes(InitialHandle, Tamper);
+    TestFalse(TEXT("Fourth magnitude tampering detected"), Equipment->GetAppliedModifiers(Snapshot));
+    Tamper[ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus] = 5.0f;
+    ASC->UpdateActiveGameplayEffectSetByCallerMagnitudes(InitialHandle, Tamper);
+    TestTrue(TEXT("Fourth magnitude restored"), Equipment->GetAppliedModifiers(Snapshot));
 
     // ---- 降上限只夹最终越界值；夹限没有伤害GE来源 ----
     bool bClampHadDamageSource = false;
@@ -161,6 +175,7 @@ bool FETRelicEquipmentOwnershipTest::RunTest(const FString& Parameters)
     ForeignSpec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentMaxHealth, 0.0f);
     ForeignSpec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentLightAttackBonus, 2.0f);
     ForeignSpec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentHealingBonus, 3.0f);
+    ForeignSpec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus, 2.0f);
     const FActiveGameplayEffectHandle Foreign = ASC->ApplyGameplayEffectSpecToSelf(*ForeignSpec.Data.Get());
     if (!TestTrue(TEXT("Independent active effect"), Foreign.IsValid()))
     {
@@ -174,6 +189,7 @@ bool FETRelicEquipmentOwnershipTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Inactive owns no effect"), ASC->GetActiveGameplayEffect(InitialHandle) == nullptr);
     TestTrue(TEXT("Foreign survives deactivation"), ASC->GetActiveGameplayEffect(Foreign) != nullptr);
     TestEqual(TEXT("Foreign healing survives deactivation"), ASC->GetNumericAttribute(Healing), 3.0f);
+    TestEqual(TEXT("Foreign recovery survives deactivation"), ASC->GetNumericAttribute(RecoveryBonus), 2.0f);
     Equipment->Activate(false);
     TestTrue(TEXT("Explicit reactivation starts zero slot"), Equipment->GetAppliedModifiers(Snapshot));
     TestEqual(TEXT("Reactivated own attack zero"), Snapshot.LightAttackBonus, 0.0f);

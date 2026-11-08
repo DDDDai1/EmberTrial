@@ -78,6 +78,7 @@ private:
         uint64 ExpectedRevision, FETRelicInventoryPlan& OutPlan) const;
     bool AreFinalAbilityValuesValid(const FETRelicModifierTotals& Modifiers) const;
     void WriteModifiersUnchecked(const FETRelicModifierTotals& Modifiers);
+    void PublishEquipmentChanged();
 
 
     bool ReadBody(AEmberTrialCharacter*& OutBody, UAbilitySystemComponent*& OutASC) const;

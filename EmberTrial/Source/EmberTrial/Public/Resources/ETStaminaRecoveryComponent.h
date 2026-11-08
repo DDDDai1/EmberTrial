@@ -26,6 +26,9 @@ public:
     // 只计算基础速率 + 加成；不要求当前能恢复、不读世界或修改资源。
     bool TryCalculateRecoveryRate(float Bonus, float& OutRate) const;
 
+    // 仅复核当前计时资格；保留观察订阅、消费延迟与仍有效的Timer。
+    void RefreshRecoveryState();
+
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

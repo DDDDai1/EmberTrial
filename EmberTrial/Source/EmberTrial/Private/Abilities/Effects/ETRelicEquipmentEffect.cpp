@@ -30,4 +30,11 @@ UETRelicEquipmentEffect::UETRelicEquipmentEffect(const FObjectInitializer& Objec
     HealingModifier.Attribute = UETCombatAttributeSet::GetHealingBonusAttribute();
     HealingModifier.ModifierOp = EGameplayModOp::AddBase;
     HealingModifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(HealingMagnitude);
+
+    FSetByCallerFloat RecoveryMagnitude;
+    RecoveryMagnitude.DataTag = ETGameplayTags::SetByCaller_EquipmentStaminaRecoveryBonus;
+    FGameplayModifierInfo& RecoveryModifier = Modifiers.AddDefaulted_GetRef();
+    RecoveryModifier.Attribute = UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute();
+    RecoveryModifier.ModifierOp = EGameplayModOp::AddBase;
+    RecoveryModifier.ModifierMagnitude = FGameplayEffectModifierMagnitude(RecoveryMagnitude);
 }
