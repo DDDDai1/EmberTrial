@@ -468,6 +468,10 @@ Automation RunTests EmberTrial.M2.Combat.BreakPulseAbility
 
 反馈时给出双Build／三索引、两项专项、F实际扣60、新身体加成0、手动工时与构建等待。若有失败，贴首条错误与对应的用例或运行步骤。
 
+## B4-01验收结果
+
+2026-11-08通过。双Build、三索引与两项专项完成。日志记录自动化快照80、两轮实机基础60及新身体加成0。手动40分钟，构建等待5分钟。本地功能提交为`764f98e`。[验收报告](Reports/M3_06B4_01_Verification.md) · [B4-02操作指南](M3_06B4_02_BreakPulseRelicEquipmentPipeline.md)
+
 ## 8. Commit / Push
 
 B3-03功能提交为`2a8d1dd`。本轮先在CLion Review并Stage以下12份文档，随后Commit和Push。

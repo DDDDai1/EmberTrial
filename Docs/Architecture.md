@@ -206,11 +206,13 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **06B3-03已验收。** 凝息护符提供每秒5点恢复。Presenter以方案和已应用装备总和生成第四项，View沿用PreviewText。暂停祭坛装卸与恢复速率25／20通过。
 
-**06B4-01待实施。** Combat属性集提供破势加成，F从施法者ASC读取Current并在施放时捕获基础值与加成之和。生效通知将该快照交给原Poise Delta GE，仍由目标的架势系统管理归零和破势反应。
+**06B4-01已验收。** F施放时读取施法者ASC的Current，与资产基础值一并快照。Notify按该值结算，目标架势系统负责归零和破势反应。实机基础60和专项快照80已通过。
+
+**06B4-02待实施。** 现有原生装备GE接收第五个SetByCaller。装备预检从ASC聚合值扣旧加新，再读取角色实际F配置并复用施放数值校验。旧方案重验比较第五项贡献。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B3-03功能已在本地提交`2a8d1dd`。本轮提交验收报告、资产来源、B4-01指南和进度文档。[12份文档及Push清单](M3_06B4_01_BreakPulsePoiseBonusFoundation.md#8-commit--push)
+B4-01功能已在本地提交`764f98e`。本轮提交验收报告、B4-02指南和进度文档。[11份文档及Push清单](M3_06B4_02_BreakPulseRelicEquipmentPipeline.md)
 
-- 英文 `docs: verify stamina recovery relic and plan break pulse bonus`
-- 中文 `docs: 完成体力恢复遗物验收并规划破势加成`
+- 英文 `docs: verify break pulse bonus and plan relic equipment integration`
+- 中文 `docs: 完成破势加成验收并规划遗物装备接入`

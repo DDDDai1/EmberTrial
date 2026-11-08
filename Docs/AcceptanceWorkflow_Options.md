@@ -408,9 +408,15 @@ B3-03验收通过。四项专项Success。实机完成五件列表、第四比�
 
 复用BreakPulseRange与BreakPulseAbility。范围专项增加一个场景验证合法加成、真实通知快照和超界拒绝。实机打一发基础F并检查新身体归零，装备和UI在对应批次验收。
 
+B4-01两项专项与实机通过。手动40分钟，等待5分钟。
+
+## M3-06B4-02的检查边界
+
+扩展既有四项装备专项，验证双槽汇总、真实GE、句柄及超界拒绝和旧方案失效。复用范围F与连段两个入口。实机走一次既有祭坛装配、基础F与Stop重开。新遗物的UI和命中收益在B4-03验收。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B3-03功能已在本地提交`2a8d1dd`。本轮提交验收报告、资产来源、B4-01指南和进度文档。[12份文档及Push清单](M3_06B4_01_BreakPulsePoiseBonusFoundation.md#8-commit--push)
+B4-01功能已在本地提交`764f98e`。本轮提交验收报告、B4-02指南和进度文档。[11份文档及Push清单](M3_06B4_02_BreakPulseRelicEquipmentPipeline.md)
 
-- 英文 `docs: verify stamina recovery relic and plan break pulse bonus`
-- 中文 `docs: 完成体力恢复遗物验收并规划破势加成`
+- 英文 `docs: verify break pulse bonus and plan relic equipment integration`
+- 中文 `docs: 完成破势加成验收并规划遗物装备接入`

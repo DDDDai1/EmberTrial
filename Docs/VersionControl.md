@@ -424,9 +424,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-08 B3-03收尾。`2a8d1dd`含五份源码、一份Config与凝息护符实物，候选比对及LFS指纹通过。四专项与实机25／20恢复通过。手动40分钟，等待5分钟。B4-01手动实现见本轮新指南。
 
+2026-11-08 B4-01收尾。`764f98e`含五份Core源码，候选比对通过。两项专项、实机60和新身体加成0已核对。手动40分钟，等待5分钟。B4-02的19份候选交由用户按指南实施。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B3-03功能已在本地提交`2a8d1dd`。本轮提交验收报告、资产来源、B4-01指南和进度文档。[12份文档及Push清单](M3_06B4_01_BreakPulsePoiseBonusFoundation.md#8-commit--push)
+B4-01功能已在本地提交`764f98e`。本轮提交验收报告、B4-02指南和进度文档。[11份文档及Push清单](M3_06B4_02_BreakPulseRelicEquipmentPipeline.md)
 
-- 英文 `docs: verify stamina recovery relic and plan break pulse bonus`
-- 中文 `docs: 完成体力恢复遗物验收并规划破势加成`
+- 英文 `docs: verify break pulse bonus and plan relic equipment integration`
+- 中文 `docs: 完成破势加成验收并规划遗物装备接入`
