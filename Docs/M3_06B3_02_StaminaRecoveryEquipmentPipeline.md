@@ -1,6 +1,6 @@
 # M3-06B3-02：体力恢复加成的装备管线
 
-2026-11-07下发，UE **5.5.4**。[B3-01恢复消费者已验收](Reports/M3_06B3_01_Verification.md)，无待补。本章由你手动修改**19份既有Core文件**，无新文件 / 资产 / Config；当前只有Artifacts候选，正式源码尚未改变。第五件与UI比较留B3-03。
+2026-11-07下发，2026-11-08 13:03验收通过。19份源码、双Build、三索引、六项专项与默认PIE恢复通过。手动85分钟，构建等待5分钟。[验收报告](Reports/M3_06B3_02_Verification.md)
 
 ## 1. 这一章做什么
 
@@ -1187,12 +1187,12 @@ Stop新100与加成0；源码保存，资产配置保持：
 
 ## 13. Commit / Push（固定放在最后）
 
-B3-01收尾当前只提交以下**11份文档**。本地13dd9da已包含六份Core实现，来源94 / 资产 / Config保持；B3-02的19份Core仅候选，未写入正式源码。
+B3-02的19份实现已在本地提交`eb9c1ad`。本次收尾提交以下11份文档。
 
 ```text
-Docs/Reports/M3_06B3_01_Verification.md
-Docs/M3_06B3_01_StaminaRecoveryBonusFoundation.md
+Docs/Reports/M3_06B3_02_Verification.md
 Docs/M3_06B3_02_StaminaRecoveryEquipmentPipeline.md
+Docs/M3_06B3_03_StaminaRecoveryRelicAndComparison.md
 README.md
 Introduction.md
 Docs/Progress.md
@@ -1203,36 +1203,7 @@ Docs/AcceptanceWorkflow_Options.md
 Docs/VersionControl.md
 ```
 
-- 英文：`docs: verify stamina recovery bonus and plan equipment integration`
-- 专业中文：`docs: 完成体力恢复加成验收并规划装备接入`
+- 英文 `docs: verify recovery equipment and plan fifth relic`
+- 中文 `docs: 完成体力恢复装备验收并规划第五件遗物`
 
-Artifacts候选 / 编译预检 / 原日志 / JSON、包与个人ini保持本地。Stage后继续编辑需重新Stage → Review → Commit / Push，由你操作；助手未操作索引、提交或远端。
-
-**你实施并验收本小节后，再提交以下19份既有Core源码的真实改动：**
-
-```text
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicTypes.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicDefinition.cpp
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicLoadout.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicLoadout.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/ETGameplayTags.h
-EmberTrial/Source/EmberTrial/Private/Abilities/ETGameplayTags.cpp
-EmberTrial/Source/EmberTrial/Public/Abilities/Effects/ETRelicEquipmentEffect.h
-EmberTrial/Source/EmberTrial/Private/Abilities/Effects/ETRelicEquipmentEffect.cpp
-EmberTrial/Source/EmberTrial/Public/Resources/ETStaminaRecoveryComponent.h
-EmberTrial/Source/EmberTrial/Private/Resources/ETStaminaRecoveryComponent.cpp
-EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicEquipmentComponent.h
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicEquipmentComponent.cpp
-EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicInventorySubsystem.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicLoadoutTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentEffectsTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentOwnershipTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETLightComboFlowTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETRelicEquipmentTransactionTests.cpp
-EmberTrial/Source/EmberTrial/Tests/ETStaminaRecoveryTests.cpp
-```
-
-- 英文：`feat: integrate stamina recovery bonus into relic equipment`
-- 专业中文：`feat: 将体力恢复加成接入遗物装备管线`
-
-届时新的报告 / 状态改动一并Review；本批没有Config、资产或第五件需要Push，不提交Artifacts候选。
+在CLion Review后由你Stage、Commit和Push。预检候选与原始日志存放在本地Artifacts。

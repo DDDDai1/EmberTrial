@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新2026-11-07。[B3-01体力恢复加成基础已验收](Reports/M3_06B3_01_Verification.md)，无待补；当前[B3-02装备管线](M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)待用户操作。实时规模 / 工时见Progress。
+更新于2026-11-08。B3-02已验收，B3-03待用户操作。实时规模与工时见Progress。[B3-02验收](Reports/M3_06B3_02_Verification.md) · [B3-03操作](M3_06B3_03_StaminaRecoveryRelicAndComparison.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -147,7 +147,8 @@
 | M3-06B2-02 | [治疗核心装备管线](M3_06B2_02_HealingEquipmentPipeline.md) | 你手动实现，我设计 / 审查 | 完成 | [报告](Reports/M3_06B2_02_Verification.md)：21源码 / 六Success / 双Build与默认Q，75 / 等待5 |
 | M3-06B2-03 | [第四件治疗遗物与比较](M3_06B2_03_HealingRelicAndComparison.md) | 你手动实现，我设计 / 审查 | 完成 | [报告](Reports/M3_06B2_03_Verification.md)：四Success、Q50 / 移除40 / 不治疗，来源94；65 / 等待5 |
 | M3-06B3-01 | [体力恢复速率加成基础](M3_06B3_01_StaminaRecoveryBonusFoundation.md) | 你手动实现，我设计 / 审查 | 完成 | [报告](Reports/M3_06B3_01_Verification.md)：六源码 / 两Success / 默认恢复，70 / 等待5 |
-| M3-06B3-02 | [体力恢复装备管线](M3_06B3_02_StaminaRecoveryEquipmentPipeline.md) | 你手动实现，我设计 / 审查 | 待用户操作 | 19旧Core / 六专项，四幅度 / 完成后醒表与同值通知；第五件留03 |
+| M3-06B3-02 | [恢复装备管线验收](Reports/M3_06B3_02_Verification.md) | 你实现，我审查 | 完成 | 19源码 / 六专项 / 满值停表，85分钟 / 等待5 |
+| M3-06B3-03 | [第五件恢复遗物与比较](M3_06B3_03_StaminaRecoveryRelicAndComparison.md) | 你实现，我设计 / 审查 | 待用户操作 | 五源码 / 一Config / 一资产、四专项、装备25和卸下20 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M3_06A/Attempt01（两件遗物）；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -165,7 +166,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 01–04与已实施05设置批次均通过；06A两遗物 / 设置新版包通过，第三件代价型已通过，治疗快照已通过，核心治疗装备管线已通过，第四件与治疗闭环已通过，体力恢复消费者已通过，当前装备管线；完整六件 / 列表压力 / 反馈扩展后续，M3不总关闭 |
+| M3当前开发 | 01–04与已实施05设置批次均通过；06A两遗物 / 设置新版包通过，第三件代价型已通过，治疗快照已通过，核心治疗装备管线已通过，第四件与治疗闭环已通过，体力恢复装备管线已通过，当前接入第五件与比较；完整六件 / 列表压力 / 反馈扩展后续，M3不总关闭 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -173,9 +174,7 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-B3-01通过，本地13dd9da已有六份Core实现。当前只Stage 01报告 / 指南收尾、02新指南及实际共享状态，准确11文件清单见[B3-02末尾](M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)。19份Core候选未写正式源码，来源94 / 资产 / Config保持，第五件与UI仍03接入。
+B3-02实现位于本地提交`eb9c1ad`。本轮提交收尾报告、B3-03指南和进度文档。第五件与UI由用户按指南实施。[11份文档及Push清单](M3_06B3_03_StaminaRecoveryRelicAndComparison.md#11-commit--push)
 
-- 英文：`docs: verify stamina recovery bonus and plan equipment integration`
-- 专业中文：`docs: 完成体力恢复加成验收并规划装备接入`
-
-Artifacts产物 / 包 / 个人ini不上传。Stage后再改需重新Stage / Review，Git由用户操作，助手未核验远端。
+- 英文 `docs: verify recovery equipment and plan fifth relic`
+- 中文 `docs: 完成体力恢复装备验收并规划第五件遗物`

@@ -396,11 +396,15 @@ B1已验收：四专项Success，三行 / 80与35 / 组合实际40 / 存活换�
 
 19旧Core中6份既有测试，六专项各一次：LoadoutRules / EquipmentEffects / EquipmentOwnership / EquipmentTransactions / StaminaRecovery / Combo.Flow。事务在受控身体体力50时验证更新 / 重激活 / 卸装后仍有Timer且不立即回体力；同值用例保留未结算片段。无新资产 / Config，实机约3分钟原四件、2恢复 / P / 新身体，不抓时点、不临时蓝图或全42项 / Cook。
 
+B3-02验收通过。六项专项均为Success，Ownership记录两次通过。手动85分钟，等待5分钟。
+
+## M3-06B3-03的检查边界
+
+五件目录、四项专项及一次祭坛装卸短查。Presenter复用暂停命令桥覆盖恢复比较、外部贡献隔离、计时资格及暂停冻结。实机看四行比较、默认体力恢复和新会话状态。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B3-01通过，本地13dd9da已有六份Core实现。当前只Stage 01报告 / 指南收尾、02新指南及实际共享状态，准确11文件清单见[B3-02末尾](M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)。19份Core候选未写正式源码，来源94 / 资产 / Config保持，第五件与UI仍03接入。
+B3-02实现位于本地提交`eb9c1ad`。本轮提交收尾报告、B3-03指南和进度文档。第五件与UI由用户按指南实施。[11份文档及Push清单](M3_06B3_03_StaminaRecoveryRelicAndComparison.md#11-commit--push)
 
-- 英文：`docs: verify stamina recovery bonus and plan equipment integration`
-- 专业中文：`docs: 完成体力恢复加成验收并规划装备接入`
-
-Artifacts产物 / 包 / 个人ini不上传。Stage后再改需重新Stage / Review，Git由用户操作，助手未核验远端。
+- 英文 `docs: verify recovery equipment and plan fifth relic`
+- 中文 `docs: 完成体力恢复装备验收并规划第五件遗物`

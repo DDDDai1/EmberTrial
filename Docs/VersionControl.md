@@ -420,11 +420,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-07 B3-01收尾：起点干净，本地13dd9da含六Core，候选归一一致；两Success、实际恢复与满值停表有日志，双Build / 三索引与额外新Play按用户反馈，70 / 等待5。233 / 133 / 42、Content311 / 来源94及全部资产指纹保持。当前只Stage报告 / 指南收尾、02新指南与共享状态；19Core仍候选，第五件 / UI留03，助手未写生产代码或操作Git。
 
+2026-11-08 B3-02收尾。`eb9c1ad`含19份Core实现，与候选一致。六专项和默认恢复通过，85分钟 / 等待5。233 Source、133cpp、42测试、311 Content及94份资产指纹核对通过。B3-03候选供用户手动实现。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B3-01通过，本地13dd9da已有六份Core实现。当前只Stage 01报告 / 指南收尾、02新指南及实际共享状态，准确11文件清单见[B3-02末尾](M3_06B3_02_StaminaRecoveryEquipmentPipeline.md)。19份Core候选未写正式源码，来源94 / 资产 / Config保持，第五件与UI仍03接入。
+B3-02实现位于本地提交`eb9c1ad`。本轮提交收尾报告、B3-03指南和进度文档。第五件与UI由用户按指南实施。[11份文档及Push清单](M3_06B3_03_StaminaRecoveryRelicAndComparison.md#11-commit--push)
 
-- 英文：`docs: verify stamina recovery bonus and plan equipment integration`
-- 专业中文：`docs: 完成体力恢复加成验收并规划装备接入`
-
-Artifacts产物 / 包 / 个人ini不上传。Stage后再改需重新Stage / Review，Git由用户操作，助手未核验远端。
+- 英文 `docs: verify recovery equipment and plan fifth relic`
+- 中文 `docs: 完成体力恢复装备验收并规划第五件遗物`
