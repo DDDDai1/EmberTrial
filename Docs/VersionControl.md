@@ -428,9 +428,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-08 B4-02收尾。`06318c7`含19份Core源码，候选比对通过。六项专项与实机五件、F60及新身体0已核对。手动80分钟，等待5分钟。B4-03的五份源码与一份Config由用户按指南实施，裂势印实物验收后登记来源。
 
+2026-11-08 B4-03收尾。`bce7dac`含五份源码、一份Config、裂势印及面板。四项专项、实机F80／60与复位通过，两件实物与本地LFS指纹相符。手动60分钟，等待5分钟。C1三份候选交由用户按指南实施。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B4-02功能已在本地提交`06318c7`。本轮提交验收报告、B4-03指南和进度文档。[11份文档及Push清单](M3_06B4_03_ShatterSealAndComparison.md)
+B4-03功能已在本地提交`bce7dac`。本轮提交验收报告、来源清单、C1指南和进度文档。[12份文档及Push清单](M3_06C1_RelicProjectionStress.md)
 
-- 英文 `docs: verify break pulse equipment and plan sixth relic`
-- 中文 `docs: 完成破势装备验收并规划第六件遗物`
+- 英文 `docs: verify six relics and plan 500-row projection stress`
+- 中文 `docs: 完成六件遗物验收并规划500条数据投影压测`

@@ -210,11 +210,13 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **06B4-02已验收。** 现有原生装备GE接收第五个SetByCaller。预检从ASC聚合值扣旧加新，再读取实际F配置并复用施放数值校验。旧方案重验比较第五项贡献。
 
-**06B4-03待实施。** 裂势印以原生数据定义提供+20点，启动目录登记第六件。Presenter通过现有方案和已应用总和投影第五项，原PreviewText渲染。
+**06B4-03已验收。** 裂势印以原生数据提供+20点。Presenter投影第五项，详情滚动区裁切溢出内容，确认与卸下留在底部。实机装卸分别结算80和60。
+
+**06C1待实施。** 原ViewModels专项把500件临时定义注册到夹具GI的定义表，并以单独快照调用真实投影。测试数据随夹具释放。Slate条目复用另批验证。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B4-02功能已在本地提交`06318c7`。本轮提交验收报告、B4-03指南和进度文档。[11份文档及Push清单](M3_06B4_03_ShatterSealAndComparison.md)
+B4-03功能已在本地提交`bce7dac`。本轮提交验收报告、来源清单、C1指南和进度文档。[12份文档及Push清单](M3_06C1_RelicProjectionStress.md)
 
-- 英文 `docs: verify break pulse equipment and plan sixth relic`
-- 中文 `docs: 完成破势装备验收并规划第六件遗物`
+- 英文 `docs: verify six relics and plan 500-row projection stress`
+- 中文 `docs: 完成六件遗物验收并规划500条数据投影压测`

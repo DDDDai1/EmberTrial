@@ -397,6 +397,10 @@ Definitions验证新实物及数值。Session与ViewModels核对配置驱动的�
 
 反馈时记录双Build／三索引、裂势印实际资产路径与Valid、四项专项、六件和第五行布局、F 80／60、Stop后新身体0与空槽、实际手动工时与构建等待。
 
+## B4-03验收结果
+
+2026-11-08通过。双Build、三索引、裂势印Valid、四项专项、六件与第五行布局均通过。日志确认F 80／60，Stop后六件、空双槽与新身体加成0。手动60分钟，构建等待5分钟。实现提交为`bce7dac`。[验收报告](Reports/M3_06B4_03_Verification.md) · [C1操作指南](M3_06C1_RelicProjectionStress.md)
+
 ## 11. Commit / Push
 
 B4-02实现已在本地提交`06318c7`。在CLion Review并Stage本轮11份文档，随后Commit和Push。

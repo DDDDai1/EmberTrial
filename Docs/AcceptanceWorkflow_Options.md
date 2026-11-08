@@ -420,9 +420,15 @@ B4-02六项专项与实机通过。手动80分钟，等待5分钟。
 
 四项现有专项覆盖新实物、六件目录与真实祭坛命令。实机核对第五行、F真实80／60与新世界复位。六件目录集成与列表压力留到后续集中验证。
 
+B4-03四项专项与实机通过。手动60分钟，等待5分钟。
+
+## M3-06C1的检查边界
+
+复用ViewModels，覆盖500条合成数据排序、搜索、筛选、异常清空与库存隔离。记录30次BuildRows耗时，并实机短查普通P页仍显示六件。Slate滚动回收和包内集成另批验证。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B4-02功能已在本地提交`06318c7`。本轮提交验收报告、B4-03指南和进度文档。[11份文档及Push清单](M3_06B4_03_ShatterSealAndComparison.md)
+B4-03功能已在本地提交`bce7dac`。本轮提交验收报告、来源清单、C1指南和进度文档。[12份文档及Push清单](M3_06C1_RelicProjectionStress.md)
 
-- 英文 `docs: verify break pulse equipment and plan sixth relic`
-- 中文 `docs: 完成破势装备验收并规划第六件遗物`
+- 英文 `docs: verify six relics and plan 500-row projection stress`
+- 中文 `docs: 完成六件遗物验收并规划500条数据投影压测`
