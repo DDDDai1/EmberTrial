@@ -22,6 +22,9 @@ public:
     GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UETCombatAttributeSet, StaminaRecoveryBonus)
     GAMEPLAYATTRIBUTE_VALUE_GETTER(StaminaRecoveryBonus)
 
+    GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UETCombatAttributeSet, BreakPulsePoiseBonus)
+    GAMEPLAYATTRIBUTE_VALUE_GETTER(BreakPulsePoiseBonus)
+
     virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute,
                                         float& NewValue) const override;
     virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
@@ -47,4 +50,11 @@ private:
     FGameplayAttributeData StaminaRecoveryBonus;
 
     GAMEPLAYATTRIBUTE_VALUE_INITTER(StaminaRecoveryBonus)
+
+    // 正式F施放时快照的固定破势加成，单位为架势点。
+    UPROPERTY(BlueprintReadOnly, Category = "EmberTrial|Combat",
+              meta = (AllowPrivateAccess = "true"))
+    FGameplayAttributeData BreakPulsePoiseBonus;
+
+    GAMEPLAYATTRIBUTE_VALUE_INITTER(BreakPulsePoiseBonus)
 };

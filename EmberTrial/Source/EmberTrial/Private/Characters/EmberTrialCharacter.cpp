@@ -549,6 +549,8 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
         UETCombatAttributeSet::GetHealingBonusAttribute(), 0.0f);
     AbilitySystemComponent->SetNumericAttributeBase(
         UETCombatAttributeSet::GetStaminaRecoveryBonusAttribute(), 0.0f);
+    AbilitySystemComponent->SetNumericAttributeBase(
+        UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute(), 0.0f);
     bStartupAttributesInitialized = true;
 
     UE_LOG(LogETAbilityFoundation, Display,
@@ -562,9 +564,10 @@ bool AEmberTrialCharacter::EnsureGameplayInitialized()
            *GetNameSafe(this), PoiseAttributes->GetPoise(), PoiseAttributes->GetMaxPoise());
     UE_LOG(LogETAbilityFoundation, Display,
            TEXT("[M3-02B] Combat initialized Character=%s LightAttackBonus=%.1f HealingBonus=%.1f "
-                "StaminaRecoveryBonus=%.1f"),
+                "StaminaRecoveryBonus=%.1f BreakPulsePoiseBonus=%.1f"),
            *GetNameSafe(this), CombatAttributes->GetLightAttackBonus(),
-           CombatAttributes->GetHealingBonus(), CombatAttributes->GetStaminaRecoveryBonus());
+           CombatAttributes->GetHealingBonus(), CombatAttributes->GetStaminaRecoveryBonus(),
+           CombatAttributes->GetBreakPulsePoiseBonus());
     SetGameplayReady(true);
     return IsGameplayReady();
 }

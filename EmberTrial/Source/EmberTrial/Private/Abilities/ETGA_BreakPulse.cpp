@@ -3,6 +3,7 @@
 #include "Abilities/Effects/ETBreakPulseCooldownEffect.h"
 #include "Abilities/Effects/ETPoiseDeltaEffect.h"
 #include "Animation/ETAN_BreakPulseCommit.h"
+#include "Attributes/ETCombatAttributeSet.h"
 #include "Attributes/ETPoiseAttributeSet.h"
 #include "CollisionQueryParams.h"
 #include "CollisionShape.h"
@@ -21,6 +22,30 @@
 #include "GameFramework/PlayerController.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETBreakPulse, Log, All);
+
+namespace ETBreakPulsePrivate
+{
+    constexpr float MinPoiseDamage = 1.0f;
+    constexpr float MaxPoiseDamage = 1000.0f;
+
+    bool TryResolvePoiseDamage(const UAbilitySystemComponent& ASC, float BaseDamage,
+                               float& OutDamage)
+    {
+        if (!ASC.GetSet<UETCombatAttributeSet>())
+        {
+            return false;
+        }
+        const float Bonus =
+            ASC.GetNumericAttribute(UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute());
+        const double Total = static_cast<double>(BaseDamage) + Bonus;
+        if (!FMath::IsFinite(Total) || Total < MinPoiseDamage || Total > MaxPoiseDamage)
+        {
+            return false;
+        }
+        OutDamage = static_cast<float>(Total);
+        return true;
+    }
+}
 
 // ---- 配置与互斥；普通受击 / 破势 / 死亡可以中断施放 ----
 UETGA_BreakPulse::UETGA_BreakPulse()
@@ -92,8 +117,9 @@ bool UETGA_BreakPulse::HasValidConfiguration() const
         CastMontage->CompositeSections.Num() != 1 ||
         !CastMontage->CompositeSections[0].NextSectionName.IsNone() ||
         CastMontage->Notifies.Num() != 1 || !FMath::IsFinite(PulseRadius) || PulseRadius < 1.0f ||
-        PulseRadius > 3000.0f || !FMath::IsFinite(PoiseDamage) || PoiseDamage < 1.0f ||
-        PoiseDamage > 1000.0f)
+        PulseRadius > 3000.0f || !FMath::IsFinite(PoiseDamage) ||
+        PoiseDamage < ETBreakPulsePrivate::MinPoiseDamage ||
+        PoiseDamage > ETBreakPulsePrivate::MaxPoiseDamage)
     {
         return false;
     }
@@ -165,9 +191,11 @@ bool UETGA_BreakPulse::CanActivateAbility(const FGameplayAbilitySpecHandle Handl
 {
     AEmberTrialCharacter* Body = nullptr;
     UAbilitySystemComponent* ASC = nullptr;
+    float EffectivePoiseDamage = 0.0f;
     if (!HasValidConfiguration() || !ReadContext(ActorInfo, Body, ASC) ||
         !Body->IsFormalActionIdle() ||
         ASC->HasMatchingGameplayTag(ETGameplayTags::Cooldown_BreakPulse) ||
+        !ETBreakPulsePrivate::TryResolvePoiseDamage(*ASC, PoiseDamage, EffectivePoiseDamage) ||
         !Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
     {
         return false;
@@ -196,9 +224,11 @@ void UETGA_BreakPulse::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     bCommitAttempted = false;
     AEmberTrialCharacter* Body = nullptr;
     UAbilitySystemComponent* ASC = nullptr;
+    float EffectivePoiseDamage = 0.0f;
     if (!HasValidConfiguration() || !ReadContext(ActorInfo, Body, ASC) ||
         ActorInfo->GetAnimInstance()->GetCurrentActiveMontage() ||
-        ASC->HasMatchingGameplayTag(ETGameplayTags::Cooldown_BreakPulse))
+        ASC->HasMatchingGameplayTag(ETGameplayTags::Cooldown_BreakPulse) ||
+        !ETBreakPulsePrivate::TryResolvePoiseDamage(*ASC, PoiseDamage, EffectivePoiseDamage))
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
@@ -209,7 +239,8 @@ void UETGA_BreakPulse::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     ActiveCommitToken = ActiveMontage->Notifies[0].Notify;
     ActiveCommitTime = ActiveMontage->Notifies[0].GetTime();
     ActiveRadius = PulseRadius;
-    ActivePoiseDamage = PoiseDamage;
+    // 同次施放与所有目标共用此值，期间的ASC属性变化留给下一次施放。
+    ActivePoiseDamage = EffectivePoiseDamage;
     UAbilityTask_PlayMontageAndWait* Task =
         UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
             this, NAME_None, ActiveMontage, 1.0f, NAME_None, true, 0.0f, 0.0f, true);

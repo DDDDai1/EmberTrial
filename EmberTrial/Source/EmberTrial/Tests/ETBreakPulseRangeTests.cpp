@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
+#include "Attributes/ETCombatAttributeSet.h"
 #include "Attributes/ETHealthAttributeSet.h"
 #include "Attributes/ETPoiseAttributeSet.h"
 #include "Characters/EmberTrialCharacter.h"
@@ -52,6 +53,7 @@ bool FETBreakPulseRangeTest::RunTest(const FString& Parameters)
     enum class EScenario : uint8
     {
         Cycle,
+        BonusSnapshot,
         Edge,
         Wall,
         Team,
@@ -67,8 +69,9 @@ bool FETBreakPulseRangeTest::RunTest(const FString& Parameters)
         EndPlay
     };
     for (const EScenario Scenario :
-         {EScenario::Cycle, EScenario::Edge, EScenario::Wall, EScenario::Team, EScenario::Dead,
-          EScenario::Waiting, EScenario::Invulnerable, EScenario::Stunned, EScenario::EnterRange,
+         {EScenario::Cycle, EScenario::BonusSnapshot, EScenario::Edge, EScenario::Wall,
+          EScenario::Team, EScenario::Dead, EScenario::Waiting, EScenario::Invulnerable,
+          EScenario::Stunned, EScenario::EnterRange,
           EScenario::LeaveRange, EScenario::CancelBefore, EScenario::Pause,
           EScenario::ReentrantCancel, EScenario::EndPlay})
     {
@@ -245,9 +248,31 @@ bool FETBreakPulseRangeTest::RunTest(const FString& Parameters)
                                     }
                                 });
         }
+        const FGameplayAttribute Bonus = UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute();
+        if (Scenario == EScenario::BonusSnapshot)
+        {
+            TestEqual(TEXT("Fresh Break Pulse bonus is zero"), ASC->GetNumericAttribute(Bonus),
+                      0.0f);
+            for (const float RejectedBonus : {-60.0f, 941.0f})
+            {
+                ASC->SetNumericAttributeBase(Bonus, RejectedBonus);
+                if (!TestFalse(TEXT("Out-of-range effective Poise damage rejects F"),
+                               Source->RequestBreakPulse()))
+                {
+                    return false;
+                }
+                TestFalse(TEXT("Rejected F has no cooldown"),
+                          ASC->HasMatchingGameplayTag(ETGameplayTags::Cooldown_BreakPulse));
+            }
+            ASC->SetNumericAttributeBase(Bonus, 20.0f);
+        }
         if (!TestTrue(TEXT("Formal F request accepted"), Source->RequestBreakPulse()))
         {
             return false;
+        }
+        if (Scenario == EScenario::BonusSnapshot)
+        {
+            ASC->SetNumericAttributeBase(Bonus, 0.0f);
         }
         UAnimMontage* OldMontage = Ability->ActiveMontage;
         UAnimNotify* OldToken = Ability->ActiveCommitToken.Get();
@@ -311,11 +336,20 @@ bool FETBreakPulseRangeTest::RunTest(const FString& Parameters)
             Scenario == EScenario::Waiting || Scenario == EScenario::Invulnerable ||
             Scenario == EScenario::Stunned || Scenario == EScenario::LeaveRange ||
             Scenario == EScenario::CancelBefore;
-        TestEqual(TEXT("Real notify applies or skips by current target policy"), Poise(ASC_A),
-                  bRejectedTarget ? 100.0f : 40.0f);
+        float ExpectedPoise = 40.0f;
+        if (bRejectedTarget)
+        {
+            ExpectedPoise = 100.0f;
+        }
+        else if (Scenario == EScenario::BonusSnapshot)
+        {
+            ExpectedPoise = 20.0f;
+        }
+        TestEqual(TEXT("Real notify applies captured damage or skips by current target policy"),
+                  Poise(ASC_A), ExpectedPoise);
         Ability->HandleBreakPulseCommit(Source->GetMesh(), OldMontage, OldID, OldToken);
         TestEqual(TEXT("Duplicate or cancelled callback cannot add damage"), Poise(ASC_A),
-                  bRejectedTarget ? 100.0f : 40.0f);
+                  ExpectedPoise);
         TestEqual(TEXT("Poise does not damage source health"),
                   ASC->GetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute()),
                   100.0f);
