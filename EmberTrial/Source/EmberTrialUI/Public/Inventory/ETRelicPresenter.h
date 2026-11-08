@@ -54,6 +54,9 @@ struct EMBERTRIALUI_API FETRelicPanelData
     // 两槽装备贡献，单位为体力点 / 游戏秒。
     float BeforeStaminaRecoveryBonus = 0.0f;
     float AfterStaminaRecoveryBonus = 0.0f;
+    // 两槽装备对F的固定架势伤害贡献，单位为架势点。
+    float BeforeBreakPulsePoiseBonus = 0.0f;
+    float AfterBreakPulsePoiseBonus = 0.0f;
     bool operator==(const FETRelicPanelData& Other) const;
 };
 

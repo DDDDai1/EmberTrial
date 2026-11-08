@@ -180,9 +180,9 @@ void UETRelicPanelWidget::Render(const FETRelicPanelData& Data)
     {
         const FNumberFormattingOptions NumberFormat = FNumberFormattingOptions().SetMaximumFractionalDigits(1);
         PreviewText->SetText(FText::Format(
-            NSLOCTEXT("ETRelics", "EquipmentStatsWithRecovery",
+            NSLOCTEXT("ETRelics", "EquipmentStatsWithBreakPulse",
                       "最大生命 {0} → {1}\n首段轻击 {2} → {3}\n装备治疗加成 {4} → {5}\n"
-                      "装备体力恢复加成（点/秒） {6} → {7}{8}"),
+                      "装备体力恢复加成（点/秒） {6} → {7}\n装备破势加成（F） {8} → {9}{10}"),
             FText::AsNumber(Data.BeforeMax, &NumberFormat),
             FText::AsNumber(Data.AfterMax, &NumberFormat),
             FText::AsNumber(Data.BeforeAttack, &NumberFormat),
@@ -191,6 +191,8 @@ void UETRelicPanelWidget::Render(const FETRelicPanelData& Data)
             FText::AsNumber(Data.AfterHealingBonus, &NumberFormat),
             FText::AsNumber(Data.BeforeStaminaRecoveryBonus, &NumberFormat),
             FText::AsNumber(Data.AfterStaminaRecoveryBonus, &NumberFormat),
+            FText::AsNumber(Data.BeforeBreakPulsePoiseBonus, &NumberFormat),
+            FText::AsNumber(Data.AfterBreakPulsePoiseBonus, &NumberFormat),
             Data.PreviewState == EETRelicPreviewState::AlreadyEquipped
                 ? FText::FromString(TEXT("\n该槽已装备此遗物")) : FText::GetEmpty()));
     }

@@ -7,6 +7,7 @@
 #include "GameFramework/WorldSettings.h"
 #include "Abilities/ETGA_LightAttack.h"
 #include "Abilities/ETGA_Heal.h"
+#include "Abilities/ETGA_BreakPulse.h"
 #include "Attributes/ETCombatAttributeSet.h"
 #include "AbilitySystemComponent.h"
 #include "Attributes/ETHealthAttributeSet.h"
@@ -48,6 +49,7 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
             Body->CombatTeam = EETCombatTeam::Player;
             Body->LightAttackAbilityClass = UETGA_LightAttack::StaticClass();
             Body->HealAbilityClass = UETGA_Heal::StaticClass();
+            Body->BreakPulseAbilityClass = UETGA_BreakPulse::StaticClass();
         }
         return Body;
     };
@@ -248,7 +250,9 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
         Presenter->GetSnapshot().BeforeHealingBonus == 0.0f &&
         Presenter->GetSnapshot().AfterHealingBonus == 0.0f &&
         Presenter->GetSnapshot().BeforeStaminaRecoveryBonus == 0.0f &&
-        Presenter->GetSnapshot().AfterStaminaRecoveryBonus == 0.0f);
+        Presenter->GetSnapshot().AfterStaminaRecoveryBonus == 0.0f &&
+        Presenter->GetSnapshot().BeforeBreakPulsePoiseBonus == 0.0f &&
+        Presenter->GetSnapshot().AfterBreakPulsePoiseBonus == 0.0f);
     const int32 BeforeOldBody = ViewEvents;
     OldASC->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(), 75.0f);
     TestEqual(TEXT("Old body cannot drive current presenter"), ViewEvents, BeforeOldBody);
@@ -367,6 +371,49 @@ bool FETRelicPresenterTest::RunTest(const FString& Parameters)
             OtherASC->SetNumericAttributeBase(RecoveryBonus, 0.0f);
             OtherASC->SetNumericAttributeBase(Stamina, 100.0f);
         }
+        const FName ShatterId(TEXT("shatter_seal"));
+        const FGameplayAttribute BreakPulseBonus =
+            UETCombatAttributeSet::GetBreakPulsePoiseBonusAttribute();
+        OtherASC->SetNumericAttributeBase(BreakPulseBonus, 2.0f);
+        const uint64 BeforeShatterPreview = Inventory->GetSnapshot().Revision;
+        if (!TestTrue(TEXT("Select saved Break Pulse relic"), Presenter->SelectId(ShatterId)))
+        {
+            return false;
+        }
+        const FETRelicPanelData ShatterPreview = Presenter->GetSnapshot();
+        TestTrue(TEXT("Break Pulse comparison available"),
+                 ShatterPreview.PreviewState == EETRelicPreviewState::Available);
+        TestEqual(TEXT("Before equipment Break Pulse zero"), ShatterPreview.BeforeBreakPulsePoiseBonus, 0.0f);
+        TestEqual(TEXT("Proposed equipment Break Pulse twenty"), ShatterPreview.AfterBreakPulsePoiseBonus, 20.0f);
+        TestEqual(TEXT("Preview preserves independent Break Pulse contribution"),
+                  OtherASC->GetNumericAttribute(BreakPulseBonus), 2.0f);
+        TestTrue(TEXT("Break Pulse preview keeps revision"),
+                 Inventory->GetSnapshot().Revision == BeforeShatterPreview);
+
+        FETRelicPanelData ChangedPulse = ShatterPreview;
+        ChangedPulse.BeforeBreakPulsePoiseBonus += 1.0f;
+        TestFalse(TEXT("Before Break Pulse participates in equality"), ChangedPulse == ShatterPreview);
+        ChangedPulse = ShatterPreview;
+        ChangedPulse.AfterBreakPulsePoiseBonus += 1.0f;
+        TestFalse(TEXT("After Break Pulse participates in equality"), ChangedPulse == ShatterPreview);
+
+        TestTrue(TEXT("Paused altar confirms saved Break Pulse relic"),
+                 Presenter->ConfirmSelected().Result == EResult::Success);
+        const FETRelicPanelData EquippedPulse = Presenter->GetSnapshot();
+        TestTrue(TEXT("Break Pulse already equipped state"),
+                 EquippedPulse.PreviewState == EETRelicPreviewState::AlreadyEquipped);
+        TestEqual(TEXT("Equipped Break Pulse before twenty"), EquippedPulse.BeforeBreakPulsePoiseBonus, 20.0f);
+        TestEqual(TEXT("Equipped Break Pulse after twenty"), EquippedPulse.AfterBreakPulsePoiseBonus, 20.0f);
+        TestEqual(TEXT("Current Break Pulse includes independent two"),
+                  OtherASC->GetNumericAttribute(BreakPulseBonus), 22.0f);
+        TestTrue(TEXT("Paused altar unequips Break Pulse"),
+                 Presenter->UnequipPreviewSlot().Result == EResult::Success);
+        TestEqual(TEXT("Unequip preserves independent Break Pulse contribution"),
+                  OtherASC->GetNumericAttribute(BreakPulseBonus), 2.0f);
+        TestEqual(TEXT("Unequip resets equipped Break Pulse"),
+                  Presenter->GetSnapshot().BeforeBreakPulsePoiseBonus, 0.0f);
+        OtherASC->SetNumericAttributeBase(BreakPulseBonus, 0.0f);
+
         Presenter->SelectId(LifeId);
         --Presenter->ObservedRevision;
         TestTrue(TEXT("Observed stale revision reaches real rejection"), Presenter->ConfirmSelected().Result == EResult::StalePlan);

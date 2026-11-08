@@ -204,6 +204,26 @@ bool FETRelicDefinitionsTest::RunTest(const FString& Parameters)
                  RecoveryModifiers[0].Kind == EETRelicModifierKind::StaminaRecoveryBonus &&
                  RecoveryModifiers[0].AdditiveValue == 5.0f);
     }
+
+    const FName ShatterId(TEXT("shatter_seal"));
+    const UETRelicDefinition* const* Shatter = Catalog.FindByPredicate(
+        [ShatterId](const UETRelicDefinition* Definition)
+        { return Definition->GetRelicId() == ShatterId; });
+    if (!TestNotNull(TEXT("Shatter Seal saved definition registered"), Shatter))
+    {
+        return false;
+    }
+    const UETRelicDefinition* Definition = *Shatter;
+    TestTrue(TEXT("Shatter Seal supports both slots"), Definition->SupportsSlot(EETRelicSlot::First) &&
+             Definition->SupportsSlot(EETRelicSlot::Second));
+    TestEqual(TEXT("Shatter Seal sort order sixty"), Definition->GetSortOrder(), 60);
+    const TArray<FETRelicModifier>& PulseModifiers = Definition->GetModifiers();
+    if (TestEqual(TEXT("Shatter Seal has exactly one effect"), PulseModifiers.Num(), 1))
+    {
+        TestTrue(TEXT("Shatter Seal Break Pulse bonus is plus twenty"),
+                 PulseModifiers[0].Kind == EETRelicModifierKind::BreakPulsePoiseBonus &&
+                 PulseModifiers[0].AdditiveValue == 20.0f);
+    }
     return !HasAnyErrors();
 }
 

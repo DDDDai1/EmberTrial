@@ -25,6 +25,8 @@ bool FETRelicPanelData::operator==(const FETRelicPanelData& Other) const
                AfterHealingBonus == Other.AfterHealingBonus &&
                BeforeStaminaRecoveryBonus == Other.BeforeStaminaRecoveryBonus &&
                AfterStaminaRecoveryBonus == Other.AfterStaminaRecoveryBonus &&
+               BeforeBreakPulsePoiseBonus == Other.BeforeBreakPulsePoiseBonus &&
+               AfterBreakPulsePoiseBonus == Other.AfterBreakPulsePoiseBonus &&
                bHasCommands == Other.bHasCommands && bCanEquip == Other.bCanEquip &&
                bCanUnequip == Other.bCanUnequip && CommandMessage.EqualTo(Other.CommandMessage);
 }
@@ -345,6 +347,8 @@ FETRelicPanelData UETRelicPresenter::BuildData() const
         Data.AfterHealingBonus = Preview.AfterModifiers.HealingBonus;
         Data.BeforeStaminaRecoveryBonus = Preview.BeforeModifiers.StaminaRecoveryBonus;
         Data.AfterStaminaRecoveryBonus = Preview.AfterModifiers.StaminaRecoveryBonus;
+        Data.BeforeBreakPulsePoiseBonus = Preview.BeforeModifiers.BreakPulsePoiseBonus;
+        Data.AfterBreakPulsePoiseBonus = Preview.AfterModifiers.BreakPulsePoiseBonus;
     }
     else if (Reply.Result == EETRelicInventoryResult::NoChange)
     {
@@ -364,6 +368,8 @@ FETRelicPanelData UETRelicPresenter::BuildData() const
             Data.AfterHealingBonus = Applied.HealingBonus;
             Data.BeforeStaminaRecoveryBonus = Applied.StaminaRecoveryBonus;
             Data.AfterStaminaRecoveryBonus = Applied.StaminaRecoveryBonus;
+            Data.BeforeBreakPulsePoiseBonus = Applied.BreakPulsePoiseBonus;
+            Data.AfterBreakPulsePoiseBonus = Applied.BreakPulsePoiseBonus;
         }
     }
     else if (Reply.Result == EETRelicInventoryResult::RuleRejected)
