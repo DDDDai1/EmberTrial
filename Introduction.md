@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-M0、M1、M2与M3的01–04、已实施05设置、06A两件包、B1第三件、B2治疗闭环及B3-02恢复装备管线已验收。当前接入第五件与比较界面。实际233 Source、133cpp、42测试、来源94。[当前进度](Docs/Progress.md) · [B3-03操作](Docs/M3_06B3_03_StaminaRecoveryRelicAndComparison.md)
+M0、M1、M2与M3的01–04、已实施05设置、06A两件包及B3-03第五件凝息护符已验收。当前进入F技能破势加成基础。实际233 Source、133cpp、42测试、来源95。[当前进度](Docs/Progress.md) · [B4-01操作](Docs/M3_06B4_01_BreakPulsePoiseBonusFoundation.md)
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-08，B3-02恢复装备管线验收通过。** M3累计2573分钟，等待171分钟。项目累计5984分钟，等待495分钟。B3-03准备五份既有源码与启动Config，凝息护符由用户创建。下一阶段还包括破势效率、完整六件、列表压力、M5存档和最终美术。独立包证据为M3_06A/Attempt01两件版。以下保留原M0起点。[B3-02验收](Docs/Reports/M3_06B3_02_Verification.md)
+**截至2026-11-08，B3-03第五件遗物与恢复比较验收通过。** M3累计2613分钟，等待176分钟。项目累计6024分钟，等待500分钟。接下来完成破势加成、六件库存、列表压力、M5存档和最终美术。独立包证据为M3_06A/Attempt01两件版。以下保留原M0起点。[B3-03验收](Docs/Reports/M3_06B3_03_Verification.md)
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,7 +868,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-B3-02实现位于本地提交`eb9c1ad`。本轮提交收尾报告、B3-03指南和进度文档。第五件与UI由用户按指南实施。[11份文档及Push清单](Docs/M3_06B3_03_StaminaRecoveryRelicAndComparison.md#11-commit--push)
+B3-03功能已在本地提交`2a8d1dd`。本轮提交验收报告、资产来源、B4-01指南和进度文档。[12份文档及Push清单](Docs/M3_06B4_01_BreakPulsePoiseBonusFoundation.md#8-commit--push)
 
-- 英文 `docs: verify recovery equipment and plan fifth relic`
-- 中文 `docs: 完成体力恢复装备验收并规划第五件遗物`
+- 英文 `docs: verify stamina recovery relic and plan break pulse bonus`
+- 中文 `docs: 完成体力恢复遗物验收并规划破势加成`

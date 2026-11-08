@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。M3四件遗物、祭坛、设置、治疗和体力恢复装备管线已验收。当前接入第五件与恢复比较。[B3-02验收](Docs/Reports/M3_06B3_02_Verification.md) · [B3-03操作指南](Docs/M3_06B3_03_StaminaRecoveryRelicAndComparison.md)
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。五件遗物、祭坛、设置和体力恢复比较已验收。当前接入F技能破势加成。[B3-03验收](Docs/Reports/M3_06B3_03_Verification.md) · [B4-01操作指南](Docs/M3_06B4_01_BreakPulsePoiseBonusFoundation.md)
 
 ## 已实现的体验
 
@@ -51,7 +51,7 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- 当前开发为第五件凝息护符与第四比较行。测试范围为资产目录、暂停装卸和实机恢复。[B3-03操作指南](Docs/M3_06B3_03_StaminaRecoveryRelicAndComparison.md)
+- 当前开发为F技能破势加成，施放时从ASC读取并保存本次架势伤害。[B4-01操作指南](Docs/M3_06B4_01_BreakPulsePoiseBonusFoundation.md)
 - [M3-02A验收](Docs/Reports/M3_02A_Verification.md)：两槽资格 / 汇总、替换 / 卸下 / 预览，双库存专项当次Success。
 - [M3-01验收](Docs/Reports/M3_01_Verification.md)：两遗物静态定义、两Valid与Definitions Success；[原操作步骤](Docs/M3_01_RelicDefinitions.md)供复查。
 - [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。

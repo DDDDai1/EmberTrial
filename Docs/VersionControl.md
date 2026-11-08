@@ -422,9 +422,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-08 B3-02收尾。`eb9c1ad`含19份Core实现，与候选一致。六专项和默认恢复通过，85分钟 / 等待5。233 Source、133cpp、42测试、311 Content及94份资产指纹核对通过。B3-03候选供用户手动实现。
 
+2026-11-08 B3-03收尾。`2a8d1dd`含五份源码、一份Config与凝息护符实物，候选比对及LFS指纹通过。四专项与实机25／20恢复通过。手动40分钟，等待5分钟。B4-01手动实现见本轮新指南。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B3-02实现位于本地提交`eb9c1ad`。本轮提交收尾报告、B3-03指南和进度文档。第五件与UI由用户按指南实施。[11份文档及Push清单](M3_06B3_03_StaminaRecoveryRelicAndComparison.md#11-commit--push)
+B3-03功能已在本地提交`2a8d1dd`。本轮提交验收报告、资产来源、B4-01指南和进度文档。[12份文档及Push清单](M3_06B4_01_BreakPulsePoiseBonusFoundation.md#8-commit--push)
 
-- 英文 `docs: verify recovery equipment and plan fifth relic`
-- 中文 `docs: 完成体力恢复装备验收并规划第五件遗物`
+- 英文 `docs: verify stamina recovery relic and plan break pulse bonus`
+- 中文 `docs: 完成体力恢复遗物验收并规划破势加成`

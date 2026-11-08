@@ -402,9 +402,15 @@ B3-02验收通过。六项专项均为Success，Ownership记录两次通过。�
 
 五件目录、四项专项及一次祭坛装卸短查。Presenter复用暂停命令桥覆盖恢复比较、外部贡献隔离、计时资格及暂停冻结。实机看四行比较、默认体力恢复和新会话状态。
 
+B3-03验收通过。四项专项Success。实机完成五件列表、第四比较行、速率25／20与新世界体力100。手动40分钟，等待5分钟。
+
+## M3-06B4-01的检查边界
+
+复用BreakPulseRange与BreakPulseAbility。范围专项增加一个场景验证合法加成、真实通知快照和超界拒绝。实机打一发基础F并检查新身体归零，装备和UI在对应批次验收。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B3-02实现位于本地提交`eb9c1ad`。本轮提交收尾报告、B3-03指南和进度文档。第五件与UI由用户按指南实施。[11份文档及Push清单](M3_06B3_03_StaminaRecoveryRelicAndComparison.md#11-commit--push)
+B3-03功能已在本地提交`2a8d1dd`。本轮提交验收报告、资产来源、B4-01指南和进度文档。[12份文档及Push清单](M3_06B4_01_BreakPulsePoiseBonusFoundation.md#8-commit--push)
 
-- 英文 `docs: verify recovery equipment and plan fifth relic`
-- 中文 `docs: 完成体力恢复装备验收并规划第五件遗物`
+- 英文 `docs: verify stamina recovery relic and plan break pulse bonus`
+- 中文 `docs: 完成体力恢复遗物验收并规划破势加成`
