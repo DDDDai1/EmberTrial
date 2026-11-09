@@ -430,9 +430,13 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-08 B4-03收尾。`bce7dac`含五份源码、一份Config、裂势印及面板。四项专项、实机F80／60与复位通过，两件实物与本地LFS指纹相符。手动60分钟，等待5分钟。C1三份候选交由用户按指南实施。
 
+2026-11-08 C1收尾。`2d98975`含三份既有源码。500条投影、实机六件与P关闭通过，手动30分钟，等待5分钟。C2新测试候选在隔离工程编译、链接并运行，通过后交由用户按指南实施。
+
+2026-11-09 C2收尾。工作区完整测试与候选一致，Git暂存区仅3行初始内容，提交前重新Stage。专项、正式六件P重开及43项集成回归通过。手动25分钟，等待5分钟。C3扩展现有启动工具，归档到独立阶段目录。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-B4-03功能已在本地提交`bce7dac`。本轮提交验收报告、来源清单、C1指南和进度文档。[12份文档及Push清单](M3_06C1_RelicProjectionStress.md)
+C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](M3_06C3_SixRelicIntegratedPackage.md)
 
-- 英文 `docs: verify six relics and plan 500-row projection stress`
-- 中文 `docs: 完成六件遗物验收并规划500条数据投影压测`
+- 英文 `docs: verify ListView stress and prepare six-relic package`
+- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`

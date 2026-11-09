@@ -7,7 +7,7 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
-    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A')]
+    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3')]
     [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline
@@ -16,13 +16,21 @@ param(
 $ErrorActionPreference = 'Stop'
 ## 保留历史默认；M3功能包必须显式指定目录，避免把旧包当作本轮结果。
 $stageRepo = Split-Path $PSScriptRoot -Parent
-if ($EvidenceStage -eq 'M3_06A' -and [string]::IsNullOrWhiteSpace($BuildDirectory)) {
-    throw 'M3_06A requires an explicit -BuildDirectory for the new package.'
+$stageUsesM3Settings = $EvidenceStage -in @('M3_06A', 'M3_06C3')
+if ($stageUsesM3Settings -and [string]::IsNullOrWhiteSpace($BuildDirectory)) {
+    throw "$EvidenceStage requires an explicit -BuildDirectory for the new package."
 }
 if ([string]::IsNullOrWhiteSpace($BuildDirectory)) {
     $BuildDirectory = Join-Path $stageRepo 'Artifacts\Builds\M1_07A\Attempt01'
 }
 $stageBuild = (Resolve-Path -LiteralPath $BuildDirectory).Path
+if ($EvidenceStage -eq 'M3_06C3') {
+    $stageExpectedRoot = Join-Path $stageRepo 'Artifacts\Builds\M3_06C3'
+    if ((Split-Path $stageBuild -Parent) -ne $stageExpectedRoot -or
+        (Split-Path $stageBuild -Leaf) -notmatch '^Attempt[0-9]+$') {
+        throw "M3_06C3 requires an Attempt directory under $stageExpectedRoot."
+    }
+}
 $stageExe = Join-Path $stageBuild 'Windows\EmberTrial.exe'
 if (!(Test-Path -LiteralPath $stageExe -PathType Leaf)) {
     throw "Expected packaged executable was not found: $stageExe. Pass the folder containing Windows as -BuildDirectory."
@@ -42,7 +50,7 @@ $stageMeta = Join-Path $stageOutput ($stageBase + '.json')
 $stageTrace = Join-Path $stageOutput ($stageBase + '.utrace')
 $stageArguments = @('-windowed', "-ResX=$Width", "-ResY=$Height", '-log', ('"-abslog=' + $stageLog + '"'))
 $stageSettingsIni = $null
-if ($EvidenceStage -eq 'M3_06A') {
+if ($stageUsesM3Settings) {
     ## 两轮共用专用个人设置，既证明跨进程保存，也不污染旧包 / 编辑器偏好。
     $stageSettingsIni = Join-Path $stageOutput 'M3PackageUser.ini'
     $stageArguments += ('"-GameUserSettingsINI=' + $stageSettingsIni + '"')

@@ -426,9 +426,21 @@ B4-03四项专项与实机通过。手动60分钟，等待5分钟。
 
 复用ViewModels，覆盖500条合成数据排序、搜索、筛选、异常清空与库存隔离。记录30次BuildRows耗时，并实机短查普通P页仍显示六件。Slate滚动回收和包内集成另批验证。
 
+C1投影、计时与六件实机通过。手动30分钟，等待5分钟。
+
+## M3-06C2的检查边界
+
+独立Editor测试验证正式ListView的实例峰值、实际复用、条目文本和委托清理。实机短查正式六件及P重开，后续再做包内集成。
+
+C2专项和正式六件P重开通过。手动25分钟，等待5分钟。
+
+## M3-06C3的检查边界
+
+正式工程的43项全组已通过。新包实机用两轮验证六件目录、详情滚动、F80／60、检查点与两槽会话恢复，以及一项个人偏好跨进程读回。保留完整UAT与Runtime证据。
+
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-B4-03功能已在本地提交`bce7dac`。本轮提交验收报告、来源清单、C1指南和进度文档。[12份文档及Push清单](M3_06C1_RelicProjectionStress.md)
+C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](M3_06C3_SixRelicIntegratedPackage.md)
 
-- 英文 `docs: verify six relics and plan 500-row projection stress`
-- 中文 `docs: 完成六件遗物验收并规划500条数据投影压测`
+- 英文 `docs: verify ListView stress and prepare six-relic package`
+- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`

@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-M0、M1、M2与M3的01–04、已实施05设置、06A两件包及B4-03完整六件遗物已验收。当前进入500条投影压力验证。实际233 Source、133cpp、42测试、来源96。[当前进度](Docs/Progress.md) · [C1操作](Docs/M3_06C1_RelicProjectionStress.md)
+M0、M1、M2与M3的01–04、已实施05设置、06A两件包、六件遗物与500条ListView压测已验收。当前进入六件版包内集成。实际234 Source、134cpp、43测试、来源96。[当前进度](Docs/Progress.md) · [C3操作](Docs/M3_06C3_SixRelicIntegratedPackage.md)
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-08，B4-03第六件裂势印与比较验收通过。** M3累计2793分钟，等待191分钟。项目累计6204分钟，等待515分钟。接下来验证列表压力、六件版集成、M5存档和最终美术。独立包证据为M3_06A/Attempt01两件版。以下保留原M0起点。[B4-03验收](Docs/Reports/M3_06B4_03_Verification.md)
+**截至2026-11-09，C2的500条ListView回收已验收。** M3累计2848分钟，等待201分钟。项目累计6259分钟，等待525分钟。下一步完成六件版集成，后续继续M5存档和最终美术。独立包证据为M3_06A/Attempt01两件版。以下保留原M0起点。[C2验收](Docs/Reports/M3_06C2_Verification.md)
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,7 +868,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-B4-03功能已在本地提交`bce7dac`。本轮提交验收报告、来源清单、C1指南和进度文档。[12份文档及Push清单](Docs/M3_06C1_RelicProjectionStress.md)
+C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](Docs/M3_06C3_SixRelicIntegratedPackage.md)
 
-- 英文 `docs: verify six relics and plan 500-row projection stress`
-- 中文 `docs: 完成六件遗物验收并规划500条数据投影压测`
+- 英文 `docs: verify ListView stress and prepare six-relic package`
+- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`

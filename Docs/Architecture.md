@@ -212,11 +212,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **06B4-03已验收。** 裂势印以原生数据提供+20点。Presenter投影第五项，详情滚动区裁切溢出内容，确认与卸下留在底部。实机装卸分别结算80和60。
 
-**06C1待实施。** 原ViewModels专项把500件临时定义注册到夹具GI的定义表，并以单独快照调用真实投影。测试数据随夹具释放。Slate条目复用另批验证。
+**06C1已验收。** 临时定义只进入夹具GI，单独快照调用真实投影。500条搜索、排序、筛选与正式库存隔离通过。平均0.241 ms，最大0.327 ms。
+
+**06C2已验收。** Editor测试在固定Slate几何下驱动正式ListView。500条、峰值6个活动条目、每面板最多12个实例，156次复用。旧委托、高亮与清空后的释放均通过。
+
+**06C3待集成。** 独立包使用六件Cook目录与同一场景。Run01验证装配、F80、Retry及Continue恢复，Run02核对新进程空槽、F60与个人设置读回。
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-B4-03功能已在本地提交`bce7dac`。本轮提交验收报告、来源清单、C1指南和进度文档。[12份文档及Push清单](M3_06C1_RelicProjectionStress.md)
+C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](M3_06C3_SixRelicIntegratedPackage.md)
 
-- 英文 `docs: verify six relics and plan 500-row projection stress`
-- 中文 `docs: 完成六件遗物验收并规划500条数据投影压测`
+- 英文 `docs: verify ListView stress and prepare six-relic package`
+- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`

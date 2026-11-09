@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新于2026-11-08。B4-03六件遗物与第五行布局已验收，C1待手动接入500条数据投影专项。[B4-03验收](Reports/M3_06B4_03_Verification.md) · [C1操作](M3_06C1_RelicProjectionStress.md)
+更新于2026-11-09。C2的500条ListView回收已验收，C3进入六件版Win64 Development打包与实机集成。[C2验收](Reports/M3_06C2_Verification.md) · [C3操作](M3_06C3_SixRelicIntegratedPackage.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -152,7 +152,9 @@
 | M3-06B4-01 | [F技能破势加成基础验收](Reports/M3_06B4_01_Verification.md) | 你实现，我审查 | 完成 | 两项专项、实机F扣60及新身体归零，40分钟 / 等待5 |
 | M3-06B4-02 | [破势装备管线验收](Reports/M3_06B4_02_Verification.md) | 你实现，我审查 | 完成 | 19份Core、六项专项与实机，80分钟 / 等待5 |
 | M3-06B4-03 | [裂势印与破势比较验收](Reports/M3_06B4_03_Verification.md) | 你实现，我审查 | 完成 | 四项专项与实机F80／60，60分钟 / 等待5 |
-| M3-06C1 | [500条投影压力](M3_06C1_RelicProjectionStress.md) | 你实现，我设计 / 审查 | 待用户操作 | 三个既有文件、原ViewModels专项、CPU采样与六件短查 |
+| M3-06C1 | [500条投影验收](Reports/M3_06C1_Verification.md) | 你实现，我审查 | 完成 | 投影平均0.241 ms、最大0.327 ms，30分钟 / 等待5 |
+| M3-06C2 | [ListView条目回收验收](Reports/M3_06C2_Verification.md) | 你实现，我审查 | 完成 | 峰值6、每面板最多12、156次复用，25分钟 / 等待5 |
+| M3-06C3 | [六件版独立包](M3_06C3_SixRelicIntegratedPackage.md) | 你打包与实机，我核对 | 待用户操作 | 43项已过，待UAT、Run01与Run02 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M3_06A/Attempt01（两件遗物）；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -170,7 +172,7 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 01–04与已实施05设置批次均通过；06A两遗物 / 设置新版包通过，第三件代价型已通过，治疗快照已通过，核心治疗装备管线已通过，第四件与治疗闭环已通过，体力恢复装备管线已通过，第五件与恢复比较已通过，破势装备管线已通过，第六件裂势印与第五比较行已通过；当前验证500条投影，实际Slate压力与集成后续，M3不总关闭 |
+| M3当前开发 | 01–04与已实施05设置批次均通过；06A两遗物 / 设置新版包通过，第三件代价型已通过，治疗快照已通过，核心治疗装备管线已通过，第四件与治疗闭环已通过，体力恢复装备管线已通过，第五件与恢复比较已通过，破势装备管线已通过，第六件裂势印与第五比较行已通过；500条投影与Slate条目回收通过，当前进行六件版包内集成，M3不总关闭 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -178,7 +180,7 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-B4-03功能已在本地提交`bce7dac`。本轮提交验收报告、来源清单、C1指南和进度文档。[12份文档及Push清单](M3_06C1_RelicProjectionStress.md)
+C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](M3_06C3_SixRelicIntegratedPackage.md)
 
-- 英文 `docs: verify six relics and plan 500-row projection stress`
-- 中文 `docs: 完成六件遗物验收并规划500条数据投影压测`
+- 英文 `docs: verify ListView stress and prepare six-relic package`
+- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`

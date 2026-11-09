@@ -229,6 +229,10 @@ Automation RunTests EmberTrial.UI.Relics.ViewModels
 1. Play正式地图`/Game/EmberTrial/Maps/L_ET_VerticalSlice`。按P，查看只读列表仍是六件，切换一次排序并选中裂势印。
 2. 关闭页面，确认移动正常，再Stop。反馈双Build／三索引、专项Success、`[M3-06C1]`计时行、正式六件与P关闭、实际手动工时与构建等待。
 
+## C1验收结果
+
+2026-11-08通过。双Build、三索引、ViewModels Success、正式六件与P关闭已确认。500条／30次投影平均0.241 ms、最大0.327 ms。手动30分钟，构建等待5分钟。本地实现为`2d98975`。[验收报告](Reports/M3_06C1_Verification.md) · [C2操作指南](M3_06C2_RelicListViewStress.md)
+
 ## 6. Commit / Push
 
 B4-03实现已在本地提交`bce7dac`。在CLion Review并Stage本轮12份文档及来源清单，再Commit和Push。
