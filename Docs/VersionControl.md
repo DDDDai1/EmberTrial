@@ -440,9 +440,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-10 M4-01B收尾。`4097e43`含七份Core实现。伤害头实际位于`Public/Combat`，指南已同步。双Build、四项Success与正式实战25通过，手动30分钟，等待5分钟。C1三新文件与一个测试friend由用户手动录入。
 
+2026-11-10 M4-01C1收尾。`66d5082`含三新文件和一处测试friend。双Build、索引、三项Success及地图短查完成，手动40分钟，等待5分钟。C2按指南手动录入七新三旧Core文件。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M4-01B验收文档与M4-01C1实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C1_RangedShot.md)
+M4-01C1验收文档与M4-01C2实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C2_RangedShotAbility.md)
 
-- 英文 `docs: verify projectile damage and plan ranged firing`
-- 中文 `docs: 完成投射物伤害验收并规划远程发射`
+- 英文 `docs: verify ranged firing and plan montage-driven casting`
+- 中文 `docs: 完成远程发射验收并规划蒙太奇驱动施放`

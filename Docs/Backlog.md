@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新于2026-11-10。M4-01B投射物GAS伤害已验收，当前进入M4-01C1远程守卫的原生发射入口。[B验收](Reports/M4_01B_Verification.md) · [C1操作](M4_01C1_RangedShot.md)
+更新于2026-11-10。M4-01C1远程发射入口已验收，当前进入M4-01C2的GAS施放、动画发射点与冷却。[C1验收](Reports/M4_01C1_Verification.md) · [C2操作](M4_01C2_RangedShotAbility.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -157,7 +157,8 @@
 | M3-06C3 | [六件版独立包验收](Reports/M3_06C3_Verification.md) | 你打包与实机，我核对 | 完成 | 43项、双槽F80、Retry／Continue与新进程F60，30分钟 / 等待10 |
 | M4-01A | [投射物飞行验收](Reports/M4_01A_Verification.md) | 你实现，我审查 | 完成 | 双Build、专项Success、正式地图短查，40分钟 / 等待5 |
 | M4-01B | [投射物GAS伤害验收](Reports/M4_01B_Verification.md) | 你实现，我审查 | 完成 | 四项Success、正式实战25，手动30分钟 / 等待5 |
-| M4-01C1 | [远程发射入口](M4_01C1_RangedShot.md) | 你实现，我审查 | 待用户操作 | 原生射程、视线与生成，新增发射专项 |
+| M4-01C1 | [远程发射验收](Reports/M4_01C1_Verification.md) | 你实现，我审查 | 完成 | 三项Success、600 cm命中扣12，手动40分钟 / 等待5 |
+| M4-01C2 | [远程GAS施放与动画发射](M4_01C2_RangedShotAbility.md) | 你实现，我审查 | 待用户操作 | 动画发射点、2.5秒冷却、受击中断，四项专项 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M3_06C3/Attempt01（六件遗物）；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -176,7 +177,7 @@
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
 | M3阶段完成 | 六件遗物、四类设置、500条投影与Slate条目回收、六件版集成均通过 |
-| M4当前开发 | 飞行与共享GAS伤害已完成。当前实现远程发射入口，后续接远程能力与AI，再推进混合遭遇和完整关卡路线 |
+| M4当前开发 | 飞行、共享GAS伤害和原生发射已完成。当前接远程能力的动画发射点与冷却，之后配置守卫和AI |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -184,7 +185,7 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-M4-01B验收文档与M4-01C1实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C1_RangedShot.md)
+M4-01C1验收文档与M4-01C2实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C2_RangedShotAbility.md)
 
-- 英文 `docs: verify projectile damage and plan ranged firing`
-- 中文 `docs: 完成投射物伤害验收并规划远程发射`
+- 英文 `docs: verify ranged firing and plan montage-driven casting`
+- 中文 `docs: 完成远程发射验收并规划蒙太奇驱动施放`

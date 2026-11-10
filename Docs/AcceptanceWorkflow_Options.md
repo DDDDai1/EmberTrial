@@ -448,11 +448,15 @@ C2专项和正式六件P重开通过。手动25分钟，等待5分钟。
 
 ## M4-01C1的检查边界
 
-发射专项覆盖射程、暂停、视线、非法配置与友方拒绝，放行后走真实扫掠扣12。回归已有两项投射物测试，正式地图只查Entry、移动和P。[C1操作](M4_01C1_RangedShot.md)
+正式工程三项Success，600 cm命中扣12。地图短查按用户反馈完成。手动40分钟，等待5分钟。[C1验收](Reports/M4_01C1_Verification.md)
+
+## M4-01C2的检查边界
+
+新专项使用临时Montage副本验证发射通知、冷却、暂停、真实受击中断与发射时重判。回归三项既有发射／投射物测试。正式地图只查Entry、移动和P。[C2操作](M4_01C2_RangedShotAbility.md)
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M4-01B验收文档与M4-01C1实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C1_RangedShot.md)
+M4-01C1验收文档与M4-01C2实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C2_RangedShotAbility.md)
 
-- 英文 `docs: verify projectile damage and plan ranged firing`
-- 中文 `docs: 完成投射物伤害验收并规划远程发射`
+- 英文 `docs: verify ranged firing and plan montage-driven casting`
+- 中文 `docs: 完成远程发射验收并规划蒙太奇驱动施放`

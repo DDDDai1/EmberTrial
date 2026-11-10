@@ -1,6 +1,6 @@
 # M4-01C1 远程守卫的原生发射入口
 
-本批把目标检查、视线检查和生成投射物收进一个入口。预计手动35–50分钟，构建等待另记。你在CLion新建三份C++文件，另在角色头中加一行测试声明。[M4-01B验收](Reports/M4_01B_Verification.md)
+2026-11-10已验收。三新文件和一个测试friend已提交，正式三项自动化与地图短查通过。实际手动40分钟，等待5分钟。以下保留实现步骤。[C1验收](Reports/M4_01C1_Verification.md)
 
 ## 1. 交付边界
 
@@ -376,9 +376,9 @@ Automation RunTests EmberTrial.M4.Combat.Projectile
 
 反馈三新文件与friend、双Build和索引、三项自动化、地图短查、保存状态、手动时间和等待。失败时贴首条编译错误，或测试名和首条`Expected`。
 
-## 6. Commit / Push
+## 6. Commit / Push（历史）
 
-先Stage本轮验收与指南文档，核对Staged Diff后可单独提交。
+下列文档与实现已提交。当前阶段的两组清单见[M4-01C2操作指南](M4_01C2_RangedShotAbility.md)。
 
 ```text
 Docs/Reports/M4_01B_Verification.md
