@@ -436,11 +436,15 @@ C2专项和正式六件P重开通过。手动25分钟，等待5分钟。
 
 ## M3-06C3的检查边界
 
-正式工程的43项全组已通过。新包实机用两轮验证六件目录、详情滚动、F80／60、检查点与两槽会话恢复，以及一项个人偏好跨进程读回。保留完整UAT与Runtime证据。
+正式工程43项全组与配置校验通过。Attempt01的两轮日志核对了六件、F80／60、检查点与两槽恢复、个人偏好跨进程读回。详情滚动由用户实机确认。[C3验收](Reports/M3_06C3_Verification.md)
+
+## M4-01A的检查边界
+
+新增一个真实世界飞行专项，覆盖首次阻挡、来源碰撞忽略、重复发射、飞行方向与到期清理。正式地图只查现有基本战斗与暂停，不为专项另搭正式地图或蓝图。伤害和远程AI各在对应批次验收。
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](M3_06C3_SixRelicIntegratedPackage.md)
+M3收尾文档和M4-01A实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01A_ProjectileFlightFoundation.md)
 
-- 英文 `docs: verify ListView stress and prepare six-relic package`
-- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`
+- 英文 `docs: verify six-relic package and plan projectile foundation`
+- 中文 `docs: 完成六遗物集成包验收并规划投射物飞行基础`

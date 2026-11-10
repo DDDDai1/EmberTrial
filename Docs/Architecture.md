@@ -216,11 +216,15 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 **06C2已验收。** Editor测试在固定Slate几何下驱动正式ListView。500条、峰值6个活动条目、每面板最多12个实例，156次复用。旧委托、高亮与清空后的释放均通过。
 
-**06C3待集成。** 独立包使用六件Cook目录与同一场景。Run01验证装配、F80、Retry及Continue恢复，Run02核对新进程空槽、F60与个人设置读回。
+**06C3已验收。** 六件目录进入Win64 Development包。Run01两槽F80并跨同进程世界恢复，Run02新进程空槽F60与个人设置读回通过。[包内证据](Reports/M3_06C3_Verification.md)
+
+## M4远程守卫的投射物分层
+
+M4-01A拟由Core投射物Actor负责移动、首次阻挡回调和寿命。远程施放能力负责发射时机，后续伤害层负责阵营、无敌与GAS结算。投射物通过弱来源指针提供命中上下文，先关闭自身碰撞再发事件。角色与既有AI在A批保持当前调用链。[M4-01A操作](M4_01A_ProjectileFlightFoundation.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](M3_06C3_SixRelicIntegratedPackage.md)
+M3收尾文档和M4-01A实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01A_ProjectileFlightFoundation.md)
 
-- 英文 `docs: verify ListView stress and prepare six-relic package`
-- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`
+- 英文 `docs: verify six-relic package and plan projectile foundation`
+- 中文 `docs: 完成六遗物集成包验收并规划投射物飞行基础`

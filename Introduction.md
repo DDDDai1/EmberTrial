@@ -1,10 +1,10 @@
 # 《烬火试炼》Ember Trial — UE5 求职 Demo 开发计划
 
-版本：v1.4 · 更新日期：2026-10-29 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
+版本：v1.4 · 更新日期：2026-11-09 · 目标岗位：游戏科学初级 UE 客户端工程师（UI / Gameplay 方向）
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-M0、M1、M2与M3的01–04、已实施05设置、06A两件包、六件遗物与500条ListView压测已验收。当前进入六件版包内集成。实际234 Source、134cpp、43测试、来源96。[当前进度](Docs/Progress.md) · [C3操作](Docs/M3_06C3_SixRelicIntegratedPackage.md)
+M0、M1、M2与M3当前范围已验收。最新独立包包含六件遗物与四类设置，当前进入M4远程守卫的投射物基础。实际234 Source、134cpp、43测试、来源96。[当前进度](Docs/Progress.md) · [M4-01A操作](Docs/M4_01A_ProjectileFlightFoundation.md)
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-09，C2的500条ListView回收已验收。** M3累计2848分钟，等待201分钟。项目累计6259分钟，等待525分钟。下一步完成六件版集成，后续继续M5存档和最终美术。独立包证据为M3_06A/Attempt01两件版。以下保留原M0起点。[C2验收](Docs/Reports/M3_06C2_Verification.md)
+**截至2026-11-09，M3六件版已集成。** M3累计2878分钟，等待211分钟。项目累计6289分钟，等待535分钟。最新验收包为`M3_06C3/Attempt01`。接下来推进M4关卡内容，再进入M5存档。以下保留原M0起点。[C3验收](Docs/Reports/M3_06C3_Verification.md)
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,7 +868,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](Docs/M3_06C3_SixRelicIntegratedPackage.md)
+M3收尾文档和M4-01A实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](Docs/M4_01A_ProjectileFlightFoundation.md)
 
-- 英文 `docs: verify ListView stress and prepare six-relic package`
-- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`
+- 英文 `docs: verify six-relic package and plan projectile foundation`
+- 中文 `docs: 完成六遗物集成包验收并规划投射物飞行基础`

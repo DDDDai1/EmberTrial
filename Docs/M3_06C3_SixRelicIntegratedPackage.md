@@ -1,6 +1,6 @@
 # M3-06C3 六件遗物版 Win64 Development 集成包
 
-2026-11-09下发，UE 5.5.4。预计手动30–45分钟，Build／Cook等待另记。43项阶段回归已经通过，按第2节开始打包准备。[C2验收报告](Reports/M3_06C2_Verification.md)
+2026-11-09完成，UE 5.5.4。43项阶段回归、Win64 Development打包及两轮实机通过。以下保留打包与复验步骤。[C3验收报告](Reports/M3_06C3_Verification.md)
 
 ## 1. 本章验收范围
 
@@ -19,7 +19,7 @@
 
 1. Stop PIE并Save All，保留正式地图、单敌人、祭坛、Entry与Checkpoint_A。关闭UE编辑器。
 2. 工作区采用已验收的六件目录。打开PowerShell执行第3节。若已有本章Attempt01，换成Attempt02等新编号，并在第4、6节使用同一编号。
-3. 保持C2测试源码为完成版。提交前在CLion重新Stage该文件，详见第7节。
+3. 保持C2测试源码为已验收的完整版本。该版本已包含在`115bdd0`。
 
 ## 3. UAT 完整构建与归档
 
@@ -112,37 +112,13 @@ Set-Location 'E:\UE_Project\Demo'
 2. 开始新试炼，从Entry出生。P页应为六件、双空槽，生命和体力100、治疗3。关闭P，靠近满架势训练目标并站定按F一次，应结算60、目标架势100→40。
 3. 正常回菜单退出。反馈实际Attempt和exe路径、两轮Runtime目录、六件与详情滚动、装配F80、Retry／Continue两槽、重开F60与设置读回、手动工时和构建等待。若有偏差，带上对应步骤和首条异常。
 
-## 7. Commit / Push
+## 7. 验收结果
 
-先在CLion的Unstaged Changes找到C2测试，右键Stage。当前暂存区只有新建时的3行，Review时确认Staged里已经包含完整专项。
+2026-11-09，实际Attempt01已通过Win64 Development打包与两轮独立验收。装配后F80，Retry和Continue恢复双槽，新进程从Entry空槽开始，F60且读回1.25倍灵敏度。六件与详情滚动由用户实机确认。手动30分钟，等待10分钟。[验收报告](Reports/M3_06C3_Verification.md)
 
-```text
-EmberTrial/Source/EmberTrialUI/Tests/ETRelicListViewStressTests.cpp
-```
+## 8. Commit / Push
 
-- 英文 `test: verify 500-row relic ListView recycling`
-- 中文 `test: 验证500条遗物的ListView条目回收`
+C2完整测试、启动工具与打包指南已在当前Git历史。本轮Stage验收报告、状态文档和下一章指南。包、UAT日志、Runtime和专用ini留在本地Artifacts。[两组提交清单](M4_01A_ProjectileFlightFoundation.md)
 
-工具与文档提交包含以下14份文件，含尚待提交的C1／C2收尾文档。
-
-```text
-Docs/Reports/M3_06C2_Verification.md
-Docs/M3_06C2_RelicListViewStress.md
-Docs/M3_06C3_SixRelicIntegratedPackage.md
-Docs/Reports/M3_06C1_Verification.md
-Docs/M3_06C1_RelicProjectionStress.md
-README.md
-Introduction.md
-Docs/Progress.md
-Docs/Backlog.md
-Docs/M3_Roadmap.md
-Docs/Architecture.md
-Docs/AcceptanceWorkflow_Options.md
-Docs/VersionControl.md
-Tools/Run-StageBuild.ps1
-```
-
-- 英文 `docs: verify ListView stress and prepare six-relic package`
-- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`
-
-包、UAT日志、两轮Runtime和专用个人ini保存在本地Artifacts。
+- 英文 `docs: verify six-relic package and plan projectile foundation`
+- 中文 `docs: 完成六遗物集成包验收并规划投射物飞行基础`

@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。六件遗物与500条ListView复用已验收。当前进入六件版独立包集成。[C2验收](Docs/Reports/M3_06C2_Verification.md) · [C3操作指南](Docs/M3_06C3_SixRelicIntegratedPackage.md)
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。六件遗物、四类设置与500条ListView复用已验收，六件版Win64 Development包通过两轮独立运行。当前开发远程守卫的投射物基础。[C3验收](Docs/Reports/M3_06C3_Verification.md) · [M4-01A操作](Docs/M4_01A_ProjectileFlightFoundation.md)
 
 ## 已实现的体验
 
@@ -13,7 +13,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 - 生命 / 体力 / 治疗次数 / 破势冷却HUD，独立主菜单、暂停、失败重试和本次进程内的检查点继续。
 - 自由镜头输入偏好：0.25–3倍灵敏度与Y轴反转，个人设置可本地保存 / 重启读取；主菜单 / 暂停 / 祭坛页复用草稿、应用 / 取消与默认卡片。
 
-四件遗物提供稳定ID / 参数 / 槽位校验、GI库存与版本、身体自有GE和资源恢复；祭坛E打开同一遗物页，支持真实列表 / 中文搜索 / 排序筛选 / 两槽比较，确认后装备或卸装，普通P只读。初始空槽100生命 / 25伤害；生息与砺锋装备后上限120 / 伤害30；逆焰单件上限80 / 伤害35，与砺锋组合实际40；回生护符使正式Q固定增加10治疗，移除后恢复基础40。存活换装不治疗。Retry / 本进程Continue保留配装，新身体按最终上限恢复；NewRun空槽。角色和动画仍为UE模板 / Control Rig占位，完整6件、磁盘进度存档与最终美术后续，多人及手柄交付不在范围。
+六件遗物提供稳定ID / 参数 / 槽位校验、GI库存与版本、身体自有GE和资源恢复；祭坛E打开同一遗物页，支持真实列表 / 中文搜索 / 排序筛选 / 两槽比较，确认后装备或卸装，普通P只读。初始空槽100生命 / 25伤害；生息与砺锋装备后上限120 / 伤害30；逆焰单件上限80 / 伤害35，与砺锋组合实际40；回生护符使正式Q固定增加10治疗，移除后恢复基础40。凝息护符使每秒体力恢复增加5点，裂势印使F架势伤害由60提高到80。存活换装不治疗。Retry / 本进程Continue保留配装，新身体按最终上限恢复；NewRun空槽。角色和动画仍为UE模板 / Control Rig占位，磁盘进度存档与最终美术后续，多人及手柄交付不在范围。
 
 ## 获取与构建
 
@@ -28,7 +28,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UM
 
 Refresh-CLion会正常构建Editor目标并生成三个模块各自的索引信息。随后打开[EmberTrial.uproject](EmberTrial/EmberTrial.uproject)；正式试玩从`/Game/EmberTrial/Maps/L_ET_MainMenu`开始，编辑器开发地图为`L_ET_VerticalSlice`。
 
-Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说明见[IDE配置 / 切换说明](Docs/CodeEditor_CLion_VS2022.md)与[源码创建 / 索引刷新](Docs/CLion_UEClassCreation.md)。这是源码工程入口，仓库未提供可下载Release。最新本地验证包为`Artifacts/Builds/M3_06A/Attempt01/Windows/EmberTrial.exe`，包括两件祭坛装备与四类设置、正式战斗 / 锁定 / 检查点；42项阶段回归与两轮独立运行见[06A报告](Docs/Reports/M3_06A_Verification.md)。B1第三件尚未打入该包。完整Windows目录留本地，Cleanup / M1包只代表历史版本。
+Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说明见[IDE配置 / 切换说明](Docs/CodeEditor_CLion_VS2022.md)与[源码创建 / 索引刷新](Docs/CLion_UEClassCreation.md)。这是源码工程入口，仓库未提供可下载Release。最新本地验证包为`Artifacts/Builds/M3_06C3/Attempt01/Windows/EmberTrial.exe`，包含六件祭坛遗物、四类设置、正式战斗、锁定和检查点。43项阶段回归与两轮独立运行见[C3报告](Docs/Reports/M3_06C3_Verification.md)。完整Windows目录留本地，Cleanup / M1包只代表历史版本。
 
 ## 默认操作
 
@@ -51,7 +51,7 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [完整计划与JD覆盖](Introduction.md)：最终目标、分期、预算与作品边界。
 - [当前进度](Docs/Progress.md) / [任务板](Docs/Backlog.md)：已完成与待完成项。
 - [架构与生命周期](Docs/Architecture.md) / [AI黑板契约](Docs/AI_BlackboardContract.md)：职责、状态来源、事件与清理顺序。
-- 当前进行六件版Win64 Development包的Cook与两轮实机集成。[C3操作指南](Docs/M3_06C3_SixRelicIntegratedPackage.md)
+- 最新包内验收包含F80／60、检查点装备恢复及偏好读回。[C3报告](Docs/Reports/M3_06C3_Verification.md)
 - [M3-02A验收](Docs/Reports/M3_02A_Verification.md)：两槽资格 / 汇总、替换 / 卸下 / 预览，双库存专项当次Success。
 - [M3-01验收](Docs/Reports/M3_01_Verification.md)：两遗物静态定义、两Valid与Definitions Success；[原操作步骤](Docs/M3_01_RelicDefinitions.md)供复查。
 - [M2总验收](Docs/Reports/M2_Verification.md) / [07收尾](Docs/Reports/M2_07_Verification.md) / [技术复盘](Docs/M2_07C_TechnicalReview.md)：已完成行为、实际Bug与证据边界。
@@ -68,4 +68,4 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [验收方案B](Docs/AcceptanceWorkflow_Options.md)：按影响范围测试、复用入口与阶段验收。
 - [资产来源清单](Docs/AssetManifest.csv)：来源、用途及授权记录；复用资产时需分别核对原授权。
 
-核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。当前42项自动化，M3-06A阶段全组当次全部Success；原M2-07A的23项历史结果保留，M3定义 / 规则 / 装备效果 / 会话库存专项已过，03A两相关项当次Success；B扩原Combo.Flow的真实三段伤害快照沿用，覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。
+核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。当前43项自动化，M3-06C3阶段全组当次全部Success；原M2-07A的23项历史结果保留，M3定义 / 规则 / 装备效果 / 会话库存专项已过，03A两相关项当次Success；B扩原Combo.Flow的真实三段伤害快照沿用，覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。

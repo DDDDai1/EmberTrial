@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新于2026-11-09。C2的500条ListView回收已验收，C3进入六件版Win64 Development打包与实机集成。[C2验收](Reports/M3_06C2_Verification.md) · [C3操作](M3_06C3_SixRelicIntegratedPackage.md)
+更新于2026-11-09。M3六件版独立包已验收，当前进入M4-01A远程守卫投射物基础。[C3验收](Reports/M3_06C3_Verification.md) · [M4-01A操作](M4_01A_ProjectileFlightFoundation.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -154,9 +154,10 @@
 | M3-06B4-03 | [裂势印与破势比较验收](Reports/M3_06B4_03_Verification.md) | 你实现，我审查 | 完成 | 四项专项与实机F80／60，60分钟 / 等待5 |
 | M3-06C1 | [500条投影验收](Reports/M3_06C1_Verification.md) | 你实现，我审查 | 完成 | 投影平均0.241 ms、最大0.327 ms，30分钟 / 等待5 |
 | M3-06C2 | [ListView条目回收验收](Reports/M3_06C2_Verification.md) | 你实现，我审查 | 完成 | 峰值6、每面板最多12、156次复用，25分钟 / 等待5 |
-| M3-06C3 | [六件版独立包](M3_06C3_SixRelicIntegratedPackage.md) | 你打包与实机，我核对 | 待用户操作 | 43项已过，待UAT、Run01与Run02 |
+| M3-06C3 | [六件版独立包验收](Reports/M3_06C3_Verification.md) | 你打包与实机，我核对 | 完成 | 43项、双槽F80、Retry／Continue与新进程F60，30分钟 / 等待10 |
+| M4-01A | [投射物飞行基础](M4_01A_ProjectileFlightFoundation.md) | 你实现，我审查 | 待用户操作 | 三新Core源码，飞行扫掠、首次阻挡与寿命专项 |
 
-表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M3_06A/Attempt01（两件遗物）；Cleanup/Attempt01与M1包只保留历史证据。
+表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M3_06C3/Attempt01（六件遗物）；Cleanup/Attempt01与M1包只保留历史证据。
 
 ## 暂缓到中后期
 
@@ -172,7 +173,8 @@
 | 清理后的集中实机 | 菜单 / 暂停、检查点 / Retry / Continue、真实AI伤害及正式能力接口样本通过；最后物理连续输入窄复验于10/20由用户确认通过 |
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
-| M3当前开发 | 01–04与已实施05设置批次均通过；06A两遗物 / 设置新版包通过，第三件代价型已通过，治疗快照已通过，核心治疗装备管线已通过，第四件与治疗闭环已通过，体力恢复装备管线已通过，第五件与恢复比较已通过，破势装备管线已通过，第六件裂势印与第五比较行已通过；500条投影与Slate条目回收通过，当前进行六件版包内集成，M3不总关闭 |
+| M3阶段完成 | 六件遗物、四类设置、500条投影与Slate条目回收、六件版集成均通过 |
+| M4当前开发 | 先完成远程守卫的投射物飞行、GAS伤害与AI，之后推进混合遭遇、守关敌人与完整关卡路线 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -180,7 +182,7 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](M3_06C3_SixRelicIntegratedPackage.md)
+M3收尾文档和M4-01A实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01A_ProjectileFlightFoundation.md)
 
-- 英文 `docs: verify ListView stress and prepare six-relic package`
-- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`
+- 英文 `docs: verify six-relic package and plan projectile foundation`
+- 中文 `docs: 完成六遗物集成包验收并规划投射物飞行基础`

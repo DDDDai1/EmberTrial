@@ -434,9 +434,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-09 C2收尾。工作区完整测试与候选一致，Git暂存区仅3行初始内容，提交前重新Stage。专项、正式六件P重开及43项集成回归通过。手动25分钟，等待5分钟。C3扩展现有启动工具，归档到独立阶段目录。
 
+2026-11-09 C3收尾。`115bdd0`已含完整C2测试，启动工具与上一批文档已提交。Attempt01与两轮Runtime通过。候选与产物保留在Artifacts，M4-01A由用户按指南手动录入三份Core文件。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-C2测试已在工作区通过。该文件目前是`AM`，先重新Stage完整测试。本轮还包含待提交的C1／C2文档、C3指南及启动工具。[两组提交清单](M3_06C3_SixRelicIntegratedPackage.md)
+M3收尾文档和M4-01A实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01A_ProjectileFlightFoundation.md)
 
-- 英文 `docs: verify ListView stress and prepare six-relic package`
-- 中文 `docs: 完成ListView压测验收并准备六件遗物集成包`
+- 英文 `docs: verify six-relic package and plan projectile foundation`
+- 中文 `docs: 完成六遗物集成包验收并规划投射物飞行基础`
