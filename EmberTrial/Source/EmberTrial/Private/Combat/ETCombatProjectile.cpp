@@ -1,7 +1,13 @@
 #include "Combat/ETCombatProjectile.h"
+
+#include "Characters/EmberTrialCharacter.h"
+#include "Combat/ETCombatDamage.h"
 #include "Components/SphereComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GameplayEffect.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogETCombatProjectile, Log, All);
 
 AETCombatProjectile::AETCombatProjectile()
 {
@@ -37,6 +43,26 @@ void AETCombatProjectile::BeginPlay()
 
 bool AETCombatProjectile::TryLaunch(AActor* InSource, const FVector& WorldDirection)
 {
+    return TryLaunchInternal(InSource, WorldDirection, nullptr, 0.0f, 1.0f);
+}
+
+bool AETCombatProjectile::TryLaunchDamage(
+    AEmberTrialCharacter* InSource, const FVector& WorldDirection,
+    TSubclassOf<UGameplayEffect> InEffectClass, float Damage, float Level)
+{
+    if (!IsValid(InSource) || !InSource->IsGameplayReady() || InSource->IsCombatDead() ||
+        !ETCombatDamage::IsValidConfiguration(InEffectClass, Damage) ||
+        !FMath::IsFinite(Level) || Level <= 0.0f)
+    {
+        return false;
+    }
+    return TryLaunchInternal(InSource, WorldDirection, InEffectClass, Damage, Level);
+}
+
+bool AETCombatProjectile::TryLaunchInternal(
+    AActor* InSource, const FVector& WorldDirection, TSubclassOf<UGameplayEffect> InEffectClass,
+    float Damage, float Level)
+{
     UWorld* World = GetWorld();
     if (!HasAuthority() || !HasActorBegunPlay() || IsActorBeingDestroyed() || bLaunched || bResolved ||
         !World || World->IsPaused() || !IsValid(InSource) || InSource == this ||
@@ -54,11 +80,14 @@ bool AETCombatProjectile::TryLaunch(AActor* InSource, const FVector& WorldDirect
 
     bLaunched = true;
     SourceActor = InSource;
+    FlightDamageEffectClass = InEffectClass;
+    FlightDamage = Damage;
+    FlightDamageLevel = Level;
     Collision->IgnoreActorWhenMoving(InSource, true);
     Collision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     ProjectileMovement->Velocity = Direction * LaunchSpeed;
-    ProjectileMovement->Activate();
     SetLifeSpan(FlightLifetime);
+    ProjectileMovement->Activate();
     return true;
 }
 
@@ -73,12 +102,43 @@ void AETCombatProjectile::HandleProjectileStopped(const FHitResult& Hit)
     Collision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     if (Hit.bBlockingHit)
     {
-        OnImpact.Broadcast(this, Hit);
+        if (FlightDamageEffectClass)
+        {
+            ApplyDamageOnImpact(Hit);
+        }
+        if (!IsActorBeingDestroyed())
+        {
+            OnImpact.Broadcast(this, Hit);
+        }
     }
     if (!IsActorBeingDestroyed())
     {
         Destroy();
     }
+}
+
+void AETCombatProjectile::ApplyDamageOnImpact(const FHitResult& Hit)
+{
+    AEmberTrialCharacter* Source = Cast<AEmberTrialCharacter>(GetSourceActor());
+    const FString SourceName = GetNameSafe(Source);
+    const FString TargetName = GetNameSafe(Hit.GetActor());
+    const float Damage = FlightDamage;
+    const ETCombatDamage::FResult Result = ETCombatDamage::ApplyHit(
+        Source, Source ? Source->GetAbilitySystemComponent() : nullptr,
+        Hit, FlightDamageEffectClass, Damage, FlightDamageLevel, this, this);
+    if (Result.Rejection)
+    {
+        UE_LOG(LogETCombatProjectile, Display,
+               TEXT("[M4-01B] Damage skipped Source=%s Target=%s Reason=%s"),
+               *SourceName, *TargetName, Result.Rejection);
+        return;
+    }
+    UE_LOG(LogETCombatProjectile, Display,
+           TEXT("[M4-01B] Damage Source=%s Target=%s Requested=%.1f Applied=%d Snapshot=%d "
+                "Before=%.1f After=%.1f BaseAfter=%.1f"),
+           *SourceName, *TargetName, Damage, Result.bApplied ? 1 : 0,
+           Result.bHasPostHitSnapshot ? 1 : 0, Result.HealthBefore, Result.HealthAfter,
+           Result.BaseAfter);
 }
 
 void AETCombatProjectile::EndPlay(const EEndPlayReason::Type EndPlayReason)

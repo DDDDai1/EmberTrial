@@ -12,9 +12,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Combat/ETCombatDamage.h"
 #include "Combat/ETCombatTraceComponent.h"
-#include "ActiveGameplayEffectHandle.h"
-#include "Attributes/ETHealthAttributeSet.h"
 #include "GameplayEffect.h"
 #include "AIController.h"
 #include "Engine/World.h"
@@ -44,29 +43,7 @@ UETGA_LightAttack::UETGA_LightAttack()
 
 bool UETGA_LightAttack::HasValidDamageConfiguration() const
 {
-    if (!FMath::IsFinite(AttackDamage) || AttackDamage <= 0.0f || !IsValid(DamageEffectClass.Get()))
-    {
-        return false;
-    }
-
-    const UGameplayEffect* Effect = DamageEffectClass.GetDefaultObject();
-    if (!IsValid(Effect) || Effect->DurationPolicy != EGameplayEffectDurationType::Instant ||
-        Effect->Modifiers.Num() != 1 || Effect->Executions.Num() != 0)
-    {
-        return false;
-    }
-
-    const FGameplayModifierInfo& Modifier = Effect->Modifiers[0];
-    if (Modifier.Attribute != UETHealthAttributeSet::GetHealthAttribute() ||
-        Modifier.ModifierOp != EGameplayModOp::AddBase ||
-        Modifier.ModifierMagnitude.GetMagnitudeCalculationType() !=
-            EGameplayEffectMagnitudeCalculation::SetByCaller)
-    {
-        return false;
-    }
-
-    return Modifier.ModifierMagnitude.GetSetByCallerFloat().DataTag ==
-           ETGameplayTags::SetByCaller_HealthDelta;
+    return ETCombatDamage::IsValidConfiguration(DamageEffectClass, AttackDamage);
 }
 
 bool UETGA_LightAttack::HasValidComboConfiguration() const
@@ -822,128 +799,39 @@ void UETGA_LightAttack::HandleTraceHit(uint32 Serial, const FHitResult& Hit)
 
     AEmberTrialCharacter* Source = Cast<AEmberTrialCharacter>(CurrentActorInfo->AvatarActor.Get());
     UAbilitySystemComponent* SourceASC = CurrentActorInfo->AbilitySystemComponent.Get();
-    float SourceHealth = 0.0f;
-    float SourceMaxHealth = 0.0f;
-    if (!IsValid(Source) || Source->IsCombatDead() || !Source->HasAuthority() ||
-        !IsValid(SourceASC) || CurrentActorInfo->OwnerActor.Get() != Source ||
-        Source->GetAbilitySystemComponent() != SourceASC ||
-        !Source->GetGameplayHealthSnapshot(SourceHealth, SourceMaxHealth) ||
-        !FMath::IsFinite(SourceHealth) || !FMath::IsFinite(SourceMaxHealth) ||
-        SourceHealth <= 0.0f || SourceMaxHealth < 1.0f || SourceHealth > SourceMaxHealth ||
-        UGameplayStatics::IsGamePaused(Source))
+    if (!IsValid(Source) || !IsValid(SourceASC) || CurrentActorInfo->OwnerActor.Get() != Source)
     {
         Reject(TEXT("SourceUnavailable"));
         return;
     }
-    if (!HasValidDamageConfiguration() || !FMath::IsFinite(ActiveStageDamage) ||
-        ActiveStageDamage <= 0.0f)
+    if (!FMath::IsFinite(AttackDamage) || AttackDamage <= 0.0f)
     {
         Reject(TEXT("InvalidDamageConfig"));
         return;
     }
 
-    AEmberTrialCharacter* Target = Cast<AEmberTrialCharacter>(Hit.GetActor());
-    if (!IsValid(Target) || Target == Source)
-    {
-        Reject(TEXT("UnsupportedTarget"));
-        return;
-    }
-
-    if (!Source->CanDealCombatDamageTo(Target))
-    {
-        Reject(TEXT("CombatTeam"));
-        return;
-    }
-
-    if (Target->IsCombatDead())
-    {
-        Reject(TEXT("TargetDead"));
-        return;
-    }
-
-    float HealthBefore = 0.0f;
-    float MaxHealthBefore = 0.0f;
-    if (!Target->GetGameplayHealthSnapshot(HealthBefore, MaxHealthBefore) ||
-        !FMath::IsFinite(HealthBefore) || !FMath::IsFinite(MaxHealthBefore) ||
-        MaxHealthBefore < 1.0f || HealthBefore < 0.0f || HealthBefore > MaxHealthBefore)
-    {
-        Reject(TEXT("TargetNotReady"));
-        return;
-    }
-    if (HealthBefore <= 0.0f)
-    {
-        Reject(TEXT("TargetZeroHealth"));
-        return;
-    }
-
-    UAbilitySystemComponent* TargetASC = Target->GetAbilitySystemComponent();
-    if (!IsValid(TargetASC) || !TargetASC->AbilityActorInfo.IsValid() ||
-        TargetASC->AbilityActorInfo->OwnerActor.Get() != Target ||
-        TargetASC->AbilityActorInfo->AvatarActor.Get() != Target ||
-        !TargetASC->HasAttributeSetForAttribute(UETHealthAttributeSet::GetHealthAttribute()))
-    {
-        Reject(TEXT("TargetASCUnavailable"));
-        return;
-    }
-
     const FString SourceName = GetNameSafe(Source);
     const float RequestedDamage = ActiveStageDamage;
-    const TWeakObjectPtr<AEmberTrialCharacter> WeakTarget(Target);
-    const TWeakObjectPtr<UAbilitySystemComponent> WeakTargetASC(TargetASC);
-
-    FGameplayEffectContextHandle Context = SourceASC->MakeEffectContext();
-    if (!Context.IsValid())
+    const ETCombatDamage::FResult Result = ETCombatDamage::ApplyHit(
+        Source, SourceASC, Hit, DamageEffectClass, RequestedDamage, GetAbilityLevel(), this);
+    if (Result.Rejection)
     {
-        Reject(TEXT("ContextUnavailable"));
+        Reject(Result.Rejection);
         return;
     }
-    Context.AddSourceObject(this);
-    Context.AddHitResult(Hit, true);
-    FGameplayEffectSpecHandle Spec =
-        SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), Context);
-    if (!Spec.IsValid())
-    {
-        Reject(TEXT("SpecUnavailable"));
-        return;
-    }
-    Spec.Data->SetSetByCallerMagnitude(ETGameplayTags::SetByCaller_HealthDelta, -RequestedDamage);
-
-    // This shared player/enemy combat entry checks current tags at actual submission time.
-    // Diagnostic direct GE / SetNumericAttributeBase calls intentionally bypass this policy.
-    if (TargetASC->HasMatchingGameplayTag(ETGameplayTags::State_Invulnerable))
-    {
-        Reject(TEXT("Invulnerable"));
-        return;
-    }
-
-    const FActiveGameplayEffectHandle Result =
-        SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
-    const bool bApplied = Result.WasSuccessfullyApplied();
-
-    // Applying an effect can synchronously cancel abilities or destroy actors.
-    // Do not reuse CurrentActorInfo or raw actor pointers after the call.
-    float HealthAfter = 0.0f;
-    float MaxHealthAfter = 0.0f;
-    AEmberTrialCharacter* LiveTarget = WeakTarget.Get();
-    UAbilitySystemComponent* LiveTargetASC = WeakTargetASC.Get();
-    if (!IsValid(LiveTarget) || !IsValid(LiveTargetASC) ||
-        LiveTarget->GetAbilitySystemComponent() != LiveTargetASC ||
-        !LiveTarget->GetGameplayHealthSnapshot(HealthAfter, MaxHealthAfter))
+    if (!Result.bHasPostHitSnapshot)
     {
         UE_LOG(LogETLightAttack, Display,
                TEXT("[M1-04B2] Damage Serial=%u Source=%s Target=%s Requested=%.1f Applied=%d "
                     "ActiveHandle=%d Snapshot=Unavailable"),
-               Serial, *SourceName, *TargetName, RequestedDamage, bApplied ? 1 : 0,
-               Result.IsValid() ? 1 : 0);
+               Serial, *SourceName, *TargetName, RequestedDamage, Result.bApplied ? 1 : 0,
+               Result.bActiveHandle ? 1 : 0);
         return;
     }
-
-    const float BaseAfter =
-        LiveTargetASC->GetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute());
     UE_LOG(LogETLightAttack, Display,
            TEXT("[M1-04B2] Damage Serial=%u Source=%s Target=%s Requested=%.1f Applied=%d "
                 "ActiveHandle=%d Before=%.1f After=%.1f BaseAfter=%.1f Max=%.1f Actual=%.1f"),
-           Serial, *SourceName, *TargetName, RequestedDamage, bApplied ? 1 : 0,
-           Result.IsValid() ? 1 : 0, HealthBefore, HealthAfter, BaseAfter, MaxHealthAfter,
-           FMath::Max(0.0f, HealthBefore - HealthAfter));
+           Serial, *SourceName, *TargetName, RequestedDamage, Result.bApplied ? 1 : 0,
+           Result.bActiveHandle ? 1 : 0, Result.HealthBefore, Result.HealthAfter, Result.BaseAfter,
+           Result.MaxAfter, FMath::Max(0.0f, Result.HealthBefore - Result.HealthAfter));
 }
