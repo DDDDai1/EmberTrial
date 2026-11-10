@@ -1,6 +1,6 @@
 # M4-01B 投射物接入GAS生命伤害
 
-本批在Core内完成伤害结算，预计手动55–80分钟，构建等待另记。你在CLion手动创建三份文件并修改四份既有源码。[M4-01A验收](Reports/M4_01A_Verification.md)
+2026-11-10已验收。三新四旧Core文件已提交。实际手动30分钟，构建等待5分钟。以下保留实现步骤。[B验收](Reports/M4_01B_Verification.md)
 
 ## 1. 本批行为
 
@@ -16,9 +16,9 @@
 
 ## 2. 新增共享结算
 
-关闭UE编辑器。在CLion的`EmberTrial/Source/EmberTrial/Private/Combat`下新建以下两份文件。共享入口只供Core调用。无需修改Build.cs或创建新GE。
+关闭UE编辑器。在`EmberTrial/Source/EmberTrial`下按文件名所列路径创建。共享头位于`Public/Combat`，实现位于`Private/Combat`。调用者目前都在Core。无需修改Build.cs或创建新GE。
 
-### 2.1 `ETCombatDamage.h`
+### 2.1 `Public/Combat/ETCombatDamage.h`
 
 ```cpp
 #pragma once
@@ -32,29 +32,29 @@ class UGameplayEffect;
 
 namespace ETCombatDamage
 {
-struct FResult
-{
-    // 拒绝原因使用静态文本。空值表示已尝试提交GE。
-    const TCHAR* Rejection = nullptr;
-    bool bApplied = false;
-    bool bActiveHandle = false;
-    bool bHasPostHitSnapshot = false;
-    float HealthBefore = 0.0f;
-    float HealthAfter = 0.0f;
-    float BaseAfter = 0.0f;
-    float MaxAfter = 0.0f;
-};
+    struct FResult
+    {
+        // 拒绝原因使用静态文本。空值表示已尝试提交GE。
+        const TCHAR* Rejection = nullptr;
+        bool bApplied = false;
+        bool bActiveHandle = false;
+        bool bHasPostHitSnapshot = false;
+        float HealthBefore = 0.0f;
+        float HealthAfter = 0.0f;
+        float BaseAfter = 0.0f;
+        float MaxAfter = 0.0f;
+    };
 
-bool IsValidConfiguration(TSubclassOf<UGameplayEffect> EffectClass, float Damage);
+    bool IsValidConfiguration(TSubclassOf<UGameplayEffect> EffectClass, float Damage);
 
-FResult ApplyHit(AEmberTrialCharacter* Source, UAbilitySystemComponent* SourceASC,
-                 const FHitResult& Hit, TSubclassOf<UGameplayEffect> EffectClass,
-                 float Damage, float Level, const UObject* SourceObject,
-                 AActor* EffectCauser = nullptr);
+    FResult ApplyHit(AEmberTrialCharacter* Source, UAbilitySystemComponent* SourceASC,
+                     const FHitResult& Hit, TSubclassOf<UGameplayEffect> EffectClass,
+                     float Damage, float Level, const UObject* SourceObject,
+                     AActor* EffectCauser = nullptr);
 }
 ```
 
-### 2.2 `ETCombatDamage.cpp`
+### 2.2 `Private/Combat/ETCombatDamage.cpp`
 
 ```cpp
 #include "Combat/ETCombatDamage.h"
@@ -770,9 +770,9 @@ Automation RunTests EmberTrial.M2.Dodge.Invulnerability
 
 反馈三新／四旧、双Build和索引、四项自动化、一次真实25与P短查、源码保存、手动时间与等待。失败时贴测试名及首条Expected，编译失败贴首条编译错误。
 
-## 8. Commit / Push
+## 8. Commit / Push（历史）
 
-先Stage本轮收尾文档，可单独提交。列表包含验收报告、状态同步和新指南。
+下列文档与实现已提交。本轮收尾和下一阶段的清单见[M4-01C1操作指南](M4_01C1_RangedShot.md)。
 
 ```text
 Docs/Reports/M4_01A_Verification.md
@@ -793,7 +793,7 @@ README.md
 手动实施并验收后，Stage以下七份Core源码。检查Staged Diff再Commit与Push。
 
 ```text
-EmberTrial/Source/EmberTrial/Private/Combat/ETCombatDamage.h
+EmberTrial/Source/EmberTrial/Public/Combat/ETCombatDamage.h
 EmberTrial/Source/EmberTrial/Private/Combat/ETCombatDamage.cpp
 EmberTrial/Source/EmberTrial/Public/Combat/ETCombatProjectile.h
 EmberTrial/Source/EmberTrial/Private/Combat/ETCombatProjectile.cpp

@@ -222,11 +222,13 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 M4-01A已完成Core投射物的扫掠移动、首次阻挡和寿命。投射物持有弱来源指针，先关闭碰撞再发事件。[A验收](Reports/M4_01A_Verification.md)
 
-M4-01B拟把近战已有的ASC、阵营、无敌及生命规则提取为Core私有伤害入口。带伤害的投射物在发射时保存GE类、伤害与能力等级，在撞击时校验双方当前状态并提交。远程能力在后续决定发射时机与冷却。[B操作](M4_01B_ProjectileDamage.md)
+M4-01B已让近战与投射物共用Core伤害入口。带伤害的投射物在发射时保存GE类、伤害与能力等级，在撞击时校验双方当前状态并提交。[B验收](Reports/M4_01B_Verification.md)
+
+M4-01C1的发射入口负责当前来源、目标、三维射程和Visibility阻挡，再生成一次投射物。能力在后续决定动画提交点和冷却，AI负责选择可攻击目标。[C1操作](M4_01C1_RangedShot.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M4-01A验收文档与M4-01B实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01B_ProjectileDamage.md)
+M4-01B验收文档与M4-01C1实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C1_RangedShot.md)
 
-- 英文 `docs: verify projectile flight and plan GAS damage integration`
-- 中文 `docs: 完成投射物飞行验收并规划GAS伤害接入`
+- 英文 `docs: verify projectile damage and plan ranged firing`
+- 中文 `docs: 完成投射物伤害验收并规划远程发射`

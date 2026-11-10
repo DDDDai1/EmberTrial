@@ -438,9 +438,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-10 M4-01A收尾。`c667e1e`含三份Core源码，正式工程双Build、索引、ProjectileFlight与PIE短查通过。手动40分钟，等待5分钟。M4-01B由用户按新指南录入三新四旧Core文件。
 
+2026-11-10 M4-01B收尾。`4097e43`含七份Core实现。伤害头实际位于`Public/Combat`，指南已同步。双Build、四项Success与正式实战25通过，手动30分钟，等待5分钟。C1三新文件与一个测试friend由用户手动录入。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M4-01A验收文档与M4-01B实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01B_ProjectileDamage.md)
+M4-01B验收文档与M4-01C1实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C1_RangedShot.md)
 
-- 英文 `docs: verify projectile flight and plan GAS damage integration`
-- 中文 `docs: 完成投射物飞行验收并规划GAS伤害接入`
+- 英文 `docs: verify projectile damage and plan ranged firing`
+- 中文 `docs: 完成投射物伤害验收并规划远程发射`

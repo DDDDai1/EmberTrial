@@ -444,11 +444,15 @@ C2专项和正式六件P重开通过。手动25分钟，等待5分钟。
 
 ## M4-01B的检查边界
 
-用真实扫掠验证伤害、无敌、友方阻挡、墙和来源销毁。沿用飞行、三段近战和闪避无敌专项。正式地图只查一次真实近战伤害和暂停恢复。[B操作](M4_01B_ProjectileDamage.md)
+正式工程四项Success，地图实战25与P短查完成。手动30分钟，等待5分钟。[B验收](Reports/M4_01B_Verification.md)
+
+## M4-01C1的检查边界
+
+发射专项覆盖射程、暂停、视线、非法配置与友方拒绝，放行后走真实扫掠扣12。回归已有两项投射物测试，正式地图只查Entry、移动和P。[C1操作](M4_01C1_RangedShot.md)
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M4-01A验收文档与M4-01B实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01B_ProjectileDamage.md)
+M4-01B验收文档与M4-01C1实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C1_RangedShot.md)
 
-- 英文 `docs: verify projectile flight and plan GAS damage integration`
-- 中文 `docs: 完成投射物飞行验收并规划GAS伤害接入`
+- 英文 `docs: verify projectile damage and plan ranged firing`
+- 中文 `docs: 完成投射物伤害验收并规划远程发射`
