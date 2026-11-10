@@ -6,6 +6,9 @@ namespace ETGameplayTags
     // ---- 攻击能力与状态 ----
     UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Attack_Light, "Ability.Attack.Light",
                                "Identifies the single light attack ability.");
+    UE_DEFINE_GAMEPLAY_TAG(Ability_Attack_Ranged, "Ability.Attack.Ranged");
+    UE_DEFINE_GAMEPLAY_TAG(Event_RangedShot, "Event.Combat.RangedShot");
+    UE_DEFINE_GAMEPLAY_TAG(Cooldown_RangedShot, "Cooldown.RangedShot");
     UE_DEFINE_GAMEPLAY_TAG_COMMENT(State_Attacking, "State.Attacking",
                                "Owned by GAS while a formal attack is active.");
     // ---- 有符号属性增量；调用方提供幅度，不在Tag定义中存数值 ----

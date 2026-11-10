@@ -7,6 +7,9 @@ namespace ETGameplayTags
 {
     // ---- 攻击能力与状态 ----
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Light);
+    EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Attack_Ranged);
+    EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_RangedShot);
+    EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Cooldown_RangedShot);
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Attacking);
     // ---- 有符号属性增量；Instant GE的SetByCaller通道 ----
     EMBERTRIAL_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_HealthDelta);
