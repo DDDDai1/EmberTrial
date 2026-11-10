@@ -436,9 +436,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-09 C3收尾。`115bdd0`已含完整C2测试，启动工具与上一批文档已提交。Attempt01与两轮Runtime通过。候选与产物保留在Artifacts，M4-01A由用户按指南手动录入三份Core文件。
 
+2026-11-10 M4-01A收尾。`c667e1e`含三份Core源码，正式工程双Build、索引、ProjectileFlight与PIE短查通过。手动40分钟，等待5分钟。M4-01B由用户按新指南录入三新四旧Core文件。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M3收尾文档和M4-01A实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01A_ProjectileFlightFoundation.md)
+M4-01A验收文档与M4-01B实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01B_ProjectileDamage.md)
 
-- 英文 `docs: verify six-relic package and plan projectile foundation`
-- 中文 `docs: 完成六遗物集成包验收并规划投射物飞行基础`
+- 英文 `docs: verify projectile flight and plan GAS damage integration`
+- 中文 `docs: 完成投射物飞行验收并规划GAS伤害接入`

@@ -220,11 +220,13 @@ M3当前36项含原M2的23项、遗物9项与输入偏好 / 草稿 / 视频规�
 
 ## M4远程守卫的投射物分层
 
-M4-01A拟由Core投射物Actor负责移动、首次阻挡回调和寿命。远程施放能力负责发射时机，后续伤害层负责阵营、无敌与GAS结算。投射物通过弱来源指针提供命中上下文，先关闭自身碰撞再发事件。角色与既有AI在A批保持当前调用链。[M4-01A操作](M4_01A_ProjectileFlightFoundation.md)
+M4-01A已完成Core投射物的扫掠移动、首次阻挡和寿命。投射物持有弱来源指针，先关闭碰撞再发事件。[A验收](Reports/M4_01A_Verification.md)
+
+M4-01B拟把近战已有的ASC、阵营、无敌及生命规则提取为Core私有伤害入口。带伤害的投射物在发射时保存GE类、伤害与能力等级，在撞击时校验双方当前状态并提交。远程能力在后续决定发射时机与冷却。[B操作](M4_01B_ProjectileDamage.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M3收尾文档和M4-01A实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01A_ProjectileFlightFoundation.md)
+M4-01A验收文档与M4-01B实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01B_ProjectileDamage.md)
 
-- 英文 `docs: verify six-relic package and plan projectile foundation`
-- 中文 `docs: 完成六遗物集成包验收并规划投射物飞行基础`
+- 英文 `docs: verify projectile flight and plan GAS damage integration`
+- 中文 `docs: 完成投射物飞行验收并规划GAS伤害接入`

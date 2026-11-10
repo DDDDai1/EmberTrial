@@ -440,11 +440,15 @@ C2专项和正式六件P重开通过。手动25分钟，等待5分钟。
 
 ## M4-01A的检查边界
 
-新增一个真实世界飞行专项，覆盖首次阻挡、来源碰撞忽略、重复发射、飞行方向与到期清理。正式地图只查现有基本战斗与暂停，不为专项另搭正式地图或蓝图。伤害和远程AI各在对应批次验收。
+飞行专项Success，正式地图短查通过。手动40分钟，等待5分钟。[A验收](Reports/M4_01A_Verification.md)
+
+## M4-01B的检查边界
+
+用真实扫掠验证伤害、无敌、友方阻挡、墙和来源销毁。沿用飞行、三段近战和闪避无敌专项。正式地图只查一次真实近战伤害和暂停恢复。[B操作](M4_01B_ProjectileDamage.md)
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M3收尾文档和M4-01A实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01A_ProjectileFlightFoundation.md)
+M4-01A验收文档与M4-01B实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01B_ProjectileDamage.md)
 
-- 英文 `docs: verify six-relic package and plan projectile foundation`
-- 中文 `docs: 完成六遗物集成包验收并规划投射物飞行基础`
+- 英文 `docs: verify projectile flight and plan GAS damage integration`
+- 中文 `docs: 完成投射物飞行验收并规划GAS伤害接入`

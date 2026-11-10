@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。六件遗物、四类设置与500条ListView复用已验收，六件版Win64 Development包通过两轮独立运行。当前开发远程守卫的投射物基础。[C3验收](Docs/Reports/M3_06C3_Verification.md) · [M4-01A操作](Docs/M4_01A_ProjectileFlightFoundation.md)
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。六件遗物、四类设置与500条ListView复用已验收，六件版Win64 Development包通过两轮独立运行。远程守卫的投射物飞行基础已验收，当前接入GAS伤害。[M4-01A验收](Docs/Reports/M4_01A_Verification.md) · [M4-01B操作](Docs/M4_01B_ProjectileDamage.md)
 
 ## 已实现的体验
 
@@ -68,4 +68,4 @@ Z / C及出生 / 近景补修已验收，证据与限制见[C报告](Docs/Report
 - [验收方案B](Docs/AcceptanceWorkflow_Options.md)：按影响范围测试、复用入口与阶段验收。
 - [资产来源清单](Docs/AssetManifest.csv)：来源、用途及授权记录；复用资产时需分别核对原授权。
 
-核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。当前43项自动化，M3-06C3阶段全组当次全部Success；原M2-07A的23项历史结果保留，M3定义 / 规则 / 装备效果 / 会话库存专项已过，03A两相关项当次Success；B扩原Combo.Flow的真实三段伤害快照沿用，覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。
+核心玩法位于[EmberTrial](EmberTrial/Source/EmberTrial)，UI位于[EmberTrialUI](EmberTrial/Source/EmberTrialUI)，只在编辑器使用的校验器位于[EmberTrialEditor](EmberTrial/Source/EmberTrialEditor)。当前44项自动化。M3-06C3时的43项全组通过，M4-01A新增飞行专项在正式工程通过。原M2-07A的23项历史结果保留，M3定义 / 规则 / 装备效果 / 会话库存专项已过，03A两相关项当次Success；B扩原Combo.Flow的真实三段伤害快照沿用，覆盖Practice、资源、韧性基础 / 状态 / 耗尽、F施放 / 冷却 / 范围、闪避、连段、治疗、UI纯规则、破势冷却、目标锁定生命周期、标记边界与镜头角度；它们不替代输入焦点、动画观感与独立包验收。

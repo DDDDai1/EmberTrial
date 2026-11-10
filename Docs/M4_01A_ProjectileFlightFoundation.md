@@ -1,6 +1,6 @@
 # M4-01A 远程守卫投射物飞行基础
 
-本批建立可复用的一次性投射物。预计手动40–60分钟，构建等待另记。你在CLion手动创建三个C++文件，我核对构建与日志。[M3-06C3验收](Reports/M3_06C3_Verification.md)
+2026-11-10已验收。三份Core文件已提交，双Build、索引、飞行专项和地图短查通过。实际手动40分钟，构建等待5分钟。以下保留实现步骤。[A验收](Reports/M4_01A_Verification.md)
 
 ## 1. 交付边界
 
@@ -336,9 +336,9 @@ Automation RunTests EmberTrial.M4.Combat.ProjectileFlight
 
 反馈三新文件、双Build和索引、ProjectileFlight结果、正式地图短查、源码是否保存、实际手动时间与构建等待。失败时贴测试名和第一条`Expected`或第一条编译错误，画面问题补截图。
 
-## 5. Commit / Push
+## 5. Commit / Push（历史）
 
-M3收尾文档与M4实现可分两组提交。在CLion对组内最新内容Stage后查看Staged Diff，再由你Commit与Push。
+原两组变更已提交。当前批次的文档与实现清单见[M4-01B操作指南](M4_01B_ProjectileDamage.md)。
 
 M3验收与M4操作指南组。
 
