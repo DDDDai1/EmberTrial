@@ -23,6 +23,7 @@ public:
     UETCombatLifeComponent();
 
     bool RequestHitReact();
+    bool RequestHitReactFromPoiseDamage();
     bool IsDead() const
     {
         return bDead;

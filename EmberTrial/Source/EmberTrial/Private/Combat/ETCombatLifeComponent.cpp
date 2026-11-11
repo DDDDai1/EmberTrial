@@ -134,6 +134,11 @@ bool UETCombatLifeComponent::RequestHitReact()
     return RequestHitReactInternal(TEXT("DiagnosticInput"));
 }
 
+bool UETCombatLifeComponent::RequestHitReactFromPoiseDamage()
+{
+    return RequestHitReactInternal(TEXT("PoiseDamage"));
+}
+
 bool UETCombatLifeComponent::RequestHitReactInternal(const TCHAR* Reason)
 {
     AEmberTrialCharacter* Character = CharacterOwner.Get();

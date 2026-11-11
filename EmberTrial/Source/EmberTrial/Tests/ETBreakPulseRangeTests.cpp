@@ -347,6 +347,14 @@ bool FETBreakPulseRangeTest::RunTest(const FString& Parameters)
         }
         TestEqual(TEXT("Real notify applies captured damage or skips by current target policy"),
                   Poise(ASC_A), ExpectedPoise);
+        const bool bHitReact = ASC_A->HasMatchingGameplayTag(ETGameplayTags::State_HitReact);
+        TestEqual(TEXT("Only a landed hit above zero Poise triggers regular hit reaction"),
+                  bHitReact, !bRejectedTarget);
+        if (Scenario == EScenario::Cycle)
+        {
+            TestNotNull(TEXT("The target is playing a hit reaction montage"),
+                        A->GetMesh()->GetAnimInstance()->GetCurrentActiveMontage());
+        }
         Ability->HandleBreakPulseCommit(Source->GetMesh(), OldMontage, OldID, OldToken);
         TestEqual(TEXT("Duplicate or cancelled callback cannot add damage"), Poise(ASC_A),
                   ExpectedPoise);
@@ -393,6 +401,8 @@ bool FETBreakPulseRangeTest::RunTest(const FString& Parameters)
             {
                 TestTrue(TEXT("Zero Poise triggers existing formal Stagger"),
                          ASC_A->HasMatchingGameplayTag(ETGameplayTags::State_Stunned));
+                TestFalse(TEXT("Poise depletion does not layer a regular hit reaction"),
+                          ASC_A->HasMatchingGameplayTag(ETGameplayTags::State_HitReact));
                 TestEqual(TEXT("Second target also reaches zero"), Poise(ASC_B), 0.0f);
                 if (!Advance(1.6f))
                 {

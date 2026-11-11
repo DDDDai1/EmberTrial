@@ -7,6 +7,7 @@
 #include "Attributes/ETPoiseAttributeSet.h"
 #include "CollisionQueryParams.h"
 #include "CollisionShape.h"
+#include "Combat/ETCombatLifeComponent.h"
 #include "Engine/OverlapResult.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "AbilitySystemComponent.h"
@@ -508,6 +509,15 @@ void UETGA_BreakPulse::ResolvePulse(uint32 Serial, const FVector& Origin, float 
                     "Snapshot=%d"),
                *BodyName, Serial, *TargetName, Applied.WasSuccessfullyApplied() ? 1 : 0,
                PoiseBefore, bSnapshot ? After : -1.0f, bSnapshot ? 1 : 0);
+
+        // 架势归零由 CombatPoise 播放破势动画。架势仍为正的命中播放普通受击。
+        if (Applied.WasSuccessfullyApplied() && bSnapshot && After > 0.0f && After < PoiseBefore)
+        {
+            if (UETCombatLifeComponent* Life = Target->FindComponentByClass<UETCombatLifeComponent>())
+            {
+                Life->RequestHitReactFromPoiseDamage();
+            }
+        }
     }
 }
 

@@ -153,6 +153,7 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     friend class FETRangedShotTest;
     friend class FETRangedShotAbilityTest;
     friend class FETRangedGuardAITest;
+    friend class FETMixedEncounterTest;
     friend class FETLightComboCancelTest;
     friend class FETHealingResourceTest;
     friend class FETHealingAbilityTest;
