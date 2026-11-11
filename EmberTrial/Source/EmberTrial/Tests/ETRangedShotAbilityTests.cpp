@@ -84,6 +84,9 @@ bool FETRangedShotAbilityTest::RunTest(const FString& Parameters)
     }
     Body->CombatTeam = EETCombatTeam::Enemy;
     Target->CombatTeam = EETCombatTeam::Player;
+    Body->RangedShotAbilityClass = RangedClass;
+    Target->RangedShotAbilityClass = RangedClass;
+    TestFalse(TEXT("Request before BeginPlay is rejected"), Body->RequestRangedShot(Target));
     Body->GetMesh()->SetSkeletalMeshAsset(Quinn);
     Body->GetMesh()->SetAnimInstanceClass(UAnimInstance::StaticClass());
     Body->GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
@@ -104,7 +107,12 @@ bool FETRangedShotAbilityTest::RunTest(const FString& Parameters)
     UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
     UAbilitySystemComponent* TargetASC = Target->GetAbilitySystemComponent();
     const FGameplayAttribute Health = UETHealthAttributeSet::GetHealthAttribute();
-    const FGameplayAbilitySpecHandle Ranged = ASC->GiveAbility(FGameplayAbilitySpec(RangedClass));
+    const FGameplayAbilitySpecHandle Ranged = Body->GetRangedShotSpecHandle();
+    if (!TestTrue(TEXT("Enemy BeginPlay granted the saved ranged ability"), Ranged.IsValid()))
+    {
+        return false;
+    }
+    TestFalse(TEXT("Player is not granted an enemy ranged ability"), Target->GetRangedShotSpecHandle().IsValid());
     const FGameplayAbilitySpecHandle Hit = ASC->GiveAbility(FGameplayAbilitySpec(HitClass));
     const FGameplayAbilitySpec* RangedSpec = ASC->FindAbilitySpecFromHandle(Ranged);
     UETGA_RangedShot* RangedAbility =
@@ -120,13 +128,9 @@ bool FETRangedShotAbilityTest::RunTest(const FString& Parameters)
         return false;
     }
 
-    const auto Request = [ASC, Body](AActor* Aim)
+    const auto Request = [Body](AEmberTrialCharacter* Aim)
     {
-        FGameplayEventData Event;
-        Event.EventTag = ETGameplayTags::Event_RangedShot;
-        Event.Instigator = Body;
-        Event.Target = Aim;
-        return ASC->HandleGameplayEvent(Event.EventTag, &Event);
+        return Body->RequestRangedShot(Aim) ? 1 : 0;
     };
     const auto Advance = [&Fixture](float Seconds)
     {
@@ -235,6 +239,8 @@ bool FETRangedShotAbilityTest::RunTest(const FString& Parameters)
         Fixture.ForwardErrorMessages(this);
         return false;
     }
+    TestFalse(TEXT("EndPlay invalidates the body-owned ranged handle"), Body->GetRangedShotSpecHandle().IsValid());
+    TestNull(TEXT("EndPlay removes the ranged spec from the ASC"), ASC->FindAbilitySpecFromHandle(Ranged));
     Fixture.ForwardErrorMessages(this);
     return !HasAnyErrors();
 }

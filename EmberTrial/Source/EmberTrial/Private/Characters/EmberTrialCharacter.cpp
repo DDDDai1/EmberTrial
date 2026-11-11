@@ -24,6 +24,7 @@
 #include "Abilities/ETGA_Dodge.h"
 #include "Abilities/ETGA_Heal.h"
 #include "Abilities/ETGA_BreakPulse.h"
+#include "Abilities/ETGA_RangedShot.h"
 #include "Abilities/ETGameplayTags.h"
 #include "Abilities/Effects/ETPoiseDeltaEffect.h"
 #include "Engine/World.h"
@@ -121,6 +122,7 @@ void AEmberTrialCharacter::BeginPlay()
     RefreshEmberAbilityActorInfo(TEXT("BeginPlay"));
     EnsureGameplayInitialized();
     GrantLightAttackAbility();
+    GrantRangedShotAbility();
     GrantDodgeAbility();
     GrantHealAbility();
     GrantBreakPulseAbility();
@@ -206,6 +208,62 @@ FVector AEmberTrialCharacter::GetDodgeWorldDirection() const
     }
     const float Yaw = PC ? PC->GetControlRotation().Yaw : GetActorRotation().Yaw;
     return MakeDodgeWorldDirection(Axis, Yaw, GetActorForwardVector());
+}
+
+// ---- 敌方远程能力的授予与请求 ----
+void AEmberTrialCharacter::GrantRangedShotAbility()
+{
+    if (CombatTeam != EETCombatTeam::Enemy || !HasAuthority() || !IsGameplayReady() ||
+        IsCombatDead() || RangedShotAbilityHandle.IsValid() || !RangedShotAbilityClass)
+    {
+        return;
+    }
+
+    const UETGA_RangedShot* Defaults = RangedShotAbilityClass.GetDefaultObject();
+    if (RangedShotAbilityClass->HasAnyClassFlags(CLASS_Abstract) ||
+        !IsValid(Defaults) || !Defaults->HasValidConfiguration())
+    {
+        UE_LOG(LogETAbilityFoundation, Warning,
+               TEXT("[M4-01D1] Ranged grant rejected Body=%s Class=%s"),
+               *GetNameSafe(this), *GetNameSafe(RangedShotAbilityClass.Get()));
+        return;
+    }
+
+    RangedShotAbilityHandle = AbilitySystemComponent->GiveAbility(
+        FGameplayAbilitySpec(RangedShotAbilityClass.Get(), 1, INDEX_NONE, this));
+    UE_LOG(LogETAbilityFoundation, Display, TEXT("[M4-01D1] Ranged grant Body=%s Granted=%d"),
+           *GetNameSafe(this), RangedShotAbilityHandle.IsValid() ? 1 : 0);
+}
+
+FGameplayAbilitySpecHandle AEmberTrialCharacter::GetRangedShotSpecHandle() const
+{
+    return IsGameplayReady() && !IsCombatDead() ? RangedShotAbilityHandle : FGameplayAbilitySpecHandle();
+}
+
+bool AEmberTrialCharacter::RequestRangedShot(AEmberTrialCharacter* Target)
+{
+    const FGameplayAbilitySpecHandle Handle = GetRangedShotSpecHandle();
+    if (!HasAuthority() || CombatTeam != EETCombatTeam::Enemy || !Handle.IsValid() ||
+        !IsValid(Target) || !Target->IsGameplayReady() || Target->IsCombatDead() ||
+        Target->GetWorld() != GetWorld() || !CanDealCombatDamageTo(Target))
+    {
+        return false;
+    }
+
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+    const FGameplayAbilitySpec* Spec = ASC->FindAbilitySpecFromHandle(Handle);
+    if (!ASC->AbilityActorInfo.IsValid() || !Spec || Spec->IsActive() ||
+        !IsValid(Spec->Ability) || Spec->Ability->GetClass() != RangedShotAbilityClass.Get())
+    {
+        return false;
+    }
+
+    // 只把本次目标交给该身体实际授予的远程能力。
+    FGameplayEventData Event;
+    Event.EventTag = ETGameplayTags::Event_RangedShot;
+    Event.Instigator = this;
+    Event.Target = Target;
+    return ASC->TriggerAbilityFromGameplayEvent(Handle, ASC->AbilityActorInfo.Get(), Event.EventTag, &Event, *ASC);
 }
 
 // ---- 轻攻击：玩家连段与敌人单段共用授予入口 ----
@@ -658,6 +716,10 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
         {
             AbilitySystemComponent->ClearAbility(LightAttackAbilityHandle);
         }
+        if (RangedShotAbilityHandle.IsValid())
+        {
+            AbilitySystemComponent->ClearAbility(RangedShotAbilityHandle);
+        }
         if (DodgeAbilityHandle.IsValid())
         {
             AbilitySystemComponent->ClearAbility(DodgeAbilityHandle);
@@ -678,6 +740,7 @@ void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
                static_cast<int32>(EndPlayReason));
     }
     LightAttackAbilityHandle = FGameplayAbilitySpecHandle();
+    RangedShotAbilityHandle = FGameplayAbilitySpecHandle();
     DodgeAbilityHandle = FGameplayAbilitySpecHandle();
     HealAbilityHandle = FGameplayAbilitySpecHandle();
     BreakPulseAbilityHandle = FGameplayAbilitySpecHandle();

@@ -21,6 +21,7 @@ class UETGA_LightAttack;
 class UETGA_Dodge;
 class UETGA_Heal;
 class UETGA_BreakPulse;
+class UETGA_RangedShot;
 class UETCombatTraceComponent;
 class UETCombatLifeComponent;
 class UETCombatPoiseComponent;
@@ -177,6 +178,12 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     void GrantLightAttackAbility();
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Abilities")
+    TSubclassOf<UETGA_RangedShot> RangedShotAbilityClass;
+
+    FGameplayAbilitySpecHandle RangedShotAbilityHandle;
+    void GrantRangedShotAbility();
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Abilities")
     TSubclassOf<UETGA_Dodge> DodgeAbilityClass;
 
     FGameplayAbilitySpecHandle DodgeAbilityHandle;
@@ -248,6 +255,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
     bool RequestLightAttack();
+
+    bool RequestRangedShot(AEmberTrialCharacter* Target);
+    FGameplayAbilitySpecHandle GetRangedShotSpecHandle() const;
 
     UFUNCTION(BlueprintCallable, Category = "EmberTrial|Combat")
     bool RequestDodge();
