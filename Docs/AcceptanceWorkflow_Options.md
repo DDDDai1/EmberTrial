@@ -452,11 +452,15 @@ C2专项和正式六件P重开通过。手动25分钟，等待5分钟。
 
 ## M4-01C2的检查边界
 
-新专项使用临时Montage副本验证发射通知、冷却、暂停、真实受击中断与发射时重判。回归三项既有发射／投射物测试。正式地图只查Entry、移动和P。[C2操作](M4_01C2_RangedShotAbility.md)
+四项正式工程Success，地图Entry、两次暂停恢复和停止PIE已核对。手动60分钟，等待5分钟。[C2验收](Reports/M4_01C2_Verification.md)
+
+## M4-01C3的检查边界
+
+既有能力专项改为直接加载三份已保存资源，核对CDO、实例、可见弹体和实际命中。保留三个发射／投射物回归，正式地图只查移动和P。[C3操作](M4_01C3_RangedShotAssets.md)
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M4-01C1验收文档与M4-01C2实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C2_RangedShotAbility.md)
+M4-01C2验收文档与M4-01C3实现分组提交。资产和测试在手动配置与验收后提交。[两组提交清单](M4_01C3_RangedShotAssets.md)
 
-- 英文 `docs: verify ranged firing and plan montage-driven casting`
-- 中文 `docs: 完成远程发射验收并规划蒙太奇驱动施放`
+- 英文 `docs: verify ranged casting and plan saved assets`
+- 中文 `docs: 完成远程施放验收并规划正式资产`

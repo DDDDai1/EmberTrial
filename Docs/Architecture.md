@@ -226,11 +226,13 @@ M4-01B已让近战与投射物共用Core伤害入口。带伤害的投射物在�
 
 M4-01C1已验证发射入口。来源、目标、三维射程和Visibility阻挡由该入口校验，再按当时方向生成一次投射物。[C1验收](Reports/M4_01C1_Verification.md)
 
-M4-01C2以Gameplay Event提供目标，GA负责动画与冷却，Notify只传递当前蒙太奇身份。GA在通知处最多调用一次发射入口，受击和破势Tag可中断起手。后续AI负责选择目标和决定何时请求。[C2操作](M4_01C2_RangedShotAbility.md)
+M4-01C2已验证Gameplay Event、GA冷却与原生发射通知。Notify只转交当前蒙太奇身份，GA负责发射一次和受击中断。[C2验收](Reports/M4_01C2_Verification.md)
+
+M4-01C3由远程GA资产绑定动作、弹体和伤害GE。弹体BP添加无碰撞可视组件，原生球体继续负责扫掠。现有专项直接授予保存的GA类以核对实例继承。[C3操作](M4_01C3_RangedShotAssets.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M4-01C1验收文档与M4-01C2实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C2_RangedShotAbility.md)
+M4-01C2验收文档与M4-01C3实现分组提交。资产和测试在手动配置与验收后提交。[两组提交清单](M4_01C3_RangedShotAssets.md)
 
-- 英文 `docs: verify ranged firing and plan montage-driven casting`
-- 中文 `docs: 完成远程发射验收并规划蒙太奇驱动施放`
+- 英文 `docs: verify ranged casting and plan saved assets`
+- 中文 `docs: 完成远程施放验收并规划正式资产`

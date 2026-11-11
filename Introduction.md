@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-M0、M1、M2与M3当前范围已验收。最新独立包包含六件遗物与四类设置，M4投射物飞行、GAS伤害与远程发射已验收，当前接入动画发射和冷却。实际243 Source、140cpp、46测试、来源96。[当前进度](Docs/Progress.md) · [M4-01C2操作](Docs/M4_01C2_RangedShotAbility.md)
+M0、M1、M2与M3当前范围已验收。最新独立包包含六件遗物与四类设置，M4远程GAS施放、动画发射和冷却已验收，当前配置可保存的远程资产。实际250 Source、144cpp、47测试、来源96。[当前进度](Docs/Progress.md) · [M4-01C3操作](Docs/M4_01C3_RangedShotAssets.md)
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -856,7 +856,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 17. M0 开发起点
 
-**截至2026-11-09，M3六件版已集成。** M3累计2878分钟，等待211分钟。计入M4-01C1后项目累计6399分钟，等待550分钟。最新验收包为`M3_06C3/Attempt01`。接下来推进M4关卡内容，再进入M5存档。以下保留原M0起点。[C3验收](Docs/Reports/M3_06C3_Verification.md)
+**截至2026-11-09，M3六件版已集成。** M3累计2878分钟，等待211分钟。计入M4-01C2后项目累计6459分钟，等待555分钟。最新验收包为`M3_06C3/Attempt01`。接下来推进M4关卡内容，再进入M5存档。以下保留原M0起点。[C3验收](Docs/Reports/M3_06C3_Verification.md)
 
 1. 对齐每周实际可投入时间、投递时间、硬件与可用资源；快速检查现有项目经验中最强和最弱的部分。
 2. 由用户在当前 Demo 工作区下创建 `EmberTrial` UE 5.5.4 C++ 工程；随后共同配置 Git / LFS、基础命名与目录，完成首次冷编译和 Windows 打包。
@@ -868,7 +868,7 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-M4-01C1验收文档与M4-01C2实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](Docs/M4_01C2_RangedShotAbility.md)
+M4-01C2验收文档与M4-01C3实现分组提交。资产和测试在手动配置与验收后提交。[两组提交清单](Docs/M4_01C3_RangedShotAssets.md)
 
-- 英文 `docs: verify ranged firing and plan montage-driven casting`
-- 中文 `docs: 完成远程发射验收并规划蒙太奇驱动施放`
+- 英文 `docs: verify ranged casting and plan saved assets`
+- 中文 `docs: 完成远程施放验收并规划正式资产`

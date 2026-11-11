@@ -1,6 +1,6 @@
 # M4-01C2 远程守卫的GAS施放、发射通知与冷却
 
-本批用已有发射入口建立远程能力。预计手动55–80分钟，构建等待另记。你在CLion新建七份Core文件，另在三个既有头或实现中插入少量代码。[M4-01C1验收](Reports/M4_01C1_Verification.md)
+2026-11-10已验收。七新三旧Core文件已提交，双Build、索引、四项专项与地图短查完成。实际手动60分钟，等待5分钟。以下保留实现步骤。[C2验收](Reports/M4_01C2_Verification.md)
 
 ## 1. 本批行为
 
@@ -802,9 +802,9 @@ Automation RunTests EmberTrial.M4.Combat.Projectile
 
 反馈七新文件、两Tag文件与测试friend、双Build与索引、四项自动化、地图短查、保存状态、手动时间和构建等待。报错贴首条编译错误，或测试名和首条`Expected`。
 
-## 7. Commit / Push
+## 7. Commit / Push（历史）
 
-先Stage本轮验收报告、进度和新指南，可单独提交。
+下列文档和实现已提交。当前阶段清单见[M4-01C3操作指南](M4_01C3_RangedShotAssets.md)。
 
 ```text
 Docs/Reports/M4_01C1_Verification.md

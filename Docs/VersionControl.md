@@ -442,9 +442,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-10 M4-01C1收尾。`66d5082`含三新文件和一处测试friend。双Build、索引、三项Success及地图短查完成，手动40分钟，等待5分钟。C2按指南手动录入七新三旧Core文件。
 
+2026-11-10 M4-01C2收尾。`849537f`含七新三旧Core文件。双Build、索引、四项Success与正式地图短查完成，手动60分钟，等待5分钟。C3的三资产和一个测试更新由用户按指南手动实现。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M4-01C1验收文档与M4-01C2实现分组提交。实现组在手动录入与验收后提交。[两组提交清单](M4_01C2_RangedShotAbility.md)
+M4-01C2验收文档与M4-01C3实现分组提交。资产和测试在手动配置与验收后提交。[两组提交清单](M4_01C3_RangedShotAssets.md)
 
-- 英文 `docs: verify ranged firing and plan montage-driven casting`
-- 中文 `docs: 完成远程发射验收并规划蒙太奇驱动施放`
+- 英文 `docs: verify ranged casting and plan saved assets`
+- 中文 `docs: 完成远程施放验收并规划正式资产`
