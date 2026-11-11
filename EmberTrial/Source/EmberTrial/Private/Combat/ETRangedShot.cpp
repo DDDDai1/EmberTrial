@@ -22,6 +22,27 @@ namespace
     }
 }
 
+bool ETRangedShot::CanAimAt(const AEmberTrialCharacter& Source, const AEmberTrialCharacter& Target,
+                            const FETRangedShotConfig& Config)
+{
+    const UWorld* World = Source.GetWorld();
+    const FVector Origin = Source.GetActorLocation();
+    const FVector Aim = Target.GetActorLocation();
+    const double DistanceSquared = FVector::DistSquared(Origin, Aim);
+    if (!World || World != Target.GetWorld() || !FMath::IsFinite(DistanceSquared) ||
+        !FMath::IsFinite(Config.MinRange) || !FMath::IsFinite(Config.MaxRange) ||
+        Config.MinRange < 1.0f || Config.MaxRange < Config.MinRange ||
+        DistanceSquared < FMath::Square(static_cast<double>(Config.MinRange)) ||
+        DistanceSquared > FMath::Square(static_cast<double>(Config.MaxRange)))
+    {
+        return false;
+    }
+
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(ETRangedShotSight), false, &Source);
+    Query.AddIgnoredActor(&Target);
+    return !World->LineTraceTestByChannel(Origin, Aim, ECC_Visibility, Query);
+}
+
 AETCombatProjectile* ETRangedShot::TryFire(
     AEmberTrialCharacter* Source, AEmberTrialCharacter* Target,
     const FETRangedShotConfig& Config, float AbilityLevel)
@@ -38,27 +59,14 @@ AETCombatProjectile* ETRangedShot::TryFire(
     if (!World || World != Target->GetWorld() || !World->HasBegunPlay() || World->IsPaused() ||
         !IsValid(ProjectileClass) || ProjectileClass->HasAnyClassFlags(CLASS_Abstract) ||
         !ETCombatDamage::IsValidConfiguration(Config.DamageEffectClass, Config.Damage) ||
-        !FMath::IsFinite(AbilityLevel) || AbilityLevel <= 0.0f ||
-        !FMath::IsFinite(Config.MinRange) || !FMath::IsFinite(Config.MaxRange) ||
-        Config.MinRange < 1.0f || Config.MaxRange < Config.MinRange)
+        !FMath::IsFinite(AbilityLevel) || AbilityLevel <= 0.0f)
     {
         return nullptr;
     }
 
     const FVector Origin = Source->GetActorLocation();
-    const FVector Aim = Target->GetActorLocation();
-    const FVector Delta = Aim - Origin;
-    const double DistanceSquared = Delta.SizeSquared();
-    if (Origin.ContainsNaN() || Aim.ContainsNaN() || !FMath::IsFinite(DistanceSquared) ||
-        DistanceSquared < FMath::Square(static_cast<double>(Config.MinRange)) ||
-        DistanceSquared > FMath::Square(static_cast<double>(Config.MaxRange)))
-    {
-        return nullptr;
-    }
-
-    FCollisionQueryParams SightQuery(SCENE_QUERY_STAT(ETRangedShotSight), false, Source);
-    SightQuery.AddIgnoredActor(Target);
-    if (World->LineTraceTestByChannel(Origin, Aim, ECC_Visibility, SightQuery))
+    const FVector Delta = Target->GetActorLocation() - Origin;
+    if (!CanAimAt(*Source, *Target, Config))
     {
         return nullptr;
     }
@@ -98,6 +106,6 @@ AETCombatProjectile* ETRangedShot::TryFire(
     UE_LOG(LogETRangedShot, Display,
            TEXT("[M4-01C1] Fired Source=%s Target=%s Projectile=%s Distance=%.1f Damage=%.1f"),
            *GetNameSafe(LiveSource), *GetNameSafe(LiveTarget), *GetNameSafe(Shot),
-           FMath::Sqrt(DistanceSquared), Damage);
+           Delta.Size(), Damage);
     return Shot;
 }

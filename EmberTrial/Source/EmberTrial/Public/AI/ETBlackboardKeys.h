@@ -9,5 +9,7 @@ namespace ETBlackboardKeys
 inline const FName TargetActor(TEXT("TargetActor"));
 inline const FName CanPursue(TEXT("CanPursue"));
 inline const FName CanMeleeAttack(TEXT("CanMeleeAttack"));
+inline const FName CanRangedAttack(TEXT("CanRangedAttack"));
+inline const FName RangedRetreatGoal(TEXT("RangedRetreatGoal"));
 inline const FName PursuitStopDistance(TEXT("PursuitStopDistance"));
 } // namespace ETBlackboardKeys

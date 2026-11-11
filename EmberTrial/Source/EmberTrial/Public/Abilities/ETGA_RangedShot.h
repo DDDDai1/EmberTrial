@@ -20,6 +20,7 @@ class EMBERTRIAL_API UETGA_RangedShot : public UGameplayAbility
 public:
     UETGA_RangedShot();
     bool HasValidConfiguration() const;
+    const FETRangedShotConfig& GetShotConfig() const { return ShotConfig; }
     void HandleRelease(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
                        int32 InstanceID, const UETAN_RangedShotRelease* Notify);
 

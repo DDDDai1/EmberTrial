@@ -3,6 +3,7 @@
 #include "AI/ETAILiveBody.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "Abilities/ETGameplayTags.h"
+#include "Abilities/ETGA_RangedShot.h"
 #include "AbilitySystemComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
@@ -11,6 +12,7 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Float.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -173,6 +175,21 @@ bool AETAIController::InitializeEnemyBlackboard()
                *GetNameSafe(this));
         return false;
     }
+    if (bUseRangedAttack)
+    {
+        const FBlackboard::FKey AttackID = Board->GetKeyID(ETBlackboardKeys::CanRangedAttack);
+        const FBlackboard::FKey RetreatID = Board->GetKeyID(ETBlackboardKeys::RangedRetreatGoal);
+        if (AttackID == FBlackboard::InvalidKey || RetreatID == FBlackboard::InvalidKey ||
+            Board->GetKeyType(AttackID) != UBlackboardKeyType_Bool::StaticClass() ||
+            Board->GetKeyType(RetreatID) != UBlackboardKeyType_Vector::StaticClass())
+        {
+            UE_LOG(LogETAIController, Warning, TEXT("[M4-01D2] Ranged blackboard keys invalid Controller=%s"),
+                   *GetNameSafe(this));
+            return false;
+        }
+        Board->SetValueAsBool(ETBlackboardKeys::CanRangedAttack, false);
+        Board->ClearValue(ETBlackboardKeys::RangedRetreatGoal);
+    }
     Board->ClearValue(ETBlackboardKeys::TargetActor);
     Board->SetValueAsBool(ETBlackboardKeys::CanPursue, false);
     Board->SetValueAsBool(ETBlackboardKeys::CanMeleeAttack, false);
@@ -200,10 +217,17 @@ AEmberTrialCharacter* AETAIController::GetSensedPlayer() const
 
 bool AETAIController::HasValidPursuitConfig() const
 {
-    return FMath::IsFinite(PursuitStopDistance) && FMath::IsFinite(PursuitResumeDistance) &&
-           FMath::IsFinite(MeleeAttackDistance) && FMath::IsFinite(MeleeRetryDelay) &&
-           PursuitStopDistance >= 1.0f &&
-           PursuitResumeDistance > PursuitStopDistance + ArrivalTolerance &&
+    if (!FMath::IsFinite(PursuitStopDistance) || !FMath::IsFinite(PursuitResumeDistance) ||
+        PursuitStopDistance < 1.0f || PursuitResumeDistance <= PursuitStopDistance + ArrivalTolerance)
+    {
+        return false;
+    }
+    if (bUseRangedAttack)
+    {
+        return FMath::IsFinite(RangedRetreatStopDistance) && RangedRetreatStopDistance >= 1.0f &&
+               RangedRetreatStopDistance < PursuitStopDistance;
+    }
+    return FMath::IsFinite(MeleeAttackDistance) && FMath::IsFinite(MeleeRetryDelay) &&
            MeleeAttackDistance >= PursuitResumeDistance && MeleeRetryDelay >= 0.1f;
 }
 
@@ -267,6 +291,7 @@ void AETAIController::UpdatePursuitDecision()
     const auto CloseBoth = [this](const TCHAR* Reason, float Distance)
     {
         SetMeleeAttackAllowed(false, Reason, Distance);
+        ClearRangedDecision();
         SetPursuitAllowed(false, Reason, Distance);
     };
     if (!CanObservePlayer() || !IsValid(Board))
@@ -320,6 +345,11 @@ void AETAIController::UpdatePursuitDecision()
         return;
     }
     const UWorld* World = GetWorld();
+    if (bUseRangedAttack)
+    {
+        UpdateRangedDecision(*Board, *BodyCharacter, *PlayerBody, Distance);
+        return;
+    }
     const bool bCanTry = IsValid(World) && World->GetNetMode() == NM_Standalone &&
                          World->GetTimeSeconds() >= NextMeleeAttemptTime &&
                          Distance <= MeleeAttackDistance &&
@@ -328,6 +358,111 @@ void AETAIController::UpdatePursuitDecision()
                           Distance);
     SetPursuitAllowed(!bHoldingDistance, bHoldingDistance ? TEXT("NearTarget") : TEXT("CanChase"),
                       Distance);
+}
+
+const FETRangedShotConfig* AETAIController::GetRangedShotConfig(const AEmberTrialCharacter& Body) const
+{
+    const UAbilitySystemComponent* ASC = Body.GetAbilitySystemComponent();
+    const FGameplayAbilitySpecHandle Handle = Body.GetRangedShotSpecHandle();
+    const FGameplayAbilitySpec* Spec = IsValid(ASC) && Handle.IsValid()
+        ? ASC->FindAbilitySpecFromHandle(Handle) : nullptr;
+    const UETGA_RangedShot* Ability = Spec ? Cast<UETGA_RangedShot>(Spec->Ability.Get()) : nullptr;
+    return Ability ? &Ability->GetShotConfig() : nullptr;
+}
+
+void AETAIController::UpdateRangedDecision(UBlackboardComponent& Board, AEmberTrialCharacter& Body,
+                                           AEmberTrialCharacter& Target, float Distance)
+{
+    const UWorld* World = GetWorld();
+    const FETRangedShotConfig* Config = GetRangedShotConfig(Body);
+    if (!World || World->IsPaused() || World->GetNetMode() != NM_Standalone || !Config ||
+        Config->MinRange + ArrivalTolerance >= RangedRetreatStopDistance ||
+        PursuitResumeDistance > Config->MaxRange)
+    {
+        ClearRangedDecision();
+        SetPursuitAllowed(false, TEXT("RangedUnavailable"), Distance);
+        return;
+    }
+
+    const FName RetreatKey = ETBlackboardKeys::RangedRetreatGoal;
+    const bool bHasRetreat = Board.IsVectorValueSet(RetreatKey);
+    if (Distance <= Config->MinRange + ArrivalTolerance ||
+        (bHasRetreat && Distance < RangedRetreatStopDistance))
+    {
+        UpdateBlackboardDecision(ETBlackboardKeys::CanRangedAttack, false);
+        SetPursuitAllowed(false, TEXT("RangedRetreat"), Distance);
+        if (!bHasRetreat || FVector::DistSquared2D(Body.GetActorLocation(),
+                                                     Board.GetValueAsVector(RetreatKey)) <= FMath::Square(75.0))
+        {
+            FVector Away = (Body.GetActorLocation() - Target.GetActorLocation()).GetSafeNormal2D();
+            if (Away.IsNearlyZero())
+            {
+                Away = -Body.GetActorForwardVector().GetSafeNormal2D();
+            }
+            // Aim beyond the retreat threshold so acceptance radius still leaves room.
+            FVector Goal = Target.GetActorLocation() + Away * PursuitStopDistance;
+            Goal.Z = Body.GetActorLocation().Z;
+            Board.SetValueAsVector(RetreatKey, Goal);
+        }
+        return;
+    }
+
+    if (bHasRetreat)
+    {
+        Board.ClearValue(RetreatKey);
+    }
+    const UAbilitySystemComponent* ASC = Body.GetAbilitySystemComponent();
+    const bool bCanShoot = bHoldingDistance && IsValid(ASC) &&
+                          !ASC->HasMatchingGameplayTag(ETGameplayTags::Cooldown_RangedShot) &&
+                          ETRangedShot::CanAimAt(Body, Target, *Config);
+    SetPursuitAllowed(!bHoldingDistance, bHoldingDistance ? TEXT("RangedHold") : TEXT("RangedApproach"),
+                      Distance);
+    UpdateBlackboardDecision(ETBlackboardKeys::CanRangedAttack, bCanShoot);
+}
+
+void AETAIController::ClearRangedDecision()
+{
+    if (bUseRangedAttack && bBlackboardReady)
+    {
+        UpdateBlackboardDecision(ETBlackboardKeys::CanRangedAttack, false);
+        if (UBlackboardComponent* Board = GetBlackboardComponent())
+        {
+            if (Board->IsVectorValueSet(ETBlackboardKeys::RangedRetreatGoal))
+            {
+                Board->ClearValue(ETBlackboardKeys::RangedRetreatGoal);
+            }
+        }
+    }
+}
+
+bool AETAIController::TryRangedAttack()
+{
+    if (!bUseRangedAttack || !bTreeStarted)
+    {
+        return false;
+    }
+
+    UpdatePursuitDecision();
+    const UBlackboardComponent* Board = GetBlackboardComponent();
+    AEmberTrialCharacter* Body = ObservedBody.Get();
+    AEmberTrialCharacter* Target = GetSensedPlayer();
+    if (!IsValid(Board) || !Board->GetValueAsBool(ETBlackboardKeys::CanRangedAttack) ||
+        !IsValid(Body) || !IsValid(Target))
+    {
+        return false;
+    }
+
+    StopPursuitMovement();
+    if (ObservedBody.Get() != Body || GetSensedPlayer() != Target)
+    {
+        return false;
+    }
+
+    const FVector Offset = Target->GetActorLocation() - Body->GetActorLocation();
+    const FRotator Facing(0.0f, Offset.Rotation().Yaw, 0.0f);
+    SetControlRotation(Facing);
+    Body->SetActorRotation(Facing);
+    return Body->RequestRangedShot(Target);
 }
 
 // ---- 先提交Controller状态，再通知黑板观察者 / 停止移动 ----
@@ -438,6 +573,7 @@ void AETAIController::StopEnemyBehaviorTree(const TCHAR* Reason)
     bHoldingDistance = false;
     NextMeleeAttemptTime = 0.0;
     SetMeleeAttackAllowed(false, Reason, -1.0f);
+    ClearRangedDecision();
     SetPursuitAllowed(false, Reason, -1.0f);
     if (UBehaviorTreeComponent* TreeComponent = Cast<UBehaviorTreeComponent>(GetBrainComponent()))
     {
@@ -615,6 +751,7 @@ void AETAIController::ClearSensedPlayer(const TCHAR* Reason)
     SensedPlayer.Reset();
     bHoldingDistance = false;
     SetMeleeAttackAllowed(false, Reason, -1.0f);
+    ClearRangedDecision();
     // Abort the old move before clearing its goal key.
     SetPursuitAllowed(false, Reason, -1.0f, bHadTarget);
     RemoveDeadSubscription(ObservedTargetASC, TargetDeadHandle);

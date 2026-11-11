@@ -31,6 +31,9 @@ struct EMBERTRIAL_API FETRangedShotConfig
 
 namespace ETRangedShot
 {
+    EMBERTRIAL_API bool CanAimAt(const AEmberTrialCharacter& Source, const AEmberTrialCharacter& Target,
+                                const FETRangedShotConfig& Config);
+
     // 发射时以角色中心瞄准，不在飞行途中跟踪目标。
     EMBERTRIAL_API AETCombatProjectile* TryFire(
         AEmberTrialCharacter* Source, AEmberTrialCharacter* Target,

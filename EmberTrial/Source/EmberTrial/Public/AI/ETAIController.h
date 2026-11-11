@@ -12,6 +12,8 @@ class UAIPerceptionComponent;
 class UAISenseConfig_Sight;
 class UBlackboardData;
 class UBehaviorTree;
+class UBlackboardComponent;
+struct FETRangedShotConfig;
 
 // 每个敌人的感知 / 黑板 / 追击决策所有者；BT节点不缓存另一名敌人的状态。
 UCLASS()
@@ -31,6 +33,7 @@ public:
     bool IsPursuitAllowed() const;
     bool IsMeleeAttackAllowed() const;
     void NotifyMeleeAttackAttemptFinished();
+    bool TryRangedAttack();
 
 protected:
     virtual void BeginPlay() override;
@@ -39,6 +42,8 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
+    friend class FETRangedGuardAITest;
+
     // ---- 感知与树资源装配；保留命名子对象 / 反射字段以兼容现有资产 ----
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|AI",
               meta = (AllowPrivateAccess = "true"))
@@ -65,6 +70,12 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI", meta = (ClampMin = "0.1", Units = "s"))
     float MeleeRetryDelay = 0.5f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI|Ranged")
+    bool bUseRangedAttack = false;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|AI|Ranged", meta = (ClampMin = "1.0", Units = "cm"))
+    float RangedRetreatStopDistance = 450.0f;
 
     // ---- 非拥有身份与本Controller的订阅；不延长旧身体 / 目标寿命 ----
     TWeakObjectPtr<AEmberTrialCharacter> ObservedBody;
@@ -107,6 +118,10 @@ private:
     bool InitializeEnemyBlackboard();
     bool CanObservePlayer() const;
     bool HasValidPursuitConfig() const;
+    const FETRangedShotConfig* GetRangedShotConfig(const AEmberTrialCharacter& Body) const;
+    void UpdateRangedDecision(UBlackboardComponent& Board, AEmberTrialCharacter& Body,
+                              AEmberTrialCharacter& Target, float Distance);
+    void ClearRangedDecision();
 
     // ---- 当前身体 / ASC订阅 ----
     void ObserveBodyState();
