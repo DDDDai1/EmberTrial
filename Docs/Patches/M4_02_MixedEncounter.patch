@@ -1,0 +1,447 @@
+--- /dev/null
++++ b/EmberTrial/Source/EmberTrial/Private/Flow/ETEncounter.cpp
+@@ -0,0 +1,223 @@
++#include "Flow/ETEncounter.h"
++
++#include "AIController.h"
++#include "Characters/EmberTrialCharacter.h"
++#include "Combat/ETCombatLifeComponent.h"
++#include "Components/BoxComponent.h"
++#include "Components/SceneComponent.h"
++#include "Components/StaticMeshComponent.h"
++#include "Engine/TargetPoint.h"
++#include "Engine/World.h"
++#include "GameFramework/PlayerController.h"
++
++DEFINE_LOG_CATEGORY_STATIC(LogETEncounter, Log, All);
++
++AETEncounter::AETEncounter()
++{
++    PrimaryActorTick.bCanEverTick = false;
++    SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot")));
++
++    EntryTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("EntryTrigger"));
++    EntryTrigger->SetupAttachment(GetRootComponent());
++    EntryTrigger->SetBoxExtent(FVector(120.0, 160.0, 140.0));
++    EntryTrigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
++    EntryTrigger->SetCollisionResponseToAllChannels(ECR_Ignore);
++    EntryTrigger->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
++    EntryTrigger->SetGenerateOverlapEvents(true);
++    EntryTrigger->SetCanEverAffectNavigation(false);
++
++    ExitGate = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ExitGate"));
++    ExitGate->SetupAttachment(GetRootComponent());
++    ExitGate->SetCollisionProfileName(TEXT("BlockAll"));
++    ExitGate->SetGenerateOverlapEvents(false);
++    ExitGate->SetCanEverAffectNavigation(false);
++}
++
++void AETEncounter::BeginPlay()
++{
++    Super::BeginPlay();
++    EntryTrigger->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::HandleEntry);
++    InitialOverlapTimer = GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::ProbeInitialOverlap);
++}
++
++void AETEncounter::HandleEntry(UPrimitiveComponent* Overlapped, AActor* Other,
++                               UPrimitiveComponent* OtherComponent, int32 BodyIndex,
++                               bool bFromSweep, const FHitResult& Hit)
++{
++    TryStart(Cast<AEmberTrialCharacter>(Other));
++}
++
++void AETEncounter::ProbeInitialOverlap()
++{
++    InitialOverlapTimer.Invalidate();
++    TArray<AActor*> Bodies;
++    EntryTrigger->GetOverlappingActors(Bodies, AEmberTrialCharacter::StaticClass());
++    for (AActor* Body : Bodies)
++    {
++        TryStart(Cast<AEmberTrialCharacter>(Body));
++    }
++}
++
++bool AETEncounter::HasValidSpawns() const
++{
++    if (Spawns.IsEmpty())
++    {
++        return false;
++    }
++
++    TSet<const ATargetPoint*> Seen;
++    for (const FETEncounterSpawn& Spawn : Spawns)
++    {
++        const UClass* Class = Spawn.EnemyClass.Get();
++        const AEmberTrialCharacter* Defaults = Spawn.EnemyClass.GetDefaultObject();
++        const ATargetPoint* Point = Spawn.Point.Get();
++        if (!IsValid(Class) || Class->HasAnyClassFlags(CLASS_Abstract) ||
++            !Defaults || Defaults->GetCombatTeam() != EETCombatTeam::Enemy ||
++            !IsValid(Point) || Point->GetWorld() != GetWorld() || Seen.Contains(Point))
++        {
++            return false;
++        }
++        Seen.Add(Point);
++    }
++    return true;
++}
++
++void AETEncounter::TryStart(AEmberTrialCharacter* Player)
++{
++    const UWorld* World = GetWorld();
++    const APlayerController* PC = IsValid(Player) ? Cast<APlayerController>(Player->GetController()) : nullptr;
++    if (State != EState::Waiting || !HasAuthority() || !World || World->bIsTearingDown ||
++        World->IsPaused() || !IsValid(PC) || !PC->IsLocalController() || PC->GetPawn() != Player ||
++        Player->GetWorld() != World || Player->GetCombatTeam() != EETCombatTeam::Player ||
++        !Player->IsGameplayReady() || Player->IsCombatDead())
++    {
++        return;
++    }
++
++    if (!HasValidSpawns())
++    {
++        Fail(TEXT("InvalidSpawns"));
++        return;
++    }
++
++    // Commit the state before spawning to reject overlap reentry.
++    State = EState::Active;
++    for (const FETEncounterSpawn& Spawn : Spawns)
++    {
++        if (!SpawnEnemy(Spawn))
++        {
++            Fail(TEXT("EnemySpawnFailed"));
++            return;
++        }
++    }
++
++    UE_LOG(LogETEncounter, Display, TEXT("Encounter started Actor=%s Enemies=%d"),
++           *GetName(), Remaining.Num());
++}
++
++bool AETEncounter::SpawnEnemy(const FETEncounterSpawn& Spawn)
++{
++    if (!IsValid(Spawn.Point.Get()))
++    {
++        return false;
++    }
++    FActorSpawnParameters Params;
++    Params.Owner = this;
++    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
++    AEmberTrialCharacter* Enemy = GetWorld()->SpawnActor<AEmberTrialCharacter>(
++        Spawn.EnemyClass, Spawn.Point->GetActorLocation(), Spawn.Point->GetActorRotation(), Params);
++    if (!IsValid(Enemy))
++    {
++        return false;
++    }
++
++    UETCombatLifeComponent* Life = Enemy->FindComponentByClass<UETCombatLifeComponent>();
++    if (!IsValid(Life) || !Enemy->IsGameplayReady() || Enemy->IsCombatDead() ||
++        !IsValid(Cast<AAIController>(Enemy->GetController())))
++    {
++        Enemy->Destroy();
++        return false;
++    }
++
++    FTrackedEnemy& Tracked = Remaining.Add(Enemy);
++    Tracked.Life = Life;
++    Tracked.DeathHandle = Life->OnDeathSealed.AddUObject(this, &ThisClass::HandleDeath);
++    Enemy->OnEndPlay.AddUniqueDynamic(this, &ThisClass::HandleEnemyEndPlay);
++    return true;
++}
++
++void AETEncounter::HandleDeath(UETCombatLifeComponent* Life)
++{
++    AEmberTrialCharacter* Enemy = Cast<AEmberTrialCharacter>(Life->GetOwner());
++    const FTrackedEnemy* Tracked = Remaining.Find(Enemy);
++    if (State != EState::Active || !Tracked || Tracked->Life.Get() != Life || !Life->IsDead())
++    {
++        return;
++    }
++
++    Life->OnDeathSealed.Remove(Tracked->DeathHandle);
++    Enemy->OnEndPlay.RemoveDynamic(this, &ThisClass::HandleEnemyEndPlay);
++    Remaining.Remove(Enemy);
++    UE_LOG(LogETEncounter, Display, TEXT("Encounter enemy defeated Actor=%s Remaining=%d"),
++           *GetName(), Remaining.Num());
++
++    if (Remaining.IsEmpty())
++    {
++        State = EState::Cleared;
++        OpenGate();
++        UE_LOG(LogETEncounter, Display, TEXT("Encounter cleared Actor=%s"), *GetName());
++    }
++}
++
++void AETEncounter::HandleEnemyEndPlay(AActor* Actor, EEndPlayReason::Type Reason)
++{
++    if (State == EState::Active && Reason == EEndPlayReason::Destroyed &&
++        !GetWorld()->bIsTearingDown)
++    {
++        Fail(TEXT("EnemyDestroyedBeforeDeath"));
++    }
++}
++
++void AETEncounter::Fail(const TCHAR* Reason)
++{
++    State = EState::Failed;
++    DetachEnemies(true);
++    OpenGate();
++    UE_LOG(LogETEncounter, Warning, TEXT("Encounter failed Actor=%s Reason=%s"), *GetName(), Reason);
++}
++
++void AETEncounter::OpenGate()
++{
++    ExitGate->SetCollisionEnabled(ECollisionEnabled::NoCollision);
++    ExitGate->SetHiddenInGame(true);
++}
++
++void AETEncounter::DetachEnemies(bool bDestroy)
++{
++    for (const auto& Pair : Remaining)
++    {
++        if (UETCombatLifeComponent* Life = Pair.Value.Life.Get())
++        {
++            Life->OnDeathSealed.Remove(Pair.Value.DeathHandle);
++        }
++        if (AEmberTrialCharacter* Enemy = Pair.Key.Get())
++        {
++            Enemy->OnEndPlay.RemoveDynamic(this, &ThisClass::HandleEnemyEndPlay);
++            if (bDestroy)
++            {
++                Enemy->Destroy();
++            }
++        }
++    }
++    Remaining.Reset();
++}
++
++void AETEncounter::EndPlay(const EEndPlayReason::Type Reason)
++{
++    EntryTrigger->OnComponentBeginOverlap.RemoveDynamic(this, &ThisClass::HandleEntry);
++    GetWorldTimerManager().ClearTimer(InitialOverlapTimer);
++    const bool bDestroyEnemies = Reason == EEndPlayReason::Destroyed && !GetWorld()->bIsTearingDown;
++    State = EState::Failed;
++    DetachEnemies(bDestroyEnemies);
++    Super::EndPlay(Reason);
++}
+--- a/EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h
++++ b/EmberTrial/Source/EmberTrial/Public/Characters/EmberTrialCharacter.h
+@@ -153,6 +153,7 @@
+     friend class FETRangedShotTest;
+     friend class FETRangedShotAbilityTest;
+     friend class FETRangedGuardAITest;
++    friend class FETMixedEncounterTest;
+     friend class FETLightComboCancelTest;
+     friend class FETHealingResourceTest;
+     friend class FETHealingAbilityTest;
+--- /dev/null
++++ b/EmberTrial/Source/EmberTrial/Public/Flow/ETEncounter.h
+@@ -0,0 +1,78 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "GameFramework/Actor.h"
++#include "TimerManager.h"
++#include "ETEncounter.generated.h"
++
++class AEmberTrialCharacter;
++class ATargetPoint;
++class UBoxComponent;
++class UETCombatLifeComponent;
++class UStaticMeshComponent;
++
++USTRUCT(BlueprintType)
++struct FETEncounterSpawn
++{
++    GENERATED_BODY()
++
++    UPROPERTY(EditAnywhere, Category = "Encounter")
++    TSubclassOf<AEmberTrialCharacter> EnemyClass;
++
++    UPROPERTY(EditInstanceOnly, Category = "Encounter")
++    TObjectPtr<ATargetPoint> Point;
++};
++
++// One wave per world instance. The gate opens after all registered deaths.
++UCLASS()
++class EMBERTRIAL_API AETEncounter : public AActor
++{
++    GENERATED_BODY()
++
++public:
++    AETEncounter();
++
++protected:
++    virtual void BeginPlay() override;
++    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
++
++private:
++    friend class FETMixedEncounterTest;
++
++    enum class EState : uint8 { Waiting, Active, Cleared, Failed };
++
++    struct FTrackedEnemy
++    {
++        TWeakObjectPtr<UETCombatLifeComponent> Life;
++        FDelegateHandle DeathHandle;
++    };
++
++    UPROPERTY(VisibleAnywhere, Category = "Encounter")
++    TObjectPtr<UBoxComponent> EntryTrigger;
++
++    UPROPERTY(VisibleAnywhere, Category = "Encounter")
++    TObjectPtr<UStaticMeshComponent> ExitGate;
++
++    UPROPERTY(EditInstanceOnly, Category = "Encounter")
++    TArray<FETEncounterSpawn> Spawns;
++
++    EState State = EState::Waiting;
++    FTimerHandle InitialOverlapTimer;
++    TMap<TWeakObjectPtr<AEmberTrialCharacter>, FTrackedEnemy> Remaining;
++
++    UFUNCTION()
++    void HandleEntry(UPrimitiveComponent* Overlapped, AActor* Other, UPrimitiveComponent* OtherComponent,
++                     int32 BodyIndex, bool bFromSweep, const FHitResult& Hit);
++
++    UFUNCTION()
++    void HandleEnemyEndPlay(AActor* Actor, EEndPlayReason::Type Reason);
++
++    void ProbeInitialOverlap();
++    void TryStart(AEmberTrialCharacter* Player);
++    bool HasValidSpawns() const;
++    bool SpawnEnemy(const FETEncounterSpawn& Spawn);
++    void HandleDeath(UETCombatLifeComponent* Life);
++    void Fail(const TCHAR* Reason);
++    void OpenGate();
++    void DetachEnemies(bool bDestroy);
++};
+--- /dev/null
++++ b/EmberTrial/Source/EmberTrial/Tests/ETMixedEncounterTests.cpp
+@@ -0,0 +1,127 @@
++#if WITH_DEV_AUTOMATION_TESTS
++
++#include "Flow/ETEncounter.h"
++
++#include "AbilitySystemComponent.h"
++#include "Attributes/ETHealthAttributeSet.h"
++#include "Characters/EmberTrialCharacter.h"
++#include "Components/BoxComponent.h"
++#include "Components/CapsuleComponent.h"
++#include "Components/StaticMeshComponent.h"
++#include "Engine/StaticMesh.h"
++#include "Engine/TargetPoint.h"
++#include "Engine/World.h"
++#include "GameFramework/PlayerController.h"
++#include "Misc/AutomationTest.h"
++#include "Tests/AutomationCommon.h"
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETMixedEncounterTest, "EmberTrial.M4.Encounter.Mixed",
++                                 EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FETMixedEncounterTest::RunTest(const FString& Parameters)
++{
++    using EState = AETEncounter::EState;
++    const TSubclassOf<AEmberTrialCharacter> MeleeClass = LoadClass<AEmberTrialCharacter>(
++        nullptr, TEXT("/Game/EmberTrial/Characters/Enemies/BP_ETMeleeEnemy.BP_ETMeleeEnemy_C"));
++    const TSubclassOf<AEmberTrialCharacter> RangedClass = LoadClass<AEmberTrialCharacter>(
++        nullptr, TEXT("/Game/EmberTrial/Characters/Enemies/BP_ETRangedGuard_Native.BP_ETRangedGuard_Native_C"));
++    UStaticMesh* Cube = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
++    if (!TestTrue(TEXT("Both saved enemy classes plus cube"), MeleeClass && RangedClass && Cube))
++    {
++        return false;
++    }
++
++    FTestWorldWrapper Fixture;
++    if (!Fixture.CreateTestWorld(EWorldType::Game))
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++    UWorld* World = Fixture.GetTestWorld();
++    if (!TestTrue(TEXT("AI system initialized"), World->CreateAISystem() != nullptr))
++    {
++        return false;
++    }
++
++    AETEncounter* Encounter = World->SpawnActor<AETEncounter>();
++    AETEncounter* Invalid = World->SpawnActor<AETEncounter>(FVector(0, -700, 0), FRotator::ZeroRotator);
++    ATargetPoint* Melee = World->SpawnActor<ATargetPoint>(FVector(450, 0, 140), FRotator::ZeroRotator);
++    ATargetPoint* Ranged = World->SpawnActor<ATargetPoint>(FVector(750, 500, 140), FRotator::ZeroRotator);
++    APlayerController* PC = World->SpawnActor<APlayerController>();
++    AEmberTrialCharacter* Player = World->SpawnActor<AEmberTrialCharacter>(
++        FVector(-500, 0, 0), FRotator::ZeroRotator);
++    AEmberTrialCharacter* Neutral = World->SpawnActor<AEmberTrialCharacter>(
++        FVector(-500, 350, 0), FRotator::ZeroRotator);
++    if (!TestTrue(TEXT("All fixture actors spawned"), Encounter && Invalid && Melee && Ranged && PC && Player && Neutral))
++    {
++        return false;
++    }
++
++    Encounter->Spawns = {{MeleeClass, Melee}, {RangedClass, Ranged}};
++    Invalid->Spawns = {{MeleeClass, Melee}, {RangedClass, Melee}};
++    for (AETEncounter* Actor : {Encounter, Invalid})
++    {
++        Actor->ExitGate->SetStaticMesh(Cube);
++        Actor->ExitGate->SetRelativeLocation(FVector(1300, 0, 0));
++    }
++    // Use the native player body because the isolated world has no viewport for Blueprint HUD creation.
++    Player->CombatTeam = EETCombatTeam::Player;
++    Player->GetCapsuleComponent()->SetGenerateOverlapEvents(true);
++    PC->Possess(Player);
++    if (!Fixture.BeginPlayInTestWorld())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++
++    Neutral->SetActorLocation(FVector(0, 0, 0));
++    TestTrue(TEXT("Neutral overlap cannot start"), Encounter->State == EState::Waiting);
++    TestTrue(TEXT("Exit starts blocked"), Encounter->ExitGate->IsCollisionEnabled());
++    Neutral->SetActorLocation(FVector(-500, 350, 0));
++    Player->SetActorLocation(FVector(0, 0, 0));
++    if (!TestTrue(TEXT("Player overlap spawns exactly two"), Encounter->State == EState::Active &&
++                                                           Encounter->Remaining.Num() == 2))
++    {
++        return false;
++    }
++
++    TArray<TWeakObjectPtr<AEmberTrialCharacter>> Enemies;
++    Encounter->Remaining.GetKeys(Enemies);
++    const auto Kill = [](AEmberTrialCharacter* Body)
++    {
++        Body->GetAbilitySystemComponent()->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(), 0.0f);
++    };
++    Kill(Neutral);
++    TestEqual(TEXT("An unrelated death does not count"), Encounter->Remaining.Num(), 2);
++    Kill(Enemies[0].Get());
++    TestTrue(TEXT("First death leaves gate blocked"), Encounter->State == EState::Active &&
++                                                      Encounter->Remaining.Num() == 1 &&
++                                                      Encounter->ExitGate->IsCollisionEnabled());
++
++    Player->SetActorLocation(FVector(-500, 0, 0));
++    Player->SetActorLocation(FVector(0, 0, 0));
++    TestEqual(TEXT("Reentry during a wave cannot spawn again"), Encounter->Remaining.Num(), 1);
++    Kill(Enemies[1].Get());
++    TestTrue(TEXT("Second death opens exit"), Encounter->State == EState::Cleared &&
++                                              Encounter->Remaining.IsEmpty() &&
++                                              !Encounter->ExitGate->IsCollisionEnabled());
++    Player->SetActorLocation(FVector(-500, 0, 0));
++    Player->SetActorLocation(FVector(0, 0, 0));
++    TestTrue(TEXT("Reentry after clearing remains cleared"), Encounter->State == EState::Cleared &&
++                                                             Encounter->Remaining.IsEmpty());
++
++    AddExpectedMessagePlain(TEXT("Reason=InvalidSpawns"), ELogVerbosity::Warning,
++                            EAutomationExpectedMessageFlags::Contains, 1);
++    Player->SetActorLocation(FVector(0, -700, 0));
++    TestTrue(TEXT("Duplicate spawn points fail before spawning and leave exit passable"),
++             Invalid->State == EState::Failed && Invalid->Remaining.IsEmpty() && !Invalid->ExitGate->IsCollisionEnabled());
++    if (!Fixture.EndPlayInTestWorld())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++    Fixture.ForwardErrorMessages(this);
++    return !HasAnyErrors();
++}
++
++#endif

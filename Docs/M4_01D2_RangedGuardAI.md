@@ -1,5 +1,7 @@
 # M4-01D2 可实战的远程守卫
 
+本章已验收，手动80分钟，构建等待5分钟。[D2验收](Reports/M4_01D2_Verification.md) · [下一章](M4_02_MixedEncounter.md)
+
 本章交付一个可在 `L_ET_VerticalSlice` 遭遇的远程敌人。它发现玩家后靠近，进入交战距离后停步、转向并用现有远程GA发射，玩家贴近时退开，拉远后恢复追击。预计手动70–105分钟，构建等待另记。[D1验收](Reports/M4_01D1_Verification.md)
 
 ## 1. 行为与配置边界

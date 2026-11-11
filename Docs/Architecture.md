@@ -232,8 +232,10 @@ M4-01C3已验证远程GA绑定蒙太奇、弹体和伤害GE。弹体BP的可视�
 
 M4-01D1已验证敌方身体在BeginPlay授予并持有远程Spec。角色的请求入口以该Spec向GA传递目标，EndPlay取消并清除句柄。[D1验收](Reports/M4_01D1_Verification.md)
 
-M4-01D2在隔离工程验证了远程Controller决策、黑板和射击Task。Controller复用感知与追击距离迟滞，向独立行为树写入退让目标和射击资格。Task停止移动、转向并请求既有GA，发射点再次验证目标与遮挡。正式地图的导航和资产接入按D2指南验收。[D2操作](M4_01D2_RangedGuardAI.md)
+M4-01D2已在正式地图验证远程Controller决策、黑板和射击Task。Controller复用感知与追击距离迟滞，向独立行为树写入退让目标和射击资格。Task停止移动、转向并请求既有GA，发射点再次验证目标与遮挡。[D2验收](Reports/M4_01D2_Verification.md)
+
+M4-02由每个世界实例中的 `AETEncounter` 管理一波敌人和出口门。关卡实例提供敌人类与出生点。遭遇仅监听自己生成的敌人的死亡封口，最后一名死亡后打开出口。重试通过已有流程加载新世界，重新创建遭遇。[M4-02操作](M4_02_MixedEncounter.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-D1验收和D2操作资料可先提交，D2源码与资产在手动实现和验收后提交。[两组提交清单](M4_01D2_RangedGuardAI.md#6-commit--push)
+D2验收和M4-02操作资料可先提交，M4-02源码和地图资产随本章验收提交。[两组提交清单](M4_02_MixedEncounter.md#4-commit--push)

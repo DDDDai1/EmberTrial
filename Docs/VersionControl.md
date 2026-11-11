@@ -448,6 +448,8 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-11 M4-01D1收尾。`1b6643d`含三个既有Core文件的改动。双Build、索引与四项Success通过，手动30分钟，等待5分钟。D2的源码补丁归入操作资料提交，应用后的实际Source与UE资产归入功能提交。[D1验收](Reports/M4_01D1_Verification.md)
 
+2026-11-11 M4-01D2收尾。`7a6f8bb`含远程守卫实现和地图实例。正式工程五项专项通过，关卡、黑板、行为树、Controller与原生身体蓝图的本机SHA与提交LFS OID相符。手动80分钟，构建等待5分钟。[D2验收](Reports/M4_01D2_Verification.md)
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-D1验收和D2操作资料可先提交，D2源码与资产在手动实现和验收后提交。[两组提交清单](M4_01D2_RangedGuardAI.md#6-commit--push)
+D2验收和M4-02操作资料可先提交，M4-02源码和地图资产随本章验收提交。[两组提交清单](M4_02_MixedEncounter.md#4-commit--push)
