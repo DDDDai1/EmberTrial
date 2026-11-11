@@ -1,6 +1,6 @@
 # AI黑板名称契约
 
-更新2026-10-19。清理第2批将8份局部名称定义合并为4个共享键；资产内容和决策行为保持。
+更新2026-11-11。近战资产沿用四个业务键，M4-01D2为远程守卫增加两个决策键。
 
 ## 唯一声明与用途
 
@@ -12,8 +12,14 @@
 | ETBlackboardKeys::CanPursue | CanPursue / Bool | Controller决策、树门控 |
 | ETBlackboardKeys::CanMeleeAttack | CanMeleeAttack / Bool | 近战资格与树门控 |
 | ETBlackboardKeys::PursuitStopDistance | PursuitStopDistance / Float | Controller写入距离、MoveTo读取与Editor绑定校验 |
+| ETBlackboardKeys::CanRangedAttack | CanRangedAttack / Bool | 远程射击资格与射击Task门控 |
+| ETBlackboardKeys::RangedRetreatGoal | RangedRetreatGoal / Vector | 远程守卫退让目的地，清空表示无需退让 |
 
 这是现有资产的稳定协议，不把键字符串变成可随意改动的每敌人配置。反射属性PursuitStopDistance与同名黑板键不是同一个对象；Validator中的ReadNumber仍按属性名查询，不做全局文本替换。
+
+## M4-01D2远程守卫
+
+`Use Ranged Attack=True`的Controller在初始化时额外校验射击Bool与退让Vector。远程BB保留四个原业务键并新增两键，实例同步关闭。Controller写入退让目标、射击资格和追击资格，根Selector按退让、射击、追击、等待的顺序执行。远程退让读取Vector，原生追击仍读取Actor和StopDistance。黑板目标清空、身体忙碌或停树会清理远程决策。[D2行为树与地图操作](M4_01D2_RangedGuardAI.md#3-配置黑板与行为树)
 
 ## 保留的行为
 
@@ -58,6 +64,6 @@ Controller与近战Task共用Core私有[ETAILiveBody.h](../EmberTrial/Source/Emb
 
 本地日志与机器可读结果位于被忽略的Docs/Reports/Raw/Cleanup/2026-10-18_Batch02。
 
-## 本批 Commit / Push（固定放在最后）
+## Commit / Push
 
-第17批同步本契约，新增一个Core私有头并整理Controller实现 / 近战Task两文件；共享黑板键、Editor校验器与资产保持。当前四份Source与四份Markdown共八项，统一见[Cleanup末尾](Cleanup.md)，由用户重新Stage最新Diff再Commit / Push。Raw / 构建 / 测试结果及生成索引留本地，助手不操作Git索引。
+当前契约更新随D2操作资料提交。[D2提交清单](M4_01D2_RangedGuardAI.md#6-commit--push) · [历史清理记录](Cleanup.md)

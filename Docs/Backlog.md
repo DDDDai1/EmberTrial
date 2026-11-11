@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新于2026-11-11。M4-01C3远程资产已验收，当前进入M4-01D1守卫能力授予与攻击请求。[C3验收](Reports/M4_01C3_Verification.md) · [D1操作](M4_01D1_RangedGuardAbilityGrant.md)
+更新于2026-11-11。M4-01D1守卫能力授予已验收，当前进入M4-01D2远程守卫实战接入。[D1验收](Reports/M4_01D1_Verification.md) · [D2操作](M4_01D2_RangedGuardAI.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -160,7 +160,8 @@
 | M4-01C1 | [远程发射验收](Reports/M4_01C1_Verification.md) | 你实现，我审查 | 完成 | 三项Success、600 cm命中扣12，手动40分钟 / 等待5 |
 | M4-01C2 | [远程GAS施放验收](Reports/M4_01C2_Verification.md) | 你实现，我审查 | 完成 | 四项Success、动画发射、2.5秒冷却与真实受击中断，手动60分钟 / 等待5 |
 | M4-01C3 | [远程资产验收](Reports/M4_01C3_Verification.md) | 你配置与实现，我审查 | 完成 | 三份LFS指纹相符，四项Success，实测600 cm扣12，手动50分钟 / 等待5 |
-| M4-01D1 | [守卫能力授予与攻击请求](M4_01D1_RangedGuardAbilityGrant.md) | 你实现，我审查 | 待用户操作 | 敌方自动授予、定向请求及EndPlay清理 |
+| M4-01D1 | [守卫能力授予与攻击请求](Reports/M4_01D1_Verification.md) | 你实现，我审查 | 完成 | 授予、定向请求及EndPlay清理，四项Success，手动30分钟 / 等待5 |
+| M4-01D2 | [远程守卫实战接入](M4_01D2_RangedGuardAI.md) | 你配置与实机，我审查 | 待用户操作 | 感知玩家、保持距离、近身退让、停步发射与地图整合 |
 
 表内Source / 资产数及工时是各阶段验收时点；实时规模统一见[Progress](Progress.md)。当前本地验证包为M3_06C3/Attempt01（六件遗物）；Cleanup/Attempt01与M1包只保留历史证据。
 
@@ -179,7 +180,7 @@
 | 清理收尾时Development包（历史） | Cleanup/Attempt01当时完成Build / 完整Cook / Stage / Package与两轮检查；不代表后来新增功能，当前新包按M2-07A执行 |
 | 清理结果汇总 | 32批证据与用户确认已汇总，清理验收关闭，不继续堆排版批次 |
 | M3阶段完成 | 六件遗物、四类设置、500条投影与Slate条目回收、六件版集成均通过 |
-| M4当前开发 | 远程GA和可见弹体已验收。当前接入守卫身体，随后接AI的选目标、保持距离和攻击 |
+| M4当前开发 | 守卫身体的远程GA授予已验收。当前接入感知、保持距离、退让和攻击行为树 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -187,7 +188,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-M4-01C3验收与来源文档先提交。D1三份源码在手动实现和验收后提交。[两组提交清单](M4_01D1_RangedGuardAbilityGrant.md)
-
-- 英文 `docs: verify ranged assets and plan guard ability grant`
-- 中文 `docs: 完成远程资产验收并规划守卫能力授予`
+D1验收和D2操作资料可先提交，D2源码与资产在手动实现和验收后提交。[两组提交清单](M4_01D2_RangedGuardAI.md#6-commit--push)

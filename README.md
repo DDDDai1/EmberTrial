@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。六件遗物、四类设置与500条ListView复用已验收，六件版Win64 Development包通过两轮独立运行。正式远程Montage、弹体BP与GA已验收，当前接入守卫角色的能力授予与攻击请求。[M4-01C3验收](Docs/Reports/M4_01C3_Verification.md) · [M4-01D1操作](Docs/M4_01D1_RangedGuardAbilityGrant.md)
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。六件遗物、四类设置与500条ListView复用已验收，六件版Win64 Development包通过两轮独立运行。远程能力授予与定向请求已验收，当前接入远程守卫的行为树与关卡实例。[M4-01D1验收](Docs/Reports/M4_01D1_Verification.md) · [M4-01D2操作](Docs/M4_01D2_RangedGuardAI.md)
 
 ## 已实现的体验
 

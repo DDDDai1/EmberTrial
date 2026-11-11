@@ -460,11 +460,12 @@ C2专项和正式六件P重开通过。手动25分钟，等待5分钟。
 
 ## M4-01D1的检查边界
 
-更新能力专项，验证敌方BeginPlay授予、原生请求发射和EndPlay撤销。回归三个发射／投射物测试与近战地图短查。[D1操作](M4_01D1_RangedGuardAbilityGrant.md)
+敌方BeginPlay授予、原生请求发射与EndPlay撤销均已验证。正式工程四项Success，地图短查按用户实机反馈记录。[D1验收](Reports/M4_01D1_Verification.md)
+
+## M4-01D2的检查边界
+
+沿用方案B。隔离工程全量自动化48项通过。正式工程跑本批五项专项，地图只验证真实感知、寻路、射击扣血、退让、中断与近战短基线。临时世界专项直接注入感知对象并移动玩家以复现距离边界，真实感知和导航以正式地图结果为准。[D2操作](M4_01D2_RangedGuardAI.md)
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M4-01C3验收与来源文档先提交。D1三份源码在手动实现和验收后提交。[两组提交清单](M4_01D1_RangedGuardAbilityGrant.md)
-
-- 英文 `docs: verify ranged assets and plan guard ability grant`
-- 中文 `docs: 完成远程资产验收并规划守卫能力授予`
+D1验收和D2操作资料可先提交，D2源码与资产在手动实现和验收后提交。[两组提交清单](M4_01D2_RangedGuardAI.md#6-commit--push)
