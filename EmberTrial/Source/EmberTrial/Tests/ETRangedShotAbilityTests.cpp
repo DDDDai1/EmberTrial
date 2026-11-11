@@ -8,21 +8,21 @@
 #include "AIController.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
-#include "Animation/ETAN_RangedShotRelease.h"
 #include "Attributes/ETHealthAttributeSet.h"
 #include "Characters/EmberTrialCharacter.h"
 #include "Combat/ETCombatProjectile.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/WorldSettings.h"
 #include "GameplayEffect.h"
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationCommon.h"
-#include "UObject/StrongObjectPtr.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETRangedShotAbilityTest, "EmberTrial.M4.Combat.RangedShotAbility",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -30,27 +30,40 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETRangedShotAbilityTest, "EmberTrial.M4.Combat
 bool FETRangedShotAbilityTest::RunTest(const FString& Parameters)
 {
     (void)Parameters;
-    UAnimMontage* Template = LoadObject<UAnimMontage>(nullptr,
-        TEXT("/Game/EmberTrial/Animations/BreakPulse/Montage/AM_ET_BreakPulse_01.AM_ET_BreakPulse_01"));
+    UClass* RangedClass = LoadClass<UETGA_RangedShot>(nullptr,
+        TEXT("/Game/EmberTrial/Abilities/GA_ET_RangedShot.GA_ET_RangedShot_C"));
+    UAnimMontage* Montage = LoadObject<UAnimMontage>(nullptr,
+        TEXT("/Game/EmberTrial/Animations/Ranged/Montage/AM_ET_RangedShot_01.AM_ET_RangedShot_01"));
+    UClass* ProjectileClass = LoadClass<AETCombatProjectile>(nullptr,
+        TEXT("/Game/EmberTrial/Combat/Projectiles/BP_ETRangedProjectile.BP_ETRangedProjectile_C"));
+    UClass* DamageClass = LoadClass<UGameplayEffect>(nullptr,
+        TEXT("/Game/EmberTrial/Abilities/Effects/GE_ET_LightAttackDamage.GE_ET_LightAttackDamage_C"));
     USkeletalMesh* Quinn = LoadObject<USkeletalMesh>(nullptr,
         TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple"));
     UClass* HitClass = LoadClass<UETGA_HitReact>(nullptr,
         TEXT("/Game/EmberTrial/Abilities/GA_ET_HitReact.GA_ET_HitReact_C"));
-    FETRangedShotConfig Config;
-    Config.ProjectileClass = AETCombatProjectile::StaticClass();
-    Config.DamageEffectClass = LoadClass<UGameplayEffect>(nullptr,
-        TEXT("/Game/EmberTrial/Abilities/Effects/GE_ET_LightAttackDamage.GE_ET_LightAttackDamage_C"));
-    if (!TestNotNull(TEXT("Saved montage template"), Template) || Template->Notifies.Num() != 1 ||
-        !TestNotNull(TEXT("Quinn"), Quinn) || !TestNotNull(TEXT("Hit reaction"), HitClass) ||
-        !TestNotNull(TEXT("Health damage GE"), Config.DamageEffectClass.Get()))
+    if (!TestNotNull(TEXT("Saved ranged GA"), RangedClass) ||
+        !TestNotNull(TEXT("Saved ranged montage"), Montage) ||
+        !TestNotNull(TEXT("Saved projectile Blueprint"), ProjectileClass) ||
+        !TestNotNull(TEXT("Health damage GE"), DamageClass) ||
+        !TestNotNull(TEXT("Quinn"), Quinn) || !TestNotNull(TEXT("Hit reaction"), HitClass))
     {
         return false;
     }
 
-    // 复用现有动作，临时副本仅换通知。不会保存或修改正式动画。
-    TStrongObjectPtr<UAnimMontage> Montage(DuplicateObject<UAnimMontage>(Template, GetTransientPackage()));
-    Montage->Notifies[0].Notify = NewObject<UETAN_RangedShotRelease>(Montage.Get());
-    Montage->RefreshCacheData();
+    const UETGA_RangedShot* Defaults = RangedClass->GetDefaultObject<UETGA_RangedShot>();
+    if (!TestTrue(TEXT("Saved GA and montage satisfy native configuration"), Defaults->HasValidConfiguration()) ||
+        !TestTrue(TEXT("Saved GA references the dedicated montage"), Defaults->CastMontage == Montage) ||
+        !TestTrue(TEXT("Saved GA references the projectile Blueprint and damage GE"),
+                  Defaults->ShotConfig.ProjectileClass.Get() == ProjectileClass &&
+                      Defaults->ShotConfig.DamageEffectClass.Get() == DamageClass) ||
+        !TestEqual(TEXT("Release is at 0.40 seconds"), Montage->Notifies[0].GetTime(), .40f, .01f) ||
+        !TestEqual(TEXT("Saved damage"), Defaults->ShotConfig.Damage, 12.0f) ||
+        !TestEqual(TEXT("Saved minimum range"), Defaults->ShotConfig.MinRange, 250.0f) ||
+        !TestEqual(TEXT("Saved maximum range"), Defaults->ShotConfig.MaxRange, 1200.0f))
+    {
+        return false;
+    }
 
     FTestWorldWrapper Fixture;
     if (!Fixture.CreateTestWorld(EWorldType::Game))
@@ -91,7 +104,7 @@ bool FETRangedShotAbilityTest::RunTest(const FString& Parameters)
     UAbilitySystemComponent* ASC = Body->GetAbilitySystemComponent();
     UAbilitySystemComponent* TargetASC = Target->GetAbilitySystemComponent();
     const FGameplayAttribute Health = UETHealthAttributeSet::GetHealthAttribute();
-    const FGameplayAbilitySpecHandle Ranged = ASC->GiveAbility(FGameplayAbilitySpec(UETGA_RangedShot::StaticClass()));
+    const FGameplayAbilitySpecHandle Ranged = ASC->GiveAbility(FGameplayAbilitySpec(RangedClass));
     const FGameplayAbilitySpecHandle Hit = ASC->GiveAbility(FGameplayAbilitySpec(HitClass));
     const FGameplayAbilitySpec* RangedSpec = ASC->FindAbilitySpecFromHandle(Ranged);
     UETGA_RangedShot* RangedAbility =
@@ -100,11 +113,9 @@ bool FETRangedShotAbilityTest::RunTest(const FString& Parameters)
     {
         return false;
     }
-    // 配置本世界的实例，不改CDO或磁盘上的能力资产。
-    RangedAbility->CastMontage = Montage.Get();
-    RangedAbility->ShotConfig = Config;
-    if (!TestTrue(TEXT("Can activate with temporary montage"), RangedAbility->CanActivateAbility(
-            Ranged, ASC->AbilityActorInfo.Get())))
+    if (!TestTrue(TEXT("Granted instance inherited saved asset configuration"),
+                  RangedAbility->HasValidConfiguration() &&
+                      RangedAbility->CanActivateAbility(Ranged, ASC->AbilityActorInfo.Get())))
     {
         return false;
     }
@@ -159,10 +170,28 @@ bool FETRangedShotAbilityTest::RunTest(const FString& Parameters)
         return false;
     }
     TestEqual(TEXT("Pause did not release"), TargetASC->GetNumericAttribute(Health), 100.0f);
-    if (!Advance(1.2f))
+    if (!Advance(.34f))
     {
         return false;
     }
+    TActorIterator<AETCombatProjectile> InFlight(World);
+    AETCombatProjectile* Shot = InFlight ? *InFlight : nullptr;
+    const UStaticMeshComponent* Visual = IsValid(Shot) ? Shot->FindComponentByClass<UStaticMeshComponent>() : nullptr;
+    if (!TestTrue(TEXT("Release spawned the saved projectile Blueprint"),
+                  IsValid(Shot) && Shot->GetClass() == ProjectileClass) ||
+        !TestTrue(TEXT("Projectile visual exists and has collision disabled"),
+                  IsValid(Visual) && IsValid(Visual->GetStaticMesh()) && Visual->IsVisible() &&
+                      Visual->GetCollisionEnabled() == ECollisionEnabled::NoCollision))
+    {
+        return false;
+    }
+    const TWeakObjectPtr<AETCombatProjectile> WeakShot(Shot);
+    TestEqual(TEXT("Projectile is in flight before damage"), TargetASC->GetNumericAttribute(Health), 100.0f);
+    if (!Advance(.86f))
+    {
+        return false;
+    }
+    TestFalse(TEXT("Projectile destroyed after blocking hit"), WeakShot.IsValid());
     TestEqual(TEXT("One release hit after resume"), TargetASC->GetNumericAttribute(Health), 88.0f);
     TestEqual(TEXT("Health base after one release"), TargetASC->GetNumericAttributeBase(Health), 88.0f);
     TestFalse(TEXT("Montage and attacking tag ended"),
