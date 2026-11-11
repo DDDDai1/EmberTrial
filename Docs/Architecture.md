@@ -228,11 +228,13 @@ M4-01C1已验证发射入口。来源、目标、三维射程和Visibility阻挡
 
 M4-01C2已验证Gameplay Event、GA冷却与原生发射通知。Notify只转交当前蒙太奇身份，GA负责发射一次和受击中断。[C2验收](Reports/M4_01C2_Verification.md)
 
-M4-01C3由远程GA资产绑定动作、弹体和伤害GE。弹体BP添加无碰撞可视组件，原生球体继续负责扫掠。现有专项直接授予保存的GA类以核对实例继承。[C3操作](M4_01C3_RangedShotAssets.md)
+M4-01C3已验证远程GA绑定蒙太奇、弹体和伤害GE。弹体BP的可视网格无碰撞，原生球体负责扫掠。保存的GA类在授予后继承正式配置。[C3验收](Reports/M4_01C3_Verification.md)
+
+M4-01D1让配置远程GA的敌方身体在BeginPlay授予并持有Spec。后续AI传入目标，通过该Spec触发远程GA。角色EndPlay负责取消与清除句柄。[D1操作](M4_01D1_RangedGuardAbilityGrant.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M4-01C2验收文档与M4-01C3实现分组提交。资产和测试在手动配置与验收后提交。[两组提交清单](M4_01C3_RangedShotAssets.md)
+M4-01C3验收与来源文档先提交。D1三份源码在手动实现和验收后提交。[两组提交清单](M4_01D1_RangedGuardAbilityGrant.md)
 
-- 英文 `docs: verify ranged casting and plan saved assets`
-- 中文 `docs: 完成远程施放验收并规划正式资产`
+- 英文 `docs: verify ranged assets and plan guard ability grant`
+- 中文 `docs: 完成远程资产验收并规划守卫能力授予`

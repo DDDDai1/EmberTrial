@@ -444,9 +444,11 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 2026-11-10 M4-01C2收尾。`849537f`含七新三旧Core文件。双Build、索引、四项Success与正式地图短查完成，手动60分钟，等待5分钟。C3的三资产和一个测试更新由用户按指南手动实现。
 
+2026-11-11 M4-01C3收尾。`c9bf60a`含三资产与一个测试更新。双Build、四项Success和地图短查完成，三份LFS OID已核对并登记。手动50分钟，等待5分钟。D1按指南修改三个既有Core文件。
+
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M4-01C2验收文档与M4-01C3实现分组提交。资产和测试在手动配置与验收后提交。[两组提交清单](M4_01C3_RangedShotAssets.md)
+M4-01C3验收与来源文档先提交。D1三份源码在手动实现和验收后提交。[两组提交清单](M4_01D1_RangedGuardAbilityGrant.md)
 
-- 英文 `docs: verify ranged casting and plan saved assets`
-- 中文 `docs: 完成远程施放验收并规划正式资产`
+- 英文 `docs: verify ranged assets and plan guard ability grant`
+- 中文 `docs: 完成远程资产验收并规划守卫能力授予`

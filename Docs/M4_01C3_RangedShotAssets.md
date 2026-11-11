@@ -1,6 +1,6 @@
 # M4-01C3 远程守卫的蒙太奇、弹体与能力资产
 
-本批把已验收的远程能力接到三份可保存资产，并把既有专项切到真实资源。预计手动40–60分钟，构建等待另记。[M4-01C2验收](Reports/M4_01C2_Verification.md)
+2026-11-11已验收。三份远程资产与专项更新均已提交，四项测试通过。实际手动50分钟，等待5分钟。以下保留实施步骤。[C3验收](Reports/M4_01C3_Verification.md)
 
 ## 1. 本批交付
 
@@ -338,9 +338,9 @@ Automation RunTests EmberTrial.M4.Combat.Projectile
 
 反馈三资产路径、重开引用、双Build与索引、四项自动化、地图短查、保存状态、手动工时与等待。若报错贴首条编译错误，或专项名和首条`Expected`。
 
-## 5. Commit / Push
+## 5. Commit / Push（历史）
 
-先Stage本轮验收和指南文档。
+下列文档、测试和资产已提交。当前阶段清单见[M4-01D1操作指南](M4_01D1_RangedGuardAbilityGrant.md)。
 
 ```text
 Docs/Reports/M4_01C2_Verification.md
@@ -370,4 +370,4 @@ EmberTrial/Content/EmberTrial/Abilities/GA_ET_RangedShot.uasset
 - 英文 `feat: author ranged shot assets and verify saved defaults`
 - 中文 `feat: 配置远程发射资产并验证已保存默认值`
 
-占位动作和引擎球体的来源、复用关系及实际资产指纹在下一轮验收时登记。隔离工程及其夹具留在本地`Artifacts`。
+占位动作和引擎球体的来源、复用关系及实际资产指纹已登记。[资产来源清单](AssetManifest.csv)

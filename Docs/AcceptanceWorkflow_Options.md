@@ -456,11 +456,15 @@ C2专项和正式六件P重开通过。手动25分钟，等待5分钟。
 
 ## M4-01C3的检查边界
 
-既有能力专项改为直接加载三份已保存资源，核对CDO、实例、可见弹体和实际命中。保留三个发射／投射物回归，正式地图只查移动和P。[C3操作](M4_01C3_RangedShotAssets.md)
+四项正式工程Success。保存的弹体BP从600 cm发射扣12，三份实物指纹与LFS一致。手动50分钟，等待5分钟。[C3验收](Reports/M4_01C3_Verification.md)
+
+## M4-01D1的检查边界
+
+更新能力专项，验证敌方BeginPlay授予、原生请求发射和EndPlay撤销。回归三个发射／投射物测试与近战地图短查。[D1操作](M4_01D1_RangedGuardAbilityGrant.md)
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M4-01C2验收文档与M4-01C3实现分组提交。资产和测试在手动配置与验收后提交。[两组提交清单](M4_01C3_RangedShotAssets.md)
+M4-01C3验收与来源文档先提交。D1三份源码在手动实现和验收后提交。[两组提交清单](M4_01D1_RangedGuardAbilityGrant.md)
 
-- 英文 `docs: verify ranged casting and plan saved assets`
-- 中文 `docs: 完成远程施放验收并规划正式资产`
+- 英文 `docs: verify ranged assets and plan guard ability grant`
+- 中文 `docs: 完成远程资产验收并规划守卫能力授予`
