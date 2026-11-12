@@ -242,8 +242,10 @@ M4-03B已验证扇形通知。CombatTrace在合法窗口内采样一次，沿用
 
 M4-03C实机验证突进。突进和闪避共用水平Root Motion Source创建及清理，CombatTrace沿固定方向检测接触，墙挡或取消时停止位移。[M4-03C验收](Reports/M4_03C_Verification.md)
 
-M4-03D让守关者专用能力按阶段与距离选招，起招时快照蒙太奇与伤害。圆形冲击沿用一次范围采样、高差与墙挡。AI继续只请求一份轻攻击Spec。[M4-03D操作](M4_03D_GuardianGroundShock.md)
+M4-03D实机验证守关者按阶段与距离选招。冲击使用一次全圆采样，保留高差和墙挡。300 cm内无遮挡的已知目标可在离开视锥后继续追踪。[M4-03D验收](Reports/M4_03D_Verification.md)
+
+M4-04把三场遭遇装配在同一张地图。各门用同一 `AETEncounter`，在世界启动时根据同图已确认的检查点恢复对应门状态。恢复不会重新生成前序敌人或发出清场事件。[M4-04操作](M4_04_TrialRoute.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M4-03C源码与资产已在本地提交。可先提交C验收与新指南，M4-03D源码和资产实机通过后提交。[两组提交清单](M4_03D_GuardianGroundShock.md#5-commit--push)
+M4-03D源码与资产已在本地提交。可先提交D验收与路线指南，M4-04源码、地图和配置实机通过后提交。[两组提交清单](M4_04_TrialRoute.md#6-commit--push)
