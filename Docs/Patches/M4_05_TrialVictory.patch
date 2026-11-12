@@ -1,0 +1,587 @@
+--- a/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
+@@ -46,6 +46,9 @@
+     OnTravelFailed.Clear();
+     OnCheckpointChanged.Clear();
+     OnTravelConfirmed.Clear();
++    OnTrialCompleted.Clear();
++    CompletedWorld.Reset();
++    CompletedEncounterCount = 0;
+     GameplayPackage.Reset();
+     ActiveCheckpointId = NAME_None;
+     UE_LOG(LogETRunSession, Display, TEXT("[M1-06C] Session end Session=%s"), *GetNameSafe(this));
+@@ -132,9 +135,35 @@
+
+ bool UETRunSessionSubsystem::HasContinueSnapshot() const
+ {
+-    return !bShuttingDown && !ActiveCheckpointId.IsNone() &&
++    return !bShuttingDown && CompletedEncounterCount == 0 && !ActiveCheckpointId.IsNone() &&
+            FPackageName::IsValidLongPackageName(GameplayPackage) &&
+            FPackageName::DoesPackageExist(GameplayPackage);
++}
++
++int32 UETRunSessionSubsystem::GetCompletedEncounterCount(const UWorld* World) const
++{
++    return IsValid(World) && CompletedWorld.Get() == World ? CompletedEncounterCount : 0;
++}
++
++bool UETRunSessionSubsystem::TryCompleteTrial(UWorld* World, AEmberTrialCharacter* Player,
++                                             int32 ClearedEncounters)
++{
++    const APlayerController* PC = IsValid(Player) ? Cast<APlayerController>(Player->GetController()) : nullptr;
++    if (bShuttingDown || bTravelPending || CompletedEncounterCount > 0 || ClearedEncounters <= 0 ||
++        !IsValid(World) || World->bIsTearingDown || !World->HasBegunPlay() || World->IsPaused() ||
++        World->GetGameInstance() != GetGameInstance() || World->GetNetMode() != NM_Standalone ||
++        GetWorldPackage(World) != GameplayPackage || ActiveCheckpointId.IsNone() ||
++        !IsValid(PC) || !PC->IsLocalController() || PC->GetPawn() != Player ||
++        Player->GetWorld() != World || !Player->IsGameplayReady() || Player->IsCombatDead())
++    {
++        return false;
++    }
++    CompletedWorld = World;
++    CompletedEncounterCount = ClearedEncounters;
++    UE_LOG(LogETRunSession, Display, TEXT("Trial completed Map=%s ClearedEncounters=%d"),
++           *GameplayPackage, CompletedEncounterCount);
++    OnTrialCompleted.Broadcast(World);
++    return true;
+ }
+
+ bool UETRunSessionSubsystem::IsCheckpointActive(UWorld* CheckWorld, FName CheckpointId) const
+@@ -150,7 +179,8 @@
+                                                    APlayerStart* CheckpointStart,
+                                                    AEmberTrialCharacter* PlayerBody)
+ {
+-    if (bShuttingDown || bTravelPending || !IsValid(RequestWorld) || RequestWorld->bIsTearingDown ||
++    if (bShuttingDown || bTravelPending || CompletedEncounterCount > 0 ||
++        !IsValid(RequestWorld) || RequestWorld->bIsTearingDown ||
+         !RequestWorld->HasBegunPlay() || RequestWorld->GetGameInstance() != GetGameInstance() ||
+         RequestWorld->GetNetMode() != NM_Standalone ||
+         UGameplayStatics::IsGamePaused(RequestWorld) ||
+@@ -243,6 +273,16 @@
+                        EETRunTravelIntent::Continue, OutError);
+ }
+
++bool UETRunSessionSubsystem::RequestReplay(UWorld* RequestWorld, FText& OutError)
++{
++    if (GetCompletedEncounterCount(RequestWorld) == 0)
++    {
++        return RejectRequest(TEXT("当前试炼尚未完成。"), OutError);
++    }
++    return BeginTravel(RequestWorld, GameplayPackage, GetEntryCheckpointId(),
++                       EETRunTravelIntent::NewRun, OutError);
++}
++
+ bool UETRunSessionSubsystem::RequestMainMenu(UWorld* RequestWorld, const FSoftObjectPath& Map,
+                                              FText& OutError)
+ {
+@@ -268,9 +308,11 @@
+     {
+         return RejectRequest(TEXT("当前无法切换地图，请稍后重试。"), OutError);
+     }
++    const bool bAllowSameMap = Intent == EETRunTravelIntent::Retry ||
++        (Intent == EETRunTravelIntent::NewRun && GetCompletedEncounterCount(RequestWorld) > 0);
+     if (!FPackageName::IsValidLongPackageName(TargetPackage) ||
+         !FPackageName::DoesPackageExist(TargetPackage) ||
+-        (Intent != EETRunTravelIntent::Retry && TargetPackage == GetWorldPackage(RequestWorld)) ||
++        (!bAllowSameMap && TargetPackage == GetWorldPackage(RequestWorld)) ||
+         (IsGameplayIntent(Intent) && SpawnId.IsNone()))
+     {
+         return RejectRequest(TEXT("目标地图或出生标识不可用，请检查配置。"), OutError);
+@@ -316,6 +358,8 @@
+     {
+         GameplayPackage = PendingTargetPackage;
+         ActiveCheckpointId = CompletedCheckpoint;
++        CompletedWorld.Reset();
++        CompletedEncounterCount = 0;
+         UE_LOG(LogETRunSession, Display,
+                TEXT("[M1-06C] Snapshot committed Map=%s Checkpoint=%s Intent=%s"), *GameplayPackage,
+                *ActiveCheckpointId.ToString(), GetIntentName(CompletedIntent));
+--- /dev/null
++++ b/EmberTrial/Source/EmberTrial/Private/Flow/ETTrialExit.cpp
+@@ -0,0 +1,58 @@
++#include "Flow/ETTrialExit.h"
++
++#include "Characters/EmberTrialCharacter.h"
++#include "Components/BoxComponent.h"
++#include "Engine/GameInstance.h"
++#include "Engine/World.h"
++#include "Flow/ETEncounter.h"
++#include "Flow/ETRunSessionSubsystem.h"
++
++AETTrialExit::AETTrialExit()
++{
++    PrimaryActorTick.bCanEverTick = false;
++    ExitTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("ExitTrigger"));
++    SetRootComponent(ExitTrigger);
++    ExitTrigger->SetBoxExtent(FVector(90.0, 160.0, 130.0));
++    ExitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
++    ExitTrigger->SetCollisionResponseToAllChannels(ECR_Ignore);
++    ExitTrigger->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
++    ExitTrigger->SetGenerateOverlapEvents(true);
++    ExitTrigger->SetCanEverAffectNavigation(false);
++}
++
++void AETTrialExit::BeginPlay()
++{
++    Super::BeginPlay();
++    ExitTrigger->OnComponentBeginOverlap.AddUniqueDynamic(this, &ThisClass::HandleOverlap);
++}
++
++void AETTrialExit::HandleOverlap(UPrimitiveComponent* Component, AActor* Other,
++                                UPrimitiveComponent* OtherComponent, int32 BodyIndex,
++                                bool bFromSweep, const FHitResult& Hit)
++{
++    AEmberTrialCharacter* Player = Cast<AEmberTrialCharacter>(Other);
++    UWorld* World = GetWorld();
++    if (!HasAuthority() || !IsValid(Player) || !World || RequiredEncounters.IsEmpty())
++    {
++        return;
++    }
++
++    TSet<const AETEncounter*> Cleared;
++    for (const AETEncounter* Encounter : RequiredEncounters)
++    {
++        if (!IsValid(Encounter) || Encounter->GetWorld() != World ||
++            !Encounter->HasCleared() || Cleared.Contains(Encounter))
++        {
++            return;
++        }
++        Cleared.Add(Encounter);
++    }
++
++    if (UGameInstance* Instance = World->GetGameInstance())
++    {
++        if (UETRunSessionSubsystem* Session = Instance->GetSubsystem<UETRunSessionSubsystem>())
++        {
++            Session->TryCompleteTrial(World, Player, Cleared.Num());
++        }
++    }
++}
+--- a/EmberTrial/Source/EmberTrial/Public/Flow/ETEncounter.h
++++ b/EmberTrial/Source/EmberTrial/Public/Flow/ETEncounter.h
+@@ -31,6 +31,7 @@
+
+ public:
+     AETEncounter();
++    bool HasCleared() const { return State == EState::Cleared; }
+
+ protected:
+     virtual void BeginPlay() override;
+@@ -39,6 +40,7 @@
+ private:
+     friend class FETMixedEncounterTest;
+     friend class FETEncounterCheckpointResumeTest;
++    friend class FETTrialVictoryTest;
+
+     enum class EState : uint8 { Waiting, Active, Cleared, Failed };
+
+--- a/EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
++++ b/EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
+@@ -7,11 +7,13 @@
+ #include "ETRunSessionSubsystem.generated.h"
+
+ class AEmberTrialCharacter;
++class AETTrialExit;
+ class APlayerStart;
+ class UWorld;
+
+ DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunTravelFailed, UWorld*, const FText&);
+ DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunCheckpointChanged, UWorld*, FName);
++DECLARE_MULTICAST_DELEGATE_OneParam(FETTrialCompleted, UWorld*);
+
+ enum class EETRunTravelIntent : uint8
+ {
+@@ -47,11 +49,13 @@
+                                AEmberTrialCharacter* PlayerBody);
+     bool IsCheckpointActive(UWorld* CheckWorld, FName CheckpointId) const;
+     bool HasContinueSnapshot() const;
++    int32 GetCompletedEncounterCount(const UWorld* World) const;
+     bool SetCheckpointIdForDevelopmentTest(UWorld* TestWorld, FName TestId);
+
+     // ---- 单次非无缝切图意图；接受请求不等于已经到达 / 提交快照 ----
+     bool RequestNewRun(UWorld* RequestWorld, const FSoftObjectPath& Map, FText& OutError);
+     bool RequestRetry(UWorld* RequestWorld, FText& OutError);
++    bool RequestReplay(UWorld* RequestWorld, FText& OutError);
+     bool RequestContinue(UWorld* RequestWorld, FText& OutError);
+     bool RequestMainMenu(UWorld* RequestWorld, const FSoftObjectPath& Map, FText& OutError);
+     bool IsTravelPending() const
+@@ -62,10 +66,15 @@
+     FETRunTravelFailed OnTravelFailed;
+     FETRunCheckpointChanged OnCheckpointChanged;
+     FETRunTravelConfirmed OnTravelConfirmed;
++    FETTrialCompleted OnTrialCompleted;
+
+ private:
+     friend class FETRelicEquipmentTransactionTest;
+     friend class FETEncounterCheckpointResumeTest;
++    friend class FETTrialVictoryTest;
++    friend class AETTrialExit;
++
++    bool TryCompleteTrial(UWorld* World, AEmberTrialCharacter* Player, int32 ClearedEncounters);
+
+     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
+     bool BeginTravel(UWorld* RequestWorld, const FString& TargetPackage, FName SpawnId,
+@@ -82,6 +91,8 @@
+     // 已确认快照跨菜单保留；只有本进程有效，失败请求不覆盖它。
+     FString GameplayPackage;
+     FName ActiveCheckpointId = NAME_None;
++    TWeakObjectPtr<UWorld> CompletedWorld;
++    int32 CompletedEncounterCount = 0;
+     // 待定请求与实际出生报告，确认到达后才提交为快照。
+     FString PendingTargetPackage;
+     FName PendingCheckpointId = NAME_None;
+--- /dev/null
++++ b/EmberTrial/Source/EmberTrial/Public/Flow/ETTrialExit.h
+@@ -0,0 +1,33 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "GameFramework/Actor.h"
++#include "ETTrialExit.generated.h"
++
++class AETEncounter;
++class UBoxComponent;
++
++UCLASS()
++class EMBERTRIAL_API AETTrialExit : public AActor
++{
++    GENERATED_BODY()
++
++public:
++    AETTrialExit();
++
++protected:
++    virtual void BeginPlay() override;
++
++private:
++    friend class FETTrialVictoryTest;
++
++    UPROPERTY(VisibleAnywhere, Category = "Trial Exit")
++    TObjectPtr<UBoxComponent> ExitTrigger;
++
++    UPROPERTY(EditInstanceOnly, Category = "Trial Exit")
++    TArray<TObjectPtr<AETEncounter>> RequiredEncounters;
++
++    UFUNCTION()
++    void HandleOverlap(UPrimitiveComponent* Component, AActor* Other, UPrimitiveComponent* OtherComponent,
++                       int32 BodyIndex, bool bFromSweep, const FHitResult& Hit);
++};
+--- /dev/null
++++ b/EmberTrial/Source/EmberTrial/Tests/ETTrialVictoryTests.cpp
+@@ -0,0 +1,103 @@
++#if WITH_DEV_AUTOMATION_TESTS
++
++#include "Characters/EmberTrialCharacter.h"
++#include "Components/CapsuleComponent.h"
++#include "Engine/GameInstance.h"
++#include "Engine/World.h"
++#include "Flow/ETEncounter.h"
++#include "Flow/ETRunSessionSubsystem.h"
++#include "Flow/ETTrialExit.h"
++#include "GameFramework/PlayerController.h"
++#include "Misc/AutomationTest.h"
++#include "Tests/AutomationCommon.h"
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETTrialVictoryTest, "EmberTrial.M4.Trial.Victory",
++                                 EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FETTrialVictoryTest::RunTest(const FString& Parameters)
++{
++    FTestWorldWrapper Fixture;
++    if (!Fixture.CreateTestWorld(EWorldType::Game))
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++
++    UWorld* World = Fixture.GetTestWorld();
++    UETRunSessionSubsystem* Session = World->GetGameInstance()->GetSubsystem<UETRunSessionSubsystem>();
++    APlayerController* PC = World->SpawnActor<APlayerController>();
++    AEmberTrialCharacter* Player = World->SpawnActor<AEmberTrialCharacter>(
++        FVector(-500, 0, 0), FRotator::ZeroRotator);
++    AETTrialExit* Exit = World->SpawnActor<AETTrialExit>();
++    AETEncounter* Intro = World->SpawnActor<AETEncounter>(FVector(600, 0, 0), FRotator::ZeroRotator);
++    AETEncounter* Mixed = World->SpawnActor<AETEncounter>(FVector(1200, 0, 0), FRotator::ZeroRotator);
++    AETEncounter* Guardian = World->SpawnActor<AETEncounter>(FVector(1800, 0, 0), FRotator::ZeroRotator);
++    if (!TestTrue(TEXT("Fixture session and actors"), Session && PC && Player && Exit && Intro && Mixed && Guardian))
++    {
++        return false;
++    }
++
++    Player->GetCapsuleComponent()->SetGenerateOverlapEvents(true);
++    PC->Possess(Player);
++    if (!Fixture.BeginPlayInTestWorld())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++    Session->GameplayPackage = UETRunSessionSubsystem::GetWorldPackage(World);
++    Session->ActiveCheckpointId = FName(TEXT("Checkpoint_B"));
++    Intro->State = AETEncounter::EState::Cleared;
++    Mixed->State = AETEncounter::EState::Cleared;
++    Exit->RequiredEncounters = {Intro, Mixed, Guardian};
++
++    int32 Notifications = 0;
++    const FDelegateHandle Handle = Session->OnTrialCompleted.AddLambda([&Notifications, World](UWorld* Source)
++    {
++        if (Source == World)
++        {
++            ++Notifications;
++        }
++    });
++    const auto CrossExit = [Player]()
++    {
++        Player->SetActorLocation(FVector(-500, 0, 0));
++        Player->SetActorLocation(FVector::ZeroVector);
++    };
++
++    CrossExit();
++    TestEqual(TEXT("Waiting guardian prevents completion"), Notifications, 0);
++    Guardian->State = AETEncounter::EState::Failed;
++    CrossExit();
++    TestEqual(TEXT("A gate that failed open cannot count as cleared"), Notifications, 0);
++    Guardian->State = AETEncounter::EState::Cleared;
++    Exit->RequiredEncounters = {Intro, Intro, Guardian};
++    CrossExit();
++    TestEqual(TEXT("A repeated encounter reference cannot complete the trial"), Notifications, 0);
++    Exit->RequiredEncounters = {Intro, Mixed, Guardian};
++    CrossExit();
++    CrossExit();
++    TestEqual(TEXT("Repeated exit overlap only announces once"), Notifications, 1);
++    TestEqual(TEXT("The completed result contains all three encounters"), Session->GetCompletedEncounterCount(World), 3);
++
++    // A confirmed new arrival clears the finished run and commits the new Entry.
++    Session->PendingIntent = EETRunTravelIntent::NewRun;
++    Session->PendingTargetPackage = Session->GameplayPackage;
++    Session->PendingCheckpointId = UETRunSessionSubsystem::GetEntryCheckpointId();
++    Session->bPendingGameplayReady = true;
++    Session->bTravelPending = true;
++    Session->HandlePostLoadMap(World);
++    TestEqual(TEXT("A confirmed new run clears the result"), Session->GetCompletedEncounterCount(World), 0);
++    TestEqual(TEXT("A confirmed new run uses Entry"), Session->GetSpawnCheckpointId(World),
++              UETRunSessionSubsystem::GetEntryCheckpointId());
++    Session->OnTrialCompleted.Remove(Handle);
++
++    if (!Fixture.EndPlayInTestWorld())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++    Fixture.ForwardErrorMessages(this);
++    return !HasAnyErrors();
++}
++
++#endif
+--- a/EmberTrial/Source/EmberTrialUI/Private/Flow/ETFailureFlowComponent.cpp
++++ b/EmberTrial/Source/EmberTrialUI/Private/Flow/ETFailureFlowComponent.cpp
+@@ -62,6 +62,8 @@
+     UIContext->OnObservedPawnChanged.AddUniqueDynamic(this, &ThisClass::HandleObservedPawnChanged);
+     SessionFailureHandle =
+         Session->OnTravelFailed.AddUObject(this, &ThisClass::HandleSessionFailure);
++    TrialCompletedHandle =
++        Session->OnTrialCompleted.AddUObject(this, &ThisClass::HandleTrialCompleted);
+     BindPawn(UIContext->GetObservedController() == Controller ? UIContext->GetObservedPawn()
+                                                               : nullptr);
+     UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Game flow ready Owner=%s Session=%s"),
+@@ -94,6 +96,19 @@
+ bool UETFailureFlowComponent::HasCurrentDeadBody() const
+ {
+     return HasCurrentBody(true);
++}
++
++int32 UETFailureFlowComponent::GetVictoryEncounterCount() const
++{
++    return HasCurrentBody(false) ? Session->GetCompletedEncounterCount(GetWorld()) : 0;
++}
++
++void UETFailureFlowComponent::HandleTrialCompleted(UWorld* CompletedWorld)
++{
++    if (CompletedWorld == GetWorld())
++    {
++        PresentResult();
++    }
+ }
+
+ // ---- 旧身体解绑与新Life快照；相同有效订阅去重 ----
+@@ -328,19 +343,27 @@
+ {
+     bPresentationQueued = false;
+     PresentationHandle.Invalidate();
+-    if (!HasCurrentDeadBody() || IsValid(FailureWidget.Get()))
++    PresentResult();
++}
++
++void UETFailureFlowComponent::PresentResult()
++{
++    const int32 ClearedEncounters = GetVictoryEncounterCount();
++    const bool bVictory = ClearedEncounters > 0;
++    if ((!bVictory && !HasCurrentDeadBody()) || IsValid(FailureWidget.Get()) ||
++        bCommandPending || Session->IsTravelPending())
+     {
+         return;
+     }
+     AETPlayerController* Controller = ControllerOwner.Get();
+-    if (!FailureWidgetClass || FailureWidgetClass->HasAnyClassFlags(CLASS_Abstract))
++    const TSubclassOf<UETFailureWidget> ResultClass = bVictory ? VictoryWidgetClass : FailureWidgetClass;
++    if (!ResultClass || ResultClass->HasAnyClassFlags(CLASS_Abstract))
+     {
+         UE_LOG(LogETFailureFlow, Warning,
+-               TEXT("[M1-06D] Missing concrete FailureWidgetClass Owner=%s"),
+-               *GetNameSafe(Controller));
+-        return;
+-    }
+-    FailureWidget = CreateWidget<UETFailureWidget>(Controller, FailureWidgetClass);
++               TEXT("[M1-06D] Missing result widget Owner=%s Victory=%d"), *GetNameSafe(Controller), bVictory);
++        return;
++    }
++    FailureWidget = CreateWidget<UETFailureWidget>(Controller, ResultClass);
+     if (!IsValid(FailureWidget.Get()) || !FailureWidget->HasRequiredLayout())
+     {
+         UE_LOG(LogETFailureFlow, Warning, TEXT("[M1-06D] Failure layout invalid Owner=%s"),
+@@ -350,7 +373,14 @@
+     }
+     FailureWidget->OnRetryRequested.AddUniqueDynamic(this, &ThisClass::HandleRetryRequested);
+     FailureWidget->OnMainMenuRequested.AddUniqueDynamic(this, &ThisClass::HandleMainMenuRequested);
+-    FailureWidget->ShowReady();
++    if (bVictory)
++    {
++        FailureWidget->ShowVictory(ClearedEncounters);
++    }
++    else
++    {
++        FailureWidget->ShowReady();
++    }
+     if (!FailureWidget->AddToPlayerScreen(FailureWidgetZOrder))
+     {
+         RemoveFailureWidget();
+@@ -372,6 +402,12 @@
+                                                    EMouseLockMode::DoNotLock, true);
+     FailureWidget->FocusRetryButton();
+     NotifyMenuState();
++    if (bVictory)
++    {
++        UE_LOG(LogETFailureFlow, Display, TEXT("Victory shown Owner=%s ClearedEncounters=%d Paused=1"),
++               *GetNameSafe(Controller), ClearedEncounters);
++        return;
++    }
+     UE_LOG(LogETFailureFlow, Display,
+            TEXT("[M1-06D] Failure shown Owner=%s Body=%s Widget=%s Paused=%d"),
+            *GetNameSafe(Controller), *GetNameSafe(BoundLife->GetOwner()),
+@@ -382,7 +418,8 @@
+
+ void UETFailureFlowComponent::HandleRetryRequested()
+ {
+-    if (bCommandPending || !HasCurrentDeadBody() || !IsValid(FailureWidget.Get()) ||
++    const bool bVictory = GetVictoryEncounterCount() > 0;
++    if (bCommandPending || (!bVictory && !HasCurrentDeadBody()) || !IsValid(FailureWidget.Get()) ||
+         Session->IsTravelPending())
+     {
+         return;
+@@ -390,7 +427,9 @@
+     bCommandPending = true;
+     FailureWidget->ShowPending(FText::FromString(TEXT("正在重新进入试炼…")));
+     FText Error;
+-    if (!Session->RequestRetry(GetWorld(), Error))
++    const bool bAccepted = bVictory ? Session->RequestReplay(GetWorld(), Error)
++                                    : Session->RequestRetry(GetWorld(), Error);
++    if (!bAccepted)
+     {
+         RecoverActivePanel(Error);
+     }
+@@ -402,7 +441,8 @@
+     {
+         return;
+     }
+-    const bool bFromFailure = IsValid(FailureWidget.Get()) && HasCurrentDeadBody();
++    const bool bFromFailure = IsValid(FailureWidget.Get()) &&
++        (HasCurrentDeadBody() || GetVictoryEncounterCount() > 0);
+     const bool bFromPause = IsValid(PauseWidget.Get());
+     if (!bFromFailure && !bFromPause)
+     {
+@@ -466,7 +506,7 @@
+         Message.IsEmpty() ? FText::FromString(TEXT("请求未完成，请重新选择。")) : Message;
+     AETPlayerController* Controller = ControllerOwner.Get();
+     Controller->bShowMouseCursor = true;
+-    if (IsValid(FailureWidget.Get()) && HasCurrentDeadBody())
++    if (IsValid(FailureWidget.Get()) && (HasCurrentDeadBody() || GetVictoryEncounterCount() > 0))
+     {
+         FailureWidget->ShowError(Error);
+         UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller, FailureWidget.Get(),
+@@ -572,8 +612,10 @@
+     if (Session.IsValid())
+     {
+         Session->OnTravelFailed.Remove(SessionFailureHandle);
++        Session->OnTrialCompleted.Remove(TrialCompletedHandle);
+     }
+     SessionFailureHandle.Reset();
++    TrialCompletedHandle.Reset();
+     StopObservingLife();
+     RemovePauseWidget();
+     RemoveFailureWidget();
+@@ -655,4 +697,4 @@
+     {
+         HandleResumeRequested();
+     }
+-}
+\ No newline at end of file
++}
+--- a/EmberTrial/Source/EmberTrialUI/Private/Widgets/ETFailureWidget.cpp
++++ b/EmberTrial/Source/EmberTrialUI/Private/Widgets/ETFailureWidget.cpp
+@@ -32,6 +32,13 @@
+ void UETFailureWidget::ShowPending(const FText& Message)
+ {
+     ApplyState(true, Message);
++}
++
++void UETFailureWidget::ShowVictory(int32 ClearedEncounters)
++{
++    ApplyState(false, FText::Format(
++        NSLOCTEXT("ETTrialVictory", "ClearedEncounters", "已清场遭遇：{0}"),
++        FText::AsNumber(ClearedEncounters)));
+ }
+
+ void UETFailureWidget::ShowError(const FText& Message)
+--- a/EmberTrial/Source/EmberTrialUI/Public/Flow/ETFailureFlowComponent.h
++++ b/EmberTrial/Source/EmberTrialUI/Public/Flow/ETFailureFlowComponent.h
+@@ -70,10 +70,13 @@
+     bool HasCurrentContext() const;
+     bool HasCurrentBody(bool bExpectedDead) const;
+     bool HasCurrentDeadBody() const;
++    int32 GetVictoryEncounterCount() const;
++    void HandleTrialCompleted(UWorld* CompletedWorld);
+
+     // 普通死亡NextTick；已拥有暂停时立即替换View，避免等不到世界Tick。
+     void QueueFailure();
+     void PresentFailure();
++    void PresentResult();
+     void RecoverActivePanel(const FText& Message);
+     void HandleSessionFailure(UWorld* FailedWorld, const FText& Message);
+     void RemoveFailureWidget();
+@@ -89,6 +92,9 @@
+
+     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Failure")
+     TSubclassOf<UETFailureWidget> FailureWidgetClass;
++
++    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Victory")
++    TSubclassOf<UETFailureWidget> VictoryWidgetClass;
+
+     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Failure")
+     TSoftObjectPtr<UWorld> MainMenuMap;
+@@ -112,6 +118,7 @@
+     FDelegateHandle AltarRequestHandle;
+     FDelegateHandle DeathHandle;
+     FDelegateHandle SessionFailureHandle;
++    FDelegateHandle TrialCompletedHandle;
+     FTimerHandle PresentationHandle;
+
+     // 延迟呈现、切图命令、暂停所有权分别建模，不能合成一个busy。
+--- a/EmberTrial/Source/EmberTrialUI/Public/Widgets/ETFailureWidget.h
++++ b/EmberTrial/Source/EmberTrialUI/Public/Widgets/ETFailureWidget.h
+@@ -19,6 +19,7 @@
+     // ---- 必需布局、Ready / Pending / Error与初始焦点 ----
+     bool HasRequiredLayout() const;
+     void ShowReady();
++    void ShowVictory(int32 ClearedEncounters);
+     void ShowPending(const FText& Message);
+     void ShowError(const FText& Message);
+     void FocusRetryButton();

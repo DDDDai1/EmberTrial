@@ -244,8 +244,10 @@ M4-03C实机验证突进。突进和闪避共用水平Root Motion Source创建�
 
 M4-03D实机验证守关者按阶段与距离选招。冲击使用一次全圆采样，保留高差和墙挡。300 cm内无遮挡的已知目标可在离开视锥后继续追踪。[M4-03D验收](Reports/M4_03D_Verification.md)
 
-M4-04把三场遭遇装配在同一张地图。各门用同一 `AETEncounter`，在世界启动时根据同图已确认的检查点恢复对应门状态。恢复不会重新生成前序敌人或发出清场事件。[M4-04操作](M4_04_TrialRoute.md)
+M4-04 把三场遭遇装配在同一张地图。各门用同一 `AETEncounter`，在世界启动时根据同图已确认的检查点恢复对应门状态。恢复不会重新生成前序敌人或发出清场事件。[M4-04 验收](Reports/M4_04_Verification.md)
+
+M4-05 由 `AETTrialExit` 检查同图的清场实例，`UETRunSessionSubsystem` 提交本局结果，已有 UI Flow 负责胜利页与焦点。「再玩一次」复用已确认的 NewRun 切图流程。[M4-05 操作](M4_05_TrialVictory.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M4-03D源码与资产已在本地提交。可先提交D验收与路线指南，M4-04源码、地图和配置实机通过后提交。[两组提交清单](M4_04_TrialRoute.md#6-commit--push)
+M4-04 源码、地图与配置已在本地提交。可先提交验收报告和 M4-05 指南与补丁，正式工程实机通过后再提交 M4-05 源码与资产。[两组提交清单](M4_05_TrialVictory.md#5-commit--push)
