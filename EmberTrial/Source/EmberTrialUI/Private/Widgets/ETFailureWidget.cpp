@@ -34,6 +34,13 @@ void UETFailureWidget::ShowPending(const FText& Message)
     ApplyState(true, Message);
 }
 
+void UETFailureWidget::ShowVictory(int32 ClearedEncounters)
+{
+    ApplyState(false, FText::Format(
+        NSLOCTEXT("ETTrialVictory", "ClearedEncounters", "已清场遭遇：{0}"),
+        FText::AsNumber(ClearedEncounters)));
+}
+
 void UETFailureWidget::ShowError(const FText& Message)
 {
     ApplyState(false, Message);

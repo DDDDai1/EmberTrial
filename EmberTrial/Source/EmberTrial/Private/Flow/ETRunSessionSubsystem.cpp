@@ -46,6 +46,9 @@ void UETRunSessionSubsystem::Deinitialize()
     OnTravelFailed.Clear();
     OnCheckpointChanged.Clear();
     OnTravelConfirmed.Clear();
+    OnTrialCompleted.Clear();
+    CompletedWorld.Reset();
+    CompletedEncounterCount = 0;
     GameplayPackage.Reset();
     ActiveCheckpointId = NAME_None;
     UE_LOG(LogETRunSession, Display, TEXT("[M1-06C] Session end Session=%s"), *GetNameSafe(this));
@@ -132,9 +135,35 @@ void UETRunSessionSubsystem::NotifyGameplayWorldReady(UWorld* GameplayWorld, FNa
 
 bool UETRunSessionSubsystem::HasContinueSnapshot() const
 {
-    return !bShuttingDown && !ActiveCheckpointId.IsNone() &&
+    return !bShuttingDown && CompletedEncounterCount == 0 && !ActiveCheckpointId.IsNone() &&
            FPackageName::IsValidLongPackageName(GameplayPackage) &&
            FPackageName::DoesPackageExist(GameplayPackage);
+}
+
+int32 UETRunSessionSubsystem::GetCompletedEncounterCount(const UWorld* World) const
+{
+    return IsValid(World) && CompletedWorld.Get() == World ? CompletedEncounterCount : 0;
+}
+
+bool UETRunSessionSubsystem::TryCompleteTrial(UWorld* World, AEmberTrialCharacter* Player,
+                                             int32 ClearedEncounters)
+{
+    const APlayerController* PC = IsValid(Player) ? Cast<APlayerController>(Player->GetController()) : nullptr;
+    if (bShuttingDown || bTravelPending || CompletedEncounterCount > 0 || ClearedEncounters <= 0 ||
+        !IsValid(World) || World->bIsTearingDown || !World->HasBegunPlay() || World->IsPaused() ||
+        World->GetGameInstance() != GetGameInstance() || World->GetNetMode() != NM_Standalone ||
+        GetWorldPackage(World) != GameplayPackage || ActiveCheckpointId.IsNone() ||
+        !IsValid(PC) || !PC->IsLocalController() || PC->GetPawn() != Player ||
+        Player->GetWorld() != World || !Player->IsGameplayReady() || Player->IsCombatDead())
+    {
+        return false;
+    }
+    CompletedWorld = World;
+    CompletedEncounterCount = ClearedEncounters;
+    UE_LOG(LogETRunSession, Display, TEXT("Trial completed Map=%s ClearedEncounters=%d"),
+           *GameplayPackage, CompletedEncounterCount);
+    OnTrialCompleted.Broadcast(World);
+    return true;
 }
 
 bool UETRunSessionSubsystem::IsCheckpointActive(UWorld* CheckWorld, FName CheckpointId) const
@@ -150,7 +179,8 @@ bool UETRunSessionSubsystem::TryActivateCheckpoint(UWorld* RequestWorld,
                                                    APlayerStart* CheckpointStart,
                                                    AEmberTrialCharacter* PlayerBody)
 {
-    if (bShuttingDown || bTravelPending || !IsValid(RequestWorld) || RequestWorld->bIsTearingDown ||
+    if (bShuttingDown || bTravelPending || CompletedEncounterCount > 0 ||
+        !IsValid(RequestWorld) || RequestWorld->bIsTearingDown ||
         !RequestWorld->HasBegunPlay() || RequestWorld->GetGameInstance() != GetGameInstance() ||
         RequestWorld->GetNetMode() != NM_Standalone ||
         UGameplayStatics::IsGamePaused(RequestWorld) ||
@@ -243,6 +273,16 @@ bool UETRunSessionSubsystem::RequestContinue(UWorld* RequestWorld, FText& OutErr
                        EETRunTravelIntent::Continue, OutError);
 }
 
+bool UETRunSessionSubsystem::RequestReplay(UWorld* RequestWorld, FText& OutError)
+{
+    if (GetCompletedEncounterCount(RequestWorld) == 0)
+    {
+        return RejectRequest(TEXT("当前试炼尚未完成。"), OutError);
+    }
+    return BeginTravel(RequestWorld, GameplayPackage, GetEntryCheckpointId(),
+                       EETRunTravelIntent::NewRun, OutError);
+}
+
 bool UETRunSessionSubsystem::RequestMainMenu(UWorld* RequestWorld, const FSoftObjectPath& Map,
                                              FText& OutError)
 {
@@ -268,9 +308,11 @@ bool UETRunSessionSubsystem::BeginTravel(UWorld* RequestWorld, const FString& Ta
     {
         return RejectRequest(TEXT("当前无法切换地图，请稍后重试。"), OutError);
     }
+    const bool bAllowSameMap = Intent == EETRunTravelIntent::Retry ||
+        (Intent == EETRunTravelIntent::NewRun && GetCompletedEncounterCount(RequestWorld) > 0);
     if (!FPackageName::IsValidLongPackageName(TargetPackage) ||
         !FPackageName::DoesPackageExist(TargetPackage) ||
-        (Intent != EETRunTravelIntent::Retry && TargetPackage == GetWorldPackage(RequestWorld)) ||
+        (!bAllowSameMap && TargetPackage == GetWorldPackage(RequestWorld)) ||
         (IsGameplayIntent(Intent) && SpawnId.IsNone()))
     {
         return RejectRequest(TEXT("目标地图或出生标识不可用，请检查配置。"), OutError);
@@ -316,6 +358,8 @@ void UETRunSessionSubsystem::HandlePostLoadMap(UWorld* LoadedWorld)
     {
         GameplayPackage = PendingTargetPackage;
         ActiveCheckpointId = CompletedCheckpoint;
+        CompletedWorld.Reset();
+        CompletedEncounterCount = 0;
         UE_LOG(LogETRunSession, Display,
                TEXT("[M1-06C] Snapshot committed Map=%s Checkpoint=%s Intent=%s"), *GameplayPackage,
                *ActiveCheckpointId.ToString(), GetIntentName(CompletedIntent));

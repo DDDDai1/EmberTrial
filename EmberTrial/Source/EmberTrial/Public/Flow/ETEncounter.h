@@ -31,6 +31,7 @@ class EMBERTRIAL_API AETEncounter : public AActor
 
 public:
     AETEncounter();
+    bool HasCleared() const { return State == EState::Cleared; }
 
 protected:
     virtual void BeginPlay() override;
@@ -39,6 +40,7 @@ protected:
 private:
     friend class FETMixedEncounterTest;
     friend class FETEncounterCheckpointResumeTest;
+    friend class FETTrialVictoryTest;
 
     enum class EState : uint8 { Waiting, Active, Cleared, Failed };
 

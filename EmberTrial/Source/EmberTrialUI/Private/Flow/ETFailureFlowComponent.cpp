@@ -62,6 +62,8 @@ void UETFailureFlowComponent::BeginPlay()
     UIContext->OnObservedPawnChanged.AddUniqueDynamic(this, &ThisClass::HandleObservedPawnChanged);
     SessionFailureHandle =
         Session->OnTravelFailed.AddUObject(this, &ThisClass::HandleSessionFailure);
+    TrialCompletedHandle =
+        Session->OnTrialCompleted.AddUObject(this, &ThisClass::HandleTrialCompleted);
     BindPawn(UIContext->GetObservedController() == Controller ? UIContext->GetObservedPawn()
                                                               : nullptr);
     UE_LOG(LogETFailureFlow, Display, TEXT("[M1-06D] Game flow ready Owner=%s Session=%s"),
@@ -94,6 +96,19 @@ bool UETFailureFlowComponent::HasCurrentBody(bool bExpectedDead) const
 bool UETFailureFlowComponent::HasCurrentDeadBody() const
 {
     return HasCurrentBody(true);
+}
+
+int32 UETFailureFlowComponent::GetVictoryEncounterCount() const
+{
+    return HasCurrentBody(false) ? Session->GetCompletedEncounterCount(GetWorld()) : 0;
+}
+
+void UETFailureFlowComponent::HandleTrialCompleted(UWorld* CompletedWorld)
+{
+    if (CompletedWorld == GetWorld())
+    {
+        PresentResult();
+    }
 }
 
 // ---- 旧身体解绑与新Life快照；相同有效订阅去重 ----
@@ -328,19 +343,27 @@ void UETFailureFlowComponent::PresentFailure()
 {
     bPresentationQueued = false;
     PresentationHandle.Invalidate();
-    if (!HasCurrentDeadBody() || IsValid(FailureWidget.Get()))
+    PresentResult();
+}
+
+void UETFailureFlowComponent::PresentResult()
+{
+    const int32 ClearedEncounters = GetVictoryEncounterCount();
+    const bool bVictory = ClearedEncounters > 0;
+    if ((!bVictory && !HasCurrentDeadBody()) || IsValid(FailureWidget.Get()) ||
+        bCommandPending || Session->IsTravelPending())
     {
         return;
     }
     AETPlayerController* Controller = ControllerOwner.Get();
-    if (!FailureWidgetClass || FailureWidgetClass->HasAnyClassFlags(CLASS_Abstract))
+    const TSubclassOf<UETFailureWidget> ResultClass = bVictory ? VictoryWidgetClass : FailureWidgetClass;
+    if (!ResultClass || ResultClass->HasAnyClassFlags(CLASS_Abstract))
     {
         UE_LOG(LogETFailureFlow, Warning,
-               TEXT("[M1-06D] Missing concrete FailureWidgetClass Owner=%s"),
-               *GetNameSafe(Controller));
+               TEXT("[M1-06D] Missing result widget Owner=%s Victory=%d"), *GetNameSafe(Controller), bVictory);
         return;
     }
-    FailureWidget = CreateWidget<UETFailureWidget>(Controller, FailureWidgetClass);
+    FailureWidget = CreateWidget<UETFailureWidget>(Controller, ResultClass);
     if (!IsValid(FailureWidget.Get()) || !FailureWidget->HasRequiredLayout())
     {
         UE_LOG(LogETFailureFlow, Warning, TEXT("[M1-06D] Failure layout invalid Owner=%s"),
@@ -350,7 +373,14 @@ void UETFailureFlowComponent::PresentFailure()
     }
     FailureWidget->OnRetryRequested.AddUniqueDynamic(this, &ThisClass::HandleRetryRequested);
     FailureWidget->OnMainMenuRequested.AddUniqueDynamic(this, &ThisClass::HandleMainMenuRequested);
-    FailureWidget->ShowReady();
+    if (bVictory)
+    {
+        FailureWidget->ShowVictory(ClearedEncounters);
+    }
+    else
+    {
+        FailureWidget->ShowReady();
+    }
     if (!FailureWidget->AddToPlayerScreen(FailureWidgetZOrder))
     {
         RemoveFailureWidget();
@@ -372,6 +402,12 @@ void UETFailureFlowComponent::PresentFailure()
                                                    EMouseLockMode::DoNotLock, true);
     FailureWidget->FocusRetryButton();
     NotifyMenuState();
+    if (bVictory)
+    {
+        UE_LOG(LogETFailureFlow, Display, TEXT("Victory shown Owner=%s ClearedEncounters=%d Paused=1"),
+               *GetNameSafe(Controller), ClearedEncounters);
+        return;
+    }
     UE_LOG(LogETFailureFlow, Display,
            TEXT("[M1-06D] Failure shown Owner=%s Body=%s Widget=%s Paused=%d"),
            *GetNameSafe(Controller), *GetNameSafe(BoundLife->GetOwner()),
@@ -382,7 +418,8 @@ void UETFailureFlowComponent::PresentFailure()
 
 void UETFailureFlowComponent::HandleRetryRequested()
 {
-    if (bCommandPending || !HasCurrentDeadBody() || !IsValid(FailureWidget.Get()) ||
+    const bool bVictory = GetVictoryEncounterCount() > 0;
+    if (bCommandPending || (!bVictory && !HasCurrentDeadBody()) || !IsValid(FailureWidget.Get()) ||
         Session->IsTravelPending())
     {
         return;
@@ -390,7 +427,9 @@ void UETFailureFlowComponent::HandleRetryRequested()
     bCommandPending = true;
     FailureWidget->ShowPending(FText::FromString(TEXT("正在重新进入试炼…")));
     FText Error;
-    if (!Session->RequestRetry(GetWorld(), Error))
+    const bool bAccepted = bVictory ? Session->RequestReplay(GetWorld(), Error)
+                                    : Session->RequestRetry(GetWorld(), Error);
+    if (!bAccepted)
     {
         RecoverActivePanel(Error);
     }
@@ -402,7 +441,8 @@ void UETFailureFlowComponent::HandleMainMenuRequested()
     {
         return;
     }
-    const bool bFromFailure = IsValid(FailureWidget.Get()) && HasCurrentDeadBody();
+    const bool bFromFailure = IsValid(FailureWidget.Get()) &&
+        (HasCurrentDeadBody() || GetVictoryEncounterCount() > 0);
     const bool bFromPause = IsValid(PauseWidget.Get());
     if (!bFromFailure && !bFromPause)
     {
@@ -466,7 +506,7 @@ void UETFailureFlowComponent::RecoverActivePanel(const FText& Message)
         Message.IsEmpty() ? FText::FromString(TEXT("请求未完成，请重新选择。")) : Message;
     AETPlayerController* Controller = ControllerOwner.Get();
     Controller->bShowMouseCursor = true;
-    if (IsValid(FailureWidget.Get()) && HasCurrentDeadBody())
+    if (IsValid(FailureWidget.Get()) && (HasCurrentDeadBody() || GetVictoryEncounterCount() > 0))
     {
         FailureWidget->ShowError(Error);
         UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller, FailureWidget.Get(),
@@ -572,8 +612,10 @@ void UETFailureFlowComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     if (Session.IsValid())
     {
         Session->OnTravelFailed.Remove(SessionFailureHandle);
+        Session->OnTrialCompleted.Remove(TrialCompletedHandle);
     }
     SessionFailureHandle.Reset();
+    TrialCompletedHandle.Reset();
     StopObservingLife();
     RemovePauseWidget();
     RemoveFailureWidget();

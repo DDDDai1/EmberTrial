@@ -7,11 +7,13 @@
 #include "ETRunSessionSubsystem.generated.h"
 
 class AEmberTrialCharacter;
+class AETTrialExit;
 class APlayerStart;
 class UWorld;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunTravelFailed, UWorld*, const FText&);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunCheckpointChanged, UWorld*, FName);
+DECLARE_MULTICAST_DELEGATE_OneParam(FETTrialCompleted, UWorld*);
 
 enum class EETRunTravelIntent : uint8
 {
@@ -47,11 +49,13 @@ public:
                                AEmberTrialCharacter* PlayerBody);
     bool IsCheckpointActive(UWorld* CheckWorld, FName CheckpointId) const;
     bool HasContinueSnapshot() const;
+    int32 GetCompletedEncounterCount(const UWorld* World) const;
     bool SetCheckpointIdForDevelopmentTest(UWorld* TestWorld, FName TestId);
 
     // ---- 单次非无缝切图意图；接受请求不等于已经到达 / 提交快照 ----
     bool RequestNewRun(UWorld* RequestWorld, const FSoftObjectPath& Map, FText& OutError);
     bool RequestRetry(UWorld* RequestWorld, FText& OutError);
+    bool RequestReplay(UWorld* RequestWorld, FText& OutError);
     bool RequestContinue(UWorld* RequestWorld, FText& OutError);
     bool RequestMainMenu(UWorld* RequestWorld, const FSoftObjectPath& Map, FText& OutError);
     bool IsTravelPending() const
@@ -62,10 +66,15 @@ public:
     FETRunTravelFailed OnTravelFailed;
     FETRunCheckpointChanged OnCheckpointChanged;
     FETRunTravelConfirmed OnTravelConfirmed;
+    FETTrialCompleted OnTrialCompleted;
 
 private:
     friend class FETRelicEquipmentTransactionTest;
     friend class FETEncounterCheckpointResumeTest;
+    friend class FETTrialVictoryTest;
+    friend class AETTrialExit;
+
+    bool TryCompleteTrial(UWorld* World, AEmberTrialCharacter* Player, int32 ClearedEncounters);
 
     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
     bool BeginTravel(UWorld* RequestWorld, const FString& TargetPackage, FName SpawnId,
@@ -82,6 +91,8 @@ private:
     // 已确认快照跨菜单保留；只有本进程有效，失败请求不覆盖它。
     FString GameplayPackage;
     FName ActiveCheckpointId = NAME_None;
+    TWeakObjectPtr<UWorld> CompletedWorld;
+    int32 CompletedEncounterCount = 0;
     // 待定请求与实际出生报告，确认到达后才提交为快照。
     FString PendingTargetPackage;
     FName PendingCheckpointId = NAME_None;

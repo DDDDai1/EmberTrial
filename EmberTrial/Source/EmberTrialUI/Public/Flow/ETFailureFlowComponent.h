@@ -70,10 +70,13 @@ private:
     bool HasCurrentContext() const;
     bool HasCurrentBody(bool bExpectedDead) const;
     bool HasCurrentDeadBody() const;
+    int32 GetVictoryEncounterCount() const;
+    void HandleTrialCompleted(UWorld* CompletedWorld);
 
     // 普通死亡NextTick；已拥有暂停时立即替换View，避免等不到世界Tick。
     void QueueFailure();
     void PresentFailure();
+    void PresentResult();
     void RecoverActivePanel(const FText& Message);
     void HandleSessionFailure(UWorld* FailedWorld, const FText& Message);
     void RemoveFailureWidget();
@@ -89,6 +92,9 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Failure")
     TSubclassOf<UETFailureWidget> FailureWidgetClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Victory")
+    TSubclassOf<UETFailureWidget> VictoryWidgetClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Failure")
     TSoftObjectPtr<UWorld> MainMenuMap;
@@ -112,6 +118,7 @@ private:
     FDelegateHandle AltarRequestHandle;
     FDelegateHandle DeathHandle;
     FDelegateHandle SessionFailureHandle;
+    FDelegateHandle TrialCompletedHandle;
     FTimerHandle PresentationHandle;
 
     // 延迟呈现、切图命令、暂停所有权分别建模，不能合成一个busy。
