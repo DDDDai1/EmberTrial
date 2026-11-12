@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Combat/ETAttackSector.h"
 #include "Components/ActorComponent.h"
 #include "Engine/EngineTypes.h"
 #include "ETCombatTraceComponent.generated.h"
@@ -31,7 +32,8 @@ public:
 
     // Notify资产只转发身份；开关状态与每次攻击的目标集合由本组件持有。
     void SetAttackWindow(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
-                         int32 MontageInstanceID, UAnimNotifyState* WindowToken, bool bOpen);
+                         int32 MontageInstanceID, UAnimNotifyState* WindowToken, bool bOpen,
+                         const FETAttackSector* Sector);
 
     // 同步回调可能取消攻击或销毁身体；分发后必须重验当前Serial / 窗口。
     FETCombatTraceHitSignature OnTraceHit;
@@ -65,6 +67,7 @@ private:
     TWeakObjectPtr<USkeletalMeshComponent> SourceMesh;
     TWeakObjectPtr<UAnimMontage> ExpectedMontage;
     TWeakObjectPtr<UAnimNotifyState> ActiveWindow;
+    TOptional<FETAttackSector> ActiveSector;
     TSet<TWeakObjectPtr<APawn>> SeenTargets;
 
     uint32 SerialCounter = 0;
@@ -79,6 +82,7 @@ private:
 
     // ---- 采样结果分发与统一关闭路径 ----
     bool IsExpectedMontageActive() const;
+    void SampleSector(const UWorld& World);
     void ProcessHitResults(const TArray<FHitResult>& Hits);
     void CloseWindow(const TCHAR* Reason);
     void BlockAttack(const FHitResult& Hit, const TCHAR* Reason);

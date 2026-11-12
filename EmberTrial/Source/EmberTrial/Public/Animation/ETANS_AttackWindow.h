@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "Combat/ETAttackSector.h"
 #include "ETANS_AttackWindow.generated.h"
 
 // 通知对象可被多个播放实例共用，不在此缓存Mesh、Owner或窗口状态。
@@ -15,6 +16,23 @@ public:
     virtual void BranchingPointNotifyBegin(FBranchingPointNotifyPayload& Payload) override;
     virtual void BranchingPointNotifyEnd(FBranchingPointNotifyPayload& Payload) override;
 
+protected:
+    virtual const FETAttackSector* GetSector() const { return nullptr; }
+
 private:
     void Route(FBranchingPointNotifyPayload& Payload, bool bOpen);
+};
+
+// This notify uses the same montage identity and lifetime as the hand trace.
+UCLASS(meta = (DisplayName = "ET Sector Attack Window"))
+class EMBERTRIAL_API UETANS_SectorAttackWindow : public UETANS_AttackWindow
+{
+    GENERATED_BODY()
+
+protected:
+    virtual const FETAttackSector* GetSector() const override { return &Sector; }
+
+private:
+    UPROPERTY(EditAnywhere, Category = "EmberTrial|Attack", meta = (ShowOnlyInnerProperties))
+    FETAttackSector Sector;
 };

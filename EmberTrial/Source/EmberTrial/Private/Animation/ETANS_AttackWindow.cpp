@@ -32,6 +32,7 @@ void UETANS_AttackWindow::Route(FBranchingPointNotifyPayload& Payload, bool bOpe
         IsValid(Owner) ? Owner->FindComponentByClass<UETCombatTraceComponent>() : nullptr;
     if (IsValid(Trace))
     {
-        Trace->SetAttackWindow(Mesh, Payload.SequenceAsset, Payload.MontageInstanceID, this, bOpen);
+        Trace->SetAttackWindow(Mesh, Payload.SequenceAsset, Payload.MontageInstanceID, this, bOpen,
+                               GetSector());
     }
 }

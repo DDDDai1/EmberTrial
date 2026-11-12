@@ -98,7 +98,8 @@ uint32 UETCombatTraceComponent::BeginAttack(UAnimMontage* Montage, int32 Montage
 
 void UETCombatTraceComponent::SetAttackWindow(USkeletalMeshComponent* Mesh,
                                               UAnimSequenceBase* Animation, int32 MontageInstanceID,
-                                              UAnimNotifyState* WindowToken, bool bOpen)
+                                              UAnimNotifyState* WindowToken, bool bOpen,
+                                              const FETAttackSector* Sector)
 {
     if (ActiveSerial == 0 || Mesh != SourceMesh.Get() || Animation != ExpectedMontage.Get() ||
         MontageInstanceID != ActiveMontageInstanceID || !IsValid(WindowToken))
@@ -124,7 +125,17 @@ void UETCombatTraceComponent::SetAttackWindow(USkeletalMeshComponent* Mesh,
                *GetNameSafe(GetOwner()), ActiveSerial);
         return;
     }
+    if (Sector && !Sector->IsValid())
+    {
+        UE_LOG(LogETCombatTrace, Warning, TEXT("Invalid sector window Owner=%s Serial=%u"),
+               *GetNameSafe(GetOwner()), ActiveSerial);
+        return;
+    }
     ActiveWindow = WindowToken;
+    if (Sector)
+    {
+        ActiveSector = *Sector;
+    }
     bWindowOpen = true;
     bHasPreviousPoint = false;
     ++WindowCount;
@@ -145,6 +156,7 @@ void UETCombatTraceComponent::CloseWindow(const TCHAR* Reason)
     bWindowOpen = false;
     bHasPreviousPoint = false;
     ActiveWindow.Reset();
+    ActiveSector.Reset();
     SetComponentTickEnabled(false);
 }
 
@@ -175,8 +187,17 @@ void UETCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType
     }
     UWorld* World = GetWorld();
     USkeletalMeshComponent* Mesh = SourceMesh.Get();
-    if (!IsValid(World) || !IsValid(Mesh) || !IsValid(GetOwner()) || !IsExpectedMontageActive() ||
-        Mesh->GetBoneIndex(TraceBoneName) == INDEX_NONE)
+    if (!IsValid(World) || !IsValid(Mesh) || !IsValid(GetOwner()) || !IsExpectedMontageActive())
+    {
+        CloseWindow(TEXT("SourceLost"));
+        return;
+    }
+    if (ActiveSector.IsSet())
+    {
+        SampleSector(*World);
+        return;
+    }
+    if (Mesh->GetBoneIndex(TraceBoneName) == INDEX_NONE)
     {
         CloseWindow(TEXT("SourceLost"));
         return;
@@ -224,6 +245,26 @@ void UETCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType
 #endif
 
     ProcessHitResults(Hits);
+}
+
+void UETCombatTraceComponent::SampleSector(const UWorld& World)
+{
+    const uint32 SampleSerial = ActiveSerial;
+    const TWeakObjectPtr<UAnimNotifyState> SampleWindow = ActiveWindow;
+    const FETAttackSector Sector = ActiveSector.GetValue();
+    TArray<FHitResult> Hits;
+    ETAttackSector::GatherHits(World, *GetOwner(), Sector, Hits);
+    ++SweepCount;
+    UE_LOG(LogETCombatTrace, Display,
+           TEXT("Sector sample Owner=%s Serial=%u Range=%.1f HalfAngle=%.1f Height=%.1f Candidates=%d"),
+           *GetNameSafe(GetOwner()), SampleSerial, Sector.Range, Sector.HalfAngle,
+           Sector.HeightTolerance, Hits.Num());
+    ProcessHitResults(Hits);
+    // Damage may have closed the window or cancelled this attack while dispatching candidates.
+    if (ActiveSerial == SampleSerial && bWindowOpen && ActiveWindow == SampleWindow)
+    {
+        CloseWindow(TEXT("SectorSampled"));
+    }
 }
 
 // 候选分发保留碰撞返回顺序：先同次去重 / 广播，再处理阻挡；不在这里施加伤害。
