@@ -84,6 +84,17 @@ bool FETAttackSectorTest::RunTest(const FString& Parameters)
     Sample();
     TestTrue(TEXT("Rotating source moves the sector"), Hits.Num() == 1 && HasTarget(Behind));
 
+    Sector.bFullCircle = true;
+    Sector.Range = 155.0f;
+    Sector.HeightTolerance = 50.0f;
+    Sample();
+    TestTrue(TEXT("Ground shock covers front and back but still obeys wall, range and height"),
+             Hits.Num() == 2 && HasTarget(Behind) && HasTarget(Flank));
+    Barrier->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Sample();
+    TestTrue(TEXT("Ground shock reaches a formerly occluded pawn without turning"),
+             Hits.Num() == 3 && HasTarget(Ahead) && HasTarget(Behind) && HasTarget(Flank));
+
     Sector.Range = 0.0f;
     Sample();
     TestTrue(TEXT("Invalid configuration clears candidates"), Hits.IsEmpty());

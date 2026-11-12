@@ -43,6 +43,7 @@ protected:
 
 private:
     friend class FETRangedGuardAITest;
+    friend class FETGuardianCloseTrackingTest;
 
     // ---- 感知与树资源装配；保留命名子对象 / 反射字段以兼容现有资产 ----
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|AI",
@@ -80,6 +81,7 @@ private:
     // ---- 非拥有身份与本Controller的订阅；不延长旧身体 / 目标寿命 ----
     TWeakObjectPtr<AEmberTrialCharacter> ObservedBody;
     TWeakObjectPtr<AEmberTrialCharacter> SensedPlayer;
+    bool bTrackingPlayerOutsideSight = false;
     TWeakObjectPtr<UAbilitySystemComponent> ObservedBodyASC;
     TWeakObjectPtr<UAbilitySystemComponent> ObservedTargetASC;
     FDelegateHandle BodyDeadHandle;
@@ -129,6 +131,7 @@ private:
 
     // ---- 感知目标与身份替换 ----
     void RefreshVisiblePlayer();
+    bool CanTrackPlayerOutsideSight(const AEmberTrialCharacter* PlayerBody) const;
     void SetSensedPlayer(AEmberTrialCharacter* NewPlayer, const TCHAR* Reason);
     void ClearSensedPlayer(const TCHAR* Reason);
 

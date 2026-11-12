@@ -271,9 +271,9 @@ void UETCombatTraceComponent::SampleSector(const UWorld& World)
     ETAttackSector::GatherHits(World, *GetOwner(), Sector, Hits);
     ++SweepCount;
     UE_LOG(LogETCombatTrace, Display,
-           TEXT("Sector sample Owner=%s Serial=%u Range=%.1f HalfAngle=%.1f Height=%.1f Candidates=%d"),
+           TEXT("Sector sample Owner=%s Serial=%u Range=%.1f HalfAngle=%.1f Height=%.1f Candidates=%d FullCircle=%d"),
            *GetNameSafe(GetOwner()), SampleSerial, Sector.Range, Sector.HalfAngle,
-           Sector.HeightTolerance, Hits.Num());
+           Sector.HeightTolerance, Hits.Num(), Sector.bFullCircle ? 1 : 0);
     ProcessHitResults(Hits);
     // Damage may have closed the window or cancelled this attack while dispatching candidates.
     if (ActiveSerial == SampleSerial && bWindowOpen && ActiveWindow == SampleWindow)

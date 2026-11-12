@@ -18,6 +18,7 @@ public:
     AETGuardianCharacter();
 
     bool IsInPhaseTwo() const { return bPhaseTwo; }
+    float GetCloseTrackingRadius() const { return CloseTrackingRadius; }
 
 protected:
     virtual void BeginPlay() override;
@@ -32,6 +33,10 @@ private:
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Guardian", meta = (ClampMin = "1.0", Units = "cm/s"))
     float PhaseTwoWalkSpeed = 330.0f;
+
+    // Retains an already acquired, unobstructed player outside the sight cone.
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Guardian", meta = (ClampMin = "0.0", Units = "cm"))
+    float CloseTrackingRadius = 300.0f;
 
     FDelegateHandle HealthHandle;
     FDelegateHandle MaxHealthHandle;

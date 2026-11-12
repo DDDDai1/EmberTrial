@@ -13,11 +13,14 @@ struct FETAttackSector
 {
     GENERATED_BODY()
 
+    UPROPERTY(EditAnywhere, Category = "Sector")
+    bool bFullCircle = false;
+
     UPROPERTY(EditAnywhere, Category = "Sector", meta = (ClampMin = "1.0", Units = "cm"))
     float Range = 155.0f;
 
     UPROPERTY(EditAnywhere, Category = "Sector",
-              meta = (ClampMin = "1.0", ClampMax = "90.0", Units = "deg"))
+              meta = (EditCondition = "!bFullCircle", ClampMin = "1.0", ClampMax = "90.0", Units = "deg"))
     float HalfAngle = 60.0f;
 
     UPROPERTY(EditAnywhere, Category = "Sector", meta = (ClampMin = "0.0", Units = "cm"))

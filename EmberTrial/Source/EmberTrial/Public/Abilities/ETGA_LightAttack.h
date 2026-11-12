@@ -56,6 +56,10 @@ public:
                            int32 MontageInstanceID, UAnimNotifyState* WindowToken, bool bOpen);
 
 protected:
+    // The selected montage and damage are captured once for the current activation.
+    virtual UAnimMontage* SelectOpeningAttack(const AEmberTrialCharacter& Body, float& OutDamage) const;
+    virtual void OnOpeningAttackStarted(const AEmberTrialCharacter&, const UAnimMontage&) {}
+
     virtual bool CanActivateAbility(
         const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
         const FGameplayTagContainer* SourceTags = nullptr,

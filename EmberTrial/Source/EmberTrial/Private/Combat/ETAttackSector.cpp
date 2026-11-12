@@ -10,7 +10,7 @@
 bool FETAttackSector::IsValid() const
 {
     return FMath::IsFinite(Range) && Range >= 1.0f &&
-           FMath::IsFinite(HalfAngle) && HalfAngle >= 1.0f && HalfAngle <= 90.0f &&
+           (bFullCircle || (FMath::IsFinite(HalfAngle) && HalfAngle >= 1.0f && HalfAngle <= 90.0f)) &&
            FMath::IsFinite(HeightTolerance) && HeightTolerance >= 0.0f;
 }
 
@@ -21,12 +21,14 @@ void ETAttackSector::GatherHits(const UWorld& World, const AActor& Source, const
     const FVector Origin = Source.GetActorLocation();
     const FVector Forward = Source.GetActorForwardVector().GetSafeNormal2D();
     const float SearchRadius = FMath::Sqrt(FMath::Square(Sector.Range) + FMath::Square(Sector.HeightTolerance));
-    if (!Sector.IsValid() || !FMath::IsFinite(SearchRadius) || Origin.ContainsNaN() || Forward.IsNearlyZero())
+    if (!Sector.IsValid() || !FMath::IsFinite(SearchRadius) || Origin.ContainsNaN() ||
+        (!Sector.bFullCircle && Forward.IsNearlyZero()))
     {
         return;
     }
 
-    const double MinDot = FMath::Cos(FMath::DegreesToRadians(static_cast<double>(Sector.HalfAngle)));
+    const double MinDot = Sector.bFullCircle ? -1.0 :
+        FMath::Cos(FMath::DegreesToRadians(static_cast<double>(Sector.HalfAngle)));
     const double RangeSquared = FMath::Square(static_cast<double>(Sector.Range));
     const FCollisionQueryParams Query(SCENE_QUERY_STAT(ETAttackSector), false, &Source);
     TArray<FOverlapResult> Overlaps;
@@ -52,7 +54,8 @@ void ETAttackSector::GatherHits(const UWorld& World, const AActor& Source, const
         }
 
         const FVector Direction = Offset.GetSafeNormal2D();
-        if (!Direction.IsNearlyZero() && FVector::DotProduct(Forward, Direction) + UE_DOUBLE_SMALL_NUMBER < MinDot)
+        if (!Sector.bFullCircle && !Direction.IsNearlyZero() &&
+            FVector::DotProduct(Forward, Direction) + UE_DOUBLE_SMALL_NUMBER < MinDot)
         {
             continue;
         }

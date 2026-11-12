@@ -2,6 +2,7 @@
 #include "AI/ETBlackboardKeys.h"
 #include "AI/ETAILiveBody.h"
 #include "Characters/EmberTrialCharacter.h"
+#include "Characters/ETGuardianCharacter.h"
 #include "Abilities/ETGameplayTags.h"
 #include "Abilities/ETGA_RangedShot.h"
 #include "AbilitySystemComponent.h"
@@ -13,6 +14,7 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Float.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
+#include "CollisionQueryParams.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -285,6 +287,13 @@ void AETAIController::NotifyMeleeAttackAttemptFinished()
 
 void AETAIController::UpdatePursuitDecision()
 {
+    // Only recheck while covering the blind angle. Normal sight owns all other decisions.
+    if (bTrackingPlayerOutsideSight && !CanTrackPlayerOutsideSight(SensedPlayer.Get()))
+    {
+        ClearSensedPlayer(TEXT("CloseTrackingLost"));
+        return;
+    }
+
     AEmberTrialCharacter* BodyCharacter = ObservedBody.Get();
     AEmberTrialCharacter* PlayerBody = GetSensedPlayer();
     UBlackboardComponent* Board = GetBlackboardComponent();
@@ -697,9 +706,19 @@ void AETAIController::HandleSightUpdated(AActor* SensedActor, FAIStimulus Stimul
     }
     if (!Stimulus.WasSuccessfullySensed())
     {
-        if (SensedPlayer.Get(true) == SensedActor)
+        if (!SensedActor || SensedPlayer.Get(true) != SensedActor)
+        {
+            return;
+        }
+        if (!CanTrackPlayerOutsideSight(SensedPlayer.Get()))
         {
             ClearSensedPlayer(TEXT("SightLost"));
+        }
+        else if (!bTrackingPlayerOutsideSight)
+        {
+            bTrackingPlayerOutsideSight = true;
+            UE_LOG(LogETAIController, Display, TEXT("Guardian close tracking retained Controller=%s Player=%s"),
+                   *GetNameSafe(this), *GetNameSafe(SensedActor));
         }
         return;
     }
@@ -710,10 +729,38 @@ void AETAIController::HandleSightUpdated(AActor* SensedActor, FAIStimulus Stimul
     }
 }
 
+bool AETAIController::CanTrackPlayerOutsideSight(const AEmberTrialCharacter* PlayerBody) const
+{
+    const AETGuardianCharacter* Guardian = Cast<AETGuardianCharacter>(ObservedBody.Get());
+    const UWorld* World = GetWorld();
+    if (!IsValid(Guardian) || !World || !CanObservePlayer() || !IsLiveLocalPlayer(PlayerBody))
+    {
+        return false;
+    }
+
+    const float Radius = Guardian->GetCloseTrackingRadius();
+    const FVector Origin = Guardian->GetActorLocation();
+    const FVector Target = PlayerBody->GetActorLocation();
+    if (!FMath::IsFinite(Radius) || Radius <= 0.0f || Origin.ContainsNaN() || Target.ContainsNaN() ||
+        FVector::DistSquared(Origin, Target) > FMath::Square(static_cast<double>(Radius)))
+    {
+        return false;
+    }
+
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(ETGuardianCloseTracking), false, Guardian);
+    Params.AddIgnoredActor(PlayerBody);
+    return !World->LineTraceTestByChannel(Origin, Target, ECC_Visibility, Params);
+}
+
 void AETAIController::SetSensedPlayer(AEmberTrialCharacter* NewPlayer, const TCHAR* Reason)
 {
-    if (!CanObservePlayer() || !IsLiveLocalPlayer(NewPlayer) || SensedPlayer.Get() == NewPlayer)
+    if (!CanObservePlayer() || !IsLiveLocalPlayer(NewPlayer))
     {
+        return;
+    }
+    if (SensedPlayer.Get() == NewPlayer)
+    {
+        bTrackingPlayerOutsideSight = false;
         return;
     }
     UAbilitySystemComponent* TargetASC = NewPlayer->GetAbilitySystemComponent();
@@ -749,6 +796,7 @@ void AETAIController::ClearSensedPlayer(const TCHAR* Reason)
     const bool bHadTarget = !SensedPlayer.IsExplicitlyNull();
     const FString OldPlayerName = GetNameSafe(OldPlayer);
     SensedPlayer.Reset();
+    bTrackingPlayerOutsideSight = false;
     bHoldingDistance = false;
     SetMeleeAttackAllowed(false, Reason, -1.0f);
     ClearRangedDecision();

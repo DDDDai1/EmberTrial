@@ -187,6 +187,12 @@ bool UETGA_LightAttack::IsDamageBonusValid(const float Bonus) const
     return true;
 }
 
+UAnimMontage* UETGA_LightAttack::SelectOpeningAttack(const AEmberTrialCharacter&, float& OutDamage) const
+{
+    OutDamage = AttackDamage;
+    return AttackMontage;
+}
+
 bool UETGA_LightAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                            const FGameplayAbilityActorInfo* ActorInfo,
                                            const FGameplayTagContainer* SourceTags,
@@ -274,9 +280,13 @@ bool UETGA_LightAttack::CanActivateAbility(const FGameplayAbilitySpecHandle Hand
         return false;
     }
     UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
+    float OpeningDamage = 0.0f;
+    const UAnimMontage* OpeningMontage = SelectOpeningAttack(*BodyCharacter, OpeningDamage);
+    float OpeningDamageWithBonus = 0.0f;
     return !ActorInfo->AbilitySystemComponent->HasMatchingGameplayTag(
                ETGameplayTags::State_Healing) &&
-           HasValidComboConfiguration() && IsValid(AttackMontage) && IsValid(AnimInstance) &&
+           HasValidComboConfiguration() && IsValid(OpeningMontage) && IsValid(AnimInstance) &&
+           TryCalculateStageDamage(OpeningDamage, CapturedBonus, 1.0f, OpeningDamageWithBonus) &&
            IsValid(Trace) && Trace->CanStartAttack() &&
            AnimInstance->GetCurrentActiveMontage() == nullptr;
 }
@@ -669,21 +679,28 @@ void UETGA_LightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         IsValid(Body) ? Body->FindComponentByClass<UETCombatTraceComponent>() : nullptr;
     float CapturedBonus = 0.0f;
     if (!IsValid(Body) || Body->IsCombatDead() || !IsValid(Trace) || !Trace->CanStartAttack() ||
-        !HasValidDamageConfiguration() || !HasValidComboConfiguration() || !IsValid(AttackMontage) ||
+        !HasValidDamageConfiguration() || !HasValidComboConfiguration() ||
         !TryCaptureDamageBonus(Body, CapturedBonus))
     {
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
     }
     FETLightAttackStage First;
-    First.Montage = AttackMontage;
-    First.DamageMultiplier = 1.0f;
+    float OpeningDamage = 0.0f;
+    First.Montage = SelectOpeningAttack(*Body, OpeningDamage);
+    float OpeningDamageWithBonus = 0.0f;
+    if (!IsValid(First.Montage) ||
+        !TryCalculateStageDamage(OpeningDamage, CapturedBonus, 1.0f, OpeningDamageWithBonus))
+    {
+        EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
+        return;
+    }
     RuntimeStages.Add(First);
     if (bEnableCombo)
     {
         RuntimeStages.Append(ComboFollowUps);
     }
-    ActiveBaseAttackDamage = AttackDamage;
+    ActiveBaseAttackDamage = OpeningDamage;
     ActiveLightAttackBonus = CapturedBonus;
     const bool bCommitted = CommitAbility(Handle, ActorInfo, ActivationInfo);
     if (!IsActive() || Activation != ActivationSerial)
@@ -719,8 +736,9 @@ void UETGA_LightAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
         EndAbility(Handle, ActorInfo, ActivationInfo, false, true);
         return;
     }
+    OnOpeningAttackStarted(*Body, *First.Montage);
     UE_LOG(LogETLightAttack, Display, TEXT("[M1-04A] Begin Character=%s Ability=%s Montage=%s"),
-           *GetNameSafe(Body), *GetNameSafe(this), *GetNameSafe(AttackMontage));
+           *GetNameSafe(Body), *GetNameSafe(this), *GetNameSafe(First.Montage));
 }
 
 // ---- 整链结束：Timer、输入、Trace和动画统一收尾 ----
