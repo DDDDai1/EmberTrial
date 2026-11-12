@@ -38,6 +38,7 @@ protected:
 
 private:
     friend class FETMixedEncounterTest;
+    friend class FETEncounterCheckpointResumeTest;
 
     enum class EState : uint8 { Waiting, Active, Cleared, Failed };
 
@@ -56,6 +57,10 @@ private:
     UPROPERTY(EditInstanceOnly, Category = "Encounter")
     TArray<FETEncounterSpawn> Spawns;
 
+    // Checkpoints beyond this gate. Checked only on world entry.
+    UPROPERTY(EditInstanceOnly, Category = "Encounter")
+    TArray<FName> ClearedOnSpawnCheckpointIds;
+
     EState State = EState::Waiting;
     FTimerHandle InitialOverlapTimer;
     TMap<TWeakObjectPtr<AEmberTrialCharacter>, FTrackedEnemy> Remaining;
@@ -68,6 +73,7 @@ private:
     void HandleEnemyEndPlay(AActor* Actor, EEndPlayReason::Type Reason);
 
     void ProbeInitialOverlap();
+    bool RestoreClearedEncounter();
     void TryStart(AEmberTrialCharacter* Player);
     bool HasValidSpawns() const;
     bool SpawnEnemy(const FETEncounterSpawn& Spawn);

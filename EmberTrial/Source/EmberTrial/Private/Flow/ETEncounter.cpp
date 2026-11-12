@@ -7,7 +7,9 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/TargetPoint.h"
+#include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Flow/ETRunSessionSubsystem.h"
 #include "GameFramework/PlayerController.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETEncounter, Log, All);
@@ -50,12 +52,47 @@ void AETEncounter::HandleEntry(UPrimitiveComponent* Overlapped, AActor* Other,
 void AETEncounter::ProbeInitialOverlap()
 {
     InitialOverlapTimer.Invalidate();
+    if (RestoreClearedEncounter())
+    {
+        return;
+    }
     TArray<AActor*> Bodies;
     EntryTrigger->GetOverlappingActors(Bodies, AEmberTrialCharacter::StaticClass());
     for (AActor* Body : Bodies)
     {
         TryStart(Cast<AEmberTrialCharacter>(Body));
     }
+}
+
+bool AETEncounter::RestoreClearedEncounter()
+{
+    if (State != EState::Waiting || ClearedOnSpawnCheckpointIds.IsEmpty() || !HasAuthority())
+    {
+        return false;
+    }
+
+    UWorld* World = GetWorld();
+    UGameInstance* Instance = World ? World->GetGameInstance() : nullptr;
+    const UETRunSessionSubsystem* Session = Instance ? Instance->GetSubsystem<UETRunSessionSubsystem>() : nullptr;
+    if (!Session)
+    {
+        return false;
+    }
+
+    const FName* RestoredId = ClearedOnSpawnCheckpointIds.FindByPredicate([Session, World](FName Id)
+    {
+        return Id != UETRunSessionSubsystem::GetEntryCheckpointId() && Session->IsCheckpointActive(World, Id);
+    });
+    if (!RestoredId)
+    {
+        return false;
+    }
+
+    State = EState::Cleared;
+    OpenGate();
+    UE_LOG(LogETEncounter, Display, TEXT("Encounter restored Actor=%s Checkpoint=%s"),
+           *GetName(), *RestoredId->ToString());
+    return true;
 }
 
 bool AETEncounter::HasValidSpawns() const
