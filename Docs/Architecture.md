@@ -238,8 +238,10 @@ M4-02由每个世界实例中的 `AETEncounter` 管理一波敌人和出口门�
 
 M4-03A已验证原生守关者角色子类。GAS属性和动作标签通知驱动一次延后检查，死亡优先于切换。切换调整该身体的追击速度与可视标记。地图继续用 `AETEncounter` 管理生成与出口。[M4-03A验收](Reports/M4_03A_Verification.md)
 
-M4-03B横扫补丁把扇形参数放到蒙太奇通知中。CombatTrace在合法窗口内采样一次并沿用同一候选分发，GAS伤害、无敌与受击取消规则共用既有链路。[M4-03B操作](M4_03B_GuardianSweep.md)
+M4-03B已验证扇形通知。CombatTrace在合法窗口内采样一次，沿用既有候选分发、GAS伤害、无敌与受击取消。[M4-03B验收](Reports/M4_03B_Verification.md)
+
+M4-03C突进补丁由蒙太奇窗口开始和结束位移。突进和闪避共用水平Root Motion Source创建及清理，CombatTrace沿突进方向检测接触，受墙阻挡或取消时停止位移。[M4-03C操作](M4_03C_GuardianCharge.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M4-03A源码与资产已在本地提交。可先提交A验收与横扫指南，M4-03B源码和资产实机通过后提交。[两组提交清单](M4_03B_GuardianSweep.md#4-commit--push)
+M4-03B源码与资产已在本地提交。可先提交B验收与突进指南，M4-03C源码和资产实机通过后提交。[两组提交清单](M4_03C_GuardianCharge.md#5-commit--push)
