@@ -452,4 +452,4 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-D2验收和M4-02操作资料可先提交，M4-02源码和地图资产随本章验收提交。[两组提交清单](M4_02_MixedEncounter.md#4-commit--push)
+先提交混合遭遇地图补修和M4-03A指南，守关者源码与资产实机验收后提交。[两组提交清单](M4_03A_GuardianPhase.md#5-commit--push)

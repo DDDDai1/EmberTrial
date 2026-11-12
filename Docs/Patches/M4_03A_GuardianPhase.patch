@@ -1,0 +1,319 @@
+--- /dev/null
++++ b/EmberTrial/Source/EmberTrial/Private/Characters/ETGuardianCharacter.cpp
+@@ -0,0 +1,153 @@
++#include "Characters/ETGuardianCharacter.h"
++
++#include "AbilitySystemComponent.h"
++#include "Attributes/ETHealthAttributeSet.h"
++#include "Combat/ETCombatLifeComponent.h"
++#include "Components/TextRenderComponent.h"
++#include "GameFramework/CharacterMovementComponent.h"
++
++#define LOCTEXT_NAMESPACE "ETGuardianCharacter"
++
++DEFINE_LOG_CATEGORY_STATIC(LogETGuardian, Log, All);
++
++AETGuardianCharacter::AETGuardianCharacter()
++{
++    GetCharacterMovement()->MaxWalkSpeed = 220.0f;
++
++    PhaseMarker = CreateDefaultSubobject<UTextRenderComponent>(TEXT("PhaseMarker"));
++    PhaseMarker->SetupAttachment(GetRootComponent());
++    PhaseMarker->SetRelativeLocation(FVector(0.0f, 0.0f, 135.0f));
++    PhaseMarker->SetUsingAbsoluteRotation(true);
++    PhaseMarker->SetRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
++    PhaseMarker->SetHorizontalAlignment(EHTA_Center);
++    PhaseMarker->SetWorldSize(23.0f);
++    PhaseMarker->SetText(LOCTEXT("PhaseOne", "GUARDIAN I"));
++}
++
++void AETGuardianCharacter::BeginPlay()
++{
++    Super::BeginPlay();
++
++    if (IsCombatDead())
++    {
++        PhaseMarker->SetVisibility(false);
++        return;
++    }
++
++    if (UETCombatLifeComponent* Life = FindComponentByClass<UETCombatLifeComponent>())
++    {
++        DeathHandle = Life->OnDeathSealed.AddUObject(this, &ThisClass::HandleDeath);
++    }
++    OnGameplayReadyChanged.AddUniqueDynamic(this, &ThisClass::HandleReadyChanged);
++    HandleReadyChanged(this, IsGameplayReady());
++}
++
++void AETGuardianCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
++{
++    OnGameplayReadyChanged.RemoveDynamic(this, &ThisClass::HandleReadyChanged);
++    if (UETCombatLifeComponent* Life = FindComponentByClass<UETCombatLifeComponent>())
++    {
++        Life->OnDeathSealed.Remove(DeathHandle);
++    }
++    StopObservingPhase();
++    Super::EndPlay(EndPlayReason);
++}
++
++void AETGuardianCharacter::HandleReadyChanged(AEmberTrialCharacter*, bool bReady)
++{
++    if (!bReady)
++    {
++        StopObservingPhase();
++        return;
++    }
++
++    UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
++    if (bPhaseTwo || IsCombatDead() || HealthHandle.IsValid() || !IsValid(ASC))
++    {
++        return;
++    }
++
++    HealthHandle = ASC->GetGameplayAttributeValueChangeDelegate(UETHealthAttributeSet::GetHealthAttribute())
++        .AddUObject(this, &ThisClass::HandleHealthChanged);
++    MaxHealthHandle = ASC->GetGameplayAttributeValueChangeDelegate(UETHealthAttributeSet::GetMaxHealthAttribute())
++        .AddUObject(this, &ThisClass::HandleHealthChanged);
++    TagHandle = ASC->RegisterGenericGameplayTagEvent().AddUObject(this, &ThisClass::HandleTagChanged);
++    QueuePhaseCheck();
++}
++
++void AETGuardianCharacter::StopObservingPhase()
++{
++    GetWorldTimerManager().ClearTimer(PhaseCheckTimer);
++    if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
++    {
++        ASC->GetGameplayAttributeValueChangeDelegate(UETHealthAttributeSet::GetHealthAttribute()).Remove(HealthHandle);
++        ASC->GetGameplayAttributeValueChangeDelegate(UETHealthAttributeSet::GetMaxHealthAttribute()).Remove(MaxHealthHandle);
++        ASC->RegisterGenericGameplayTagEvent().Remove(TagHandle);
++    }
++
++    HealthHandle.Reset();
++    MaxHealthHandle.Reset();
++    TagHandle.Reset();
++}
++
++void AETGuardianCharacter::HandleHealthChanged(const FOnAttributeChangeData&)
++{
++    QueuePhaseCheck();
++}
++
++void AETGuardianCharacter::HandleTagChanged(FGameplayTag, int32 Count)
++{
++    if (Count == 0)
++    {
++        QueuePhaseCheck();
++    }
++}
++
++void AETGuardianCharacter::HandleDeath(UETCombatLifeComponent*)
++{
++    PhaseMarker->SetVisibility(false);
++    StopObservingPhase();
++}
++
++void AETGuardianCharacter::QueuePhaseCheck()
++{
++    float Health = 0.0f;
++    float MaxHealth = 0.0f;
++    if (!bPhaseTwo && !PhaseCheckTimer.IsValid() && IsBelowThreshold(Health, MaxHealth))
++    {
++        // Attribute and tag delegates can run before hit reaction and death finish updating.
++        PhaseCheckTimer = GetWorldTimerManager().SetTimerForNextTick(this, &ThisClass::EvaluatePhase);
++    }
++}
++
++void AETGuardianCharacter::EvaluatePhase()
++{
++    PhaseCheckTimer.Invalidate();
++
++    float Health = 0.0f;
++    float MaxHealth = 0.0f;
++    if (!IsBelowThreshold(Health, MaxHealth) || !IsFormalActionIdle())
++    {
++        return;
++    }
++
++    bPhaseTwo = true;
++    GetCharacterMovement()->MaxWalkSpeed = PhaseTwoWalkSpeed;
++    PhaseMarker->SetText(LOCTEXT("PhaseTwo", "GUARDIAN II"));
++    PhaseMarker->SetTextRenderColor(FColor(255, 145, 56));
++    StopObservingPhase();
++
++    UE_LOG(LogETGuardian, Display, TEXT("Guardian phase entered Body=%s Phase=2 Health=%.1f/%.1f WalkSpeed=%.1f"),
++           *GetNameSafe(this), Health, MaxHealth, PhaseTwoWalkSpeed);
++}
++
++bool AETGuardianCharacter::IsBelowThreshold(float& Health, float& MaxHealth) const
++{
++    return !IsCombatDead() && GetGameplayHealthSnapshot(Health, MaxHealth) &&
++           FMath::IsFinite(Health) && FMath::IsFinite(MaxHealth) && Health > 0.0f && MaxHealth > 0.0f &&
++           FMath::IsFinite(PhaseTwoHealthFraction) && PhaseTwoHealthFraction > 0.0f && PhaseTwoHealthFraction < 1.0f &&
++           FMath::IsFinite(PhaseTwoWalkSpeed) && PhaseTwoWalkSpeed > 0.0f &&
++           Health <= MaxHealth * PhaseTwoHealthFraction;
++}
++
++#undef LOCTEXT_NAMESPACE
+--- /dev/null
++++ b/EmberTrial/Source/EmberTrial/Public/Characters/ETGuardianCharacter.h
+@@ -0,0 +1,53 @@
++#pragma once
++
++#include "Characters/EmberTrialCharacter.h"
++#include "TimerManager.h"
++#include "ETGuardianCharacter.generated.h"
++
++class UTextRenderComponent;
++struct FGameplayTag;
++struct FOnAttributeChangeData;
++
++// Encounter-specific phase behavior. Combat, movement and death use the shared body.
++UCLASS()
++class EMBERTRIAL_API AETGuardianCharacter : public AEmberTrialCharacter
++{
++    GENERATED_BODY()
++
++public:
++    AETGuardianCharacter();
++
++    bool IsInPhaseTwo() const { return bPhaseTwo; }
++
++protected:
++    virtual void BeginPlay() override;
++    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
++
++private:
++    UPROPERTY(VisibleAnywhere, Category = "EmberTrial|Guardian")
++    TObjectPtr<UTextRenderComponent> PhaseMarker;
++
++    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Guardian", meta = (ClampMin = "0.01", ClampMax = "0.99"))
++    float PhaseTwoHealthFraction = 0.5f;
++
++    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Guardian", meta = (ClampMin = "1.0", Units = "cm/s"))
++    float PhaseTwoWalkSpeed = 330.0f;
++
++    FDelegateHandle HealthHandle;
++    FDelegateHandle MaxHealthHandle;
++    FDelegateHandle TagHandle;
++    FDelegateHandle DeathHandle;
++    FTimerHandle PhaseCheckTimer;
++    bool bPhaseTwo = false;
++
++    UFUNCTION()
++    void HandleReadyChanged(AEmberTrialCharacter* Body, bool bReady);
++    void HandleHealthChanged(const FOnAttributeChangeData& Change);
++    void HandleTagChanged(FGameplayTag Tag, int32 Count);
++    void HandleDeath(UETCombatLifeComponent* Life);
++
++    void StopObservingPhase();
++    void QueuePhaseCheck();
++    void EvaluatePhase();
++    bool IsBelowThreshold(float& Health, float& MaxHealth) const;
++};
+--- /dev/null
++++ b/EmberTrial/Source/EmberTrial/Tests/ETGuardianPhaseTests.cpp
+@@ -0,0 +1,104 @@
++#if WITH_DEV_AUTOMATION_TESTS
++
++#include "Characters/ETGuardianCharacter.h"
++
++#include "Abilities/ETGameplayTags.h"
++#include "AbilitySystemComponent.h"
++#include "Attributes/ETHealthAttributeSet.h"
++#include "Components/TextRenderComponent.h"
++#include "Engine/World.h"
++#include "GameFramework/CharacterMovementComponent.h"
++#include "Misc/AutomationTest.h"
++#include "Tests/AutomationCommon.h"
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(FETGuardianPhaseTest, "EmberTrial.M4.Guardian.Phase",
++                                 EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FETGuardianPhaseTest::RunTest(const FString& Parameters)
++{
++    FTestWorldWrapper Fixture;
++    if (!Fixture.CreateTestWorld(EWorldType::Game) || !Fixture.BeginPlayInTestWorld())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++
++    const FGameplayTag BusyTag = ETGameplayTags::State_Attacking;
++    const auto Spawn = [&Fixture](float X)
++    {
++        return Fixture.GetTestWorld()->SpawnActor<AETGuardianCharacter>(
++            FVector(X, 0.0f, 200.0f), FRotator::ZeroRotator);
++    };
++    const auto SetHealth = [](AETGuardianCharacter& Guardian, float Health)
++    {
++        Guardian.GetAbilitySystemComponent()->SetNumericAttributeBase(UETHealthAttributeSet::GetHealthAttribute(), Health);
++    };
++    const auto Tick = [&Fixture]()
++    {
++        return Fixture.TickTestWorld(0.02f) && Fixture.TickTestWorld(0.02f);
++    };
++
++    AETGuardianCharacter* Guardian = Spawn(0.0f);
++    AETGuardianCharacter* Lethal = Spawn(400.0f);
++    if (!TestTrue(TEXT("Both guardian bodies ready"), Guardian && Lethal &&
++                  Guardian->IsGameplayReady() && Lethal->IsGameplayReady()))
++    {
++        return false;
++    }
++
++    TestFalse(TEXT("Fresh body starts in phase one"), Guardian->IsInPhaseTwo());
++    TestEqual(TEXT("Phase one walking speed"), Guardian->GetCharacterMovement()->MaxWalkSpeed, 220.0f);
++    SetHealth(*Guardian, 51.0f);
++    if (!Tick())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++    TestFalse(TEXT("Above half health stays in phase one"), Guardian->IsInPhaseTwo());
++
++    UAbilitySystemComponent* ASC = Guardian->GetAbilitySystemComponent();
++    ASC->AddLooseGameplayTag(BusyTag);
++    SetHealth(*Guardian, 50.0f);
++    if (!Tick())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++    TestFalse(TEXT("Busy at threshold defers transition"), Guardian->IsInPhaseTwo());
++
++    ASC->RemoveLooseGameplayTag(BusyTag);
++    if (!Tick())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++    TestTrue(TEXT("Recovery at exactly half health enters phase two"), Guardian->IsInPhaseTwo());
++    TestEqual(TEXT("Phase two walking speed"), Guardian->GetCharacterMovement()->MaxWalkSpeed, 330.0f);
++
++    SetHealth(*Guardian, 90.0f);
++    SetHealth(*Lethal, 50.0f);
++    SetHealth(*Lethal, 0.0f);
++    if (!Tick())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++    TestTrue(TEXT("Healing does not reset phase"), Guardian->IsInPhaseTwo());
++    TestTrue(TEXT("Lethal damage wins over queued transition"), Lethal->IsCombatDead() && !Lethal->IsInPhaseTwo());
++    const UTextRenderComponent* Marker = Lethal->FindComponentByClass<UTextRenderComponent>();
++    TestTrue(TEXT("Death hides the phase marker"), Marker && !Marker->IsVisible());
++
++    AETGuardianCharacter* Fresh = Spawn(800.0f);
++    TestTrue(TEXT("New encounter body has independent phase and speed"), Fresh && !Fresh->IsInPhaseTwo() &&
++             Fresh->GetCharacterMovement()->MaxWalkSpeed == 220.0f);
++
++    if (!Fixture.EndPlayInTestWorld())
++    {
++        Fixture.ForwardErrorMessages(this);
++        return false;
++    }
++    Fixture.ForwardErrorMessages(this);
++    return !HasAnyErrors();
++}
++
++#endif
