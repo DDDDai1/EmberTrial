@@ -452,4 +452,4 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M4-03B源码与资产已在本地提交。可先提交B验收与突进指南，M4-03C源码和资产实机通过后提交。[两组提交清单](M4_03C_GuardianCharge.md#5-commit--push)
+M4-03C源码与资产已在本地提交。可先提交C验收与新指南，M4-03D源码和资产实机通过后提交。[两组提交清单](M4_03D_GuardianGroundShock.md#5-commit--push)

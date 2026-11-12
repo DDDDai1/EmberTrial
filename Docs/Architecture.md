@@ -240,8 +240,10 @@ M4-03A已验证原生守关者角色子类。GAS属性和动作标签通知驱�
 
 M4-03B已验证扇形通知。CombatTrace在合法窗口内采样一次，沿用既有候选分发、GAS伤害、无敌与受击取消。[M4-03B验收](Reports/M4_03B_Verification.md)
 
-M4-03C突进补丁由蒙太奇窗口开始和结束位移。突进和闪避共用水平Root Motion Source创建及清理，CombatTrace沿突进方向检测接触，受墙阻挡或取消时停止位移。[M4-03C操作](M4_03C_GuardianCharge.md)
+M4-03C实机验证突进。突进和闪避共用水平Root Motion Source创建及清理，CombatTrace沿固定方向检测接触，墙挡或取消时停止位移。[M4-03C验收](Reports/M4_03C_Verification.md)
+
+M4-03D让守关者专用能力按阶段与距离选招，起招时快照蒙太奇与伤害。圆形冲击沿用一次范围采样、高差与墙挡。AI继续只请求一份轻攻击Spec。[M4-03D操作](M4_03D_GuardianGroundShock.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M4-03B源码与资产已在本地提交。可先提交B验收与突进指南，M4-03C源码和资产实机通过后提交。[两组提交清单](M4_03C_GuardianCharge.md#5-commit--push)
+M4-03C源码与资产已在本地提交。可先提交C验收与新指南，M4-03D源码和资产实机通过后提交。[两组提交清单](M4_03D_GuardianGroundShock.md#5-commit--push)

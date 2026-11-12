@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。六件遗物、四类设置与500条ListView复用已验收，六件版Win64 Development包通过两轮独立运行。守关者两阶段与横扫已通过实机，当前开发守关者突进。[M4-03B验收](Docs/Reports/M4_03B_Verification.md) · [M4-03C操作](Docs/M4_03C_GuardianCharge.md)
+UE 5.5.4 / Windows / 离线单人的第三人称动作Demo，围绕Gameplay、UMG和对象生命周期逐步开发。六件遗物、四类设置与500条ListView复用已验收，六件版Win64 Development包通过两轮独立运行。守关者横扫与突进已实机验收，当前接入地面冲击与两阶段选招。[M4-03C验收](Docs/Reports/M4_03C_Verification.md) · [M4-03D操作](Docs/M4_03D_GuardianGroundShock.md)
 
 ## 已实现的体验
 
