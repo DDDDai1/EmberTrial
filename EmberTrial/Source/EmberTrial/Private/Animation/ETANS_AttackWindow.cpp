@@ -33,6 +33,6 @@ void UETANS_AttackWindow::Route(FBranchingPointNotifyPayload& Payload, bool bOpe
     if (IsValid(Trace))
     {
         Trace->SetAttackWindow(Mesh, Payload.SequenceAsset, Payload.MontageInstanceID, this, bOpen,
-                               GetSector());
+                               GetSector(), GetCharge());
     }
 }

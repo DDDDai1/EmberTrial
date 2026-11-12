@@ -5,6 +5,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/RootMotionSource.h"
 #include "Kismet/GameplayStatics.h"
+#include "Movement/ETGroundBurst.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETDodgeMove, Log, All);
 
@@ -29,8 +30,7 @@ UETAbilityTask_DodgeMove* UETAbilityTask_DodgeMove::CreateDodgeMove(UGameplayAbi
 
 bool UETAbilityTask_DodgeMove::IsConfigurationValid(float Distance, float Duration)
 {
-    return FMath::IsFinite(Distance) && Distance >= 1.0f && Distance <= 300.0f &&
-           FMath::IsFinite(Duration) && Duration >= 0.05f && Duration <= 0.50f;
+    return ETGroundBurst::IsConfigurationValid(Distance, Duration);
 }
 
 bool UETAbilityTask_DodgeMove::IsMovementReady() const
@@ -62,34 +62,18 @@ void UETAbilityTask_DodgeMove::Activate()
         FinishMove(false, TEXT("InvalidDirection"));
         return;
     }
-    TSharedPtr<FRootMotionSource_ConstantForce> Candidate =
-        MakeShared<FRootMotionSource_ConstantForce>();
-    // 名称与优先级是正式闪避RMS协议，不是每敌人调参项。
-    // 只覆盖水平速度；碰撞 / 坡面继续由CharacterMovement处理。
-    Candidate->InstanceName = FName(TEXT("ETFormalDodge"));
-    Candidate->Priority = 500;
-    Candidate->AccumulateMode = ERootMotionAccumulateMode::Override;
-    Candidate->bInLocalSpace = false;
-    Candidate->Force = Direction * (MoveDistance / MoveDuration);
-    Candidate->Duration = MoveDuration;
-    // 保留末帧的部分时间积分，避免不同帧率下把最后一段位移截断。
-    Candidate->Settings.UnSetFlag(ERootMotionSourceSettingsFlags::DisablePartialEndTick);
-    Candidate->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
-    Candidate->FinishVelocityParams.Mode = ERootMotionFinishVelocityMode::ClampVelocity;
-    Candidate->FinishVelocityParams.ClampVelocity = 0.0f;
-    const uint16 ID = Move->ApplyRootMotionSource(Candidate);
-    if (ID == static_cast<uint16>(ERootMotionSourceID::Invalid))
+    Source = ETGroundBurst::Start(*Move, FName(TEXT("ETFormalDodge")), Direction, MoveDistance, MoveDuration);
+    if (!Source.IsValid())
     {
         FinishMove(false, TEXT("SourceRejected"));
         return;
     }
     Movement = Move;
-    Source = Candidate;
     StartLocation = Body->GetActorLocation();
     StartWorldTime = GetWorld()->GetTimeSeconds();
     UE_LOG(LogETDodgeMove, Display,
            TEXT("[M2-02B] Move begin Body=%s ID=%u Distance=%.1f Duration=%.3f Direction=%s"),
-           *GetNameSafe(Body), ID, MoveDistance, MoveDuration, *Direction.ToCompactString());
+           *GetNameSafe(Body), Source->LocalID, MoveDistance, MoveDuration, *Direction.ToCompactString());
 }
 
 void UETAbilityTask_DodgeMove::TickTask(float DeltaTime)
@@ -138,17 +122,7 @@ void UETAbilityTask_DodgeMove::ReleaseSource(const TCHAR* Reason)
     const float Elapsed = GetWorld() ? GetWorld()->GetTimeSeconds() - StartWorldTime : 0.0f;
     if (IsValid(Move))
     {
-        const bool bOwned = Move->GetRootMotionSourceByID(ID) == Source;
-        if (bOwned)
-        {
-            Move->RemoveRootMotionSourceByID(ID);
-        }
-        // 外部RMS仍在工作时不清零它的水平速度；只消除本次结束后的残留。
-        if (bOwned || !Move->HasRootMotionSources())
-        {
-            Move->Velocity.X = 0.0f;
-            Move->Velocity.Y = 0.0f;
-        }
+        ETGroundBurst::Release(*Move, Source);
     }
     Source.Reset();
     Movement.Reset();

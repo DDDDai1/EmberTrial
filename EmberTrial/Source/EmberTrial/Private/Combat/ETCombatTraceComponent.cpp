@@ -8,8 +8,11 @@
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
+#include "GameFramework/RootMotionSource.h"
 #include "Kismet/GameplayStatics.h"
+#include "Movement/ETGroundBurst.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogETCombatTrace, Log, All);
 
@@ -99,7 +102,7 @@ uint32 UETCombatTraceComponent::BeginAttack(UAnimMontage* Montage, int32 Montage
 void UETCombatTraceComponent::SetAttackWindow(USkeletalMeshComponent* Mesh,
                                               UAnimSequenceBase* Animation, int32 MontageInstanceID,
                                               UAnimNotifyState* WindowToken, bool bOpen,
-                                              const FETAttackSector* Sector)
+                                              const FETAttackSector* Sector, const FETAttackCharge* Charge)
 {
     if (ActiveSerial == 0 || Mesh != SourceMesh.Get() || Animation != ExpectedMontage.Get() ||
         MontageInstanceID != ActiveMontageInstanceID || !IsValid(WindowToken))
@@ -131,6 +134,12 @@ void UETCombatTraceComponent::SetAttackWindow(USkeletalMeshComponent* Mesh,
                *GetNameSafe(GetOwner()), ActiveSerial);
         return;
     }
+    if (Charge && !StartCharge(*Charge))
+    {
+        UE_LOG(LogETCombatTrace, Display, TEXT("Charge window rejected Owner=%s Serial=%u"),
+               *GetNameSafe(GetOwner()), ActiveSerial);
+        return;
+    }
     ActiveWindow = WindowToken;
     if (Sector)
     {
@@ -147,6 +156,7 @@ void UETCombatTraceComponent::SetAttackWindow(USkeletalMeshComponent* Mesh,
 
 void UETCombatTraceComponent::CloseWindow(const TCHAR* Reason)
 {
+    StopCharge(Reason);
     if (bWindowOpen)
     {
         UE_LOG(LogETCombatTrace, Display,
@@ -195,6 +205,11 @@ void UETCombatTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType
     if (ActiveSector.IsSet())
     {
         SampleSector(*World);
+        return;
+    }
+    if (ChargeSource.IsValid())
+    {
+        SampleCharge(*World);
         return;
     }
     if (Mesh->GetBoneIndex(TraceBoneName) == INDEX_NONE)
@@ -265,6 +280,93 @@ void UETCombatTraceComponent::SampleSector(const UWorld& World)
     {
         CloseWindow(TEXT("SectorSampled"));
     }
+}
+
+bool FETAttackCharge::IsValid() const
+{
+    return ETGroundBurst::IsConfigurationValid(TravelDistance, TravelDuration) &&
+           FMath::IsFinite(ContactRadius) && ContactRadius >= 1.0f &&
+           FMath::IsFinite(ContactLead) && ContactLead >= 0.0f;
+}
+
+bool UETCombatTraceComponent::StartCharge(const FETAttackCharge& Charge)
+{
+    const ACharacter* Character = Cast<ACharacter>(GetOwner());
+    UCharacterMovementComponent* Move = IsValid(Character) ? Character->GetCharacterMovement() : nullptr;
+    if (!IsValid(Move) || !Character->HasAuthority() || UGameplayStatics::IsGamePaused(Character) ||
+        !Charge.IsValid())
+    {
+        return false;
+    }
+
+    const FVector Direction = Character->GetActorForwardVector().GetSafeNormal2D();
+    ChargeSource = ETGroundBurst::Start(*Move, FName(TEXT("ETAttackCharge")), Direction,
+                                        Charge.TravelDistance, Charge.TravelDuration);
+    if (!ChargeSource.IsValid())
+    {
+        return false;
+    }
+
+    ActiveCharge = Charge;
+    ChargeDirection = Direction;
+    ChargeOrigin = Character->GetActorLocation();
+    ChargePreviousPoint = ChargeOrigin;
+    UE_LOG(LogETCombatTrace, Display,
+           TEXT("Charge begin Owner=%s Serial=%u Distance=%.1f Duration=%.3f Direction=%s"),
+           *GetNameSafe(Character), ActiveSerial, Charge.TravelDistance, Charge.TravelDuration,
+           *Direction.ToCompactString());
+    return true;
+}
+
+void UETCombatTraceComponent::SampleCharge(const UWorld& World)
+{
+    const ACharacter* Character = Cast<ACharacter>(GetOwner());
+    UCharacterMovementComponent* Move = IsValid(Character) ? Character->GetCharacterMovement() : nullptr;
+    const bool bFinished = ChargeSource->Status.HasFlag(ERootMotionSourceStatusFlags::Finished);
+    if (!IsValid(Move) || !Move->IsMovingOnGround() ||
+        (!bFinished && (ChargeSource->Status.HasFlag(ERootMotionSourceStatusFlags::MarkedForRemoval) ||
+                        Move->GetRootMotionSourceByID(ChargeSource->LocalID) != ChargeSource)))
+    {
+        CloseWindow(TEXT("ChargeMovementLost"));
+        return;
+    }
+
+    const uint32 SampleSerial = ActiveSerial;
+    const FVector Origin = Character->GetActorLocation();
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(ETAttackCharge), false, Character);
+    Params.bFindInitialOverlaps = true;
+    TArray<FHitResult> Hits;
+    World.SweepMultiByChannel(Hits, ChargePreviousPoint, Origin + ChargeDirection * ActiveCharge.ContactLead,
+                              FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(ActiveCharge.ContactRadius),
+                              Params);
+    ChargePreviousPoint = Origin;
+    ++SweepCount;
+    ProcessHitResults(Hits);
+
+    // A synchronous hit callback can already have cancelled and cleared our movement source.
+    if (bFinished && ActiveSerial == SampleSerial && bWindowOpen && ChargeSource.IsValid())
+    {
+        CloseWindow(TEXT("ChargeCompleted"));
+    }
+}
+
+void UETCombatTraceComponent::StopCharge(const TCHAR* Reason)
+{
+    if (!ChargeSource.IsValid())
+    {
+        return;
+    }
+
+    const ACharacter* Character = Cast<ACharacter>(GetOwner());
+    UCharacterMovementComponent* Move = IsValid(Character) ? Character->GetCharacterMovement() : nullptr;
+    if (IsValid(Move))
+    {
+        ETGroundBurst::Release(*Move, ChargeSource);
+    }
+    const double Travel = IsValid(Character) ? FVector::Dist2D(ChargeOrigin, Character->GetActorLocation()) : 0.0;
+    ChargeSource.Reset();
+    UE_LOG(LogETCombatTrace, Display, TEXT("Charge end Owner=%s Serial=%u Reason=%s Travel2D=%.1f"),
+           *GetNameSafe(Character), ActiveSerial, Reason, Travel);
 }
 
 // 候选分发保留碰撞返回顺序：先同次去重 / 广播，再处理阻挡；不在这里施加伤害。

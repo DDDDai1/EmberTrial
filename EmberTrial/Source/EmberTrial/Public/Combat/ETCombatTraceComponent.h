@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Combat/ETAttackCharge.h"
 #include "Combat/ETAttackSector.h"
 #include "Components/ActorComponent.h"
 #include "Engine/EngineTypes.h"
@@ -11,6 +12,7 @@ class UAnimMontage;
 class UAnimSequenceBase;
 class UAnimNotifyState;
 class USkeletalMeshComponent;
+struct FRootMotionSource;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FETCombatTraceHitSignature, uint32, const FHitResult&);
 
@@ -33,7 +35,7 @@ public:
     // Notify资产只转发身份；开关状态与每次攻击的目标集合由本组件持有。
     void SetAttackWindow(USkeletalMeshComponent* Mesh, UAnimSequenceBase* Animation,
                          int32 MontageInstanceID, UAnimNotifyState* WindowToken, bool bOpen,
-                         const FETAttackSector* Sector);
+                         const FETAttackSector* Sector, const FETAttackCharge* Charge);
 
     // 同步回调可能取消攻击或销毁身体；分发后必须重验当前Serial / 窗口。
     FETCombatTraceHitSignature OnTraceHit;
@@ -68,6 +70,11 @@ private:
     TWeakObjectPtr<UAnimMontage> ExpectedMontage;
     TWeakObjectPtr<UAnimNotifyState> ActiveWindow;
     TOptional<FETAttackSector> ActiveSector;
+    FETAttackCharge ActiveCharge;
+    TSharedPtr<FRootMotionSource> ChargeSource;
+    FVector ChargeDirection = FVector::ZeroVector;
+    FVector ChargeOrigin = FVector::ZeroVector;
+    FVector ChargePreviousPoint = FVector::ZeroVector;
     TSet<TWeakObjectPtr<APawn>> SeenTargets;
 
     uint32 SerialCounter = 0;
@@ -83,6 +90,9 @@ private:
     // ---- 采样结果分发与统一关闭路径 ----
     bool IsExpectedMontageActive() const;
     void SampleSector(const UWorld& World);
+    bool StartCharge(const FETAttackCharge& Charge);
+    void SampleCharge(const UWorld& World);
+    void StopCharge(const TCHAR* Reason);
     void ProcessHitResults(const TArray<FHitResult>& Hits);
     void CloseWindow(const TCHAR* Reason);
     void BlockAttack(const FHitResult& Hit, const TCHAR* Reason);

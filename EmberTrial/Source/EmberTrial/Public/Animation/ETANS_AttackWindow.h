@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "Combat/ETAttackCharge.h"
 #include "Combat/ETAttackSector.h"
 #include "ETANS_AttackWindow.generated.h"
 
@@ -18,6 +19,7 @@ public:
 
 protected:
     virtual const FETAttackSector* GetSector() const { return nullptr; }
+    virtual const FETAttackCharge* GetCharge() const { return nullptr; }
 
 private:
     void Route(FBranchingPointNotifyPayload& Payload, bool bOpen);
@@ -35,4 +37,17 @@ protected:
 private:
     UPROPERTY(EditAnywhere, Category = "EmberTrial|Attack", meta = (ShowOnlyInnerProperties))
     FETAttackSector Sector;
+};
+
+UCLASS(meta = (DisplayName = "ET Charge Attack Window"))
+class EMBERTRIAL_API UETANS_ChargeAttackWindow : public UETANS_AttackWindow
+{
+    GENERATED_BODY()
+
+protected:
+    virtual const FETAttackCharge* GetCharge() const override { return &Charge; }
+
+private:
+    UPROPERTY(EditAnywhere, Category = "EmberTrial|Attack", meta = (ShowOnlyInnerProperties))
+    FETAttackCharge Charge;
 };
