@@ -7,7 +7,7 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
-    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06')]
+    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06', 'M5_04')]
     [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline
@@ -16,7 +16,7 @@ param(
 $ErrorActionPreference = 'Stop'
 ## 阶段集成包使用显式目录和独立的个人设置文件。
 $stageRepo = Split-Path $PSScriptRoot -Parent
-$stageUsesSeparateSettings = $EvidenceStage -in @('M3_06A', 'M3_06C3', 'M4_06')
+$stageUsesSeparateSettings = $EvidenceStage -in @('M3_06A', 'M3_06C3', 'M4_06', 'M5_04')
 if ($stageUsesSeparateSettings -and [string]::IsNullOrWhiteSpace($BuildDirectory)) {
     throw "$EvidenceStage requires an explicit -BuildDirectory for the new package."
 }
@@ -24,7 +24,7 @@ if ([string]::IsNullOrWhiteSpace($BuildDirectory)) {
     $BuildDirectory = Join-Path $stageRepo 'Artifacts\Builds\M1_07A\Attempt01'
 }
 $stageBuild = (Resolve-Path -LiteralPath $BuildDirectory).Path
-if ($EvidenceStage -in @('M3_06C3', 'M4_06')) {
+if ($EvidenceStage -in @('M3_06C3', 'M4_06', 'M5_04')) {
     $stageExpectedRoot = Join-Path $stageRepo "Artifacts\Builds\$EvidenceStage"
     if ((Split-Path $stageBuild -Parent) -ne $stageExpectedRoot -or
         (Split-Path $stageBuild -Leaf) -notmatch '^Attempt[0-9]+$') {
@@ -41,7 +41,7 @@ if (!$WhatIfPreference -and (Get-Process -Name UnrealEditor -ErrorAction Silentl
 ## 日志 / Trace / 元数据按同一唯一前缀关联；记录不是Gameplay验收结果。
 ## 历史性能命令仍归档到M1；显式M2_07B使用自己的证据目录。
 $stageEvidenceStage =
-if ($PerformanceBaseline -and $EvidenceStage -notin @('M2_07B', 'M4_06')) { 'M1_07B' } else { $EvidenceStage }
+if ($PerformanceBaseline -and $EvidenceStage -notin @('M2_07B', 'M4_06', 'M5_04')) { 'M1_07B' } else { $EvidenceStage }
 $stageOutput = Join-Path $stageRepo ("Artifacts\$stageEvidenceStage\Runtime")
 $stageStamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
 $stageBase = "${RunName}_${stageStamp}"
@@ -50,11 +50,20 @@ $stageMeta = Join-Path $stageOutput ($stageBase + '.json')
 $stageTrace = Join-Path $stageOutput ($stageBase + '.utrace')
 $stageArguments = @('-windowed', "-ResX=$Width", "-ResY=$Height", '-log', ('"-abslog=' + $stageLog + '"'))
 $stageSettingsIni = $null
+$stageUserDir = $null
 if ($stageUsesSeparateSettings) {
     ## 两轮共用专用个人设置，既证明跨进程保存，也不污染旧包 / 编辑器偏好。
-    $stageSettingsName = if ($EvidenceStage -eq 'M4_06') { 'M4PackageUser.ini' } else { 'M3PackageUser.ini' }
+    $stageSettingsName = switch ($EvidenceStage) {
+        'M4_06' { 'M4PackageUser.ini' }
+        'M5_04' { 'M5PackageUser.ini' }
+        default { 'M3PackageUser.ini' }
+    }
     $stageSettingsIni = Join-Path $stageOutput $stageSettingsName
     $stageArguments += ('"-GameUserSettingsINI=' + $stageSettingsIni + '"')
+}
+if ($EvidenceStage -eq 'M5_04') {
+    $stageUserDir = Join-Path $stageOutput (Join-Path (Split-Path $stageBuild -Leaf) 'User')
+    $stageArguments += ('"-UserDir=' + $stageUserDir + '"')
 }
 $stageProfileCommands = $null
 if ($PerformanceBaseline) {
@@ -68,6 +77,9 @@ if ($Trace) {
 }
 Write-Host "Executable: $stageExe"
 Write-Host "Log: $stageLog"
+if ($stageUserDir) {
+    Write-Host "User directory: $stageUserDir"
+}
 if ($PerformanceBaseline) {
     Write-Host "Runtime profiling commands: $stageProfileCommands"
 }
@@ -100,6 +112,7 @@ $stageProcess = Start-Process -FilePath $stageExe -WorkingDirectory (Split-Path 
     TracePath = $(if ($Trace) { $stageTrace } else { $null })
     Arguments = $stageArguments
     UserSettingsIni = $stageSettingsIni
+    UserDirectory = $stageUserDir
     Purpose = 'Launch and evidence locations only; gameplay acceptance remains a separate observation.'
 } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $stageMeta -Encoding UTF8
 Write-Host "Metadata: $stageMeta"

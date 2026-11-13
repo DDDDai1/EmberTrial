@@ -248,8 +248,8 @@ M4-04 把三场遭遇装配在同一张地图。各门用同一 `AETEncounter`�
 
 M4-05 由 `AETTrialExit` 检查同图的清场实例，`UETRunSessionSubsystem` 提交本局结果，已有 UI Flow 负责胜利页与焦点。实机确认同图 NewRun 从 Entry 重开，返回主菜单后继续资格清除。[M4-05 验收](Reports/M4_05_Verification.md)
 
-M5-02B 已验证覆盖确认和通关后的双槽结束标记。M5-03 在存档解码阶段将 v1 迁移至 v2。槽位排序和恢复沿用原序号，关闭状态由新字段表达。[M5-02B 验收](Reports/M5_02B_Verification.md) · [M5-03 指南](M5_03_SaveMigration.md)
+M5-03 已验证 v1 → v2 迁移、旧结束标记和 A 点新档恢复。M5-04 在同一打包产物用三个独立进程验证存档闭环，启动脚本为每个 Attempt 分配独立用户目录。[M5-03 验收](Reports/M5_03_Verification.md) · [M5-04 指南](M5_04_SaveIntegratedPackage.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-先提交 M5-02B 验收、M5-03 指南和补丁。正式工程通过后提交存档迁移源码。[暂存清单](M5_03_SaveMigration.md#3-commit--push)
+本批暂存 M5-03 验收、M5-04 打包指南、启动脚本及同步文档。[暂存清单](M5_04_SaveIntegratedPackage.md#5-commit--push)
