@@ -1,0 +1,246 @@
+--- a/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
+@@ -193,9 +193,9 @@
+                     Message = FText::Format(NSLOCTEXT("ETSave", "ContinueFallback", "已找到上一份有效存档 · {0}"),
+                                             FText::FromName(Result.Snapshot.CheckpointId));
+                 }
+-                UE_LOG(LogETRunSession, Display, TEXT("Continue save found Id=%s Sequence=%lld Fallback=%d"),
++                UE_LOG(LogETRunSession, Display, TEXT("Continue save found Id=%s Sequence=%lld Fallback=%d Schema=%d"),
+                        *Result.Snapshot.CheckpointId.ToString(), Result.Snapshot.Sequence,
+-                       Result.bOtherSlotUnavailable);
++                       Result.bOtherSlotUnavailable, Result.Snapshot.SchemaVersion);
+             }
+             else if (Result.Status != EETSaveStatus::NoSave)
+             {
+@@ -389,9 +389,10 @@
+     {
+         const FETRunSaveSnapshot& Snapshot = Result.Snapshot;
+         UE_LOG(LogETRunSession, Display,
+-               TEXT("Checkpoint saved Id=%s Sequence=%lld Cleared=%d SlotA=%s SlotB=%s Healing=%d"),
++               TEXT("Checkpoint saved Id=%s Sequence=%lld Cleared=%d SlotA=%s SlotB=%s Healing=%d Schema=%d"),
+                *Snapshot.CheckpointId.ToString(), Snapshot.Sequence, Snapshot.ClearedEncounterIds.Num(),
+-               *Snapshot.EquippedRelicA.ToString(), *Snapshot.EquippedRelicB.ToString(), Snapshot.HealingCharges);
++               *Snapshot.EquippedRelicA.ToString(), *Snapshot.EquippedRelicB.ToString(), Snapshot.HealingCharges,
++               Snapshot.SchemaVersion);
+     }
+     else
+     {
+--- a/EmberTrial/Source/EmberTrial/Private/Save/ETRunSaveGame.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Save/ETRunSaveGame.cpp
+@@ -20,6 +20,25 @@
+ }
+ }
+
++EETRunSaveValidation FETRunSaveSnapshot::UpgradeFromDisk()
++{
++    if (SchemaVersion != LegacySchemaVersion)
++    {
++        return Validate();
++    }
++
++    FETRunSaveSnapshot Upgraded = *this;
++    Upgraded.SchemaVersion = CurrentSchemaVersion;
++    Upgraded.bRunClosed = bRetired;
++    Upgraded.bRetired = false;
++    const EETRunSaveValidation Result = Upgraded.Validate();
++    if (Result == EETRunSaveValidation::Valid)
++    {
++        *this = MoveTemp(Upgraded);
++    }
++    return Result;
++}
++
+ EETRunSaveValidation FETRunSaveSnapshot::Validate() const
+ {
+     if (SchemaVersion <= 0)
+@@ -31,7 +50,7 @@
+         return EETRunSaveValidation::UnsupportedVersion;
+     }
+
+-    if (Sequence <= 0 || SavedAtUtc == FDateTime::MinValue() ||
++    if (bRetired || Sequence <= 0 || SavedAtUtc == FDateTime::MinValue() ||
+         !FPackageName::IsValidLongPackageName(MapPackage) || CheckpointId.IsNone() ||
+         HealingCharges < 0 || !HasUniqueSaveIds(ClearedEncounterIds) ||
+         !HasUniqueSaveIds(ClaimedRewardIds) || !HasUniqueSaveIds(OwnedRelicIds))
+--- a/EmberTrial/Source/EmberTrial/Private/Save/ETSaveSubsystem.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Save/ETSaveSubsystem.cpp
+@@ -167,7 +167,7 @@
+             Finish({EETSaveStatus::NoSave});
+             return;
+         }
+-        if (bAValid && bBValid && A.Snapshot.bRetired && B.Snapshot.bRetired)
++        if (bAValid && bBValid && A.Snapshot.bRunClosed && B.Snapshot.bRunClosed)
+         {
+             Finish(Latest);
+             return;
+@@ -175,17 +175,17 @@
+
+         // Keep a verified copy while changing each slot. A verified newer marker hides the old checkpoint.
+         FETRunSaveSnapshot Marker = Latest.Snapshot;
+-        if (!Marker.bRetired && Marker.Sequence == MAX_int64)
++        if (!Marker.bRunClosed && Marker.Sequence == MAX_int64)
+         {
+             Finish({EETSaveStatus::InvalidSnapshot});
+             return;
+         }
+-        ActiveRequest->bMirrorRetirement = !Marker.bRetired;
+-        if (!Marker.bRetired)
++        ActiveRequest->bMirrorRetirement = !Marker.bRunClosed;
++        if (!Marker.bRunClosed)
+         {
+             ++Marker.Sequence;
+             Marker.SavedAtUtc = FDateTime::UtcNow();
+-            Marker.bRetired = true;
++            Marker.bRunClosed = true;
+         }
+         WriteSlot(1 - Preferred, MoveTemp(Marker));
+         return;
+@@ -196,7 +196,7 @@
+         if (bHasValidSlot)
+         {
+             FETSaveResult Result = ActiveRequest->Slots[Preferred];
+-            if (Result.Snapshot.bRetired)
++            if (Result.Snapshot.bRunClosed)
+             {
+                 Finish({EETSaveStatus::NoSave});
+                 return;
+@@ -228,7 +228,7 @@
+     FETRunSaveSnapshot Snapshot = MoveTemp(ActiveRequest->PendingSnapshot.GetValue());
+     Snapshot.Sequence = PreviousSequence + 1;
+     Snapshot.SavedAtUtc = FDateTime::UtcNow();
+-    if (Snapshot.Validate() != EETRunSaveValidation::Valid)
++    if (Snapshot.bRunClosed || Snapshot.Validate() != EETRunSaveValidation::Valid)
+     {
+         Finish({EETSaveStatus::InvalidSnapshot});
+         return;
+@@ -338,13 +338,13 @@
+     }
+
+     const TArray<uint8> Payload(PayloadStart, PayloadSize);
+-    const UETRunSaveGame* Save = Cast<UETRunSaveGame>(UGameplayStatics::LoadGameFromMemory(Payload));
++    UETRunSaveGame* Save = Cast<UETRunSaveGame>(UGameplayStatics::LoadGameFromMemory(Payload));
+     if (!Save)
+     {
+         return EETSaveStatus::Corrupt;
+     }
+
+-    switch (Save->Snapshot.Validate())
++    switch (Save->Snapshot.UpgradeFromDisk())
+     {
+     case EETRunSaveValidation::Valid:
+         OutSnapshot = Save->Snapshot;
+--- a/EmberTrial/Source/EmberTrial/Public/Save/ETRunSaveGame.h
++++ b/EmberTrial/Source/EmberTrial/Public/Save/ETRunSaveGame.h
+@@ -16,9 +16,11 @@
+ {
+     GENERATED_BODY()
+
+-    static constexpr int32 CurrentSchemaVersion = 1;
++    static constexpr int32 LegacySchemaVersion = 1;
++    static constexpr int32 CurrentSchemaVersion = 2;
+
+     EETRunSaveValidation Validate() const;
++    EETRunSaveValidation UpgradeFromDisk();
+
+     // Zero defaults allow an absent version or sequence to fail validation.
+     UPROPERTY(SaveGame)
+@@ -55,9 +57,12 @@
+     UPROPERTY(SaveGame)
+     int32 HealingCharges = INDEX_NONE;
+
+-    // Saves written before retirement was introduced default to an active checkpoint.
++    // Keep this property name for UE's tagged deserialization of v1 files.
+     UPROPERTY(SaveGame)
+     bool bRetired = false;
++
++    UPROPERTY(SaveGame)
++    bool bRunClosed = false;
+ };
+
+ UCLASS()
+--- a/EmberTrial/Source/EmberTrial/Tests/ETRunSaveSlotsTests.cpp
++++ b/EmberTrial/Source/EmberTrial/Tests/ETRunSaveSlotsTests.cpp
+@@ -103,6 +103,11 @@
+         TestEqual(TEXT("First sequence"), Result.Snapshot.Sequence, int64(1));
+         TestTrue(TEXT("First write targets A"), UGameplayStatics::DoesSaveGameExist(SlotA, 0));
+         TestFalse(TEXT("B stays empty"), UGameplayStatics::DoesSaveGameExist(SlotB, 0));
++        FETRunSaveSnapshot Legacy = Result.Snapshot;
++        Legacy.SchemaVersion = FETRunSaveSnapshot::LegacySchemaVersion;
++        TArray<uint8> LegacyBytes;
++        TestTrue(TEXT("Seed a version 1 slot"), UETSaveSubsystem::Encode(Legacy, LegacyBytes) &&
++                 UGameplayStatics::SaveDataToSlot(LegacyBytes, SlotA, 0));
+     });
+
+     Snapshot.CheckpointId = TEXT("Checkpoint_B");
+@@ -132,6 +137,9 @@
+     {
+         TestTrue(TEXT("Previous slot is readable"), Result.Status == EETSaveStatus::Success);
+         TestTrue(TEXT("Corrupt sibling is reported"), Result.bOtherSlotUnavailable);
++        TestEqual(TEXT("Fallback upgrades the v1 checkpoint in memory"), Result.Snapshot.SchemaVersion,
++                  FETRunSaveSnapshot::CurrentSchemaVersion);
++        TestEqual(TEXT("Fallback preserves the original sequence"), Result.Snapshot.Sequence, int64(1));
+         TestEqual(TEXT("Previous checkpoint wins"), Result.Snapshot.CheckpointId, FName(TEXT("Checkpoint_A")));
+         FETRunSaveSnapshot Future = Result.Snapshot;
+         ++Future.SchemaVersion;
+@@ -183,7 +191,7 @@
+         [this, PreviewSlotA, PreviewSlotB](const FETSaveResult& Result)
+         {
+             TestTrue(TEXT("Retirement is verified"), Result.Status == EETSaveStatus::Success &&
+-                     Result.Snapshot.bRetired);
++                     Result.Snapshot.bRunClosed);
+             TestEqual(TEXT("Retirement advances the sequence"), Result.Snapshot.Sequence, int64(2));
+             TArray<uint8> A;
+             TArray<uint8> B;
+@@ -207,7 +215,7 @@
+     }, [this](const FETSaveResult& Result)
+     {
+         TestTrue(TEXT("A new checkpoint supersedes retirement"), Result.Status == EETSaveStatus::Success &&
+-                 !Result.Snapshot.bRetired);
++                 !Result.Snapshot.bRunClosed);
+         TestEqual(TEXT("New checkpoint continues slot ordering"), Result.Snapshot.Sequence, int64(3));
+     });
+
+--- a/EmberTrial/Source/EmberTrial/Tests/ETRunSaveSnapshotTests.cpp
++++ b/EmberTrial/Source/EmberTrial/Tests/ETRunSaveSnapshotTests.cpp
+@@ -73,6 +73,25 @@
+     Candidate.HealingCharges = 0;
+     TestTrue(TEXT("Empty slots and exhausted healing are valid"),
+              Candidate.Validate() == EETRunSaveValidation::Valid);
++
++    Candidate = Valid;
++    Candidate.SchemaVersion = FETRunSaveSnapshot::LegacySchemaVersion;
++    Candidate.bRetired = true;
++    TestTrue(TEXT("A v1 retirement marker upgrades"),
++             Candidate.UpgradeFromDisk() == EETRunSaveValidation::Valid);
++    TestTrue(TEXT("The migrated checkpoint remains closed"), Candidate.bRunClosed);
++    TestFalse(TEXT("The legacy flag is cleared"), Candidate.bRetired);
++    TestEqual(TEXT("Migration preserves sequence"), Candidate.Sequence, Valid.Sequence);
++    TestEqual(TEXT("Migration preserves checkpoint"), Candidate.CheckpointId, Valid.CheckpointId);
++    TestEqual(TEXT("Migration preserves healing charges"), Candidate.HealingCharges, Valid.HealingCharges);
++
++    Candidate = Valid;
++    Candidate.SchemaVersion = FETRunSaveSnapshot::LegacySchemaVersion;
++    Candidate.HealingCharges = -1;
++    TestTrue(TEXT("Broken v1 data fails after validation"),
++             Candidate.UpgradeFromDisk() == EETRunSaveValidation::InvalidData);
++    TestEqual(TEXT("Rejected data remains at v1"), Candidate.SchemaVersion,
++              FETRunSaveSnapshot::LegacySchemaVersion);
+     return !HasAnyErrors();
+ }
+
+@@ -83,6 +102,7 @@
+ {
+     UETRunSaveGame* Source = NewObject<UETRunSaveGame>();
+     Source->Snapshot = MakeRunSaveSnapshotFixture();
++    Source->Snapshot.bRunClosed = true;
+     const FETRunSaveSnapshot& Expected = Source->Snapshot;
+     TArray<uint8> Bytes;
+     if (!TestTrue(TEXT("Serialize UE SaveGame to memory"),
+@@ -110,6 +130,7 @@
+     TestEqual(TEXT("Slot A"), Actual.EquippedRelicA, Expected.EquippedRelicA);
+     TestEqual(TEXT("Slot B"), Actual.EquippedRelicB, Expected.EquippedRelicB);
+     TestEqual(TEXT("Healing charges"), Actual.HealingCharges, Expected.HealingCharges);
++    TestTrue(TEXT("Closed trial survives round trip"), Actual.bRunClosed);
+     return !HasAnyErrors();
+ }
+
