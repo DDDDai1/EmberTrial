@@ -1,0 +1,373 @@
+--- a/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
+@@ -4,11 +4,16 @@
+ #include "Engine/GameInstance.h"
+ #include "Engine/World.h"
+ #include "EngineUtils.h"
++#include "Flow/ETCheckpointStart.h"
++#include "Flow/ETEncounter.h"
+ #include "GameFramework/PlayerController.h"
+ #include "GameFramework/PlayerStart.h"
++#include "Inventory/ETRelicInventorySubsystem.h"
+ #include "Kismet/GameplayStatics.h"
+ #include "Logging/LogMacros.h"
+ #include "Misc/PackageName.h"
++#include "Resources/ETHealingResourceComponent.h"
++#include "Save/ETSaveSubsystem.h"
+ #include "UObject/Package.h"
+ #include "UObject/UObjectGlobals.h"
+
+@@ -35,6 +40,8 @@
+ void UETRunSessionSubsystem::Deinitialize()
+ {
+     bShuttingDown = true;
++    PendingCheckpointSave.Reset();
++    bCheckpointSaveInFlight = false;
+     FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadHandle);
+     PostLoadHandle.Reset();
+     if (GEngine && TravelFailureHandle.IsValid())
+@@ -218,8 +225,104 @@
+     ActiveCheckpointId = CheckpointId;
+     UE_LOG(LogETRunSession, Display, TEXT("[M1-06C] Checkpoint activated Map=%s Id=%s Body=%s"),
+            *GameplayPackage, *CheckpointId.ToString(), *GetNameSafe(PlayerBody));
++    const AETCheckpointStart* Checkpoint = Cast<AETCheckpointStart>(CheckpointStart);
++    if (Checkpoint && Checkpoint->ShouldAutosaveOnActivation())
++    {
++        CaptureCheckpointSave(*RequestWorld, *PlayerBody);
++    }
+     OnCheckpointChanged.Broadcast(RequestWorld, CheckpointId);
+     return true;
++}
++
++void UETRunSessionSubsystem::CaptureCheckpointSave(UWorld& World, const AEmberTrialCharacter& Body)
++{
++    const UETRelicInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UETRelicInventorySubsystem>();
++    const UETHealingResourceComponent* Healing = Body.FindComponentByClass<UETHealingResourceComponent>();
++    const FETRelicInventorySnapshot Relics = Inventory ? Inventory->GetSnapshot() : FETRelicInventorySnapshot{};
++
++    FPendingCheckpointSave Pending;
++    FETRunSaveSnapshot& Snapshot = Pending.Snapshot;
++    int32 MaxCharges = 0;
++    if (!Relics.bReady || !Healing || !Healing->GetHealingSnapshot(Snapshot.HealingCharges, MaxCharges))
++    {
++        UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save skipped Id=%s Reason=ResourcesUnavailable"),
++               *ActiveCheckpointId.ToString());
++        return;
++    }
++
++    TSet<FName> EncounterIds;
++    for (TActorIterator<AETEncounter> It(&World); It; ++It)
++    {
++        const FName EncounterId = It->GetEncounterId();
++        if (EncounterId.IsNone() || EncounterIds.Contains(EncounterId))
++        {
++            UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save skipped Id=%s Reason=InvalidEncounterId Actor=%s"),
++                   *ActiveCheckpointId.ToString(), *GetNameSafe(*It));
++            return;
++        }
++
++        EncounterIds.Add(EncounterId);
++        if (It->HasCleared())
++        {
++            Snapshot.ClearedEncounterIds.Add(EncounterId);
++        }
++    }
++
++    Snapshot.ClearedEncounterIds.Sort(FNameLexicalLess());
++    Snapshot.SchemaVersion = FETRunSaveSnapshot::CurrentSchemaVersion;
++    Snapshot.MapPackage = GameplayPackage;
++    Snapshot.CheckpointId = ActiveCheckpointId;
++    Snapshot.OwnedRelicIds = Relics.OwnedIds;
++    Snapshot.EquippedRelicA = Relics.Equipped.SlotA;
++    Snapshot.EquippedRelicB = Relics.Equipped.SlotB;
++    Pending.bEditorPreview = World.WorldType == EWorldType::PIE;
++    PendingCheckpointSave = MoveTemp(Pending);
++    SubmitCheckpointSave();
++}
++
++void UETRunSessionSubsystem::SubmitCheckpointSave()
++{
++    if (bShuttingDown || bCheckpointSaveInFlight || !PendingCheckpointSave.IsSet())
++    {
++        return;
++    }
++
++    FPendingCheckpointSave Pending = MoveTemp(PendingCheckpointSave.GetValue());
++    PendingCheckpointSave.Reset();
++    UETSaveSubsystem* Store = GetGameInstance()->GetSubsystem<UETSaveSubsystem>();
++    const EETSaveScope Scope = Pending.bEditorPreview ? EETSaveScope::EditorPreview : EETSaveScope::Run;
++    const FName CheckpointId = Pending.Snapshot.CheckpointId;
++    bCheckpointSaveInFlight = true;
++    if (!Store || !Store->RequestSave(MoveTemp(Pending.Snapshot),
++                                     FETSaveCompleted::CreateUObject(this, &ThisClass::HandleCheckpointSaveFinished),
++                                     Scope))
++    {
++        bCheckpointSaveInFlight = false;
++        UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save skipped Id=%s Reason=StoreUnavailableOrBusy"),
++               *CheckpointId.ToString());
++    }
++}
++
++void UETRunSessionSubsystem::HandleCheckpointSaveFinished(const FETSaveResult& Result)
++{
++    if (bShuttingDown)
++    {
++        return;
++    }
++    bCheckpointSaveInFlight = false;
++    if (Result.Status == EETSaveStatus::Success)
++    {
++        const FETRunSaveSnapshot& Snapshot = Result.Snapshot;
++        UE_LOG(LogETRunSession, Display,
++               TEXT("Checkpoint saved Id=%s Sequence=%lld Cleared=%d SlotA=%s SlotB=%s Healing=%d"),
++               *Snapshot.CheckpointId.ToString(), Snapshot.Sequence, Snapshot.ClearedEncounterIds.Num(),
++               *Snapshot.EquippedRelicA.ToString(), *Snapshot.EquippedRelicB.ToString(), Snapshot.HealingCharges);
++    }
++    else
++    {
++        UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save failed Status=%d"), static_cast<int32>(Result.Status));
++    }
++    SubmitCheckpointSave();
+ }
+
+ // ---- 命令入口保留各自权限：Retry需同地图，Continue可从菜单发起 ----
+--- a/EmberTrial/Source/EmberTrial/Private/Save/ETSaveSubsystem.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Save/ETSaveSubsystem.cpp
+@@ -23,6 +23,7 @@
+ struct FETSaveOperation
+ {
+     FETSaveResult Slots[2];
++    FString SlotPrefix;
+     TOptional<FETRunSaveSnapshot> PendingSnapshot;
+     FETSaveCompleted Completion;
+ };
+@@ -34,18 +35,19 @@
+     Super::Deinitialize();
+ }
+
+-bool UETSaveSubsystem::RequestLoad(FETSaveCompleted Completion)
+-{
+-    return BeginRequest({}, MoveTemp(Completion));
+-}
+-
+-bool UETSaveSubsystem::RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion)
+-{
+-    return BeginRequest(MoveTemp(Snapshot), MoveTemp(Completion));
++bool UETSaveSubsystem::RequestLoad(FETSaveCompleted Completion, EETSaveScope Scope)
++{
++    return BeginRequest({}, MoveTemp(Completion), Scope);
++}
++
++bool UETSaveSubsystem::RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion,
++                                   EETSaveScope Scope)
++{
++    return BeginRequest(MoveTemp(Snapshot), MoveTemp(Completion), Scope);
+ }
+
+ bool UETSaveSubsystem::BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot,
+-                                  FETSaveCompleted Completion)
++                                  FETSaveCompleted Completion, EETSaveScope Scope)
+ {
+     check(IsInGameThread());
+     if (bShuttingDown || ActiveRequest.IsValid())
+@@ -54,6 +56,7 @@
+     }
+
+     ActiveRequest = MakeShared<FETSaveOperation>();
++    ActiveRequest->SlotPrefix = Scope == EETSaveScope::EditorPreview ? SlotPrefix + TEXT("_PIE") : SlotPrefix;
+     ActiveRequest->PendingSnapshot = MoveTemp(Snapshot);
+     ActiveRequest->Completion = MoveTemp(Completion);
+     ReadSlot(0);
+@@ -69,7 +72,7 @@
+         return;
+     }
+
+-    const FString Slot = SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
++    const FString Slot = ActiveRequest->SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
+     const TWeakObjectPtr<UETSaveSubsystem> WeakThis(this);
+     const auto CompleteRead = [WeakThis, Index](EETSaveStatus Status, const TArray<uint8>& Bytes)
+     {
+@@ -194,7 +197,7 @@
+         return;
+     }
+
+-    const FString Slot = SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
++    const FString Slot = ActiveRequest->SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
+     const TWeakObjectPtr<UETSaveSubsystem> WeakThis(this);
+     Storage->SaveGameAsync(false, *Slot, RunSaveUser(), Bytes,
+         [Storage, Slot, WeakThis, Bytes, Snapshot = MoveTemp(Snapshot)]
+--- a/EmberTrial/Source/EmberTrial/Public/Flow/ETCheckpointStart.h
++++ b/EmberTrial/Source/EmberTrial/Public/Flow/ETCheckpointStart.h
+@@ -20,12 +20,16 @@
+
+ public:
+     AETCheckpointStart(const FObjectInitializer& ObjectInitializer);
++    bool ShouldAutosaveOnActivation() const { return bAutosaveOnActivation; }
+
+ protected:
+     virtual void BeginPlay() override;
+     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+ private:
++    UPROPERTY(EditInstanceOnly, Category = "EmberTrial|Checkpoint")
++    bool bAutosaveOnActivation = false;
++
+     // ---- Overlap与一次NextTick补查；没有常驻Tick ----
+     UFUNCTION()
+     void HandleTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+--- a/EmberTrial/Source/EmberTrial/Public/Flow/ETEncounter.h
++++ b/EmberTrial/Source/EmberTrial/Public/Flow/ETEncounter.h
+@@ -32,6 +32,7 @@
+ public:
+     AETEncounter();
+     bool HasCleared() const { return State == EState::Cleared; }
++    FName GetEncounterId() const { return EncounterId; }
+
+ protected:
+     virtual void BeginPlay() override;
+@@ -59,6 +60,10 @@
+     UPROPERTY(EditInstanceOnly, Category = "Encounter")
+     TArray<FETEncounterSpawn> Spawns;
+
++    // Stable identity used by checkpoint saves. Keep it across actor renames.
++    UPROPERTY(EditInstanceOnly, Category = "Encounter|Persistence")
++    FName EncounterId;
++
+     // Checkpoints beyond this gate. Checked only on world entry.
+     UPROPERTY(EditInstanceOnly, Category = "Encounter")
+     TArray<FName> ClearedOnSpawnCheckpointIds;
+--- a/EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
++++ b/EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
+@@ -2,6 +2,7 @@
+
+ #include "CoreMinimal.h"
+ #include "Engine/EngineBaseTypes.h"
++#include "Save/ETRunSaveGame.h"
+ #include "Subsystems/GameInstanceSubsystem.h"
+ #include "UObject/SoftObjectPath.h"
+ #include "ETRunSessionSubsystem.generated.h"
+@@ -10,6 +11,7 @@
+ class AETTrialExit;
+ class APlayerStart;
+ class UWorld;
++struct FETSaveResult;
+
+ DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunTravelFailed, UWorld*, const FText&);
+ DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunCheckpointChanged, UWorld*, FName);
+@@ -27,7 +29,7 @@
+ // 只有本GI、目标地图与出生报告确认后才发布；失败请求不发布成功。
+ DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunTravelConfirmed, UWorld*, EETRunTravelIntent);
+
+-// 当前进程的地图 / 检查点快照；不保存Actor / ASC，不负责Widget或磁盘存档。
++// 会话负责地图、检查点与快照采集，存档子系统负责写盘。
+ UCLASS()
+ class EMBERTRIAL_API UETRunSessionSubsystem : public UGameInstanceSubsystem
+ {
+@@ -75,6 +77,9 @@
+     friend class AETTrialExit;
+
+     bool TryCompleteTrial(UWorld* World, AEmberTrialCharacter* Player, int32 ClearedEncounters);
++    void CaptureCheckpointSave(UWorld& World, const AEmberTrialCharacter& Body);
++    void SubmitCheckpointSave();
++    void HandleCheckpointSaveFinished(const FETSaveResult& Result);
+
+     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
+     bool BeginTravel(UWorld* RequestWorld, const FString& TargetPackage, FName SpawnId,
+@@ -93,6 +98,16 @@
+     FName ActiveCheckpointId = NAME_None;
+     TWeakObjectPtr<UWorld> CompletedWorld;
+     int32 CompletedEncounterCount = 0;
++
++    struct FPendingCheckpointSave
++    {
++        FETRunSaveSnapshot Snapshot;
++        bool bEditorPreview = false;
++    };
++    // Keep the latest activation if another checkpoint write is still in flight.
++    TOptional<FPendingCheckpointSave> PendingCheckpointSave;
++    bool bCheckpointSaveInFlight = false;
++
+     // 待定请求与实际出生报告，确认到达后才提交为快照。
+     FString PendingTargetPackage;
+     FName PendingCheckpointId = NAME_None;
+--- a/EmberTrial/Source/EmberTrial/Public/Save/ETSaveSubsystem.h
++++ b/EmberTrial/Source/EmberTrial/Public/Save/ETSaveSubsystem.h
+@@ -22,6 +22,12 @@
+     bool bOtherSlotUnavailable = false;
+ };
+
++enum class EETSaveScope : uint8
++{
++    Run,
++    EditorPreview
++};
++
+ DECLARE_DELEGATE_OneParam(FETSaveCompleted, const FETSaveResult&);
+
+ struct FETSaveOperation;
+@@ -36,13 +42,15 @@
+
+     // Call from the game thread. False means busy or shutting down.
+     // Accepted requests report a result on the game thread.
+-    bool RequestLoad(FETSaveCompleted Completion);
+-    bool RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion);
++    bool RequestLoad(FETSaveCompleted Completion, EETSaveScope Scope = EETSaveScope::Run);
++    bool RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion,
++                     EETSaveScope Scope = EETSaveScope::Run);
+
+ private:
+     friend class FETRunSaveSlotsTest;
+
+-    bool BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot, FETSaveCompleted Completion);
++    bool BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot, FETSaveCompleted Completion,
++                      EETSaveScope Scope);
+     void ReadSlot(int32 Index);
+     void ResolveSlots();
+     void WriteSlot(int32 Index, FETRunSaveSnapshot Snapshot);
+--- a/EmberTrial/Source/EmberTrial/Tests/ETRunSaveSlotsTests.cpp
++++ b/EmberTrial/Source/EmberTrial/Tests/ETRunSaveSlotsTests.cpp
+@@ -28,6 +28,7 @@
+     const FString Prefix = TEXT("EmberTrial_Auto_") + FGuid::NewGuid().ToString(EGuidFormats::Digits);
+     const FString SlotA = Prefix + TEXT("_A");
+     const FString SlotB = Prefix + TEXT("_B");
++    const FString PreviewSlotA = Prefix + TEXT("_PIE_A");
+     Fixture->Store->SlotPrefix = Prefix;
+
+     FETRunSaveSnapshot Snapshot;
+@@ -151,11 +152,35 @@
+         TestTrue(TEXT("Future slot remains intact"), Result.Status == EETSaveStatus::UnsupportedVersion);
+     });
+
+-    ADD_LATENT_AUTOMATION_COMMAND(FFunctionLatentCommand([Fixture, SlotA, SlotB]()
++    QueueStep(TEXT("Save into isolated PIE scope"), [Fixture, Snapshot](FETSaveCompleted Done)
++    {
++        return Fixture->Store->RequestSave(Snapshot, MoveTemp(Done), EETSaveScope::EditorPreview);
++    }, [this, PreviewSlotA](const FETSaveResult& Result)
++    {
++        TestTrue(TEXT("PIE save is independent of the protected run slots"), Result.Status == EETSaveStatus::Success);
++        TestEqual(TEXT("PIE starts its own sequence"), Result.Snapshot.Sequence, int64(1));
++        TestTrue(TEXT("PIE chooses the preview filename"), UGameplayStatics::DoesSaveGameExist(PreviewSlotA, 0));
++    });
++    QueueStep(TEXT("Read isolated PIE scope"), [Fixture](FETSaveCompleted Done)
++    {
++        return Fixture->Store->RequestLoad(MoveTemp(Done), EETSaveScope::EditorPreview);
++    }, [this](const FETSaveResult& Result)
++    {
++        TestTrue(TEXT("PIE read returns the preview save"), Result.Status == EETSaveStatus::Success);
++        TestEqual(TEXT("PIE round trip preserves checkpoint"), Result.Snapshot.CheckpointId,
++                  FName(TEXT("Checkpoint_B")));
++    });
++    QueueStep(TEXT("Check run scope after PIE write"), Load, [this](const FETSaveResult& Result)
++    {
++        TestTrue(TEXT("Run slot is still protected"), Result.Status == EETSaveStatus::UnsupportedVersion);
++    });
++
++    ADD_LATENT_AUTOMATION_COMMAND(FFunctionLatentCommand([Fixture, SlotA, SlotB, PreviewSlotA]()
+     {
+         Fixture->Store->Deinitialize();
+         UGameplayStatics::DeleteGameInSlot(SlotA, 0);
+         UGameplayStatics::DeleteGameInSlot(SlotB, 0);
++        UGameplayStatics::DeleteGameInSlot(PreviewSlotA, 0);
+         return true;
+     }));
+     return true;
