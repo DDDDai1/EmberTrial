@@ -73,6 +73,25 @@ bool FETRunSaveValidationTest::RunTest(const FString& Parameters)
     Candidate.HealingCharges = 0;
     TestTrue(TEXT("Empty slots and exhausted healing are valid"),
              Candidate.Validate() == EETRunSaveValidation::Valid);
+
+    Candidate = Valid;
+    Candidate.SchemaVersion = FETRunSaveSnapshot::LegacySchemaVersion;
+    Candidate.bRetired = true;
+    TestTrue(TEXT("A v1 retirement marker upgrades"),
+             Candidate.UpgradeFromDisk() == EETRunSaveValidation::Valid);
+    TestTrue(TEXT("The migrated checkpoint remains closed"), Candidate.bRunClosed);
+    TestFalse(TEXT("The legacy flag is cleared"), Candidate.bRetired);
+    TestEqual(TEXT("Migration preserves sequence"), Candidate.Sequence, Valid.Sequence);
+    TestEqual(TEXT("Migration preserves checkpoint"), Candidate.CheckpointId, Valid.CheckpointId);
+    TestEqual(TEXT("Migration preserves healing charges"), Candidate.HealingCharges, Valid.HealingCharges);
+
+    Candidate = Valid;
+    Candidate.SchemaVersion = FETRunSaveSnapshot::LegacySchemaVersion;
+    Candidate.HealingCharges = -1;
+    TestTrue(TEXT("Broken v1 data fails after validation"),
+             Candidate.UpgradeFromDisk() == EETRunSaveValidation::InvalidData);
+    TestEqual(TEXT("Rejected data remains at v1"), Candidate.SchemaVersion,
+              FETRunSaveSnapshot::LegacySchemaVersion);
     return !HasAnyErrors();
 }
 
@@ -83,6 +102,7 @@ bool FETRunSaveRoundTripTest::RunTest(const FString& Parameters)
 {
     UETRunSaveGame* Source = NewObject<UETRunSaveGame>();
     Source->Snapshot = MakeRunSaveSnapshotFixture();
+    Source->Snapshot.bRunClosed = true;
     const FETRunSaveSnapshot& Expected = Source->Snapshot;
     TArray<uint8> Bytes;
     if (!TestTrue(TEXT("Serialize UE SaveGame to memory"),
@@ -110,6 +130,7 @@ bool FETRunSaveRoundTripTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Slot A"), Actual.EquippedRelicA, Expected.EquippedRelicA);
     TestEqual(TEXT("Slot B"), Actual.EquippedRelicB, Expected.EquippedRelicB);
     TestEqual(TEXT("Healing charges"), Actual.HealingCharges, Expected.HealingCharges);
+    TestTrue(TEXT("Closed trial survives round trip"), Actual.bRunClosed);
     return !HasAnyErrors();
 }
 

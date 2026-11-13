@@ -20,6 +20,25 @@ bool HasUniqueSaveIds(const TArray<FName>& Ids)
 }
 }
 
+EETRunSaveValidation FETRunSaveSnapshot::UpgradeFromDisk()
+{
+    if (SchemaVersion != LegacySchemaVersion)
+    {
+        return Validate();
+    }
+
+    FETRunSaveSnapshot Upgraded = *this;
+    Upgraded.SchemaVersion = CurrentSchemaVersion;
+    Upgraded.bRunClosed = bRetired;
+    Upgraded.bRetired = false;
+    const EETRunSaveValidation Result = Upgraded.Validate();
+    if (Result == EETRunSaveValidation::Valid)
+    {
+        *this = MoveTemp(Upgraded);
+    }
+    return Result;
+}
+
 EETRunSaveValidation FETRunSaveSnapshot::Validate() const
 {
     if (SchemaVersion <= 0)
@@ -31,7 +50,7 @@ EETRunSaveValidation FETRunSaveSnapshot::Validate() const
         return EETRunSaveValidation::UnsupportedVersion;
     }
 
-    if (Sequence <= 0 || SavedAtUtc == FDateTime::MinValue() ||
+    if (bRetired || Sequence <= 0 || SavedAtUtc == FDateTime::MinValue() ||
         !FPackageName::IsValidLongPackageName(MapPackage) || CheckpointId.IsNone() ||
         HealingCharges < 0 || !HasUniqueSaveIds(ClearedEncounterIds) ||
         !HasUniqueSaveIds(ClaimedRewardIds) || !HasUniqueSaveIds(OwnedRelicIds))

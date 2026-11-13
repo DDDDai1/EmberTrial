@@ -193,9 +193,9 @@ bool UETRunSessionSubsystem::ProbeContinueSave(UWorld* MenuWorld, const FSoftObj
                     Message = FText::Format(NSLOCTEXT("ETSave", "ContinueFallback", "已找到上一份有效存档 · {0}"),
                                             FText::FromName(Result.Snapshot.CheckpointId));
                 }
-                UE_LOG(LogETRunSession, Display, TEXT("Continue save found Id=%s Sequence=%lld Fallback=%d"),
+                UE_LOG(LogETRunSession, Display, TEXT("Continue save found Id=%s Sequence=%lld Fallback=%d Schema=%d"),
                        *Result.Snapshot.CheckpointId.ToString(), Result.Snapshot.Sequence,
-                       Result.bOtherSlotUnavailable);
+                       Result.bOtherSlotUnavailable, Result.Snapshot.SchemaVersion);
             }
             else if (Result.Status != EETSaveStatus::NoSave)
             {
@@ -389,9 +389,10 @@ void UETRunSessionSubsystem::HandleCheckpointSaveFinished(const FETSaveResult& R
     {
         const FETRunSaveSnapshot& Snapshot = Result.Snapshot;
         UE_LOG(LogETRunSession, Display,
-               TEXT("Checkpoint saved Id=%s Sequence=%lld Cleared=%d SlotA=%s SlotB=%s Healing=%d"),
+               TEXT("Checkpoint saved Id=%s Sequence=%lld Cleared=%d SlotA=%s SlotB=%s Healing=%d Schema=%d"),
                *Snapshot.CheckpointId.ToString(), Snapshot.Sequence, Snapshot.ClearedEncounterIds.Num(),
-               *Snapshot.EquippedRelicA.ToString(), *Snapshot.EquippedRelicB.ToString(), Snapshot.HealingCharges);
+               *Snapshot.EquippedRelicA.ToString(), *Snapshot.EquippedRelicB.ToString(), Snapshot.HealingCharges,
+               Snapshot.SchemaVersion);
     }
     else
     {

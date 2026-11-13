@@ -167,7 +167,7 @@ void UETSaveSubsystem::ResolveSlots()
             Finish({EETSaveStatus::NoSave});
             return;
         }
-        if (bAValid && bBValid && A.Snapshot.bRetired && B.Snapshot.bRetired)
+        if (bAValid && bBValid && A.Snapshot.bRunClosed && B.Snapshot.bRunClosed)
         {
             Finish(Latest);
             return;
@@ -175,17 +175,17 @@ void UETSaveSubsystem::ResolveSlots()
 
         // Keep a verified copy while changing each slot. A verified newer marker hides the old checkpoint.
         FETRunSaveSnapshot Marker = Latest.Snapshot;
-        if (!Marker.bRetired && Marker.Sequence == MAX_int64)
+        if (!Marker.bRunClosed && Marker.Sequence == MAX_int64)
         {
             Finish({EETSaveStatus::InvalidSnapshot});
             return;
         }
-        ActiveRequest->bMirrorRetirement = !Marker.bRetired;
-        if (!Marker.bRetired)
+        ActiveRequest->bMirrorRetirement = !Marker.bRunClosed;
+        if (!Marker.bRunClosed)
         {
             ++Marker.Sequence;
             Marker.SavedAtUtc = FDateTime::UtcNow();
-            Marker.bRetired = true;
+            Marker.bRunClosed = true;
         }
         WriteSlot(1 - Preferred, MoveTemp(Marker));
         return;
@@ -196,7 +196,7 @@ void UETSaveSubsystem::ResolveSlots()
         if (bHasValidSlot)
         {
             FETSaveResult Result = ActiveRequest->Slots[Preferred];
-            if (Result.Snapshot.bRetired)
+            if (Result.Snapshot.bRunClosed)
             {
                 Finish({EETSaveStatus::NoSave});
                 return;
@@ -228,7 +228,7 @@ void UETSaveSubsystem::ResolveSlots()
     FETRunSaveSnapshot Snapshot = MoveTemp(ActiveRequest->PendingSnapshot.GetValue());
     Snapshot.Sequence = PreviousSequence + 1;
     Snapshot.SavedAtUtc = FDateTime::UtcNow();
-    if (Snapshot.Validate() != EETRunSaveValidation::Valid)
+    if (Snapshot.bRunClosed || Snapshot.Validate() != EETRunSaveValidation::Valid)
     {
         Finish({EETSaveStatus::InvalidSnapshot});
         return;
@@ -338,13 +338,13 @@ EETSaveStatus UETSaveSubsystem::Decode(const TArray<uint8>& Bytes, FETRunSaveSna
     }
 
     const TArray<uint8> Payload(PayloadStart, PayloadSize);
-    const UETRunSaveGame* Save = Cast<UETRunSaveGame>(UGameplayStatics::LoadGameFromMemory(Payload));
+    UETRunSaveGame* Save = Cast<UETRunSaveGame>(UGameplayStatics::LoadGameFromMemory(Payload));
     if (!Save)
     {
         return EETSaveStatus::Corrupt;
     }
 
-    switch (Save->Snapshot.Validate())
+    switch (Save->Snapshot.UpgradeFromDisk())
     {
     case EETRunSaveValidation::Valid:
         OutSnapshot = Save->Snapshot;

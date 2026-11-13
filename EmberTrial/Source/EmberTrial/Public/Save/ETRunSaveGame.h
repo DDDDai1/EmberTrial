@@ -16,9 +16,11 @@ struct EMBERTRIAL_API FETRunSaveSnapshot
 {
     GENERATED_BODY()
 
-    static constexpr int32 CurrentSchemaVersion = 1;
+    static constexpr int32 LegacySchemaVersion = 1;
+    static constexpr int32 CurrentSchemaVersion = 2;
 
     EETRunSaveValidation Validate() const;
+    EETRunSaveValidation UpgradeFromDisk();
 
     // Zero defaults allow an absent version or sequence to fail validation.
     UPROPERTY(SaveGame)
@@ -55,9 +57,12 @@ struct EMBERTRIAL_API FETRunSaveSnapshot
     UPROPERTY(SaveGame)
     int32 HealingCharges = INDEX_NONE;
 
-    // Saves written before retirement was introduced default to an active checkpoint.
+    // Keep this property name for UE's tagged deserialization of v1 files.
     UPROPERTY(SaveGame)
     bool bRetired = false;
+
+    UPROPERTY(SaveGame)
+    bool bRunClosed = false;
 };
 
 UCLASS()

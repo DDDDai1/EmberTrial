@@ -103,6 +103,11 @@ bool FETRunSaveSlotsTest::RunTest(const FString& Parameters)
         TestEqual(TEXT("First sequence"), Result.Snapshot.Sequence, int64(1));
         TestTrue(TEXT("First write targets A"), UGameplayStatics::DoesSaveGameExist(SlotA, 0));
         TestFalse(TEXT("B stays empty"), UGameplayStatics::DoesSaveGameExist(SlotB, 0));
+        FETRunSaveSnapshot Legacy = Result.Snapshot;
+        Legacy.SchemaVersion = FETRunSaveSnapshot::LegacySchemaVersion;
+        TArray<uint8> LegacyBytes;
+        TestTrue(TEXT("Seed a version 1 slot"), UETSaveSubsystem::Encode(Legacy, LegacyBytes) &&
+                 UGameplayStatics::SaveDataToSlot(LegacyBytes, SlotA, 0));
     });
 
     Snapshot.CheckpointId = TEXT("Checkpoint_B");
@@ -132,6 +137,9 @@ bool FETRunSaveSlotsTest::RunTest(const FString& Parameters)
     {
         TestTrue(TEXT("Previous slot is readable"), Result.Status == EETSaveStatus::Success);
         TestTrue(TEXT("Corrupt sibling is reported"), Result.bOtherSlotUnavailable);
+        TestEqual(TEXT("Fallback upgrades the v1 checkpoint in memory"), Result.Snapshot.SchemaVersion,
+                  FETRunSaveSnapshot::CurrentSchemaVersion);
+        TestEqual(TEXT("Fallback preserves the original sequence"), Result.Snapshot.Sequence, int64(1));
         TestEqual(TEXT("Previous checkpoint wins"), Result.Snapshot.CheckpointId, FName(TEXT("Checkpoint_A")));
         FETRunSaveSnapshot Future = Result.Snapshot;
         ++Future.SchemaVersion;
@@ -183,7 +191,7 @@ bool FETRunSaveSlotsTest::RunTest(const FString& Parameters)
         [this, PreviewSlotA, PreviewSlotB](const FETSaveResult& Result)
         {
             TestTrue(TEXT("Retirement is verified"), Result.Status == EETSaveStatus::Success &&
-                     Result.Snapshot.bRetired);
+                     Result.Snapshot.bRunClosed);
             TestEqual(TEXT("Retirement advances the sequence"), Result.Snapshot.Sequence, int64(2));
             TArray<uint8> A;
             TArray<uint8> B;
@@ -207,7 +215,7 @@ bool FETRunSaveSlotsTest::RunTest(const FString& Parameters)
     }, [this](const FETSaveResult& Result)
     {
         TestTrue(TEXT("A new checkpoint supersedes retirement"), Result.Status == EETSaveStatus::Success &&
-                 !Result.Snapshot.bRetired);
+                 !Result.Snapshot.bRunClosed);
         TestEqual(TEXT("New checkpoint continues slot ordering"), Result.Snapshot.Sequence, int64(3));
     });
 
