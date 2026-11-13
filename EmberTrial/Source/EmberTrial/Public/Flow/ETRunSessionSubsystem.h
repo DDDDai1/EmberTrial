@@ -51,6 +51,9 @@ public:
                                AEmberTrialCharacter* PlayerBody);
     bool IsCheckpointActive(UWorld* CheckWorld, FName CheckpointId) const;
     bool HasContinueSnapshot() const;
+    bool ProbeContinueSave(UWorld* MenuWorld, const FSoftObjectPath& ExpectedMap,
+                           TFunction<void(bool, const FText&)> Completion);
+    bool IsSavedEncounterCleared(UWorld* World, FName EncounterId, bool& bOutAuthoritative) const;
     int32 GetCompletedEncounterCount(const UWorld* World) const;
     bool SetCheckpointIdForDevelopmentTest(UWorld* TestWorld, FName TestId);
 
@@ -80,6 +83,7 @@ private:
     void CaptureCheckpointSave(UWorld& World, const AEmberTrialCharacter& Body);
     void SubmitCheckpointSave();
     void HandleCheckpointSaveFinished(const FETSaveResult& Result);
+    bool ApplyDiskRestore(UWorld& World, const FETRunSaveSnapshot& Snapshot, FName SpawnId);
 
     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
     bool BeginTravel(UWorld* RequestWorld, const FString& TargetPackage, FName SpawnId,
@@ -98,6 +102,10 @@ private:
     FName ActiveCheckpointId = NAME_None;
     TWeakObjectPtr<UWorld> CompletedWorld;
     int32 CompletedEncounterCount = 0;
+    bool bContinueSaveProbed = false;
+    TOptional<FETRunSaveSnapshot> OfferedSave;
+    TOptional<FETRunSaveSnapshot> PendingDiskRestore;
+    TOptional<TArray<FName>> RestoredClearedIds;
 
     struct FPendingCheckpointSave
     {

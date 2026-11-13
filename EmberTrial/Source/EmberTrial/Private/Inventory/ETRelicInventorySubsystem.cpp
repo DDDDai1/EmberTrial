@@ -1,4 +1,5 @@
 #include "Inventory/ETRelicInventorySubsystem.h"
+#include "Save/ETRunSaveGame.h"
 #include "Engine/AssetManager.h"
 #include "Engine/World.h"
 #include "Flow/ETRunSessionSubsystem.h"
@@ -287,6 +288,38 @@ void UETRelicInventorySubsystem::AdvanceRevision()
     {
         ++Revision;
     }
+}
+
+bool UETRelicInventorySubsystem::CanRestoreFromSave(const FETRunSaveSnapshot& Snapshot) const
+{
+    if (!bReady || bClosing || bChanging)
+    {
+        return false;
+    }
+    for (const FName Id : Snapshot.OwnedRelicIds)
+    {
+        if (!FindDefinition(Id))
+        {
+            return false;
+        }
+    }
+    const UETRelicDefinition* First = FindDefinition(Snapshot.EquippedRelicA);
+    const UETRelicDefinition* Second = FindDefinition(Snapshot.EquippedRelicB);
+    return (Snapshot.EquippedRelicA.IsNone() || (First && First->SupportsSlot(EETRelicSlot::First))) &&
+           (Snapshot.EquippedRelicB.IsNone() || (Second && Second->SupportsSlot(EETRelicSlot::Second)));
+}
+
+void UETRelicInventorySubsystem::RestoreFromSave(const FETRunSaveSnapshot& Snapshot)
+{
+    OwnedIds = Snapshot.OwnedRelicIds;
+    OwnedSet.Reset();
+    for (const FName Id : OwnedIds)
+    {
+        OwnedSet.Add(Id);
+    }
+    Equipped.SlotA = Snapshot.EquippedRelicA;
+    Equipped.SlotB = Snapshot.EquippedRelicB;
+    // The existing confirmed-travel event publishes this state once.
 }
 
 void UETRelicInventorySubsystem::PublishSnapshot() const

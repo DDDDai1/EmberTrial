@@ -138,6 +138,20 @@ bool UETHealingResourceComponent::CanApplyHealing(float Amount) const
            Health + Amount > Health;
 }
 
+bool UETHealingResourceComponent::CanRestoreCharges(int32 Charges) const
+{
+    return bInitialized && bAvailable && Charges >= 0 && Charges <= MaxCharges;
+}
+
+void UETHealingResourceComponent::RestoreCharges(int32 Charges)
+{
+    if (CurrentCharges != Charges)
+    {
+        CurrentCharges = Charges;
+        OnSnapshotChanged.Broadcast();
+    }
+}
+
 bool UETHealingResourceComponent::TryApplyHealing(float Amount)
 {
     if (!CanApplyHealing(Amount))

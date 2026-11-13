@@ -37,6 +37,7 @@ private:
     void HandleQuitRequested();
 
     void HandleSessionFailure(UWorld* FailedWorld, const FText& Message);
+    void HandleSaveProbe(bool bCanContinue, const FText& Message);
     void RecoverAfterFailure(const FText& Message);
     void RemoveMenuWidget();
 

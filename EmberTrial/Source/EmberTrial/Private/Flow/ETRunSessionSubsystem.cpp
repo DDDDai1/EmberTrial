@@ -42,6 +42,8 @@ void UETRunSessionSubsystem::Deinitialize()
     bShuttingDown = true;
     PendingCheckpointSave.Reset();
     bCheckpointSaveInFlight = false;
+    OfferedSave.Reset();
+    RestoredClearedIds.Reset();
     FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadHandle);
     PostLoadHandle.Reset();
     if (GEngine && TravelFailureHandle.IsValid())
@@ -142,9 +144,78 @@ void UETRunSessionSubsystem::NotifyGameplayWorldReady(UWorld* GameplayWorld, FNa
 
 bool UETRunSessionSubsystem::HasContinueSnapshot() const
 {
-    return !bShuttingDown && CompletedEncounterCount == 0 && !ActiveCheckpointId.IsNone() &&
-           FPackageName::IsValidLongPackageName(GameplayPackage) &&
-           FPackageName::DoesPackageExist(GameplayPackage);
+    return !bShuttingDown && CompletedEncounterCount == 0 &&
+           (OfferedSave.IsSet() || (!ActiveCheckpointId.IsNone() &&
+            FPackageName::IsValidLongPackageName(GameplayPackage) && FPackageName::DoesPackageExist(GameplayPackage)));
+}
+
+bool UETRunSessionSubsystem::ProbeContinueSave(UWorld* MenuWorld, const FSoftObjectPath& ExpectedMap,
+                                              TFunction<void(bool, const FText&)> Completion)
+{
+    if (bShuttingDown || bContinueSaveProbed || !IsValid(MenuWorld) ||
+        MenuWorld->GetGameInstance() != GetGameInstance() || MenuWorld->GetNetMode() != NM_Standalone ||
+        !GameplayPackage.IsEmpty())
+    {
+        return false;
+    }
+    UETSaveSubsystem* Store = GetGameInstance()->GetSubsystem<UETSaveSubsystem>();
+    if (!Store)
+    {
+        return false;
+    }
+    const EETSaveScope Scope = MenuWorld->WorldType == EWorldType::PIE ? EETSaveScope::EditorPreview : EETSaveScope::Run;
+    const TWeakObjectPtr<UWorld> Source(MenuWorld);
+    const TWeakObjectPtr<UETRunSessionSubsystem> WeakThis(this);
+    const FString ExpectedPackage = ExpectedMap.GetLongPackageName();
+    bContinueSaveProbed = true;
+    if (Store->RequestLoad(FETSaveCompleted::CreateLambda(
+        [WeakThis, Source, ExpectedPackage, Completion = MoveTemp(Completion)](const FETSaveResult& Result)
+        {
+            UETRunSessionSubsystem* Session = WeakThis.Get();
+            if (!Session || Session->bShuttingDown || !Source.IsValid() || Source->bIsTearingDown ||
+                Session->bTravelPending || !Session->GameplayPackage.IsEmpty())
+            {
+                return;
+            }
+            FText Message;
+            const UETRelicInventorySubsystem* Inventory =
+                Session->GetGameInstance()->GetSubsystem<UETRelicInventorySubsystem>();
+            if (Result.Status == EETSaveStatus::Success && Result.Snapshot.MapPackage == ExpectedPackage &&
+                FPackageName::DoesPackageExist(ExpectedPackage) && Inventory &&
+                Inventory->CanRestoreFromSave(Result.Snapshot))
+            {
+                Session->OfferedSave = Result.Snapshot;
+                Message = FText::Format(NSLOCTEXT("ETSave", "ContinueCheckpoint", "最近存档 · {0}"),
+                                        FText::FromName(Result.Snapshot.CheckpointId));
+                if (Result.bOtherSlotUnavailable)
+                {
+                    Message = FText::Format(NSLOCTEXT("ETSave", "ContinueFallback", "已找到上一份有效存档 · {0}"),
+                                            FText::FromName(Result.Snapshot.CheckpointId));
+                }
+                UE_LOG(LogETRunSession, Display, TEXT("Continue save found Id=%s Sequence=%lld Fallback=%d"),
+                       *Result.Snapshot.CheckpointId.ToString(), Result.Snapshot.Sequence,
+                       Result.bOtherSlotUnavailable);
+            }
+            else if (Result.Status != EETSaveStatus::NoSave)
+            {
+                Message = Result.Status == EETSaveStatus::UnsupportedVersion
+                    ? NSLOCTEXT("ETSave", "ContinueUnsupported", "当前版本无法读取此存档。")
+                    : NSLOCTEXT("ETSave", "ContinueUnavailable", "存档不可用。你可以开始新试炼。");
+            }
+            Completion(Session->OfferedSave.IsSet(), Message);
+        }), Scope))
+    {
+        return true;
+    }
+    bContinueSaveProbed = false;
+    return false;
+}
+
+bool UETRunSessionSubsystem::IsSavedEncounterCleared(UWorld* World, FName EncounterId,
+                                                     bool& bOutAuthoritative) const
+{
+    bOutAuthoritative = RestoredClearedIds.IsSet() && !bTravelPending && GetWorldPackage(World) == GameplayPackage;
+    return bOutAuthoritative && !EncounterId.IsNone() && RestoredClearedIds.GetValue().Contains(EncounterId);
 }
 
 int32 UETRunSessionSubsystem::GetCompletedEncounterCount(const UWorld* World) const
@@ -223,6 +294,7 @@ bool UETRunSessionSubsystem::TryActivateCheckpoint(UWorld* RequestWorld,
     }
     // 先提交再广播，观察者同步读取时能看到新ID。
     ActiveCheckpointId = CheckpointId;
+    RestoredClearedIds.Reset();
     UE_LOG(LogETRunSession, Display, TEXT("[M1-06C] Checkpoint activated Map=%s Id=%s Body=%s"),
            *GameplayPackage, *CheckpointId.ToString(), *GetNameSafe(PlayerBody));
     const AETCheckpointStart* Checkpoint = Cast<AETCheckpointStart>(CheckpointStart);
@@ -368,9 +440,20 @@ bool UETRunSessionSubsystem::RequestRetry(UWorld* RequestWorld, FText& OutError)
 
 bool UETRunSessionSubsystem::RequestContinue(UWorld* RequestWorld, FText& OutError)
 {
-    if (!HasContinueSnapshot())
+    if (bTravelPending || !HasContinueSnapshot())
     {
         return RejectRequest(TEXT("尚无可继续的本次试炼。"), OutError);
+    }
+    if (OfferedSave.IsSet())
+    {
+        PendingDiskRestore = OfferedSave;
+        if (BeginTravel(RequestWorld, OfferedSave->MapPackage, OfferedSave->CheckpointId,
+                        EETRunTravelIntent::Continue, OutError))
+        {
+            return true;
+        }
+        PendingDiskRestore.Reset();
+        return false;
     }
     return BeginTravel(RequestWorld, GameplayPackage, ActiveCheckpointId,
                        EETRunTravelIntent::Continue, OutError);
@@ -463,6 +546,21 @@ void UETRunSessionSubsystem::HandlePostLoadMap(UWorld* LoadedWorld)
         ActiveCheckpointId = CompletedCheckpoint;
         CompletedWorld.Reset();
         CompletedEncounterCount = 0;
+        if (CompletedIntent == EETRunTravelIntent::NewRun)
+        {
+            OfferedSave.Reset();
+            RestoredClearedIds.Reset();
+        }
+        if (PendingDiskRestore.IsSet())
+        {
+            RestoredClearedIds.Reset();
+            if (!ApplyDiskRestore(*LoadedWorld, PendingDiskRestore.GetValue(), CompletedCheckpoint))
+            {
+                UE_LOG(LogETRunSession, Warning, TEXT("Disk continue used normal spawn defaults Id=%s"),
+                       *CompletedCheckpoint.ToString());
+            }
+            OfferedSave.Reset();
+        }
         UE_LOG(LogETRunSession, Display,
                TEXT("[M1-06C] Snapshot committed Map=%s Checkpoint=%s Intent=%s"), *GameplayPackage,
                *ActiveCheckpointId.ToString(), GetIntentName(CompletedIntent));
@@ -481,6 +579,45 @@ void UETRunSessionSubsystem::HandlePostLoadMap(UWorld* LoadedWorld)
         OnTravelFailed.Broadcast(
             LoadedWorld, FText::FromString(TEXT("未确认试炼地图与出生配置，请检查后重试。")));
     }
+}
+
+bool UETRunSessionSubsystem::ApplyDiskRestore(UWorld& World, const FETRunSaveSnapshot& Snapshot,
+                                             FName SpawnId)
+{
+    UETRelicInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UETRelicInventorySubsystem>();
+    const APlayerController* Controller = World.GetFirstPlayerController();
+    AEmberTrialCharacter* Body = Controller ? Cast<AEmberTrialCharacter>(Controller->GetPawn()) : nullptr;
+    UETHealingResourceComponent* Healing = Body ? Body->FindComponentByClass<UETHealingResourceComponent>() : nullptr;
+    if (SpawnId != Snapshot.CheckpointId || !Inventory || !Inventory->CanRestoreFromSave(Snapshot) ||
+        !Healing || !Healing->CanRestoreCharges(Snapshot.HealingCharges))
+    {
+        return false;
+    }
+    TSet<FName> RouteIds;
+    for (TActorIterator<AETEncounter> It(&World); It; ++It)
+    {
+        const FName Id = It->GetEncounterId();
+        if (Id.IsNone() || RouteIds.Contains(Id))
+        {
+            return false;
+        }
+        RouteIds.Add(Id);
+    }
+    for (const FName Id : Snapshot.ClearedEncounterIds)
+    {
+        if (!RouteIds.Contains(Id))
+        {
+            return false;
+        }
+    }
+    Inventory->RestoreFromSave(Snapshot);
+    RestoredClearedIds = Snapshot.ClearedEncounterIds;
+    Healing->RestoreCharges(Snapshot.HealingCharges);
+    UE_LOG(LogETRunSession, Display,
+           TEXT("Disk continue restored Id=%s Sequence=%lld Cleared=%d SlotA=%s SlotB=%s Healing=%d"),
+           *SpawnId.ToString(), Snapshot.Sequence, Snapshot.ClearedEncounterIds.Num(),
+           *Snapshot.EquippedRelicA.ToString(), *Snapshot.EquippedRelicB.ToString(), Snapshot.HealingCharges);
+    return true;
 }
 
 // 失败可能在来源世界，也可能已到本GI的新世界；不放宽为任意全局事件。
@@ -508,5 +645,6 @@ void UETRunSessionSubsystem::ResetPendingTravel()
     PendingIntent = EETRunTravelIntent::None;
     PendingTargetPackage.Reset();
     PendingCheckpointId = NAME_None;
+    PendingDiskRestore.Reset();
     OriginWorld.Reset();
 }

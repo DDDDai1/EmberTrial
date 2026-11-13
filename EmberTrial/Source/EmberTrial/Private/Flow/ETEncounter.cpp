@@ -66,7 +66,7 @@ void AETEncounter::ProbeInitialOverlap()
 
 bool AETEncounter::RestoreClearedEncounter()
 {
-    if (State != EState::Waiting || ClearedOnSpawnCheckpointIds.IsEmpty() || !HasAuthority())
+    if (State != EState::Waiting || !HasAuthority())
     {
         return false;
     }
@@ -75,6 +75,19 @@ bool AETEncounter::RestoreClearedEncounter()
     UGameInstance* Instance = World ? World->GetGameInstance() : nullptr;
     const UETRunSessionSubsystem* Session = Instance ? Instance->GetSubsystem<UETRunSessionSubsystem>() : nullptr;
     if (!Session)
+    {
+        return false;
+    }
+
+    bool bDiskStateKnown = false;
+    if (Session->IsSavedEncounterCleared(World, EncounterId, bDiskStateKnown))
+    {
+        State = EState::Cleared;
+        OpenGate();
+        UE_LOG(LogETEncounter, Display, TEXT("Encounter restored from disk Id=%s"), *EncounterId.ToString());
+        return true;
+    }
+    if (bDiskStateKnown)
     {
         return false;
     }

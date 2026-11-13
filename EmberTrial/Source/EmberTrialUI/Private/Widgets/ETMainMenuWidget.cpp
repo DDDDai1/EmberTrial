@@ -57,8 +57,8 @@ void UETMainMenuWidget::ShowReady(bool bCanContinue)
 {
     bContinueAvailable = bCanContinue;
     ApplyState(false,
-               FText::FromString(bCanContinue ? TEXT("可继续本次试炼；关闭游戏后会话检查点清除。")
-                                              : TEXT("尚无本次试炼；开始后可在当前进程内继续。")));
+               FText::FromString(bCanContinue ? TEXT("可继续本次试炼。")
+                                              : TEXT("没有可继续的试炼。")));
 }
 
 void UETMainMenuWidget::ShowPending(const FText& Message)

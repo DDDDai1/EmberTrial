@@ -68,6 +68,42 @@ void AETMainMenuController::BeginPlay()
            TEXT("[M1-06C] Menu ready Controller=%s Widget=%s Pawn=%s Continue=%d"),
            *GetNameSafe(this), *GetNameSafe(MenuWidget.Get()), *GetNameSafe(GetPawn()),
            bCanContinue ? 1 : 0);
+    if (!bCanContinue)
+    {
+        const TWeakObjectPtr<AETMainMenuController> WeakThis(this);
+        bTransitionPending = true;
+        MenuWidget->ShowPending(NSLOCTEXT("ETSave", "CheckingContinue", "正在检查试炼存档…"));
+        if (!Session->ProbeContinueSave(GetWorld(), GameplayMap.ToSoftObjectPath(),
+            [WeakThis](bool bAvailable, const FText& Message)
+            {
+                if (AETMainMenuController* Controller = WeakThis.Get())
+                {
+                    Controller->HandleSaveProbe(bAvailable, Message);
+                }
+            }))
+        {
+            HandleSaveProbe(false, FText::GetEmpty());
+        }
+    }
+}
+
+void AETMainMenuController::HandleSaveProbe(bool bCanContinue, const FText& Message)
+{
+    if (bEndingPlay || !IsValid(MenuWidget.Get()))
+    {
+        return;
+    }
+    bTransitionPending = false;
+    if (Message.IsEmpty())
+    {
+        MenuWidget->ShowReady(bCanContinue);
+    }
+    else
+    {
+        MenuWidget->ShowError(Message, bCanContinue);
+    }
+    ApplyMenuInputMode();
+    UE_LOG(LogETMainMenu, Display, TEXT("Disk continue menu ready Continue=%d"), bCanContinue);
 }
 
 // ---- 共用当前状态检查；开始 / 继续额外检查World，退出保留原边界 ----

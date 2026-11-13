@@ -10,6 +10,7 @@
 class UETRelicDefinition;
 class UETRelicInventorySubsystem;
 class UETRunSessionSubsystem;
+struct FETRunSaveSnapshot;
 enum class EETRunTravelIntent : uint8;
 
 // 领域快照只复制稳定ID与版本；定义对象、身体效果和页面选择不在其中。
@@ -76,6 +77,10 @@ public:
     FETRelicInventoryChanged OnChanged;
 
 private:
+    friend class UETRunSessionSubsystem;
+    bool CanRestoreFromSave(const FETRunSaveSnapshot& Snapshot) const;
+    void RestoreFromSave(const FETRunSaveSnapshot& Snapshot);
+
     // C2的身体装备服务才有提交权限；UI只有读 / 预览，不可直接提交逻辑成功。
     friend class UETRelicEquipmentComponent;
     friend class FETRelicInventorySessionTest;

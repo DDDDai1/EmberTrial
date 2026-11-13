@@ -31,12 +31,15 @@ bool FETEncounterCheckpointResumeTest::RunTest(const FString& Parameters)
         bool bSnapshotConfirmed;
         bool bIntroRestored;
         bool bMixedRestored;
+        bool bDiskRestore = false;
     };
     const FCase Cases[] = {
         {Entry, true, false, false},
         {CheckpointA, true, true, false},
         {CheckpointB, true, true, true},
-        {CheckpointB, false, false, false}
+        {CheckpointB, false, false, false},
+        {CheckpointB, true, true, true, true},
+        {CheckpointB, true, false, false, true}
     };
 
     for (const FCase& Case : Cases)
@@ -69,6 +72,21 @@ bool FETEncounterCheckpointResumeTest::RunTest(const FString& Parameters)
 
         Intro->ClearedOnSpawnCheckpointIds = {CheckpointA, CheckpointB};
         Mixed->ClearedOnSpawnCheckpointIds = {CheckpointB, Entry};
+        Intro->EncounterId = TEXT("intro");
+        Mixed->EncounterId = TEXT("mixed");
+        Guardian->EncounterId = TEXT("guardian");
+        if (Case.bDiskRestore)
+        {
+            Session->RestoredClearedIds.Emplace();
+            if (Case.bIntroRestored)
+            {
+                Session->RestoredClearedIds->Add(Intro->EncounterId);
+            }
+            if (Case.bMixedRestored)
+            {
+                Session->RestoredClearedIds->Add(Mixed->EncounterId);
+            }
+        }
         for (AETEncounter* Encounter : {Intro, Mixed, Guardian})
         {
             Encounter->ExitGate->SetStaticMesh(Cube);

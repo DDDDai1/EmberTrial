@@ -6,6 +6,7 @@
 
 class AEmberTrialCharacter;
 class UAbilitySystemComponent;
+class UETRunSessionSubsystem;
 
 // 事件表示快照可能变化；观察者收到后应重新读取当前状态。
 DECLARE_MULTICAST_DELEGATE(FETHealingResourceChanged);
@@ -34,6 +35,10 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
+    friend class UETRunSessionSubsystem;
+    bool CanRestoreCharges(int32 Charges) const;
+    void RestoreCharges(int32 Charges);
+
     friend class FETHealingResourceTest;
 
     // 出生配置属于当前身体；失活 / 再激活不会补满次数。
