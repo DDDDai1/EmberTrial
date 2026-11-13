@@ -248,8 +248,8 @@ M4-04 把三场遭遇装配在同一张地图。各门用同一 `AETEncounter`�
 
 M4-05 由 `AETTrialExit` 检查同图的清场实例，`UETRunSessionSubsystem` 提交本局结果，已有 UI Flow 负责胜利页与焦点。实机确认同图 NewRun 从 Entry 重开，返回主菜单后继续资格清除。[M4-05 验收](Reports/M4_05_Verification.md)
 
-M5-01B 已验证 `UETSaveSubsystem` 的异步轮换写入、读回确认与坏槽回退。M5-01C 由 `UETRunSessionSubsystem` 在检查点激活时采集快照，读取库存、治疗次数及世界中已清场遭遇的稳定 ID，再交由存档子系统写入。PIE 和独立运行使用各自槽位。[M5-01B 验收](Reports/M5_01B_Verification.md) · [M5-01C 指南](M5_01C_CheckpointAutosave.md)
+M5-01C 已验证检查点采集及 PIE 双槽写入。M5-02A 由菜单发起探查，会话确认存档与目标关卡匹配，再在切图确认时恢复遗物、治疗与清场 ID。遗物装备组件复用既有切图通知应用身体属性。[M5-01C 验收](Reports/M5_01C_Verification.md) · [M5-02A 指南](M5_02A_ContinueFromDisk.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-先提交 M5-01B 验收与 M5-01C 指南和补丁。正式工程通过后提交检查点存档源码与正式地图。[暂存清单](M5_01C_CheckpointAutosave.md#4-commit--push)
+先提交 M5-01C 验收、M5-02A 指南和补丁。正式工程通过后提交读档恢复源码。[暂存清单](M5_02A_ContinueFromDisk.md#4-commit--push)

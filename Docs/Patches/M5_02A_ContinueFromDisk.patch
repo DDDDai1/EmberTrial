@@ -1,0 +1,506 @@
+--- a/EmberTrial/Source/EmberTrial/Private/Flow/ETEncounter.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Flow/ETEncounter.cpp
+@@ -66,7 +66,7 @@
+
+ bool AETEncounter::RestoreClearedEncounter()
+ {
+-    if (State != EState::Waiting || ClearedOnSpawnCheckpointIds.IsEmpty() || !HasAuthority())
++    if (State != EState::Waiting || !HasAuthority())
+     {
+         return false;
+     }
+@@ -75,6 +75,19 @@
+     UGameInstance* Instance = World ? World->GetGameInstance() : nullptr;
+     const UETRunSessionSubsystem* Session = Instance ? Instance->GetSubsystem<UETRunSessionSubsystem>() : nullptr;
+     if (!Session)
++    {
++        return false;
++    }
++
++    bool bDiskStateKnown = false;
++    if (Session->IsSavedEncounterCleared(World, EncounterId, bDiskStateKnown))
++    {
++        State = EState::Cleared;
++        OpenGate();
++        UE_LOG(LogETEncounter, Display, TEXT("Encounter restored from disk Id=%s"), *EncounterId.ToString());
++        return true;
++    }
++    if (bDiskStateKnown)
+     {
+         return false;
+     }
+--- a/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
+@@ -42,6 +42,8 @@
+     bShuttingDown = true;
+     PendingCheckpointSave.Reset();
+     bCheckpointSaveInFlight = false;
++    OfferedSave.Reset();
++    RestoredClearedIds.Reset();
+     FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadHandle);
+     PostLoadHandle.Reset();
+     if (GEngine && TravelFailureHandle.IsValid())
+@@ -142,9 +144,78 @@
+
+ bool UETRunSessionSubsystem::HasContinueSnapshot() const
+ {
+-    return !bShuttingDown && CompletedEncounterCount == 0 && !ActiveCheckpointId.IsNone() &&
+-           FPackageName::IsValidLongPackageName(GameplayPackage) &&
+-           FPackageName::DoesPackageExist(GameplayPackage);
++    return !bShuttingDown && CompletedEncounterCount == 0 &&
++           (OfferedSave.IsSet() || (!ActiveCheckpointId.IsNone() &&
++            FPackageName::IsValidLongPackageName(GameplayPackage) && FPackageName::DoesPackageExist(GameplayPackage)));
++}
++
++bool UETRunSessionSubsystem::ProbeContinueSave(UWorld* MenuWorld, const FSoftObjectPath& ExpectedMap,
++                                              TFunction<void(bool, const FText&)> Completion)
++{
++    if (bShuttingDown || bContinueSaveProbed || !IsValid(MenuWorld) ||
++        MenuWorld->GetGameInstance() != GetGameInstance() || MenuWorld->GetNetMode() != NM_Standalone ||
++        !GameplayPackage.IsEmpty())
++    {
++        return false;
++    }
++    UETSaveSubsystem* Store = GetGameInstance()->GetSubsystem<UETSaveSubsystem>();
++    if (!Store)
++    {
++        return false;
++    }
++    const EETSaveScope Scope = MenuWorld->WorldType == EWorldType::PIE ? EETSaveScope::EditorPreview : EETSaveScope::Run;
++    const TWeakObjectPtr<UWorld> Source(MenuWorld);
++    const TWeakObjectPtr<UETRunSessionSubsystem> WeakThis(this);
++    const FString ExpectedPackage = ExpectedMap.GetLongPackageName();
++    bContinueSaveProbed = true;
++    if (Store->RequestLoad(FETSaveCompleted::CreateLambda(
++        [WeakThis, Source, ExpectedPackage, Completion = MoveTemp(Completion)](const FETSaveResult& Result)
++        {
++            UETRunSessionSubsystem* Session = WeakThis.Get();
++            if (!Session || Session->bShuttingDown || !Source.IsValid() || Source->bIsTearingDown ||
++                Session->bTravelPending || !Session->GameplayPackage.IsEmpty())
++            {
++                return;
++            }
++            FText Message;
++            const UETRelicInventorySubsystem* Inventory =
++                Session->GetGameInstance()->GetSubsystem<UETRelicInventorySubsystem>();
++            if (Result.Status == EETSaveStatus::Success && Result.Snapshot.MapPackage == ExpectedPackage &&
++                FPackageName::DoesPackageExist(ExpectedPackage) && Inventory &&
++                Inventory->CanRestoreFromSave(Result.Snapshot))
++            {
++                Session->OfferedSave = Result.Snapshot;
++                Message = FText::Format(NSLOCTEXT("ETSave", "ContinueCheckpoint", "最近存档 · {0}"),
++                                        FText::FromName(Result.Snapshot.CheckpointId));
++                if (Result.bOtherSlotUnavailable)
++                {
++                    Message = FText::Format(NSLOCTEXT("ETSave", "ContinueFallback", "已找到上一份有效存档 · {0}"),
++                                            FText::FromName(Result.Snapshot.CheckpointId));
++                }
++                UE_LOG(LogETRunSession, Display, TEXT("Continue save found Id=%s Sequence=%lld Fallback=%d"),
++                       *Result.Snapshot.CheckpointId.ToString(), Result.Snapshot.Sequence,
++                       Result.bOtherSlotUnavailable);
++            }
++            else if (Result.Status != EETSaveStatus::NoSave)
++            {
++                Message = Result.Status == EETSaveStatus::UnsupportedVersion
++                    ? NSLOCTEXT("ETSave", "ContinueUnsupported", "当前版本无法读取此存档。")
++                    : NSLOCTEXT("ETSave", "ContinueUnavailable", "存档不可用。你可以开始新试炼。");
++            }
++            Completion(Session->OfferedSave.IsSet(), Message);
++        }), Scope))
++    {
++        return true;
++    }
++    bContinueSaveProbed = false;
++    return false;
++}
++
++bool UETRunSessionSubsystem::IsSavedEncounterCleared(UWorld* World, FName EncounterId,
++                                                     bool& bOutAuthoritative) const
++{
++    bOutAuthoritative = RestoredClearedIds.IsSet() && !bTravelPending && GetWorldPackage(World) == GameplayPackage;
++    return bOutAuthoritative && !EncounterId.IsNone() && RestoredClearedIds.GetValue().Contains(EncounterId);
+ }
+
+ int32 UETRunSessionSubsystem::GetCompletedEncounterCount(const UWorld* World) const
+@@ -223,6 +294,7 @@
+     }
+     // 先提交再广播，观察者同步读取时能看到新ID。
+     ActiveCheckpointId = CheckpointId;
++    RestoredClearedIds.Reset();
+     UE_LOG(LogETRunSession, Display, TEXT("[M1-06C] Checkpoint activated Map=%s Id=%s Body=%s"),
+            *GameplayPackage, *CheckpointId.ToString(), *GetNameSafe(PlayerBody));
+     const AETCheckpointStart* Checkpoint = Cast<AETCheckpointStart>(CheckpointStart);
+@@ -368,9 +440,20 @@
+
+ bool UETRunSessionSubsystem::RequestContinue(UWorld* RequestWorld, FText& OutError)
+ {
+-    if (!HasContinueSnapshot())
++    if (bTravelPending || !HasContinueSnapshot())
+     {
+         return RejectRequest(TEXT("尚无可继续的本次试炼。"), OutError);
++    }
++    if (OfferedSave.IsSet())
++    {
++        PendingDiskRestore = OfferedSave;
++        if (BeginTravel(RequestWorld, OfferedSave->MapPackage, OfferedSave->CheckpointId,
++                        EETRunTravelIntent::Continue, OutError))
++        {
++            return true;
++        }
++        PendingDiskRestore.Reset();
++        return false;
+     }
+     return BeginTravel(RequestWorld, GameplayPackage, ActiveCheckpointId,
+                        EETRunTravelIntent::Continue, OutError);
+@@ -463,6 +546,21 @@
+         ActiveCheckpointId = CompletedCheckpoint;
+         CompletedWorld.Reset();
+         CompletedEncounterCount = 0;
++        if (CompletedIntent == EETRunTravelIntent::NewRun)
++        {
++            OfferedSave.Reset();
++            RestoredClearedIds.Reset();
++        }
++        if (PendingDiskRestore.IsSet())
++        {
++            RestoredClearedIds.Reset();
++            if (!ApplyDiskRestore(*LoadedWorld, PendingDiskRestore.GetValue(), CompletedCheckpoint))
++            {
++                UE_LOG(LogETRunSession, Warning, TEXT("Disk continue used normal spawn defaults Id=%s"),
++                       *CompletedCheckpoint.ToString());
++            }
++            OfferedSave.Reset();
++        }
+         UE_LOG(LogETRunSession, Display,
+                TEXT("[M1-06C] Snapshot committed Map=%s Checkpoint=%s Intent=%s"), *GameplayPackage,
+                *ActiveCheckpointId.ToString(), GetIntentName(CompletedIntent));
+@@ -483,6 +581,45 @@
+     }
+ }
+
++bool UETRunSessionSubsystem::ApplyDiskRestore(UWorld& World, const FETRunSaveSnapshot& Snapshot,
++                                             FName SpawnId)
++{
++    UETRelicInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UETRelicInventorySubsystem>();
++    const APlayerController* Controller = World.GetFirstPlayerController();
++    AEmberTrialCharacter* Body = Controller ? Cast<AEmberTrialCharacter>(Controller->GetPawn()) : nullptr;
++    UETHealingResourceComponent* Healing = Body ? Body->FindComponentByClass<UETHealingResourceComponent>() : nullptr;
++    if (SpawnId != Snapshot.CheckpointId || !Inventory || !Inventory->CanRestoreFromSave(Snapshot) ||
++        !Healing || !Healing->CanRestoreCharges(Snapshot.HealingCharges))
++    {
++        return false;
++    }
++    TSet<FName> RouteIds;
++    for (TActorIterator<AETEncounter> It(&World); It; ++It)
++    {
++        const FName Id = It->GetEncounterId();
++        if (Id.IsNone() || RouteIds.Contains(Id))
++        {
++            return false;
++        }
++        RouteIds.Add(Id);
++    }
++    for (const FName Id : Snapshot.ClearedEncounterIds)
++    {
++        if (!RouteIds.Contains(Id))
++        {
++            return false;
++        }
++    }
++    Inventory->RestoreFromSave(Snapshot);
++    RestoredClearedIds = Snapshot.ClearedEncounterIds;
++    Healing->RestoreCharges(Snapshot.HealingCharges);
++    UE_LOG(LogETRunSession, Display,
++           TEXT("Disk continue restored Id=%s Sequence=%lld Cleared=%d SlotA=%s SlotB=%s Healing=%d"),
++           *SpawnId.ToString(), Snapshot.Sequence, Snapshot.ClearedEncounterIds.Num(),
++           *Snapshot.EquippedRelicA.ToString(), *Snapshot.EquippedRelicB.ToString(), Snapshot.HealingCharges);
++    return true;
++}
++
+ // 失败可能在来源世界，也可能已到本GI的新世界；不放宽为任意全局事件。
+ void UETRunSessionSubsystem::HandleTravelFailure(UWorld* FailedWorld,
+                                                  ETravelFailure::Type FailureType,
+@@ -508,5 +645,6 @@
+     PendingIntent = EETRunTravelIntent::None;
+     PendingTargetPackage.Reset();
+     PendingCheckpointId = NAME_None;
++    PendingDiskRestore.Reset();
+     OriginWorld.Reset();
+ }
+--- a/EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicInventorySubsystem.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Inventory/ETRelicInventorySubsystem.cpp
+@@ -1,4 +1,5 @@
+ #include "Inventory/ETRelicInventorySubsystem.h"
++#include "Save/ETRunSaveGame.h"
+ #include "Engine/AssetManager.h"
+ #include "Engine/World.h"
+ #include "Flow/ETRunSessionSubsystem.h"
+@@ -289,8 +290,40 @@
+     }
+ }
+
++bool UETRelicInventorySubsystem::CanRestoreFromSave(const FETRunSaveSnapshot& Snapshot) const
++{
++    if (!bReady || bClosing || bChanging)
++    {
++        return false;
++    }
++    for (const FName Id : Snapshot.OwnedRelicIds)
++    {
++        if (!FindDefinition(Id))
++        {
++            return false;
++        }
++    }
++    const UETRelicDefinition* First = FindDefinition(Snapshot.EquippedRelicA);
++    const UETRelicDefinition* Second = FindDefinition(Snapshot.EquippedRelicB);
++    return (Snapshot.EquippedRelicA.IsNone() || (First && First->SupportsSlot(EETRelicSlot::First))) &&
++           (Snapshot.EquippedRelicB.IsNone() || (Second && Second->SupportsSlot(EETRelicSlot::Second)));
++}
++
++void UETRelicInventorySubsystem::RestoreFromSave(const FETRunSaveSnapshot& Snapshot)
++{
++    OwnedIds = Snapshot.OwnedRelicIds;
++    OwnedSet.Reset();
++    for (const FName Id : OwnedIds)
++    {
++        OwnedSet.Add(Id);
++    }
++    Equipped.SlotA = Snapshot.EquippedRelicA;
++    Equipped.SlotB = Snapshot.EquippedRelicB;
++    // The existing confirmed-travel event publishes this state once.
++}
++
+ void UETRelicInventorySubsystem::PublishSnapshot() const
+ {
+     const FETRelicInventorySnapshot Snapshot = GetSnapshot();
+     OnChanged.Broadcast(Snapshot);
+-}
+\ No newline at end of file
++}
+--- a/EmberTrial/Source/EmberTrial/Private/Resources/ETHealingResourceComponent.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Resources/ETHealingResourceComponent.cpp
+@@ -138,6 +138,20 @@
+            Health + Amount > Health;
+ }
+
++bool UETHealingResourceComponent::CanRestoreCharges(int32 Charges) const
++{
++    return bInitialized && bAvailable && Charges >= 0 && Charges <= MaxCharges;
++}
++
++void UETHealingResourceComponent::RestoreCharges(int32 Charges)
++{
++    if (CurrentCharges != Charges)
++    {
++        CurrentCharges = Charges;
++        OnSnapshotChanged.Broadcast();
++    }
++}
++
+ bool UETHealingResourceComponent::TryApplyHealing(float Amount)
+ {
+     if (!CanApplyHealing(Amount))
+@@ -200,4 +214,4 @@
+     }
+     OnSnapshotChanged.Clear();
+     Super::EndPlay(EndPlayReason);
+-}
+\ No newline at end of file
++}
+--- a/EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
++++ b/EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
+@@ -51,6 +51,9 @@
+                                AEmberTrialCharacter* PlayerBody);
+     bool IsCheckpointActive(UWorld* CheckWorld, FName CheckpointId) const;
+     bool HasContinueSnapshot() const;
++    bool ProbeContinueSave(UWorld* MenuWorld, const FSoftObjectPath& ExpectedMap,
++                           TFunction<void(bool, const FText&)> Completion);
++    bool IsSavedEncounterCleared(UWorld* World, FName EncounterId, bool& bOutAuthoritative) const;
+     int32 GetCompletedEncounterCount(const UWorld* World) const;
+     bool SetCheckpointIdForDevelopmentTest(UWorld* TestWorld, FName TestId);
+
+@@ -80,6 +83,7 @@
+     void CaptureCheckpointSave(UWorld& World, const AEmberTrialCharacter& Body);
+     void SubmitCheckpointSave();
+     void HandleCheckpointSaveFinished(const FETSaveResult& Result);
++    bool ApplyDiskRestore(UWorld& World, const FETRunSaveSnapshot& Snapshot, FName SpawnId);
+
+     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
+     bool BeginTravel(UWorld* RequestWorld, const FString& TargetPackage, FName SpawnId,
+@@ -98,6 +102,10 @@
+     FName ActiveCheckpointId = NAME_None;
+     TWeakObjectPtr<UWorld> CompletedWorld;
+     int32 CompletedEncounterCount = 0;
++    bool bContinueSaveProbed = false;
++    TOptional<FETRunSaveSnapshot> OfferedSave;
++    TOptional<FETRunSaveSnapshot> PendingDiskRestore;
++    TOptional<TArray<FName>> RestoredClearedIds;
+
+     struct FPendingCheckpointSave
+     {
+--- a/EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicInventorySubsystem.h
++++ b/EmberTrial/Source/EmberTrial/Public/Inventory/ETRelicInventorySubsystem.h
+@@ -10,6 +10,7 @@
+ class UETRelicDefinition;
+ class UETRelicInventorySubsystem;
+ class UETRunSessionSubsystem;
++struct FETRunSaveSnapshot;
+ enum class EETRunTravelIntent : uint8;
+
+ // 领域快照只复制稳定ID与版本；定义对象、身体效果和页面选择不在其中。
+@@ -76,6 +77,10 @@
+     FETRelicInventoryChanged OnChanged;
+
+ private:
++    friend class UETRunSessionSubsystem;
++    bool CanRestoreFromSave(const FETRunSaveSnapshot& Snapshot) const;
++    void RestoreFromSave(const FETRunSaveSnapshot& Snapshot);
++
+     // C2的身体装备服务才有提交权限；UI只有读 / 预览，不可直接提交逻辑成功。
+     friend class UETRelicEquipmentComponent;
+     friend class FETRelicInventorySessionTest;
+@@ -113,4 +118,4 @@
+     // 只解除本实例的委托；不使RunSession反向依赖Inventory。
+     TWeakObjectPtr<UETRunSessionSubsystem> Session;
+     FDelegateHandle TravelConfirmedHandle;
+-};
+\ No newline at end of file
++};
+--- a/EmberTrial/Source/EmberTrial/Public/Resources/ETHealingResourceComponent.h
++++ b/EmberTrial/Source/EmberTrial/Public/Resources/ETHealingResourceComponent.h
+@@ -6,6 +6,7 @@
+
+ class AEmberTrialCharacter;
+ class UAbilitySystemComponent;
++class UETRunSessionSubsystem;
+
+ // 事件表示快照可能变化；观察者收到后应重新读取当前状态。
+ DECLARE_MULTICAST_DELEGATE(FETHealingResourceChanged);
+@@ -34,6 +35,10 @@
+     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+ private:
++    friend class UETRunSessionSubsystem;
++    bool CanRestoreCharges(int32 Charges) const;
++    void RestoreCharges(int32 Charges);
++
+     friend class FETHealingResourceTest;
+
+     // 出生配置属于当前身体；失活 / 再激活不会补满次数。
+@@ -59,4 +64,4 @@
+     // 阻止GE / 快照回调递归消费；结束后不再恢复可用性。
+     bool bApplying = false;
+     bool bEndingPlay = false;
+-};
+\ No newline at end of file
++};
+--- a/EmberTrial/Source/EmberTrial/Tests/ETEncounterCheckpointResumeTests.cpp
++++ b/EmberTrial/Source/EmberTrial/Tests/ETEncounterCheckpointResumeTests.cpp
+@@ -31,12 +31,15 @@
+         bool bSnapshotConfirmed;
+         bool bIntroRestored;
+         bool bMixedRestored;
++        bool bDiskRestore = false;
+     };
+     const FCase Cases[] = {
+         {Entry, true, false, false},
+         {CheckpointA, true, true, false},
+         {CheckpointB, true, true, true},
+-        {CheckpointB, false, false, false}
++        {CheckpointB, false, false, false},
++        {CheckpointB, true, true, true, true},
++        {CheckpointB, true, false, false, true}
+     };
+
+     for (const FCase& Case : Cases)
+@@ -69,6 +72,21 @@
+
+         Intro->ClearedOnSpawnCheckpointIds = {CheckpointA, CheckpointB};
+         Mixed->ClearedOnSpawnCheckpointIds = {CheckpointB, Entry};
++        Intro->EncounterId = TEXT("intro");
++        Mixed->EncounterId = TEXT("mixed");
++        Guardian->EncounterId = TEXT("guardian");
++        if (Case.bDiskRestore)
++        {
++            Session->RestoredClearedIds.Emplace();
++            if (Case.bIntroRestored)
++            {
++                Session->RestoredClearedIds->Add(Intro->EncounterId);
++            }
++            if (Case.bMixedRestored)
++            {
++                Session->RestoredClearedIds->Add(Mixed->EncounterId);
++            }
++        }
+         for (AETEncounter* Encounter : {Intro, Mixed, Guardian})
+         {
+             Encounter->ExitGate->SetStaticMesh(Cube);
+--- a/EmberTrial/Source/EmberTrialUI/Private/FrontEnd/ETMainMenuController.cpp
++++ b/EmberTrial/Source/EmberTrialUI/Private/FrontEnd/ETMainMenuController.cpp
+@@ -68,6 +68,42 @@
+            TEXT("[M1-06C] Menu ready Controller=%s Widget=%s Pawn=%s Continue=%d"),
+            *GetNameSafe(this), *GetNameSafe(MenuWidget.Get()), *GetNameSafe(GetPawn()),
+            bCanContinue ? 1 : 0);
++    if (!bCanContinue)
++    {
++        const TWeakObjectPtr<AETMainMenuController> WeakThis(this);
++        bTransitionPending = true;
++        MenuWidget->ShowPending(NSLOCTEXT("ETSave", "CheckingContinue", "正在检查试炼存档…"));
++        if (!Session->ProbeContinueSave(GetWorld(), GameplayMap.ToSoftObjectPath(),
++            [WeakThis](bool bAvailable, const FText& Message)
++            {
++                if (AETMainMenuController* Controller = WeakThis.Get())
++                {
++                    Controller->HandleSaveProbe(bAvailable, Message);
++                }
++            }))
++        {
++            HandleSaveProbe(false, FText::GetEmpty());
++        }
++    }
++}
++
++void AETMainMenuController::HandleSaveProbe(bool bCanContinue, const FText& Message)
++{
++    if (bEndingPlay || !IsValid(MenuWidget.Get()))
++    {
++        return;
++    }
++    bTransitionPending = false;
++    if (Message.IsEmpty())
++    {
++        MenuWidget->ShowReady(bCanContinue);
++    }
++    else
++    {
++        MenuWidget->ShowError(Message, bCanContinue);
++    }
++    ApplyMenuInputMode();
++    UE_LOG(LogETMainMenu, Display, TEXT("Disk continue menu ready Continue=%d"), bCanContinue);
+ }
+
+ // ---- 共用当前状态检查；开始 / 继续额外检查World，退出保留原边界 ----
+--- a/EmberTrial/Source/EmberTrialUI/Private/Widgets/ETMainMenuWidget.cpp
++++ b/EmberTrial/Source/EmberTrialUI/Private/Widgets/ETMainMenuWidget.cpp
+@@ -57,8 +57,8 @@
+ {
+     bContinueAvailable = bCanContinue;
+     ApplyState(false,
+-               FText::FromString(bCanContinue ? TEXT("可继续本次试炼；关闭游戏后会话检查点清除。")
+-                                              : TEXT("尚无本次试炼；开始后可在当前进程内继续。")));
++               FText::FromString(bCanContinue ? TEXT("可继续本次试炼。")
++                                              : TEXT("没有可继续的试炼。")));
+ }
+
+ void UETMainMenuWidget::ShowPending(const FText& Message)
+--- a/EmberTrial/Source/EmberTrialUI/Public/FrontEnd/ETMainMenuController.h
++++ b/EmberTrial/Source/EmberTrialUI/Public/FrontEnd/ETMainMenuController.h
+@@ -37,6 +37,7 @@
+     void HandleQuitRequested();
+
+     void HandleSessionFailure(UWorld* FailedWorld, const FText& Message);
++    void HandleSaveProbe(bool bCanContinue, const FText& Message);
+     void RecoverAfterFailure(const FText& Message);
+     void RemoveMenuWidget();
+
