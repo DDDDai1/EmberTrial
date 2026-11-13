@@ -25,6 +25,8 @@ public:
     void ShowReady(bool bCanContinue);
     void ShowPending(const FText& Message);
     void ShowError(const FText& Message, bool bCanContinue);
+    void ShowNewRunConfirmation();
+    bool IsConfirmingNewRun() const { return bConfirmingNewRun; }
     void FocusStartButton();
 
     // Controller订阅这些意图；Widget的busy与Controller门控各自负责本层边界。
@@ -45,6 +47,7 @@ protected:
 private:
     // ---- 统一按钮状态；点击回调只检查View状态并广播 ----
     void ApplyState(bool bPending, const FText& Message);
+    void SetNewRunConfirmation(bool bConfirm);
 
     UFUNCTION()
     void HandleStartClicked();
@@ -83,4 +86,7 @@ private:
     // busy仅表示请求处理中，不等于世界暂停；Continue来自Session快照。
     bool bBusy = false;
     bool bContinueAvailable = false;
+    bool bConfirmingNewRun = false;
+    FText StartLabel;
+    FText ContinueLabel;
 };

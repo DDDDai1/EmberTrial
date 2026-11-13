@@ -130,6 +130,11 @@ void AETMainMenuController::HandleStartRequested()
     {
         return;
     }
+    if (Session.IsValid() && Session->HasContinueSnapshot() && !MenuWidget->IsConfirmingNewRun())
+    {
+        MenuWidget->ShowNewRunConfirmation();
+        return;
+    }
     bTransitionPending = true;
     MenuWidget->ShowPending(FText::FromString(TEXT("正在开始新试炼…")));
     FText Error;
@@ -145,6 +150,12 @@ void AETMainMenuController::HandleContinueRequested()
 {
     if (!CanHandleMenuAction() || !GetWorld())
     {
+        return;
+    }
+    if (MenuWidget->IsConfirmingNewRun())
+    {
+        MenuWidget->ShowReady(Session.IsValid() && Session->HasContinueSnapshot());
+        ApplyMenuInputMode();
         return;
     }
     bTransitionPending = true;

@@ -29,6 +29,7 @@ bool FETRunSaveSlotsTest::RunTest(const FString& Parameters)
     const FString SlotA = Prefix + TEXT("_A");
     const FString SlotB = Prefix + TEXT("_B");
     const FString PreviewSlotA = Prefix + TEXT("_PIE_A");
+    const FString PreviewSlotB = Prefix + TEXT("_PIE_B");
     Fixture->Store->SlotPrefix = Prefix;
 
     FETRunSaveSnapshot Snapshot;
@@ -174,13 +175,49 @@ bool FETRunSaveSlotsTest::RunTest(const FString& Parameters)
     {
         TestTrue(TEXT("Run slot is still protected"), Result.Status == EETSaveStatus::UnsupportedVersion);
     });
+    const auto RetirePreview = [Fixture, Snapshot](FETSaveCompleted Done)
+    {
+        return Fixture->Store->RequestRetire(Snapshot.MapPackage, MoveTemp(Done), EETSaveScope::EditorPreview);
+    };
+    QueueStep(TEXT("Retire the checkpoint"), RetirePreview,
+        [this, PreviewSlotA, PreviewSlotB](const FETSaveResult& Result)
+        {
+            TestTrue(TEXT("Retirement is verified"), Result.Status == EETSaveStatus::Success &&
+                     Result.Snapshot.bRetired);
+            TestEqual(TEXT("Retirement advances the sequence"), Result.Snapshot.Sequence, int64(2));
+            TArray<uint8> A;
+            TArray<uint8> B;
+            if (TestTrue(TEXT("Both markers exist"), UGameplayStatics::LoadDataFromSlot(A, PreviewSlotA, 0) &&
+                         UGameplayStatics::LoadDataFromSlot(B, PreviewSlotB, 0)))
+            {
+                TestTrue(TEXT("Both slots hold the same marker"), A == B);
+                TestTrue(TEXT("Simulate losing one marker"), UGameplayStatics::DeleteGameInSlot(PreviewSlotA, 0));
+            }
+        });
+    QueueStep(TEXT("Load after losing one retired slot"), [Fixture](FETSaveCompleted Done)
+    {
+        return Fixture->Store->RequestLoad(MoveTemp(Done), EETSaveScope::EditorPreview);
+    }, [this](const FETSaveResult& Result)
+    {
+        TestTrue(TEXT("A retired checkpoint is unavailable"), Result.Status == EETSaveStatus::NoSave);
+    });
+    QueueStep(TEXT("Save the next run"), [Fixture, Snapshot](FETSaveCompleted Done)
+    {
+        return Fixture->Store->RequestSave(Snapshot, MoveTemp(Done), EETSaveScope::EditorPreview);
+    }, [this](const FETSaveResult& Result)
+    {
+        TestTrue(TEXT("A new checkpoint supersedes retirement"), Result.Status == EETSaveStatus::Success &&
+                 !Result.Snapshot.bRetired);
+        TestEqual(TEXT("New checkpoint continues slot ordering"), Result.Snapshot.Sequence, int64(3));
+    });
 
-    ADD_LATENT_AUTOMATION_COMMAND(FFunctionLatentCommand([Fixture, SlotA, SlotB, PreviewSlotA]()
+    ADD_LATENT_AUTOMATION_COMMAND(FFunctionLatentCommand([Fixture, SlotA, SlotB, PreviewSlotA, PreviewSlotB]()
     {
         Fixture->Store->Deinitialize();
         UGameplayStatics::DeleteGameInSlot(SlotA, 0);
         UGameplayStatics::DeleteGameInSlot(SlotB, 0);
         UGameplayStatics::DeleteGameInSlot(PreviewSlotA, 0);
+        UGameplayStatics::DeleteGameInSlot(PreviewSlotB, 0);
         return true;
     }));
     return true;

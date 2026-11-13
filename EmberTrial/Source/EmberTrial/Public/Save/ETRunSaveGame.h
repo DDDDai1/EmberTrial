@@ -54,6 +54,10 @@ struct EMBERTRIAL_API FETRunSaveSnapshot
 
     UPROPERTY(SaveGame)
     int32 HealingCharges = INDEX_NONE;
+
+    // Saves written before retirement was introduced default to an active checkpoint.
+    UPROPERTY(SaveGame)
+    bool bRetired = false;
 };
 
 UCLASS()

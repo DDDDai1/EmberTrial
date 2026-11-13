@@ -83,6 +83,9 @@ private:
     void CaptureCheckpointSave(UWorld& World, const AEmberTrialCharacter& Body);
     void SubmitCheckpointSave();
     void HandleCheckpointSaveFinished(const FETSaveResult& Result);
+    void QueueSaveRetirement(UWorld& World);
+    bool SubmitSaveRetirement();
+    void HandleSaveRetirementFinished(const FETSaveResult& Result);
     bool ApplyDiskRestore(UWorld& World, const FETRunSaveSnapshot& Snapshot, FName SpawnId);
 
     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
@@ -115,6 +118,14 @@ private:
     // Keep the latest activation if another checkpoint write is still in flight.
     TOptional<FPendingCheckpointSave> PendingCheckpointSave;
     bool bCheckpointSaveInFlight = false;
+    struct FPendingSaveRetirement
+    {
+        FString MapPackage;
+        bool bEditorPreview = false;
+    };
+    TOptional<FPendingSaveRetirement> PendingSaveRetirement;
+    bool bSaveRetirementInFlight = false;
+    bool bRetireSaveOnNewRun = false;
 
     // 待定请求与实际出生报告，确认到达后才提交为快照。
     FString PendingTargetPackage;

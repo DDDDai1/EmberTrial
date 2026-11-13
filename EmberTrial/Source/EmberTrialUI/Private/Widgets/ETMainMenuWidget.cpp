@@ -55,6 +55,7 @@ void UETMainMenuWidget::NativeDestruct()
 
 void UETMainMenuWidget::ShowReady(bool bCanContinue)
 {
+    SetNewRunConfirmation(false);
     bContinueAvailable = bCanContinue;
     ApplyState(false,
                FText::FromString(bCanContinue ? TEXT("可继续本次试炼。")
@@ -63,13 +64,51 @@ void UETMainMenuWidget::ShowReady(bool bCanContinue)
 
 void UETMainMenuWidget::ShowPending(const FText& Message)
 {
+    SetNewRunConfirmation(false);
     ApplyState(true, Message);
 }
 
 void UETMainMenuWidget::ShowError(const FText& Message, bool bCanContinue)
 {
+    SetNewRunConfirmation(false);
     bContinueAvailable = bCanContinue;
     ApplyState(false, Message);
+}
+
+void UETMainMenuWidget::ShowNewRunConfirmation()
+{
+    SetNewRunConfirmation(true);
+    ApplyState(false, NSLOCTEXT("ETSave", "ConfirmNewTrial",
+        "开始新试炼将覆盖当前进度。选择「确认新试炼」或「取消」。"));
+    if (APlayerController* Controller = GetOwningPlayer())
+    {
+        ContinueButton->SetUserFocus(Controller);
+    }
+}
+
+void UETMainMenuWidget::SetNewRunConfirmation(bool bConfirm)
+{
+    if (bConfirmingNewRun == bConfirm)
+    {
+        return;
+    }
+    bConfirmingNewRun = bConfirm;
+    if (UTextBlock* Label = Cast<UTextBlock>(StartButton->GetContent()))
+    {
+        if (bConfirm)
+        {
+            StartLabel = Label->GetText();
+        }
+        Label->SetText(bConfirm ? NSLOCTEXT("ETSave", "ConfirmNewTrialButton", "确认新试炼") : StartLabel);
+    }
+    if (UTextBlock* Label = Cast<UTextBlock>(ContinueButton->GetContent()))
+    {
+        if (bConfirm)
+        {
+            ContinueLabel = Label->GetText();
+        }
+        Label->SetText(bConfirm ? NSLOCTEXT("ETSave", "CancelNewTrialButton", "取消") : ContinueLabel);
+    }
 }
 
 void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
@@ -97,8 +136,8 @@ void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
         return;
     }
     StartButton->SetIsEnabled(!bBusy);
-    ContinueButton->SetIsEnabled(!bBusy && bContinueAvailable);
-    QuitButton->SetIsEnabled(!bBusy);
+    ContinueButton->SetIsEnabled(!bBusy && (bContinueAvailable || bConfirmingNewRun));
+    QuitButton->SetIsEnabled(!bBusy && !bConfirmingNewRun);
     StatusText->SetText(Message);
 }
 
@@ -123,7 +162,7 @@ void UETMainMenuWidget::HandleStartClicked()
 
 void UETMainMenuWidget::HandleContinueClicked()
 {
-    if (!bBusy && bContinueAvailable)
+    if (!bBusy && (bContinueAvailable || bConfirmingNewRun))
     {
         OnContinueRequested.Broadcast();
     }

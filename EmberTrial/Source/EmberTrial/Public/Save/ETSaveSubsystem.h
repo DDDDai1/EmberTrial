@@ -45,12 +45,13 @@ public:
     bool RequestLoad(FETSaveCompleted Completion, EETSaveScope Scope = EETSaveScope::Run);
     bool RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion,
                      EETSaveScope Scope = EETSaveScope::Run);
+    bool RequestRetire(FString MapPackage, FETSaveCompleted Completion, EETSaveScope Scope);
 
 private:
     friend class FETRunSaveSlotsTest;
 
     bool BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot, FETSaveCompleted Completion,
-                      EETSaveScope Scope);
+                      EETSaveScope Scope, FString RetireMap = {});
     void ReadSlot(int32 Index);
     void ResolveSlots();
     void WriteSlot(int32 Index, FETRunSaveSnapshot Snapshot);

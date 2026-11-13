@@ -26,6 +26,8 @@ struct FETSaveOperation
     FString SlotPrefix;
     TOptional<FETRunSaveSnapshot> PendingSnapshot;
     FETSaveCompleted Completion;
+    FString RetireMap;
+    bool bMirrorRetirement = false;
 };
 
 void UETSaveSubsystem::Deinitialize()
@@ -46,8 +48,13 @@ bool UETSaveSubsystem::RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted
     return BeginRequest(MoveTemp(Snapshot), MoveTemp(Completion), Scope);
 }
 
+bool UETSaveSubsystem::RequestRetire(FString MapPackage, FETSaveCompleted Completion, EETSaveScope Scope)
+{
+    return !MapPackage.IsEmpty() && BeginRequest({}, MoveTemp(Completion), Scope, MoveTemp(MapPackage));
+}
+
 bool UETSaveSubsystem::BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot,
-                                  FETSaveCompleted Completion, EETSaveScope Scope)
+                                   FETSaveCompleted Completion, EETSaveScope Scope, FString RetireMap)
 {
     check(IsInGameThread());
     if (bShuttingDown || ActiveRequest.IsValid())
@@ -58,6 +65,7 @@ bool UETSaveSubsystem::BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot,
     ActiveRequest = MakeShared<FETSaveOperation>();
     ActiveRequest->SlotPrefix = Scope == EETSaveScope::EditorPreview ? SlotPrefix + TEXT("_PIE") : SlotPrefix;
     ActiveRequest->PendingSnapshot = MoveTemp(Snapshot);
+    ActiveRequest->RetireMap = MoveTemp(RetireMap);
     ActiveRequest->Completion = MoveTemp(Completion);
     ReadSlot(0);
     return true;
@@ -146,11 +154,53 @@ void UETSaveSubsystem::ResolveSlots()
     const EETSaveStatus Unavailable = bReadError ? EETSaveStatus::IOError :
         (bCorrupt ? EETSaveStatus::Corrupt : EETSaveStatus::NoSave);
 
+    if (!ActiveRequest->RetireMap.IsEmpty())
+    {
+        const FETSaveResult& Latest = ActiveRequest->Slots[Preferred];
+        if (bReadError || !bHasValidSlot)
+        {
+            Finish({Unavailable});
+            return;
+        }
+        if (Latest.Snapshot.MapPackage != ActiveRequest->RetireMap)
+        {
+            Finish({EETSaveStatus::NoSave});
+            return;
+        }
+        if (bAValid && bBValid && A.Snapshot.bRetired && B.Snapshot.bRetired)
+        {
+            Finish(Latest);
+            return;
+        }
+
+        // Keep a verified copy while changing each slot. A verified newer marker hides the old checkpoint.
+        FETRunSaveSnapshot Marker = Latest.Snapshot;
+        if (!Marker.bRetired && Marker.Sequence == MAX_int64)
+        {
+            Finish({EETSaveStatus::InvalidSnapshot});
+            return;
+        }
+        ActiveRequest->bMirrorRetirement = !Marker.bRetired;
+        if (!Marker.bRetired)
+        {
+            ++Marker.Sequence;
+            Marker.SavedAtUtc = FDateTime::UtcNow();
+            Marker.bRetired = true;
+        }
+        WriteSlot(1 - Preferred, MoveTemp(Marker));
+        return;
+    }
+
     if (!ActiveRequest->PendingSnapshot.IsSet())
     {
         if (bHasValidSlot)
         {
             FETSaveResult Result = ActiveRequest->Slots[Preferred];
+            if (Result.Snapshot.bRetired)
+            {
+                Finish({EETSaveStatus::NoSave});
+                return;
+            }
             Result.bOtherSlotUnavailable = bReadError || bCorrupt;
             Finish(MoveTemp(Result));
         }
@@ -200,7 +250,7 @@ void UETSaveSubsystem::WriteSlot(const int32 Index, FETRunSaveSnapshot Snapshot)
     const FString Slot = ActiveRequest->SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
     const TWeakObjectPtr<UETSaveSubsystem> WeakThis(this);
     Storage->SaveGameAsync(false, *Slot, RunSaveUser(), Bytes,
-        [Storage, Slot, WeakThis, Bytes, Snapshot = MoveTemp(Snapshot)]
+        [Storage, Slot, WeakThis, Bytes, Index, Snapshot = MoveTemp(Snapshot)]
         (const FString&, FPlatformUserId User, bool bWritten) mutable
         {
             UETSaveSubsystem* Self = WeakThis.Get();
@@ -215,14 +265,22 @@ void UETSaveSubsystem::WriteSlot(const int32 Index, FETRunSaveSnapshot Snapshot)
             }
 
             Storage->LoadGameAsync(false, *Slot, User,
-                [WeakThis, Bytes, Snapshot = MoveTemp(Snapshot)]
+                [WeakThis, Bytes, Index, Snapshot = MoveTemp(Snapshot)]
                 (const FString&, FPlatformUserId, bool bRead, const TArray<uint8>& ReadBytes) mutable
                 {
                     if (UETSaveSubsystem* Store = WeakThis.Get(); Store && Store->ActiveRequest.IsValid())
                     {
                         if (bRead && ReadBytes == *Bytes)
                         {
-                            Store->Finish({EETSaveStatus::Success, MoveTemp(Snapshot)});
+                            if (Store->ActiveRequest->bMirrorRetirement)
+                            {
+                                Store->ActiveRequest->bMirrorRetirement = false;
+                                Store->WriteSlot(1 - Index, MoveTemp(Snapshot));
+                            }
+                            else
+                            {
+                                Store->Finish({EETSaveStatus::Success, MoveTemp(Snapshot)});
+                            }
                         }
                         else
                         {

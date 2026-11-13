@@ -42,6 +42,7 @@ void UETRunSessionSubsystem::Deinitialize()
     bShuttingDown = true;
     PendingCheckpointSave.Reset();
     bCheckpointSaveInFlight = false;
+    PendingSaveRetirement.Reset();
     OfferedSave.Reset();
     RestoredClearedIds.Reset();
     FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadHandle);
@@ -238,6 +239,7 @@ bool UETRunSessionSubsystem::TryCompleteTrial(UWorld* World, AEmberTrialCharacte
     }
     CompletedWorld = World;
     CompletedEncounterCount = ClearedEncounters;
+    QueueSaveRetirement(*World);
     UE_LOG(LogETRunSession, Display, TEXT("Trial completed Map=%s ClearedEncounters=%d"),
            *GameplayPackage, CompletedEncounterCount);
     OnTrialCompleted.Broadcast(World);
@@ -354,7 +356,8 @@ void UETRunSessionSubsystem::CaptureCheckpointSave(UWorld& World, const AEmberTr
 
 void UETRunSessionSubsystem::SubmitCheckpointSave()
 {
-    if (bShuttingDown || bCheckpointSaveInFlight || !PendingCheckpointSave.IsSet())
+    if (bShuttingDown || bCheckpointSaveInFlight || bSaveRetirementInFlight ||
+        PendingSaveRetirement.IsSet() || !PendingCheckpointSave.IsSet())
     {
         return;
     }
@@ -394,15 +397,85 @@ void UETRunSessionSubsystem::HandleCheckpointSaveFinished(const FETSaveResult& R
     {
         UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save failed Status=%d"), static_cast<int32>(Result.Status));
     }
-    SubmitCheckpointSave();
+    if (!SubmitSaveRetirement())
+    {
+        SubmitCheckpointSave();
+    }
+}
+
+void UETRunSessionSubsystem::QueueSaveRetirement(UWorld& World)
+{
+    if (!FPackageName::DoesPackageExist(GameplayPackage))
+    {
+        return;
+    }
+    PendingCheckpointSave.Reset();
+    PendingSaveRetirement = FPendingSaveRetirement{GameplayPackage, World.WorldType == EWorldType::PIE};
+    SubmitSaveRetirement();
+}
+
+bool UETRunSessionSubsystem::SubmitSaveRetirement()
+{
+    if (bShuttingDown || bCheckpointSaveInFlight || bSaveRetirementInFlight || !PendingSaveRetirement.IsSet())
+    {
+        return false;
+    }
+    FPendingSaveRetirement Pending = MoveTemp(PendingSaveRetirement.GetValue());
+    PendingSaveRetirement.Reset();
+    UETSaveSubsystem* Store = GetGameInstance()->GetSubsystem<UETSaveSubsystem>();
+    bSaveRetirementInFlight = true;
+    if (!Store || !Store->RequestRetire(MoveTemp(Pending.MapPackage),
+                                       FETSaveCompleted::CreateUObject(this, &ThisClass::HandleSaveRetirementFinished),
+                                       Pending.bEditorPreview ? EETSaveScope::EditorPreview : EETSaveScope::Run))
+    {
+        bSaveRetirementInFlight = false;
+        UE_LOG(LogETRunSession, Warning, TEXT("Save retirement skipped Reason=StoreUnavailableOrBusy"));
+        return false;
+    }
+    return true;
+}
+
+void UETRunSessionSubsystem::HandleSaveRetirementFinished(const FETSaveResult& Result)
+{
+    if (bShuttingDown)
+    {
+        return;
+    }
+    bSaveRetirementInFlight = false;
+    if (Result.Status == EETSaveStatus::Success)
+    {
+        UE_LOG(LogETRunSession, Display, TEXT("Save retired Sequence=%lld"), Result.Snapshot.Sequence);
+    }
+    else if (Result.Status == EETSaveStatus::NoSave)
+    {
+        UE_LOG(LogETRunSession, Display, TEXT("No checkpoint save to retire"));
+    }
+    else
+    {
+        UE_LOG(LogETRunSession, Warning, TEXT("Save retirement failed Status=%d"), static_cast<int32>(Result.Status));
+    }
+    if (!SubmitSaveRetirement())
+    {
+        SubmitCheckpointSave();
+    }
 }
 
 // ---- 命令入口保留各自权限：Retry需同地图，Continue可从菜单发起 ----
 bool UETRunSessionSubsystem::RequestNewRun(UWorld* RequestWorld, const FSoftObjectPath& Map,
                                            FText& OutError)
 {
-    return BeginTravel(RequestWorld, Map.GetLongPackageName(), GetEntryCheckpointId(),
-                       EETRunTravelIntent::NewRun, OutError);
+    if (bTravelPending)
+    {
+        return RejectRequest(TEXT("地图正在切换。"), OutError);
+    }
+    bRetireSaveOnNewRun = HasContinueSnapshot();
+    const bool bAccepted = BeginTravel(RequestWorld, Map.GetLongPackageName(), GetEntryCheckpointId(),
+                                       EETRunTravelIntent::NewRun, OutError);
+    if (!bAccepted)
+    {
+        bRetireSaveOnNewRun = false;
+    }
+    return bAccepted;
 }
 
 // 仅编辑器PIE的负例入口；Game目标保留签名但不修改会话。
@@ -488,6 +561,10 @@ bool UETRunSessionSubsystem::BeginTravel(UWorld* RequestWorld, const FString& Ta
                                          FName SpawnId, EETRunTravelIntent Intent, FText& OutError)
 {
     OutError = FText::GetEmpty();
+    if (bSaveRetirementInFlight || PendingSaveRetirement.IsSet())
+    {
+        return RejectRequest(TEXT("正在结束旧存档，请稍后再试。"), OutError);
+    }
     if (bShuttingDown || bTravelPending || !IsValid(RequestWorld) || RequestWorld->bIsTearingDown ||
         !RequestWorld->HasBegunPlay() || RequestWorld->GetGameInstance() != GetGameInstance() ||
         RequestWorld->GetNetMode() != NM_Standalone)
@@ -550,6 +627,10 @@ void UETRunSessionSubsystem::HandlePostLoadMap(UWorld* LoadedWorld)
         {
             OfferedSave.Reset();
             RestoredClearedIds.Reset();
+            if (bRetireSaveOnNewRun)
+            {
+                QueueSaveRetirement(*LoadedWorld);
+            }
         }
         if (PendingDiskRestore.IsSet())
         {
@@ -646,5 +727,6 @@ void UETRunSessionSubsystem::ResetPendingTravel()
     PendingTargetPackage.Reset();
     PendingCheckpointId = NAME_None;
     PendingDiskRestore.Reset();
+    bRetireSaveOnNewRun = false;
     OriginWorld.Reset();
 }
