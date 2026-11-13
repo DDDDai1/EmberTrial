@@ -1,5 +1,7 @@
 # M5-04 存档功能 Win64 Development 集成验收
 
+Attempt01 的打包及三个进程均已通过验收。[验收报告](Reports/M5_04_Verification.md) · [M6-01 性能采集](M6_01_TrialPerformanceBaseline.md)
+
 用同一份独立包启动三个进程，验证正式路线 Cook、A／B 保存、关闭进程后从 B 恢复、通关结束旧档，以及新进程重开。预计手动 30–45 分钟，Build 和 Cook 等待另计。
 
 ## 1. 打包前检查

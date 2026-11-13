@@ -7,7 +7,7 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
-    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06', 'M5_04')]
+    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06', 'M5_04', 'M6_01')]
     [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline
@@ -16,7 +16,7 @@ param(
 $ErrorActionPreference = 'Stop'
 ## 阶段集成包使用显式目录和独立的个人设置文件。
 $stageRepo = Split-Path $PSScriptRoot -Parent
-$stageUsesSeparateSettings = $EvidenceStage -in @('M3_06A', 'M3_06C3', 'M4_06', 'M5_04')
+$stageUsesSeparateSettings = $EvidenceStage -in @('M3_06A', 'M3_06C3', 'M4_06', 'M5_04', 'M6_01')
 if ($stageUsesSeparateSettings -and [string]::IsNullOrWhiteSpace($BuildDirectory)) {
     throw "$EvidenceStage requires an explicit -BuildDirectory for the new package."
 }
@@ -24,8 +24,9 @@ if ([string]::IsNullOrWhiteSpace($BuildDirectory)) {
     $BuildDirectory = Join-Path $stageRepo 'Artifacts\Builds\M1_07A\Attempt01'
 }
 $stageBuild = (Resolve-Path -LiteralPath $BuildDirectory).Path
-if ($EvidenceStage -in @('M3_06C3', 'M4_06', 'M5_04')) {
-    $stageExpectedRoot = Join-Path $stageRepo "Artifacts\Builds\$EvidenceStage"
+if ($EvidenceStage -in @('M3_06C3', 'M4_06', 'M5_04', 'M6_01')) {
+    $stagePackageStage = if ($EvidenceStage -eq 'M6_01') { 'M5_04' } else { $EvidenceStage }
+    $stageExpectedRoot = Join-Path $stageRepo "Artifacts\Builds\$stagePackageStage"
     if ((Split-Path $stageBuild -Parent) -ne $stageExpectedRoot -or
         (Split-Path $stageBuild -Leaf) -notmatch '^Attempt[0-9]+$') {
         throw "$EvidenceStage requires an Attempt directory under $stageExpectedRoot."
@@ -41,7 +42,7 @@ if (!$WhatIfPreference -and (Get-Process -Name UnrealEditor -ErrorAction Silentl
 ## 日志 / Trace / 元数据按同一唯一前缀关联；记录不是Gameplay验收结果。
 ## 历史性能命令仍归档到M1；显式M2_07B使用自己的证据目录。
 $stageEvidenceStage =
-if ($PerformanceBaseline -and $EvidenceStage -notin @('M2_07B', 'M4_06', 'M5_04')) { 'M1_07B' } else { $EvidenceStage }
+if ($PerformanceBaseline -and $EvidenceStage -notin @('M2_07B', 'M4_06', 'M5_04', 'M6_01')) { 'M1_07B' } else { $EvidenceStage }
 $stageOutput = Join-Path $stageRepo ("Artifacts\$stageEvidenceStage\Runtime")
 $stageStamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
 $stageBase = "${RunName}_${stageStamp}"
@@ -56,19 +57,23 @@ if ($stageUsesSeparateSettings) {
     $stageSettingsName = switch ($EvidenceStage) {
         'M4_06' { 'M4PackageUser.ini' }
         'M5_04' { 'M5PackageUser.ini' }
+        'M6_01' { 'M6PackageUser.ini' }
         default { 'M3PackageUser.ini' }
     }
     $stageSettingsIni = Join-Path $stageOutput $stageSettingsName
     $stageArguments += ('"-GameUserSettingsINI=' + $stageSettingsIni + '"')
 }
-if ($EvidenceStage -eq 'M5_04') {
+if ($EvidenceStage -in @('M5_04', 'M6_01')) {
     $stageUserDir = Join-Path $stageOutput (Join-Path (Split-Path $stageBuild -Leaf) 'User')
+    if ($EvidenceStage -eq 'M6_01') {
+        $stageUserDir = Join-Path $stageUserDir $stageBase
+    }
     $stageArguments += ('"-UserDir=' + $stageUserDir + '"')
 }
 $stageProfileCommands = $null
 if ($PerformanceBaseline) {
     ## M2按Introduction的中等画质目标采集；M1保持原High=2口径，禁止混作同条件对比。
-    $stageQualityLevel = if ($EvidenceStage -eq 'M2_07B') { 1 } else { 2 }
+    $stageQualityLevel = if ($EvidenceStage -in @('M2_07B', 'M6_01')) { 1 } else { 2 }
     $stageProfileCommands = ('t.MaxFPS 0,r.VSync 0,sg.ViewDistanceQuality {0},sg.AntiAliasingQuality {0},sg.ShadowQuality {0},sg.GlobalIlluminationQuality {0},sg.ReflectionQuality {0},sg.PostProcessQuality {0},sg.TextureQuality {0},sg.EffectsQuality {0},sg.FoliageQuality {0},sg.ShadingQuality {0},r.DynamicRes.OperationMode 0,r.ScreenPercentage 100' -f $stageQualityLevel)
     $stageArguments += ('-ExecCmds="' + $stageProfileCommands + '"')
 }
@@ -94,13 +99,19 @@ New-Item -ItemType Directory -Path $stageOutput -Force | Out-Null
 if ((Test-Path -LiteralPath $stageLog) -or (Test-Path -LiteralPath $stageMeta)) {
     throw 'The generated evidence filename already exists; run again to get a fresh timestamp.'
 }
-## 这是供用户操作的游戏窗口；不隐藏它，也不把启动成功记成玩法通过。
+$stageGameExeHash = $null
+if ($EvidenceStage -eq 'M6_01') {
+    $stageGameExe = Join-Path $stageBuild 'Windows\EmberTrial\Binaries\Win64\EmberTrial.exe'
+    $stageGameExeHash = (Get-FileHash -LiteralPath $stageGameExe -Algorithm SHA256).Hash
+}
+## 保留可见窗口供采集者实际游玩。
 $stageProcess = Start-Process -FilePath $stageExe -WorkingDirectory (Split-Path $stageExe -Parent) -ArgumentList $stageArguments -PassThru
 [ordered]@{
     RunName = $RunName
     StartedAt = [DateTimeOffset]::Now.ToString('o')
     Executable = $stageExe
     ExecutableSHA256 = (Get-FileHash -LiteralPath $stageExe -Algorithm SHA256).Hash
+    GameExecutableSHA256 = $stageGameExeHash
     BuildDirectory = $stageBuild
     Resolution = "$Width x $Height"
     TraceEnabled = [bool]$Trace
