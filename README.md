@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作 Demo，围绕 Gameplay、UMG 和对象生命周期逐步开发。六件遗物、四类设置与 500 条 ListView 复用已验收，六件版 Win64 Development 包通过两轮独立运行。正式试炼已从主菜单串联三场遭遇、祭坛与两处检查点，当前接入胜利结算。[M4-04 验收](Docs/Reports/M4_04_Verification.md) · [M4-05 操作](Docs/M4_05_TrialVictory.md)
+UE 5.5.4 / Windows / 离线单人的第三人称动作 Demo，围绕 Gameplay、UMG 和对象生命周期逐步开发。六件遗物、四类设置与 500 条 ListView 复用已验收，六件版 Win64 Development 包通过两轮独立运行。正式试炼已串联主菜单、三场遭遇、祭坛、两处检查点和胜利结算，当前验证完整试炼独立包。[M4-05 验收](Docs/Reports/M4_05_Verification.md) · [M4-06 指南](Docs/M4_06_TrialIntegratedPackage.md)
 
 ## 已实现的体验
 

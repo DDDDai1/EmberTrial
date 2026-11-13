@@ -452,4 +452,4 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M4-04 源码、地图与配置已在本地提交。可先提交验收报告和 M4-05 指南与补丁，正式工程实机通过后再提交 M4-05 源码与资产。[两组提交清单](M4_05_TrialVictory.md#5-commit--push)
+M4-05 源码与资产已提交。本批暂存验收报告、打包指南、启动工具和状态文档。[暂存清单](M4_06_TrialIntegratedPackage.md#6-commit--push)

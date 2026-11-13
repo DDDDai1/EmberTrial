@@ -246,8 +246,8 @@ M4-03D实机验证守关者按阶段与距离选招。冲击使用一次全圆�
 
 M4-04 把三场遭遇装配在同一张地图。各门用同一 `AETEncounter`，在世界启动时根据同图已确认的检查点恢复对应门状态。恢复不会重新生成前序敌人或发出清场事件。[M4-04 验收](Reports/M4_04_Verification.md)
 
-M4-05 由 `AETTrialExit` 检查同图的清场实例，`UETRunSessionSubsystem` 提交本局结果，已有 UI Flow 负责胜利页与焦点。「再玩一次」复用已确认的 NewRun 切图流程。[M4-05 操作](M4_05_TrialVictory.md)
+M4-05 由 `AETTrialExit` 检查同图的清场实例，`UETRunSessionSubsystem` 提交本局结果，已有 UI Flow 负责胜利页与焦点。实机确认同图 NewRun 从 Entry 重开，返回主菜单后继续资格清除。[M4-05 验收](Reports/M4_05_Verification.md)
 
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M4-04 源码、地图与配置已在本地提交。可先提交验收报告和 M4-05 指南与补丁，正式工程实机通过后再提交 M4-05 源码与资产。[两组提交清单](M4_05_TrialVictory.md#5-commit--push)
+M4-05 源码与资产已提交。本批暂存验收报告、打包指南、启动工具和状态文档。[暂存清单](M4_06_TrialIntegratedPackage.md#6-commit--push)
