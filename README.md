@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作 Demo。正式试炼串联主菜单、三场遭遇、祭坛、两处检查点和胜利结算，已通过 Win64 Development 两轮独立运行。A／B 检查点自动存档已验收，当前接入主菜单读档。[当前进度](Docs/Progress.md) · [M5-02A 指南](Docs/M5_02A_ContinueFromDisk.md)
+UE 5.5.4 / Windows / 离线单人的第三人称动作 Demo。正式试炼串联主菜单、三场遭遇、祭坛、两处检查点和胜利结算，已通过 Win64 Development 两轮独立运行。主菜单跨会话恢复已验收，当前接入覆盖确认与通关存档处理。[当前进度](Docs/Progress.md) · [M5-02B 指南](Docs/M5_02B_SaveRetirement.md)
 
 ## 已实现的体验
 

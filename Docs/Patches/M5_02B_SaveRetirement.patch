@@ -1,0 +1,523 @@
+--- a/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Flow/ETRunSessionSubsystem.cpp
+@@ -42,6 +42,7 @@
+     bShuttingDown = true;
+     PendingCheckpointSave.Reset();
+     bCheckpointSaveInFlight = false;
++    PendingSaveRetirement.Reset();
+     OfferedSave.Reset();
+     RestoredClearedIds.Reset();
+     FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadHandle);
+@@ -238,6 +239,7 @@
+     }
+     CompletedWorld = World;
+     CompletedEncounterCount = ClearedEncounters;
++    QueueSaveRetirement(*World);
+     UE_LOG(LogETRunSession, Display, TEXT("Trial completed Map=%s ClearedEncounters=%d"),
+            *GameplayPackage, CompletedEncounterCount);
+     OnTrialCompleted.Broadcast(World);
+@@ -354,7 +356,8 @@
+
+ void UETRunSessionSubsystem::SubmitCheckpointSave()
+ {
+-    if (bShuttingDown || bCheckpointSaveInFlight || !PendingCheckpointSave.IsSet())
++    if (bShuttingDown || bCheckpointSaveInFlight || bSaveRetirementInFlight ||
++        PendingSaveRetirement.IsSet() || !PendingCheckpointSave.IsSet())
+     {
+         return;
+     }
+@@ -394,15 +397,85 @@
+     {
+         UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save failed Status=%d"), static_cast<int32>(Result.Status));
+     }
+-    SubmitCheckpointSave();
++    if (!SubmitSaveRetirement())
++    {
++        SubmitCheckpointSave();
++    }
++}
++
++void UETRunSessionSubsystem::QueueSaveRetirement(UWorld& World)
++{
++    if (!FPackageName::DoesPackageExist(GameplayPackage))
++    {
++        return;
++    }
++    PendingCheckpointSave.Reset();
++    PendingSaveRetirement = FPendingSaveRetirement{GameplayPackage, World.WorldType == EWorldType::PIE};
++    SubmitSaveRetirement();
++}
++
++bool UETRunSessionSubsystem::SubmitSaveRetirement()
++{
++    if (bShuttingDown || bCheckpointSaveInFlight || bSaveRetirementInFlight || !PendingSaveRetirement.IsSet())
++    {
++        return false;
++    }
++    FPendingSaveRetirement Pending = MoveTemp(PendingSaveRetirement.GetValue());
++    PendingSaveRetirement.Reset();
++    UETSaveSubsystem* Store = GetGameInstance()->GetSubsystem<UETSaveSubsystem>();
++    bSaveRetirementInFlight = true;
++    if (!Store || !Store->RequestRetire(MoveTemp(Pending.MapPackage),
++                                       FETSaveCompleted::CreateUObject(this, &ThisClass::HandleSaveRetirementFinished),
++                                       Pending.bEditorPreview ? EETSaveScope::EditorPreview : EETSaveScope::Run))
++    {
++        bSaveRetirementInFlight = false;
++        UE_LOG(LogETRunSession, Warning, TEXT("Save retirement skipped Reason=StoreUnavailableOrBusy"));
++        return false;
++    }
++    return true;
++}
++
++void UETRunSessionSubsystem::HandleSaveRetirementFinished(const FETSaveResult& Result)
++{
++    if (bShuttingDown)
++    {
++        return;
++    }
++    bSaveRetirementInFlight = false;
++    if (Result.Status == EETSaveStatus::Success)
++    {
++        UE_LOG(LogETRunSession, Display, TEXT("Save retired Sequence=%lld"), Result.Snapshot.Sequence);
++    }
++    else if (Result.Status == EETSaveStatus::NoSave)
++    {
++        UE_LOG(LogETRunSession, Display, TEXT("No checkpoint save to retire"));
++    }
++    else
++    {
++        UE_LOG(LogETRunSession, Warning, TEXT("Save retirement failed Status=%d"), static_cast<int32>(Result.Status));
++    }
++    if (!SubmitSaveRetirement())
++    {
++        SubmitCheckpointSave();
++    }
+ }
+
+ // ---- 命令入口保留各自权限：Retry需同地图，Continue可从菜单发起 ----
+ bool UETRunSessionSubsystem::RequestNewRun(UWorld* RequestWorld, const FSoftObjectPath& Map,
+                                            FText& OutError)
+ {
+-    return BeginTravel(RequestWorld, Map.GetLongPackageName(), GetEntryCheckpointId(),
+-                       EETRunTravelIntent::NewRun, OutError);
++    if (bTravelPending)
++    {
++        return RejectRequest(TEXT("地图正在切换。"), OutError);
++    }
++    bRetireSaveOnNewRun = HasContinueSnapshot();
++    const bool bAccepted = BeginTravel(RequestWorld, Map.GetLongPackageName(), GetEntryCheckpointId(),
++                                       EETRunTravelIntent::NewRun, OutError);
++    if (!bAccepted)
++    {
++        bRetireSaveOnNewRun = false;
++    }
++    return bAccepted;
+ }
+
+ // 仅编辑器PIE的负例入口；Game目标保留签名但不修改会话。
+@@ -488,6 +561,10 @@
+                                          FName SpawnId, EETRunTravelIntent Intent, FText& OutError)
+ {
+     OutError = FText::GetEmpty();
++    if (bSaveRetirementInFlight || PendingSaveRetirement.IsSet())
++    {
++        return RejectRequest(TEXT("正在结束旧存档，请稍后再试。"), OutError);
++    }
+     if (bShuttingDown || bTravelPending || !IsValid(RequestWorld) || RequestWorld->bIsTearingDown ||
+         !RequestWorld->HasBegunPlay() || RequestWorld->GetGameInstance() != GetGameInstance() ||
+         RequestWorld->GetNetMode() != NM_Standalone)
+@@ -550,6 +627,10 @@
+         {
+             OfferedSave.Reset();
+             RestoredClearedIds.Reset();
++            if (bRetireSaveOnNewRun)
++            {
++                QueueSaveRetirement(*LoadedWorld);
++            }
+         }
+         if (PendingDiskRestore.IsSet())
+         {
+@@ -646,5 +727,6 @@
+     PendingTargetPackage.Reset();
+     PendingCheckpointId = NAME_None;
+     PendingDiskRestore.Reset();
++    bRetireSaveOnNewRun = false;
+     OriginWorld.Reset();
+ }
+--- a/EmberTrial/Source/EmberTrial/Private/Save/ETSaveSubsystem.cpp
++++ b/EmberTrial/Source/EmberTrial/Private/Save/ETSaveSubsystem.cpp
+@@ -26,6 +26,8 @@
+     FString SlotPrefix;
+     TOptional<FETRunSaveSnapshot> PendingSnapshot;
+     FETSaveCompleted Completion;
++    FString RetireMap;
++    bool bMirrorRetirement = false;
+ };
+
+ void UETSaveSubsystem::Deinitialize()
+@@ -46,8 +48,13 @@
+     return BeginRequest(MoveTemp(Snapshot), MoveTemp(Completion), Scope);
+ }
+
++bool UETSaveSubsystem::RequestRetire(FString MapPackage, FETSaveCompleted Completion, EETSaveScope Scope)
++{
++    return !MapPackage.IsEmpty() && BeginRequest({}, MoveTemp(Completion), Scope, MoveTemp(MapPackage));
++}
++
+ bool UETSaveSubsystem::BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot,
+-                                  FETSaveCompleted Completion, EETSaveScope Scope)
++                                   FETSaveCompleted Completion, EETSaveScope Scope, FString RetireMap)
+ {
+     check(IsInGameThread());
+     if (bShuttingDown || ActiveRequest.IsValid())
+@@ -58,6 +65,7 @@
+     ActiveRequest = MakeShared<FETSaveOperation>();
+     ActiveRequest->SlotPrefix = Scope == EETSaveScope::EditorPreview ? SlotPrefix + TEXT("_PIE") : SlotPrefix;
+     ActiveRequest->PendingSnapshot = MoveTemp(Snapshot);
++    ActiveRequest->RetireMap = MoveTemp(RetireMap);
+     ActiveRequest->Completion = MoveTemp(Completion);
+     ReadSlot(0);
+     return true;
+@@ -146,11 +154,53 @@
+     const EETSaveStatus Unavailable = bReadError ? EETSaveStatus::IOError :
+         (bCorrupt ? EETSaveStatus::Corrupt : EETSaveStatus::NoSave);
+
++    if (!ActiveRequest->RetireMap.IsEmpty())
++    {
++        const FETSaveResult& Latest = ActiveRequest->Slots[Preferred];
++        if (bReadError || !bHasValidSlot)
++        {
++            Finish({Unavailable});
++            return;
++        }
++        if (Latest.Snapshot.MapPackage != ActiveRequest->RetireMap)
++        {
++            Finish({EETSaveStatus::NoSave});
++            return;
++        }
++        if (bAValid && bBValid && A.Snapshot.bRetired && B.Snapshot.bRetired)
++        {
++            Finish(Latest);
++            return;
++        }
++
++        // Keep a verified copy while changing each slot. A verified newer marker hides the old checkpoint.
++        FETRunSaveSnapshot Marker = Latest.Snapshot;
++        if (!Marker.bRetired && Marker.Sequence == MAX_int64)
++        {
++            Finish({EETSaveStatus::InvalidSnapshot});
++            return;
++        }
++        ActiveRequest->bMirrorRetirement = !Marker.bRetired;
++        if (!Marker.bRetired)
++        {
++            ++Marker.Sequence;
++            Marker.SavedAtUtc = FDateTime::UtcNow();
++            Marker.bRetired = true;
++        }
++        WriteSlot(1 - Preferred, MoveTemp(Marker));
++        return;
++    }
++
+     if (!ActiveRequest->PendingSnapshot.IsSet())
+     {
+         if (bHasValidSlot)
+         {
+             FETSaveResult Result = ActiveRequest->Slots[Preferred];
++            if (Result.Snapshot.bRetired)
++            {
++                Finish({EETSaveStatus::NoSave});
++                return;
++            }
+             Result.bOtherSlotUnavailable = bReadError || bCorrupt;
+             Finish(MoveTemp(Result));
+         }
+@@ -200,7 +250,7 @@
+     const FString Slot = ActiveRequest->SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
+     const TWeakObjectPtr<UETSaveSubsystem> WeakThis(this);
+     Storage->SaveGameAsync(false, *Slot, RunSaveUser(), Bytes,
+-        [Storage, Slot, WeakThis, Bytes, Snapshot = MoveTemp(Snapshot)]
++        [Storage, Slot, WeakThis, Bytes, Index, Snapshot = MoveTemp(Snapshot)]
+         (const FString&, FPlatformUserId User, bool bWritten) mutable
+         {
+             UETSaveSubsystem* Self = WeakThis.Get();
+@@ -215,14 +265,22 @@
+             }
+
+             Storage->LoadGameAsync(false, *Slot, User,
+-                [WeakThis, Bytes, Snapshot = MoveTemp(Snapshot)]
++                [WeakThis, Bytes, Index, Snapshot = MoveTemp(Snapshot)]
+                 (const FString&, FPlatformUserId, bool bRead, const TArray<uint8>& ReadBytes) mutable
+                 {
+                     if (UETSaveSubsystem* Store = WeakThis.Get(); Store && Store->ActiveRequest.IsValid())
+                     {
+                         if (bRead && ReadBytes == *Bytes)
+                         {
+-                            Store->Finish({EETSaveStatus::Success, MoveTemp(Snapshot)});
++                            if (Store->ActiveRequest->bMirrorRetirement)
++                            {
++                                Store->ActiveRequest->bMirrorRetirement = false;
++                                Store->WriteSlot(1 - Index, MoveTemp(Snapshot));
++                            }
++                            else
++                            {
++                                Store->Finish({EETSaveStatus::Success, MoveTemp(Snapshot)});
++                            }
+                         }
+                         else
+                         {
+--- a/EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
++++ b/EmberTrial/Source/EmberTrial/Public/Flow/ETRunSessionSubsystem.h
+@@ -83,6 +83,9 @@
+     void CaptureCheckpointSave(UWorld& World, const AEmberTrialCharacter& Body);
+     void SubmitCheckpointSave();
+     void HandleCheckpointSaveFinished(const FETSaveResult& Result);
++    void QueueSaveRetirement(UWorld& World);
++    bool SubmitSaveRetirement();
++    void HandleSaveRetirementFinished(const FETSaveResult& Result);
+     bool ApplyDiskRestore(UWorld& World, const FETRunSaveSnapshot& Snapshot, FName SpawnId);
+
+     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
+@@ -115,6 +118,14 @@
+     // Keep the latest activation if another checkpoint write is still in flight.
+     TOptional<FPendingCheckpointSave> PendingCheckpointSave;
+     bool bCheckpointSaveInFlight = false;
++    struct FPendingSaveRetirement
++    {
++        FString MapPackage;
++        bool bEditorPreview = false;
++    };
++    TOptional<FPendingSaveRetirement> PendingSaveRetirement;
++    bool bSaveRetirementInFlight = false;
++    bool bRetireSaveOnNewRun = false;
+
+     // 待定请求与实际出生报告，确认到达后才提交为快照。
+     FString PendingTargetPackage;
+--- a/EmberTrial/Source/EmberTrial/Public/Save/ETRunSaveGame.h
++++ b/EmberTrial/Source/EmberTrial/Public/Save/ETRunSaveGame.h
+@@ -54,6 +54,10 @@
+
+     UPROPERTY(SaveGame)
+     int32 HealingCharges = INDEX_NONE;
++
++    // Saves written before retirement was introduced default to an active checkpoint.
++    UPROPERTY(SaveGame)
++    bool bRetired = false;
+ };
+
+ UCLASS()
+--- a/EmberTrial/Source/EmberTrial/Public/Save/ETSaveSubsystem.h
++++ b/EmberTrial/Source/EmberTrial/Public/Save/ETSaveSubsystem.h
+@@ -45,12 +45,13 @@
+     bool RequestLoad(FETSaveCompleted Completion, EETSaveScope Scope = EETSaveScope::Run);
+     bool RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion,
+                      EETSaveScope Scope = EETSaveScope::Run);
++    bool RequestRetire(FString MapPackage, FETSaveCompleted Completion, EETSaveScope Scope);
+
+ private:
+     friend class FETRunSaveSlotsTest;
+
+     bool BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot, FETSaveCompleted Completion,
+-                      EETSaveScope Scope);
++                      EETSaveScope Scope, FString RetireMap = {});
+     void ReadSlot(int32 Index);
+     void ResolveSlots();
+     void WriteSlot(int32 Index, FETRunSaveSnapshot Snapshot);
+--- a/EmberTrial/Source/EmberTrial/Tests/ETRunSaveSlotsTests.cpp
++++ b/EmberTrial/Source/EmberTrial/Tests/ETRunSaveSlotsTests.cpp
+@@ -29,6 +29,7 @@
+     const FString SlotA = Prefix + TEXT("_A");
+     const FString SlotB = Prefix + TEXT("_B");
+     const FString PreviewSlotA = Prefix + TEXT("_PIE_A");
++    const FString PreviewSlotB = Prefix + TEXT("_PIE_B");
+     Fixture->Store->SlotPrefix = Prefix;
+
+     FETRunSaveSnapshot Snapshot;
+@@ -174,13 +175,49 @@
+     {
+         TestTrue(TEXT("Run slot is still protected"), Result.Status == EETSaveStatus::UnsupportedVersion);
+     });
+-
+-    ADD_LATENT_AUTOMATION_COMMAND(FFunctionLatentCommand([Fixture, SlotA, SlotB, PreviewSlotA]()
++    const auto RetirePreview = [Fixture, Snapshot](FETSaveCompleted Done)
++    {
++        return Fixture->Store->RequestRetire(Snapshot.MapPackage, MoveTemp(Done), EETSaveScope::EditorPreview);
++    };
++    QueueStep(TEXT("Retire the checkpoint"), RetirePreview,
++        [this, PreviewSlotA, PreviewSlotB](const FETSaveResult& Result)
++        {
++            TestTrue(TEXT("Retirement is verified"), Result.Status == EETSaveStatus::Success &&
++                     Result.Snapshot.bRetired);
++            TestEqual(TEXT("Retirement advances the sequence"), Result.Snapshot.Sequence, int64(2));
++            TArray<uint8> A;
++            TArray<uint8> B;
++            if (TestTrue(TEXT("Both markers exist"), UGameplayStatics::LoadDataFromSlot(A, PreviewSlotA, 0) &&
++                         UGameplayStatics::LoadDataFromSlot(B, PreviewSlotB, 0)))
++            {
++                TestTrue(TEXT("Both slots hold the same marker"), A == B);
++                TestTrue(TEXT("Simulate losing one marker"), UGameplayStatics::DeleteGameInSlot(PreviewSlotA, 0));
++            }
++        });
++    QueueStep(TEXT("Load after losing one retired slot"), [Fixture](FETSaveCompleted Done)
++    {
++        return Fixture->Store->RequestLoad(MoveTemp(Done), EETSaveScope::EditorPreview);
++    }, [this](const FETSaveResult& Result)
++    {
++        TestTrue(TEXT("A retired checkpoint is unavailable"), Result.Status == EETSaveStatus::NoSave);
++    });
++    QueueStep(TEXT("Save the next run"), [Fixture, Snapshot](FETSaveCompleted Done)
++    {
++        return Fixture->Store->RequestSave(Snapshot, MoveTemp(Done), EETSaveScope::EditorPreview);
++    }, [this](const FETSaveResult& Result)
++    {
++        TestTrue(TEXT("A new checkpoint supersedes retirement"), Result.Status == EETSaveStatus::Success &&
++                 !Result.Snapshot.bRetired);
++        TestEqual(TEXT("New checkpoint continues slot ordering"), Result.Snapshot.Sequence, int64(3));
++    });
++
++    ADD_LATENT_AUTOMATION_COMMAND(FFunctionLatentCommand([Fixture, SlotA, SlotB, PreviewSlotA, PreviewSlotB]()
+     {
+         Fixture->Store->Deinitialize();
+         UGameplayStatics::DeleteGameInSlot(SlotA, 0);
+         UGameplayStatics::DeleteGameInSlot(SlotB, 0);
+         UGameplayStatics::DeleteGameInSlot(PreviewSlotA, 0);
++        UGameplayStatics::DeleteGameInSlot(PreviewSlotB, 0);
+         return true;
+     }));
+     return true;
+--- a/EmberTrial/Source/EmberTrialUI/Private/FrontEnd/ETMainMenuController.cpp
++++ b/EmberTrial/Source/EmberTrialUI/Private/FrontEnd/ETMainMenuController.cpp
+@@ -130,6 +130,11 @@
+     {
+         return;
+     }
++    if (Session.IsValid() && Session->HasContinueSnapshot() && !MenuWidget->IsConfirmingNewRun())
++    {
++        MenuWidget->ShowNewRunConfirmation();
++        return;
++    }
+     bTransitionPending = true;
+     MenuWidget->ShowPending(FText::FromString(TEXT("正在开始新试炼…")));
+     FText Error;
+@@ -145,6 +150,12 @@
+ {
+     if (!CanHandleMenuAction() || !GetWorld())
+     {
++        return;
++    }
++    if (MenuWidget->IsConfirmingNewRun())
++    {
++        MenuWidget->ShowReady(Session.IsValid() && Session->HasContinueSnapshot());
++        ApplyMenuInputMode();
+         return;
+     }
+     bTransitionPending = true;
+--- a/EmberTrial/Source/EmberTrialUI/Private/Widgets/ETMainMenuWidget.cpp
++++ b/EmberTrial/Source/EmberTrialUI/Private/Widgets/ETMainMenuWidget.cpp
+@@ -55,6 +55,7 @@
+
+ void UETMainMenuWidget::ShowReady(bool bCanContinue)
+ {
++    SetNewRunConfirmation(false);
+     bContinueAvailable = bCanContinue;
+     ApplyState(false,
+                FText::FromString(bCanContinue ? TEXT("可继续本次试炼。")
+@@ -63,13 +64,51 @@
+
+ void UETMainMenuWidget::ShowPending(const FText& Message)
+ {
++    SetNewRunConfirmation(false);
+     ApplyState(true, Message);
+ }
+
+ void UETMainMenuWidget::ShowError(const FText& Message, bool bCanContinue)
+ {
++    SetNewRunConfirmation(false);
+     bContinueAvailable = bCanContinue;
+     ApplyState(false, Message);
++}
++
++void UETMainMenuWidget::ShowNewRunConfirmation()
++{
++    SetNewRunConfirmation(true);
++    ApplyState(false, NSLOCTEXT("ETSave", "ConfirmNewTrial",
++        "开始新试炼将覆盖当前进度。选择「确认新试炼」或「取消」。"));
++    if (APlayerController* Controller = GetOwningPlayer())
++    {
++        ContinueButton->SetUserFocus(Controller);
++    }
++}
++
++void UETMainMenuWidget::SetNewRunConfirmation(bool bConfirm)
++{
++    if (bConfirmingNewRun == bConfirm)
++    {
++        return;
++    }
++    bConfirmingNewRun = bConfirm;
++    if (UTextBlock* Label = Cast<UTextBlock>(StartButton->GetContent()))
++    {
++        if (bConfirm)
++        {
++            StartLabel = Label->GetText();
++        }
++        Label->SetText(bConfirm ? NSLOCTEXT("ETSave", "ConfirmNewTrialButton", "确认新试炼") : StartLabel);
++    }
++    if (UTextBlock* Label = Cast<UTextBlock>(ContinueButton->GetContent()))
++    {
++        if (bConfirm)
++        {
++            ContinueLabel = Label->GetText();
++        }
++        Label->SetText(bConfirm ? NSLOCTEXT("ETSave", "CancelNewTrialButton", "取消") : ContinueLabel);
++    }
+ }
+
+ void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
+@@ -97,8 +136,8 @@
+         return;
+     }
+     StartButton->SetIsEnabled(!bBusy);
+-    ContinueButton->SetIsEnabled(!bBusy && bContinueAvailable);
+-    QuitButton->SetIsEnabled(!bBusy);
++    ContinueButton->SetIsEnabled(!bBusy && (bContinueAvailable || bConfirmingNewRun));
++    QuitButton->SetIsEnabled(!bBusy && !bConfirmingNewRun);
+     StatusText->SetText(Message);
+ }
+
+@@ -123,7 +162,7 @@
+
+ void UETMainMenuWidget::HandleContinueClicked()
+ {
+-    if (!bBusy && bContinueAvailable)
++    if (!bBusy && (bContinueAvailable || bConfirmingNewRun))
+     {
+         OnContinueRequested.Broadcast();
+     }
+--- a/EmberTrial/Source/EmberTrialUI/Public/Widgets/ETMainMenuWidget.h
++++ b/EmberTrial/Source/EmberTrialUI/Public/Widgets/ETMainMenuWidget.h
+@@ -25,6 +25,8 @@
+     void ShowReady(bool bCanContinue);
+     void ShowPending(const FText& Message);
+     void ShowError(const FText& Message, bool bCanContinue);
++    void ShowNewRunConfirmation();
++    bool IsConfirmingNewRun() const { return bConfirmingNewRun; }
+     void FocusStartButton();
+
+     // Controller订阅这些意图；Widget的busy与Controller门控各自负责本层边界。
+@@ -45,6 +47,7 @@
+ private:
+     // ---- 统一按钮状态；点击回调只检查View状态并广播 ----
+     void ApplyState(bool bPending, const FText& Message);
++    void SetNewRunConfirmation(bool bConfirm);
+
+     UFUNCTION()
+     void HandleStartClicked();
+@@ -83,4 +86,7 @@
+     // busy仅表示请求处理中，不等于世界暂停；Continue来自Session快照。
+     bool bBusy = false;
+     bool bContinueAvailable = false;
++    bool bConfirmingNewRun = false;
++    FText StartLabel;
++    FText ContinueLabel;
+ };
