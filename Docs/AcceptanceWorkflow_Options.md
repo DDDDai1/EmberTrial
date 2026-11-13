@@ -480,8 +480,8 @@ M4-03D已验证选招阈值、轮换、圆形几何和旧能力，补修后实�
 
 M4-04 已验证从菜单到出口的主路径，以及 A 重试、B 继续与 B 重试。[M4-04 验收](Reports/M4_04_Verification.md)
 
-M4-05 的专项覆盖出口重叠、未清场与重复完成边界，结算焦点、再玩一次和菜单继续资格已通过两轮实机。M4-06 沿用正式工程的 57 项回归，集中验证 Cook 后的入口与结算。[M4-05 验收](Reports/M4_05_Verification.md) · [M4-06 指南](M4_06_TrialIntegratedPackage.md)
+M4-06 的 57 项正式回归和两轮包内实机已通过。M5-01A 集中验证数据契约和 UE 内存序列化，实机只跑菜单、Entry 和 P 的最短路径。[M4-06 验收](Reports/M4_06_Verification.md) · [M5-01A 指南](M5_01A_RunSaveSnapshot.md)
 
 ## 9. 当前批次 Commit / Push（固定放在最后）
 
-M4-05 源码与资产已提交。本批暂存验收报告、打包指南、启动工具和状态文档。[暂存清单](M4_06_TrialIntegratedPackage.md#6-commit--push)
+先提交 M4-06 验收与 M5-01A 指南和补丁，正式工程通过后提交三个新增源码文件。[暂存清单](M5_01A_RunSaveSnapshot.md#3-commit--push)

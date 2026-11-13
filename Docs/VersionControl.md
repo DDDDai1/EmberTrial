@@ -452,4 +452,4 @@ C2主体尚未在本地新Commit中观察到；只读HEAD保持e3ee554，不替�
 
 ## 11. 当前批次 Commit / Push（固定放在最后）
 
-M4-05 源码与资产已提交。本批暂存验收报告、打包指南、启动工具和状态文档。[暂存清单](M4_06_TrialIntegratedPackage.md#6-commit--push)
+先提交 M4-06 验收与 M5-01A 指南和补丁，正式工程通过后提交三个新增源码文件。[暂存清单](M5_01A_RunSaveSnapshot.md#3-commit--push)

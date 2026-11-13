@@ -1,5 +1,7 @@
 # M4-06 完整试炼 Win64 Development 集成包
 
+Attempt01 已完成打包与两轮实机验收。[M4-06 验收报告](Reports/M4_06_Verification.md) · [M5-01A 存档快照](M5_01A_RunSaveSnapshot.md)
+
 把当前完整路线打成独立包，验证 Cook 后的主菜单、三场遭遇、两处检查点、祭坛、失败与胜利结算。本章预计手动 **35–60 分钟**，构建和 Cook 等待另记。
 
 ## 1. 打包前检查
@@ -109,7 +111,4 @@ Run02 胜利鼠标返回 / Continue禁用 / 新试炼Entry：
 
 ## 6. Commit / Push
 
-M4-05 功能源码和资产已提交。将本次验收报告、M4-06 指南、启动脚本以及同步的 README、Introduction、M4-05 指南、Progress、Backlog、Architecture、AcceptanceWorkflow_Options、VersionControl、AssetManifest 一起暂存。包、日志、启动 JSON 和专用 ini 保留在本地 `Artifacts`。本阶段若需要补修正式源码或资产，在对应复验通过后再提交补修。
-
-- 英文 `chore(release): verify trial victory and prepare M4 packaging`
-- 中文 `chore(release): 验收试炼胜利结算并准备 M4 集成打包`
+打包指南和启动脚本已包含在提交 `54e8eb7`。M4-06 验收文档与 M5-01A 指南和补丁一起暂存。包、日志、启动 JSON 和专用 ini 保留在本地 `Artifacts`。[当前暂存清单与中英文 Commit](M5_01A_RunSaveSnapshot.md#3-commit--push)

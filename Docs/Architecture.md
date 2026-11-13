@@ -248,6 +248,8 @@ M4-04 把三场遭遇装配在同一张地图。各门用同一 `AETEncounter`�
 
 M4-05 由 `AETTrialExit` 检查同图的清场实例，`UETRunSessionSubsystem` 提交本局结果，已有 UI Flow 负责胜利页与焦点。实机确认同图 NewRun 从 Entry 重开，返回主菜单后继续资格清除。[M4-05 验收](Reports/M4_05_Verification.md)
 
+M5-01A 将版本、序号、地图、检查点与其余进度 ID 放入 `FETRunSaveSnapshot`，用原生 `UETRunSaveGame` 承载。快照校验结构与 ID 一致性，内容存在性由实际恢复时的关卡和遗物目录校验。以后由独立的存档子系统协调磁盘读写，`UETRunSessionSubsystem` 继续负责会话与地图切换。[M5-01A 指南](M5_01A_RunSaveSnapshot.md)
+
 ## 10. 本批 Commit / Push（固定放在最后）
 
-M4-05 源码与资产已提交。本批暂存验收报告、打包指南、启动工具和状态文档。[暂存清单](M4_06_TrialIntegratedPackage.md#6-commit--push)
+先提交 M4-06 验收与 M5-01A 指南和补丁，正式工程通过后提交三个新增源码文件。[暂存清单](M5_01A_RunSaveSnapshot.md#3-commit--push)
