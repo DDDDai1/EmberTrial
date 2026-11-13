@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/EngineBaseTypes.h"
+#include "Save/ETRunSaveGame.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "UObject/SoftObjectPath.h"
 #include "ETRunSessionSubsystem.generated.h"
@@ -10,6 +11,7 @@ class AEmberTrialCharacter;
 class AETTrialExit;
 class APlayerStart;
 class UWorld;
+struct FETSaveResult;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunTravelFailed, UWorld*, const FText&);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunCheckpointChanged, UWorld*, FName);
@@ -27,7 +29,7 @@ enum class EETRunTravelIntent : uint8
 // 只有本GI、目标地图与出生报告确认后才发布；失败请求不发布成功。
 DECLARE_MULTICAST_DELEGATE_TwoParams(FETRunTravelConfirmed, UWorld*, EETRunTravelIntent);
 
-// 当前进程的地图 / 检查点快照；不保存Actor / ASC，不负责Widget或磁盘存档。
+// 会话负责地图、检查点与快照采集，存档子系统负责写盘。
 UCLASS()
 class EMBERTRIAL_API UETRunSessionSubsystem : public UGameInstanceSubsystem
 {
@@ -75,6 +77,9 @@ private:
     friend class AETTrialExit;
 
     bool TryCompleteTrial(UWorld* World, AEmberTrialCharacter* Player, int32 ClearedEncounters);
+    void CaptureCheckpointSave(UWorld& World, const AEmberTrialCharacter& Body);
+    void SubmitCheckpointSave();
+    void HandleCheckpointSaveFinished(const FETSaveResult& Result);
 
     // ---- 切图预检、到达确认、失败释放与PIE包名归一化 ----
     bool BeginTravel(UWorld* RequestWorld, const FString& TargetPackage, FName SpawnId,
@@ -93,6 +98,16 @@ private:
     FName ActiveCheckpointId = NAME_None;
     TWeakObjectPtr<UWorld> CompletedWorld;
     int32 CompletedEncounterCount = 0;
+
+    struct FPendingCheckpointSave
+    {
+        FETRunSaveSnapshot Snapshot;
+        bool bEditorPreview = false;
+    };
+    // Keep the latest activation if another checkpoint write is still in flight.
+    TOptional<FPendingCheckpointSave> PendingCheckpointSave;
+    bool bCheckpointSaveInFlight = false;
+
     // 待定请求与实际出生报告，确认到达后才提交为快照。
     FString PendingTargetPackage;
     FName PendingCheckpointId = NAME_None;

@@ -4,11 +4,16 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "Flow/ETCheckpointStart.h"
+#include "Flow/ETEncounter.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerStart.h"
+#include "Inventory/ETRelicInventorySubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Logging/LogMacros.h"
 #include "Misc/PackageName.h"
+#include "Resources/ETHealingResourceComponent.h"
+#include "Save/ETSaveSubsystem.h"
 #include "UObject/Package.h"
 #include "UObject/UObjectGlobals.h"
 
@@ -35,6 +40,8 @@ void UETRunSessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UETRunSessionSubsystem::Deinitialize()
 {
     bShuttingDown = true;
+    PendingCheckpointSave.Reset();
+    bCheckpointSaveInFlight = false;
     FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadHandle);
     PostLoadHandle.Reset();
     if (GEngine && TravelFailureHandle.IsValid())
@@ -218,8 +225,104 @@ bool UETRunSessionSubsystem::TryActivateCheckpoint(UWorld* RequestWorld,
     ActiveCheckpointId = CheckpointId;
     UE_LOG(LogETRunSession, Display, TEXT("[M1-06C] Checkpoint activated Map=%s Id=%s Body=%s"),
            *GameplayPackage, *CheckpointId.ToString(), *GetNameSafe(PlayerBody));
+    const AETCheckpointStart* Checkpoint = Cast<AETCheckpointStart>(CheckpointStart);
+    if (Checkpoint && Checkpoint->ShouldAutosaveOnActivation())
+    {
+        CaptureCheckpointSave(*RequestWorld, *PlayerBody);
+    }
     OnCheckpointChanged.Broadcast(RequestWorld, CheckpointId);
     return true;
+}
+
+void UETRunSessionSubsystem::CaptureCheckpointSave(UWorld& World, const AEmberTrialCharacter& Body)
+{
+    const UETRelicInventorySubsystem* Inventory = GetGameInstance()->GetSubsystem<UETRelicInventorySubsystem>();
+    const UETHealingResourceComponent* Healing = Body.FindComponentByClass<UETHealingResourceComponent>();
+    const FETRelicInventorySnapshot Relics = Inventory ? Inventory->GetSnapshot() : FETRelicInventorySnapshot{};
+
+    FPendingCheckpointSave Pending;
+    FETRunSaveSnapshot& Snapshot = Pending.Snapshot;
+    int32 MaxCharges = 0;
+    if (!Relics.bReady || !Healing || !Healing->GetHealingSnapshot(Snapshot.HealingCharges, MaxCharges))
+    {
+        UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save skipped Id=%s Reason=ResourcesUnavailable"),
+               *ActiveCheckpointId.ToString());
+        return;
+    }
+
+    TSet<FName> EncounterIds;
+    for (TActorIterator<AETEncounter> It(&World); It; ++It)
+    {
+        const FName EncounterId = It->GetEncounterId();
+        if (EncounterId.IsNone() || EncounterIds.Contains(EncounterId))
+        {
+            UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save skipped Id=%s Reason=InvalidEncounterId Actor=%s"),
+                   *ActiveCheckpointId.ToString(), *GetNameSafe(*It));
+            return;
+        }
+
+        EncounterIds.Add(EncounterId);
+        if (It->HasCleared())
+        {
+            Snapshot.ClearedEncounterIds.Add(EncounterId);
+        }
+    }
+
+    Snapshot.ClearedEncounterIds.Sort(FNameLexicalLess());
+    Snapshot.SchemaVersion = FETRunSaveSnapshot::CurrentSchemaVersion;
+    Snapshot.MapPackage = GameplayPackage;
+    Snapshot.CheckpointId = ActiveCheckpointId;
+    Snapshot.OwnedRelicIds = Relics.OwnedIds;
+    Snapshot.EquippedRelicA = Relics.Equipped.SlotA;
+    Snapshot.EquippedRelicB = Relics.Equipped.SlotB;
+    Pending.bEditorPreview = World.WorldType == EWorldType::PIE;
+    PendingCheckpointSave = MoveTemp(Pending);
+    SubmitCheckpointSave();
+}
+
+void UETRunSessionSubsystem::SubmitCheckpointSave()
+{
+    if (bShuttingDown || bCheckpointSaveInFlight || !PendingCheckpointSave.IsSet())
+    {
+        return;
+    }
+
+    FPendingCheckpointSave Pending = MoveTemp(PendingCheckpointSave.GetValue());
+    PendingCheckpointSave.Reset();
+    UETSaveSubsystem* Store = GetGameInstance()->GetSubsystem<UETSaveSubsystem>();
+    const EETSaveScope Scope = Pending.bEditorPreview ? EETSaveScope::EditorPreview : EETSaveScope::Run;
+    const FName CheckpointId = Pending.Snapshot.CheckpointId;
+    bCheckpointSaveInFlight = true;
+    if (!Store || !Store->RequestSave(MoveTemp(Pending.Snapshot),
+                                     FETSaveCompleted::CreateUObject(this, &ThisClass::HandleCheckpointSaveFinished),
+                                     Scope))
+    {
+        bCheckpointSaveInFlight = false;
+        UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save skipped Id=%s Reason=StoreUnavailableOrBusy"),
+               *CheckpointId.ToString());
+    }
+}
+
+void UETRunSessionSubsystem::HandleCheckpointSaveFinished(const FETSaveResult& Result)
+{
+    if (bShuttingDown)
+    {
+        return;
+    }
+    bCheckpointSaveInFlight = false;
+    if (Result.Status == EETSaveStatus::Success)
+    {
+        const FETRunSaveSnapshot& Snapshot = Result.Snapshot;
+        UE_LOG(LogETRunSession, Display,
+               TEXT("Checkpoint saved Id=%s Sequence=%lld Cleared=%d SlotA=%s SlotB=%s Healing=%d"),
+               *Snapshot.CheckpointId.ToString(), Snapshot.Sequence, Snapshot.ClearedEncounterIds.Num(),
+               *Snapshot.EquippedRelicA.ToString(), *Snapshot.EquippedRelicB.ToString(), Snapshot.HealingCharges);
+    }
+    else
+    {
+        UE_LOG(LogETRunSession, Warning, TEXT("Checkpoint save failed Status=%d"), static_cast<int32>(Result.Status));
+    }
+    SubmitCheckpointSave();
 }
 
 // ---- 命令入口保留各自权限：Retry需同地图，Continue可从菜单发起 ----

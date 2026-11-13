@@ -22,6 +22,12 @@ struct FETSaveResult
     bool bOtherSlotUnavailable = false;
 };
 
+enum class EETSaveScope : uint8
+{
+    Run,
+    EditorPreview
+};
+
 DECLARE_DELEGATE_OneParam(FETSaveCompleted, const FETSaveResult&);
 
 struct FETSaveOperation;
@@ -36,13 +42,15 @@ public:
 
     // Call from the game thread. False means busy or shutting down.
     // Accepted requests report a result on the game thread.
-    bool RequestLoad(FETSaveCompleted Completion);
-    bool RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion);
+    bool RequestLoad(FETSaveCompleted Completion, EETSaveScope Scope = EETSaveScope::Run);
+    bool RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion,
+                     EETSaveScope Scope = EETSaveScope::Run);
 
 private:
     friend class FETRunSaveSlotsTest;
 
-    bool BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot, FETSaveCompleted Completion);
+    bool BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot, FETSaveCompleted Completion,
+                      EETSaveScope Scope);
     void ReadSlot(int32 Index);
     void ResolveSlots();
     void WriteSlot(int32 Index, FETRunSaveSnapshot Snapshot);

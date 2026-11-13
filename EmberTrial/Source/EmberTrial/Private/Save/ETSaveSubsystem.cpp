@@ -23,6 +23,7 @@ FPlatformUserId RunSaveUser()
 struct FETSaveOperation
 {
     FETSaveResult Slots[2];
+    FString SlotPrefix;
     TOptional<FETRunSaveSnapshot> PendingSnapshot;
     FETSaveCompleted Completion;
 };
@@ -34,18 +35,19 @@ void UETSaveSubsystem::Deinitialize()
     Super::Deinitialize();
 }
 
-bool UETSaveSubsystem::RequestLoad(FETSaveCompleted Completion)
+bool UETSaveSubsystem::RequestLoad(FETSaveCompleted Completion, EETSaveScope Scope)
 {
-    return BeginRequest({}, MoveTemp(Completion));
+    return BeginRequest({}, MoveTemp(Completion), Scope);
 }
 
-bool UETSaveSubsystem::RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion)
+bool UETSaveSubsystem::RequestSave(FETRunSaveSnapshot Snapshot, FETSaveCompleted Completion,
+                                   EETSaveScope Scope)
 {
-    return BeginRequest(MoveTemp(Snapshot), MoveTemp(Completion));
+    return BeginRequest(MoveTemp(Snapshot), MoveTemp(Completion), Scope);
 }
 
 bool UETSaveSubsystem::BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot,
-                                  FETSaveCompleted Completion)
+                                  FETSaveCompleted Completion, EETSaveScope Scope)
 {
     check(IsInGameThread());
     if (bShuttingDown || ActiveRequest.IsValid())
@@ -54,6 +56,7 @@ bool UETSaveSubsystem::BeginRequest(TOptional<FETRunSaveSnapshot> Snapshot,
     }
 
     ActiveRequest = MakeShared<FETSaveOperation>();
+    ActiveRequest->SlotPrefix = Scope == EETSaveScope::EditorPreview ? SlotPrefix + TEXT("_PIE") : SlotPrefix;
     ActiveRequest->PendingSnapshot = MoveTemp(Snapshot);
     ActiveRequest->Completion = MoveTemp(Completion);
     ReadSlot(0);
@@ -69,7 +72,7 @@ void UETSaveSubsystem::ReadSlot(const int32 Index)
         return;
     }
 
-    const FString Slot = SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
+    const FString Slot = ActiveRequest->SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
     const TWeakObjectPtr<UETSaveSubsystem> WeakThis(this);
     const auto CompleteRead = [WeakThis, Index](EETSaveStatus Status, const TArray<uint8>& Bytes)
     {
@@ -194,7 +197,7 @@ void UETSaveSubsystem::WriteSlot(const int32 Index, FETRunSaveSnapshot Snapshot)
         return;
     }
 
-    const FString Slot = SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
+    const FString Slot = ActiveRequest->SlotPrefix + (Index == 0 ? TEXT("_A") : TEXT("_B"));
     const TWeakObjectPtr<UETSaveSubsystem> WeakThis(this);
     Storage->SaveGameAsync(false, *Slot, RunSaveUser(), Bytes,
         [Storage, Slot, WeakThis, Bytes, Snapshot = MoveTemp(Snapshot)]

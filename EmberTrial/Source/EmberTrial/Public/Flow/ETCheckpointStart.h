@@ -20,12 +20,16 @@ class EMBERTRIAL_API AETCheckpointStart : public APlayerStart
 
 public:
     AETCheckpointStart(const FObjectInitializer& ObjectInitializer);
+    bool ShouldAutosaveOnActivation() const { return bAutosaveOnActivation; }
 
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
+    UPROPERTY(EditInstanceOnly, Category = "EmberTrial|Checkpoint")
+    bool bAutosaveOnActivation = false;
+
     // ---- Overlap与一次NextTick补查；没有常驻Tick ----
     UFUNCTION()
     void HandleTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

@@ -28,6 +28,7 @@ bool FETRunSaveSlotsTest::RunTest(const FString& Parameters)
     const FString Prefix = TEXT("EmberTrial_Auto_") + FGuid::NewGuid().ToString(EGuidFormats::Digits);
     const FString SlotA = Prefix + TEXT("_A");
     const FString SlotB = Prefix + TEXT("_B");
+    const FString PreviewSlotA = Prefix + TEXT("_PIE_A");
     Fixture->Store->SlotPrefix = Prefix;
 
     FETRunSaveSnapshot Snapshot;
@@ -151,11 +152,35 @@ bool FETRunSaveSlotsTest::RunTest(const FString& Parameters)
         TestTrue(TEXT("Future slot remains intact"), Result.Status == EETSaveStatus::UnsupportedVersion);
     });
 
-    ADD_LATENT_AUTOMATION_COMMAND(FFunctionLatentCommand([Fixture, SlotA, SlotB]()
+    QueueStep(TEXT("Save into isolated PIE scope"), [Fixture, Snapshot](FETSaveCompleted Done)
+    {
+        return Fixture->Store->RequestSave(Snapshot, MoveTemp(Done), EETSaveScope::EditorPreview);
+    }, [this, PreviewSlotA](const FETSaveResult& Result)
+    {
+        TestTrue(TEXT("PIE save is independent of the protected run slots"), Result.Status == EETSaveStatus::Success);
+        TestEqual(TEXT("PIE starts its own sequence"), Result.Snapshot.Sequence, int64(1));
+        TestTrue(TEXT("PIE chooses the preview filename"), UGameplayStatics::DoesSaveGameExist(PreviewSlotA, 0));
+    });
+    QueueStep(TEXT("Read isolated PIE scope"), [Fixture](FETSaveCompleted Done)
+    {
+        return Fixture->Store->RequestLoad(MoveTemp(Done), EETSaveScope::EditorPreview);
+    }, [this](const FETSaveResult& Result)
+    {
+        TestTrue(TEXT("PIE read returns the preview save"), Result.Status == EETSaveStatus::Success);
+        TestEqual(TEXT("PIE round trip preserves checkpoint"), Result.Snapshot.CheckpointId,
+                  FName(TEXT("Checkpoint_B")));
+    });
+    QueueStep(TEXT("Check run scope after PIE write"), Load, [this](const FETSaveResult& Result)
+    {
+        TestTrue(TEXT("Run slot is still protected"), Result.Status == EETSaveStatus::UnsupportedVersion);
+    });
+
+    ADD_LATENT_AUTOMATION_COMMAND(FFunctionLatentCommand([Fixture, SlotA, SlotB, PreviewSlotA]()
     {
         Fixture->Store->Deinitialize();
         UGameplayStatics::DeleteGameInSlot(SlotA, 0);
         UGameplayStatics::DeleteGameInSlot(SlotB, 0);
+        UGameplayStatics::DeleteGameInSlot(PreviewSlotA, 0);
         return true;
     }));
     return true;

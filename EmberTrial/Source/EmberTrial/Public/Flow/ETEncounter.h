@@ -32,6 +32,7 @@ class EMBERTRIAL_API AETEncounter : public AActor
 public:
     AETEncounter();
     bool HasCleared() const { return State == EState::Cleared; }
+    FName GetEncounterId() const { return EncounterId; }
 
 protected:
     virtual void BeginPlay() override;
@@ -58,6 +59,10 @@ private:
 
     UPROPERTY(EditInstanceOnly, Category = "Encounter")
     TArray<FETEncounterSpawn> Spawns;
+
+    // Stable identity used by checkpoint saves. Keep it across actor renames.
+    UPROPERTY(EditInstanceOnly, Category = "Encounter|Persistence")
+    FName EncounterId;
 
     // Checkpoints beyond this gate. Checked only on world entry.
     UPROPERTY(EditInstanceOnly, Category = "Encounter")
