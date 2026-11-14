@@ -1,5 +1,7 @@
 # M6-02 降低 Continue 后的天空光捕获开销
 
+已完成旧包三轮和候选包三轮对照。候选三轮均确认六面场景捕获消失，Continue 后一帧中位数为 21.16 ms。[验收结果](Reports/M6_02_Verification.md)
+
 本章处理正式试炼图在同一进程内从主菜单继续时的渲染尖峰。先用现有包重复采样，再仅调整正式地图的 Sky Light，打一个候选包跑同样的路线。预计手动 25–40 分钟，另计打包等待。你完成编辑器设置和采集，我读取 Trace、对比画面并出验收结论。
 
 ## 1. 问题定位
@@ -119,14 +121,34 @@ A 点两张截图 / 补光、反射、角色与门可读性差异：
 完成时分 / 手动分钟 / Build-Cook 等待分钟：
 ```
 
+### 5.1 候选窄补采
+
+2026-11-14 已完成。实测运行名为 `After02Seeded`。使用同一个候选包，将既有 A 点测试存档复制到本轮独立用户目录，首次进图用于预热，随后完成三轮正式记录。[三轮数据](Reports/M6_02_Verification.md#帧时间对照)
+
+复用 `M6_02/Attempt01`。现有 Before 三轮和截图已经可用。沿用第 5 节命令，把 `-RunName After01` 改为 `-RunName After02`。
+
+1. 新进程按第 2.1 节到 A，等 **ACTIVE**。维持接电和原窗口条件。截图沿用本次已有文件。
+2. 在同一进程连续执行三轮。每一行先输入 Begin，关闭控制台后按 **P → 返回主菜单 → 等约 5 秒 → 继续试炼 → 在 A 点等约 5 秒**，最后输入同行的 End。
+
+   | 轮次 | Begin | End |
+   | --- | --- | --- |
+   | 1 | `Trace.RegionBegin M6_02_Continue01` | `Trace.RegionEnd M6_02_Continue01` |
+   | 2 | `Trace.RegionBegin M6_02_Continue02` | `Trace.RegionEnd M6_02_Continue02` |
+   | 3 | `Trace.RegionBegin M6_02_Continue03` | `Trace.RegionEnd M6_02_Continue03` |
+
+3. 第三轮 End 后执行 `Trace.Stop`，从菜单正常退出。每轮结束确认回到了 A，再开始下一轮。原 After01 会作为额外样本保留。
+
+```text
+M6-02 候选窄补采完成
+After02 三次 A 点 Continue 与三组 Begin/End：
+Trace.Stop / 正常退出：
+失败或明显卡顿（无填无）：
+完成时分 / 额外手动分钟：
+```
+
 ## 6. Commit / Push
 
-现在可暂存本指南、`Tools/Run-StageBuild.ps1`、`Docs/Progress.md`、`Docs/Backlog.md`。M6-01 若仍未提交，本批一起暂存它的验收报告、采集指南和 `Introduction.md`。候选通过后将 `L_ET_TrialRoute.umap` 与 M6-02 验收报告另行提交。Trace、运行日志、CSV、专用配置、截图、测试存档与两个包均留在本地 Artifacts。
+采集脚本和地图候选已提交。本批暂存本指南、`Docs/Reports/M6_02_Verification.md`、`Docs/Progress.md` 和 `Docs/Backlog.md`。Trace、运行日志、CSV、专用配置、截图、测试存档与两个包均留在本地 Artifacts。
 
-- 英文 `docs(perf): trace trial resume hitch to skylight capture`
-- 中文 `docs(perf): 定位试炼继续时的天空光捕获卡顿`
-
-候选通过后可用以下提交信息。
-
-- 英文 `perf(rendering): replace trial skylight scene capture with a cubemap`
-- 中文 `perf(rendering): 使用立方体贴图降低试炼地图天空光捕获开销`
+- 英文 `docs(perf): record skylight capture comparison for trial resume`
+- 中文 `docs(perf): 记录试炼继续流程的天空光捕获对照结果`
