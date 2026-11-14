@@ -1,5 +1,7 @@
 # M6-01 正式试炼性能基线
 
+采集与统计已完成。[M6-01 验收与性能数据](Reports/M6_01_Verification.md) · [M6-02 天空光捕获对照](M6_02_SkyLightCapture.md)
+
 使用 M5-04 已验收的 Win64 Development 包，采一轮待机、真实交战和存档加载。你操作游戏并标记区间，我读取 Trace 和运行日志，统计帧时间、线程与 GPU 耗时，并定位主要尖峰。预计手动 20–30 分钟。
 
 ## 1. 启动固定版本
@@ -63,7 +65,7 @@ Trace.Stop / 正常退出 / Insights可见的轨道：
 
 ## 5. Commit / Push
 
-暂存 M5-04 验收报告、本指南、M5-04 指南、README、Progress、Backlog、Architecture 和 `Tools/Run-StageBuild.ps1`。Trace、运行日志、截图、测试存档与包留在本地 Artifacts。
+本批暂存 M6-01 验收报告、本指南、Progress、Backlog 和 Introduction。Trace、运行日志、导出 CSV、截图、测试存档与包留在本地 Artifacts。
 
-- 英文 `chore(perf): verify persistence package and prepare trial profiling`
-- 中文 `chore(perf): 验收持久化集成包并准备试炼性能采集`
+- 英文 `docs(perf): record trial baseline and schedule key asset modeling`
+- 中文 `docs(perf): 记录试炼性能基线并明确关键资产建模阶段`
