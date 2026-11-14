@@ -868,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-当前批次的文档、采集脚本与候选地图提交建议见 [M6-02 暂存清单](Docs/M6_02_SkyLightCapture.md#6-commit--push)。
+当前批次的文档与采集脚本提交建议见 [M6-03 暂存清单](Docs/M6_03_LoadMapAudioIsolation.md#4-commit--push)。

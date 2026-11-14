@@ -1,6 +1,6 @@
 # 当前开发进度
 
-更新于 2026-11-14。M6-02 验收通过。旧包和候选包各三轮同进程 Continue，后第 1 帧中位数从 98.41 ms 降至 21.16 ms。候选三轮均无六面场景捕获，切图帧仍有 80.73–85.61 ms 峰值。[M6-02 验收](Reports/M6_02_Verification.md)
+更新于 2026-11-14。进入 M6-03。M6-02 的 Continue 后一帧中位数从 98.41 ms 降至 21.16 ms。候选三轮切图时的音频 Flush 为 28.28–33.55 ms，下一步用同包对照正常音频与 `-nosound`。[M6-02 验收](Reports/M6_02_Verification.md) · [M6-03 指南](M6_03_LoadMapAudioIsolation.md)
 
 - 正式工程有 280 份 Source、164 个 cpp（Core 119 / UI 42 / Editor 3）、60 个自动化入口、333 份 Content 和 116 项资产来源。
 - C2正式工程500条、峰值6个活动条目、每面板最多12个实例、156次复用。两轮清理与正式六件P重开通过。
@@ -15,4 +15,4 @@ M6-02 首轮手动 40 分钟、Build-Cook 等待 10 分钟。项目累计手动 
 
 ## 当前批次 Commit / Push
 
-M6-02 采集脚本和地图改动已提交。本批暂存验收报告、采集指南和进度同步文档。[暂存清单](M6_02_SkyLightCapture.md#6-commit--push)
+本批暂存 M6-03 指南、采集脚本和路线同步文档。[暂存清单](M6_03_LoadMapAudioIsolation.md#4-commit--push)
