@@ -1,5 +1,7 @@
 # M6-03 定位 Continue 切图的音频开销
 
+已完成两组三轮对照。正常音频与禁用音频的切图帧中位数为 74.45 ms 和 50.37 ms。[验收报告](Reports/M6_03_Verification.md)
+
 M6-02 消除了天空光六面捕获。候选包仍有 80.73–85.61 ms 的切图帧。本章用同一个候选包，在两个独立进程对比正常音频与 `-nosound`。预计手动 10–15 分钟，使用现有 A 点存档，直接从主菜单开始。
 
 ## 1. 现有证据
@@ -81,7 +83,7 @@ AudioOff01 三轮 A Continue / 三组 Begin-End / 正常退出：
 
 ## 4. Commit / Push
 
-暂存本指南、`Tools/Run-StageBuild.ps1`、`Docs/Progress.md`、`Docs/Backlog.md` 和 `Introduction.md`。采集文件、诊断导出和存档留在本地 Artifacts。
+采集脚本与首次指南已提交。本批暂存本指南、`Docs/Reports/M6_03_Verification.md`、`Docs/Progress.md` 和 `Docs/Backlog.md`。采集文件、诊断导出和存档留在本地 Artifacts。
 
-- 英文 `chore(perf): add an audio isolation capture for trial map travel`
-- 中文 `chore(perf): 增加试炼切图的音频隔离采样`
+- 英文 `docs(perf): verify audio overhead during trial map travel`
+- 中文 `docs(perf): 验收试炼切图的音频开销对照`

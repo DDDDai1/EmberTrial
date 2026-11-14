@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新于 2026-11-14。M6-02 已验收，进入 M6-03 切图音频开销对照。[M6-02 验收](Reports/M6_02_Verification.md) · [M6-03 指南](M6_03_LoadMapAudioIsolation.md)
+更新于 2026-11-14。M6-03 切图音频开销对照已验收。[M6-02 验收](Reports/M6_02_Verification.md) · [M6-03 验收](Reports/M6_03_Verification.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -179,7 +179,7 @@
 | M5-04 | [存档功能独立包](Reports/M5_04_Verification.md) | 你打包与实机，我核对 | 完成 | 三个进程验证 B 恢复、Retry、通关序号 3、重启 Continue 禁用 |
 | M6-01 | [正式试炼性能基线](Reports/M6_01_Verification.md) | 你采集，我分析 | 完成 | 待机、交战与同进程 Continue 三段，手动 25 分钟 |
 | M6-02 | [Continue 后天空光捕获](Reports/M6_02_Verification.md) | 你配置与打包，我补采及分析 | 完成 | 旧包与候选包各三轮，六面捕获每轮 6 → 0，切图后一帧中位数 98.41 → 21.16 ms |
-| M6-03 | [定位 Continue 切图的音频开销](M6_03_LoadMapAudioIsolation.md) | 你采集，我分析 | 进行中 | 同包、同 A 点存档，正常音频与 `-nosound` 各三轮 |
+| M6-03 | [定位 Continue 切图的音频开销](Reports/M6_03_Verification.md) | 你采集，我分析 | 完成 | 正常音频与禁用音频各三轮，切图帧中位数 74.45 → 50.37 ms。手动 15 分钟 |
 
 表内规模和工时为各阶段验收时点。当前性能验证包为 `M6_02/Attempt01`。[当前进度](Progress.md)
 
@@ -200,7 +200,7 @@
 | M3阶段完成 | 六件遗物、四类设置、500条投影与Slate条目回收、六件版集成均通过 |
 | M4阶段完成 | 完整路线、胜利结算和 Win64 Development 独立包已验收 |
 | M5交付基线 | 独立包验证 v2 保存、跨进程恢复、重试与通关结束 |
-| M6当前开发 | [对照音频开启与关闭时的切图帧和 LoadMap 开销](M6_03_LoadMapAudioIsolation.md) |
+| M6当前开发 | 已确认音频路径贡献显著。下一项验证启用音频时回调缓冲大小对 Flush 和听感的影响。[M6-03 结论](Reports/M6_03_Verification.md#结论与后续) |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -208,4 +208,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-本批暂存 M6-03 指南、采集脚本和路线同步文档。[暂存清单](M6_03_LoadMapAudioIsolation.md#4-commit--push)
+本批暂存 M6-03 验收报告、采集指南和进度同步文档。[暂存清单](M6_03_LoadMapAudioIsolation.md#4-commit--push)
