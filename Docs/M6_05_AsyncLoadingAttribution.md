@@ -1,5 +1,7 @@
 # M6-05 Continue 异步加载归因
 
+2026-11-15 已复用两组 Trace 完成加载归因。[验收报告](Reports/M6_05_Verification.md)
+
 与 M6-04 一起采集。用同一个包、同一份 A 点存档与两个已计划的音频缓冲组，核对 Continue 时 GameThread 等待的异步加载工作。M6-03 在禁用音频的一轮仍测到 72.42 ms 的切图帧，其中 `FlushAsyncLoading` 为 42.28 ms。当前证据能定位等待区间，具体是文件读取、包处理还是调度等待，留给本章核对。[M6-03 验收](Reports/M6_03_Verification.md)
 
 ## 1. 和 M6-04 一起做

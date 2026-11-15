@@ -868,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-M6-04 与 M6-05 同批采集，文档与采集脚本可一起提交。[暂存清单](Docs/M6_05_AsyncLoadingAttribution.md#4-commit--push)
+M6-06 已完成 Windows 包默认 512 帧验证。用户提交本批后进入 M7 Blender 主武器试做。[M6-06 验收](Docs/Reports/M6_06_Verification.md) · [暂存清单](Docs/M6_06_AudioBufferPackageVerification.md#5-commit--push)

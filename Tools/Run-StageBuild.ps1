@@ -7,7 +7,7 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
-    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06', 'M5_04', 'M6_01', 'M6_02', 'M6_03', 'M6_04')]
+    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06', 'M5_04', 'M6_01', 'M6_02', 'M6_03', 'M6_04', 'M6_06')]
     [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline,
@@ -20,7 +20,7 @@ param(
 $ErrorActionPreference = 'Stop'
 ## 阶段集成包使用显式目录和独立的个人设置文件。
 $stageRepo = Split-Path $PSScriptRoot -Parent
-$stageUsesIsolatedRun = $EvidenceStage -in @('M6_01', 'M6_02', 'M6_03', 'M6_04')
+$stageUsesIsolatedRun = $EvidenceStage -in @('M6_01', 'M6_02', 'M6_03', 'M6_04', 'M6_06')
 $stageUsesSeparateSettings = $stageUsesIsolatedRun -or $EvidenceStage -in @('M3_06A', 'M3_06C3', 'M4_06', 'M5_04')
 $stageHasAudioCallbackOverride = $PSBoundParameters.ContainsKey('AudioCallbackFrames')
 if ($stageHasAudioCallbackOverride -ne ($EvidenceStage -eq 'M6_04')) {
@@ -31,8 +31,8 @@ if ($NoSound -and $EvidenceStage -ne 'M6_03') {
 }
 $stageSeedSavePath = $null
 if ($SeedCheckpointSave) {
-    if ($EvidenceStage -notin @('M6_03', 'M6_04')) {
-        throw '-SeedCheckpointSave requires EvidenceStage M6_03 or M6_04.'
+    if ($EvidenceStage -notin @('M6_03', 'M6_04', 'M6_06')) {
+        throw '-SeedCheckpointSave requires EvidenceStage M6_03, M6_04 or M6_06.'
     }
     $stageSeedSavePath = (Resolve-Path -LiteralPath $SeedCheckpointSave).Path
     if ((Split-Path $stageSeedSavePath -Leaf) -cne 'EmberTrial_Run_A.sav' -or
@@ -99,6 +99,7 @@ if ($stageUsesSeparateSettings) {
         'M6_02' { $stageBase + '_GameUserSettings.ini' }
         'M6_03' { $stageBase + '_GameUserSettings.ini' }
         'M6_04' { $stageBase + '_GameUserSettings.ini' }
+        'M6_06' { $stageBase + '_GameUserSettings.ini' }
         default { 'M3PackageUser.ini' }
     }
     $stageSettingsIni = Join-Path $stageOutput $stageSettingsName
@@ -120,8 +121,8 @@ if ($PerformanceBaseline) {
 }
 if ($Trace) {
     $stageTraceChannels = 'cpu,frame,gpu,bookmark,region,loadtime,log'
-    if ($EvidenceStage -eq 'M6_04') {
-        # 两组共用文件活动轨道，供 M6-05 复用同一批切图样本。
+    if ($EvidenceStage -in @('M6_04', 'M6_06')) {
+        # 保留同一组 Trace 通道，便于 M6 切图样本对照。
         $stageTraceChannels += ',file'
     }
     $stageArguments += @("-trace=$stageTraceChannels", '-statnamedevents', ('"-tracefile=' + $stageTrace + '"'))
@@ -155,7 +156,7 @@ if ($stageUsesIsolatedRun) {
     $stageGameExe = Join-Path $stageBuild 'Windows\EmberTrial\Binaries\Win64\EmberTrial.exe'
     $stageGameExeHash = (Get-FileHash -LiteralPath $stageGameExe -Algorithm SHA256).Hash
 }
-if ($EvidenceStage -in @('M6_02', 'M6_03', 'M6_04')) {
+if ($EvidenceStage -in @('M6_02', 'M6_03', 'M6_04', 'M6_06')) {
     # 地图修改仅影响 Cook 内容，运行二进制可能完全相同。
     $stageContentToc = Join-Path $stageBuild 'Windows\EmberTrial\Content\Paks\EmberTrial-Windows.utoc'
     $stageGameContentTocHash = (Get-FileHash -LiteralPath $stageContentToc -Algorithm SHA256).Hash

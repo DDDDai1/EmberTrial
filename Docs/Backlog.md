@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新于 2026-11-14。M6-04 音频回调缓冲对照与 M6-05 异步加载归因共用两组 Trace。[M6-04 指南](M6_04_AudioCallbackBufferComparison.md) · [M6-05 指南](M6_05_AsyncLoadingAttribution.md)
+更新于 2026-11-15。M6-06 Windows 音频缓冲正式包复验完成，等待用户提交。[M6-06 验收](Reports/M6_06_Verification.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -180,10 +180,11 @@
 | M6-01 | [正式试炼性能基线](Reports/M6_01_Verification.md) | 你采集，我分析 | 完成 | 待机、交战与同进程 Continue 三段，手动 25 分钟 |
 | M6-02 | [Continue 后天空光捕获](Reports/M6_02_Verification.md) | 你配置与打包，我补采及分析 | 完成 | 旧包与候选包各三轮，六面捕获每轮 6 → 0，切图后一帧中位数 98.41 → 21.16 ms |
 | M6-03 | [定位 Continue 切图的音频开销](Reports/M6_03_Verification.md) | 你采集，我分析 | 完成 | 正常音频与禁用音频各三轮，切图帧中位数 74.45 → 50.37 ms。手动 15 分钟 |
-| M6-04 | [音频回调缓冲对照](M6_04_AudioCallbackBufferComparison.md) | 你采集与试听，我分析 | 进行中 | 同包同音频设备，实际 1024／512 帧各三轮，并复查换图后两路试听 |
-| M6-05 | [Continue 异步加载归因](M6_05_AsyncLoadingAttribution.md) | 复用 M6-04 采集，我分析 | 进行中 | 对齐六轮 LoadMap，区分加载线程等待、包处理和可见文件活动 |
+| M6-04 | [音频回调缓冲对照](Reports/M6_04_Verification.md) | 你采集与试听，我分析 | 完成 | 两组各三轮，切图帧中位数 77.33 → 62.66 ms。手动 20 分钟 |
+| M6-05 | [Continue 异步加载归因](Reports/M6_05_Verification.md) | 我复用 Trace 分析 | 完成 | 六轮均见依赖包序列化，定位到天空光立方体贴图与同窗容器读取 |
+| M6-06 | [Windows 音频缓冲独立包复验](Reports/M6_06_Verification.md) | 我配置、打包、实机与分析 | 完成 | 默认 512，切图中位数 63.25 ms，两次双路输出与真实交战，人工听感未采 |
 
-表内规模和工时为各阶段验收时点。当前性能验证包为 `M6_02/Attempt01`。[当前进度](Progress.md)
+表内规模和工时为各阶段验收时点。当前性能验证包为 `M6_06/Attempt02`。[当前进度](Progress.md)
 
 ## 暂缓到中后期
 
@@ -202,7 +203,7 @@
 | M3阶段完成 | 六件遗物、四类设置、500条投影与Slate条目回收、六件版集成均通过 |
 | M4阶段完成 | 完整路线、胜利结算和 Win64 Development 独立包已验收 |
 | M5交付基线 | 独立包验证 v2 保存、跨进程恢复、重试与通关结束 |
-| M6当前开发 | 两组 Trace 同时用于回调缓冲对照与切图异步加载归因。[合并回传](M6_05_AsyncLoadingAttribution.md#3-一次回传两章) |
+| M6收尾 | 新包采用默认 512 帧，实机与性能复验已完成。等待用户 Commit / Push 后进入 M7。[验收](Reports/M6_06_Verification.md) |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -210,4 +211,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-本批暂存 M6-04、M6-05 指南、采集脚本和进度同步文档。[暂存清单](M6_05_AsyncLoadingAttribution.md#4-commit--push)
+本批提交配置、启动脚本和 M6-04 至 M6-06 文档。[暂存清单](M6_06_AudioBufferPackageVerification.md#5-commit--push)
