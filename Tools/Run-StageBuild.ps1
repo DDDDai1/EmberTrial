@@ -7,30 +7,37 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
-    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06', 'M5_04', 'M6_01', 'M6_02', 'M6_03')]
+    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06', 'M5_04', 'M6_01', 'M6_02', 'M6_03', 'M6_04')]
     [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline,
     [switch]$NoSound,
-    [string]$SeedCheckpointSave = ''
+    [string]$SeedCheckpointSave = '',
+    [ValidateSet(512, 1024)]
+    [int]$AudioCallbackFrames
 )
 
 $ErrorActionPreference = 'Stop'
 ## 阶段集成包使用显式目录和独立的个人设置文件。
 $stageRepo = Split-Path $PSScriptRoot -Parent
-$stageUsesIsolatedRun = $EvidenceStage -in @('M6_01', 'M6_02', 'M6_03')
+$stageUsesIsolatedRun = $EvidenceStage -in @('M6_01', 'M6_02', 'M6_03', 'M6_04')
 $stageUsesSeparateSettings = $stageUsesIsolatedRun -or $EvidenceStage -in @('M3_06A', 'M3_06C3', 'M4_06', 'M5_04')
+$stageHasAudioCallbackOverride = $PSBoundParameters.ContainsKey('AudioCallbackFrames')
+if ($stageHasAudioCallbackOverride -ne ($EvidenceStage -eq 'M6_04')) {
+    throw 'Specify -AudioCallbackFrames 512 or 1024 for EvidenceStage M6_04 only.'
+}
+if ($NoSound -and $EvidenceStage -ne 'M6_03') {
+    throw '-NoSound is only supported in EvidenceStage M6_03.'
+}
 $stageSeedSavePath = $null
-if ($NoSound -or $SeedCheckpointSave) {
-    if ($EvidenceStage -ne 'M6_03') {
-        throw 'Audio isolation and copying a checkpoint into a fresh user directory require EvidenceStage M6_03.'
+if ($SeedCheckpointSave) {
+    if ($EvidenceStage -notin @('M6_03', 'M6_04')) {
+        throw '-SeedCheckpointSave requires EvidenceStage M6_03 or M6_04.'
     }
-    if ($SeedCheckpointSave) {
-        $stageSeedSavePath = (Resolve-Path -LiteralPath $SeedCheckpointSave).Path
-        if ((Split-Path $stageSeedSavePath -Leaf) -cne 'EmberTrial_Run_A.sav' -or
-            !(Test-Path -LiteralPath $stageSeedSavePath -PathType Leaf)) {
-            throw 'Pass a saved EmberTrial_Run_A.sav file as -SeedCheckpointSave.'
-        }
+    $stageSeedSavePath = (Resolve-Path -LiteralPath $SeedCheckpointSave).Path
+    if ((Split-Path $stageSeedSavePath -Leaf) -cne 'EmberTrial_Run_A.sav' -or
+        !(Test-Path -LiteralPath $stageSeedSavePath -PathType Leaf)) {
+        throw 'Pass a saved EmberTrial_Run_A.sav file as -SeedCheckpointSave.'
     }
 }
 if ($stageUsesSeparateSettings -and [string]::IsNullOrWhiteSpace($BuildDirectory)) {
@@ -45,6 +52,7 @@ if ($stageUsesIsolatedRun -or $EvidenceStage -in @('M3_06C3', 'M4_06', 'M5_04'))
         'M6_01' { 'M5_04' }
         'M6_02' { 'M5_04'; 'M6_02' }
         'M6_03' { 'M6_02' }
+        'M6_04' { 'M6_02' }
         default { $EvidenceStage }
     }
     $stageExpectedRoots = $stagePackageStages | ForEach-Object {
@@ -76,16 +84,21 @@ $stageArguments = @('-windowed', "-ResX=$Width", "-ResY=$Height", '-log', ('"-ab
 if ($NoSound) {
     $stageArguments += '-nosound'
 }
+if ($stageHasAudioCallbackOverride) {
+    # 默认缓冲和小缓冲都通过相同的启动覆盖传入，实际采用值从 Mixer 日志核对。
+    $stageArguments += "-ini:Engine:[/Script/WindowsTargetPlatform.WindowsTargetSettings]:AudioCallbackBufferFrameSize=$AudioCallbackFrames"
+}
 $stageSettingsIni = $null
 $stageUserDir = $null
 if ($stageUsesSeparateSettings) {
-    ## 两轮共用专用个人设置，既证明跨进程保存，也不污染旧包 / 编辑器偏好。
+    ## 集成验收可跨进程复验保存，性能测试则为每次运行分配独立设置。
     $stageSettingsName = switch ($EvidenceStage) {
         'M4_06' { 'M4PackageUser.ini' }
         'M5_04' { 'M5PackageUser.ini' }
         'M6_01' { 'M6PackageUser.ini' }
         'M6_02' { $stageBase + '_GameUserSettings.ini' }
         'M6_03' { $stageBase + '_GameUserSettings.ini' }
+        'M6_04' { $stageBase + '_GameUserSettings.ini' }
         default { 'M3PackageUser.ini' }
     }
     $stageSettingsIni = Join-Path $stageOutput $stageSettingsName
@@ -106,12 +119,20 @@ if ($PerformanceBaseline) {
     $stageArguments += ('-ExecCmds="' + $stageProfileCommands + '"')
 }
 if ($Trace) {
-    $stageArguments += @('-trace=cpu,frame,gpu,bookmark,region,loadtime,log', '-statnamedevents', ('"-tracefile=' + $stageTrace + '"'))
+    $stageTraceChannels = 'cpu,frame,gpu,bookmark,region,loadtime,log'
+    if ($EvidenceStage -eq 'M6_04') {
+        # 两组共用文件活动轨道，供 M6-05 复用同一批切图样本。
+        $stageTraceChannels += ',file'
+    }
+    $stageArguments += @("-trace=$stageTraceChannels", '-statnamedevents', ('"-tracefile=' + $stageTrace + '"'))
 }
 Write-Host "Executable: $stageExe"
 Write-Host "Log: $stageLog"
 if ($stageUserDir) {
     Write-Host "User directory: $stageUserDir"
+}
+if ($stageHasAudioCallbackOverride) {
+    Write-Host "Requested audio callback frames: $AudioCallbackFrames"
 }
 if ($PerformanceBaseline) {
     Write-Host "Runtime profiling commands: $stageProfileCommands"
@@ -134,7 +155,7 @@ if ($stageUsesIsolatedRun) {
     $stageGameExe = Join-Path $stageBuild 'Windows\EmberTrial\Binaries\Win64\EmberTrial.exe'
     $stageGameExeHash = (Get-FileHash -LiteralPath $stageGameExe -Algorithm SHA256).Hash
 }
-if ($EvidenceStage -in @('M6_02', 'M6_03')) {
+if ($EvidenceStage -in @('M6_02', 'M6_03', 'M6_04')) {
     # 地图修改仅影响 Cook 内容，运行二进制可能完全相同。
     $stageContentToc = Join-Path $stageBuild 'Windows\EmberTrial\Content\Paks\EmberTrial-Windows.utoc'
     $stageGameContentTocHash = (Get-FileHash -LiteralPath $stageContentToc -Algorithm SHA256).Hash
@@ -164,6 +185,7 @@ $stageProcess = Start-Process -FilePath $stageExe -WorkingDirectory (Split-Path 
     EvidenceStage = $stageEvidenceStage
     PerformanceBaseline = [bool]$PerformanceBaseline
     NoSound = [bool]$NoSound
+    RequestedAudioCallbackFrames = $(if ($stageHasAudioCallbackOverride) { $AudioCallbackFrames } else { $null })
     RuntimeProfileCommands = $stageProfileCommands
     ProcessId = $stageProcess.Id
     LogPath = $stageLog

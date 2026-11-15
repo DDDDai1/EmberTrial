@@ -868,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-当前批次的文档与采集脚本提交建议见 [M6-03 暂存清单](Docs/M6_03_LoadMapAudioIsolation.md#4-commit--push)。
+M6-04 与 M6-05 同批采集，文档与采集脚本可一起提交。[暂存清单](Docs/M6_05_AsyncLoadingAttribution.md#4-commit--push)

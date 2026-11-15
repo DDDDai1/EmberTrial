@@ -1,6 +1,6 @@
 # 当前开发进度
 
-更新于 2026-11-14。M6-03 验收通过。同包两组三轮，禁用音频后切图帧中位数从 74.45 ms 降至 50.37 ms。禁用组仍有一次 72.42 ms 的切图帧，其异步加载 Flush 为 42.28 ms。[M6-03 验收](Reports/M6_03_Verification.md)
+更新于 2026-11-14。M6-04 与 M6-05 同批采集。用同一个包和 A 点存档，对比 1024 与 512 帧音频回调缓冲，同时记录切图异步加载和文件活动。512 帧已通过启动试跑，待正式采集与试听。[M6-04 指南](M6_04_AudioCallbackBufferComparison.md) · [M6-05 指南](M6_05_AsyncLoadingAttribution.md)
 
 - 正式工程有 280 份 Source、164 个 cpp（Core 119 / UI 42 / Editor 3）、60 个自动化入口、333 份 Content 和 116 项资产来源。
 - C2正式工程500条、峰值6个活动条目、每面板最多12个实例、156次复用。两轮清理与正式六件P重开通过。
@@ -15,4 +15,4 @@ M6-03 手动 15 分钟，复用现有包。项目累计手动 7354 分钟（122 
 
 ## 当前批次 Commit / Push
 
-本批暂存 M6-03 验收报告、采集指南和进度同步文档。[暂存清单](M6_03_LoadMapAudioIsolation.md#4-commit--push)
+本批暂存 M6-04、M6-05 指南、采集脚本和进度同步文档。[暂存清单](M6_05_AsyncLoadingAttribution.md#4-commit--push)

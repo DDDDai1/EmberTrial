@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新于 2026-11-14。M6-03 切图音频开销对照已验收。[M6-02 验收](Reports/M6_02_Verification.md) · [M6-03 验收](Reports/M6_03_Verification.md)
+更新于 2026-11-14。M6-04 音频回调缓冲对照与 M6-05 异步加载归因共用两组 Trace。[M6-04 指南](M6_04_AudioCallbackBufferComparison.md) · [M6-05 指南](M6_05_AsyncLoadingAttribution.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -180,6 +180,8 @@
 | M6-01 | [正式试炼性能基线](Reports/M6_01_Verification.md) | 你采集，我分析 | 完成 | 待机、交战与同进程 Continue 三段，手动 25 分钟 |
 | M6-02 | [Continue 后天空光捕获](Reports/M6_02_Verification.md) | 你配置与打包，我补采及分析 | 完成 | 旧包与候选包各三轮，六面捕获每轮 6 → 0，切图后一帧中位数 98.41 → 21.16 ms |
 | M6-03 | [定位 Continue 切图的音频开销](Reports/M6_03_Verification.md) | 你采集，我分析 | 完成 | 正常音频与禁用音频各三轮，切图帧中位数 74.45 → 50.37 ms。手动 15 分钟 |
+| M6-04 | [音频回调缓冲对照](M6_04_AudioCallbackBufferComparison.md) | 你采集与试听，我分析 | 进行中 | 同包同音频设备，实际 1024／512 帧各三轮，并复查换图后两路试听 |
+| M6-05 | [Continue 异步加载归因](M6_05_AsyncLoadingAttribution.md) | 复用 M6-04 采集，我分析 | 进行中 | 对齐六轮 LoadMap，区分加载线程等待、包处理和可见文件活动 |
 
 表内规模和工时为各阶段验收时点。当前性能验证包为 `M6_02/Attempt01`。[当前进度](Progress.md)
 
@@ -200,7 +202,7 @@
 | M3阶段完成 | 六件遗物、四类设置、500条投影与Slate条目回收、六件版集成均通过 |
 | M4阶段完成 | 完整路线、胜利结算和 Win64 Development 独立包已验收 |
 | M5交付基线 | 独立包验证 v2 保存、跨进程恢复、重试与通关结束 |
-| M6当前开发 | 已确认音频路径贡献显著。下一项验证启用音频时回调缓冲大小对 Flush 和听感的影响。[M6-03 结论](Reports/M6_03_Verification.md#结论与后续) |
+| M6当前开发 | 两组 Trace 同时用于回调缓冲对照与切图异步加载归因。[合并回传](M6_05_AsyncLoadingAttribution.md#3-一次回传两章) |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -208,4 +210,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-本批暂存 M6-03 验收报告、采集指南和进度同步文档。[暂存清单](M6_03_LoadMapAudioIsolation.md#4-commit--push)
+本批暂存 M6-04、M6-05 指南、采集脚本和进度同步文档。[暂存清单](M6_05_AsyncLoadingAttribution.md#4-commit--push)
