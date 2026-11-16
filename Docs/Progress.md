@@ -1,8 +1,8 @@
 # 当前开发进度
 
-更新于 2026-11-15。M6-06 已完成 Win64 Development 独立包复验。实际采用 512 帧，三轮 Continue 切图帧中位数为 63.25 ms，两次双路探针均有实测输出。等待用户 Commit / Push 后进入 M7。[M6-06 验收](Reports/M6_06_Verification.md)
+更新于 2026-11-16。M6-06 已提交。M7-01 灰烬短刃已导入 UE 并挂到玩家右手，正式地图两次出生与三段轻击随动已核对，待第 5 节实机命中对照与短回归。[M6-06 验收](Reports/M6_06_Verification.md) · [M7-01 指南](M7_01_CinderBladeBlenderTrial.md)
 
-- 正式工程有 280 份 Source、164 个 cpp（Core 119 / UI 42 / Editor 3）、60 个自动化入口、333 份 Content 和 116 项资产来源。
+- 正式工程有 280 份 Source、164 个 cpp（Core 119 / UI 42 / Editor 3）、60 个自动化入口、337 份 Content。资产来源表已登记灰烬短刃的 Blender 源文件、FBX、UE 网格和三个材质。
 - C2正式工程500条、峰值6个活动条目、每面板最多12个实例、156次复用。两轮清理与正式六件P重开通过。
 - 最新性能验收包为 `M6_06/Attempt02`。M6-04／05 的音频对照与加载归因使用 `M6_02/Attempt01`。完整存档验收包为 `M5_04/Attempt01`，60 项打包前回归、配置检查、UAT 与三个进程的存档闭环通过。
 - M4远程守卫已在正式地图验证追击、停步发射与命中。M4-02交付独立战斗室的近战与远程生成、清场开门和Retry重置。
@@ -15,4 +15,4 @@ M6-04 手动 20 分钟，M6-05 复用本次采样。M6-06 由助手操作，UAT 
 
 ## 当前批次 Commit / Push
 
-本批提交配置、启动脚本和 M6-04 至 M6-06 文档。[暂存清单](M6_06_AudioBufferPackageVerification.md#5-commit--push)
+本批提交通过实机验证的武器源资产、UE 资源、生成脚本和文档。[暂存清单](M7_01_CinderBladeBlenderTrial.md#6-commit--push)
