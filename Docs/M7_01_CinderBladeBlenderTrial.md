@@ -1,6 +1,6 @@
 # M7-01 主武器「灰烬短刃」Blender 试做与 UE 接入
 
-灰烬短刃已导入 UE 5.5.4 并挂到正式玩家的右手。材质、挂载、三段轻击随动和重开结果见第 3、4 节。下一步执行 [第 5 节 分组验收](#5-分组验收)，预计 10–15 分钟。
+灰烬短刃已导入 UE 5.5.4 并挂到正式玩家右手。材质、挂载、三段轻击随动和重开结果见第 3、4 节。[M7-01 验收报告](Reports/M7_01_Verification.md)
 
 ## 1. 模型规格
 
@@ -77,9 +77,10 @@ FBX 导入时 Interchange 已生成三份同名材质，并分配给 Steel、Wra
 
 - 正式地图 `L_ET_TrialRoute` 第一次 PIE 验证待机和 `AM_ET_Light_01 → 02 → 03`。每段播放中采样一次，刀柄在 `hand_r` 坐标系中的位置与待机一致，挂载组件始终只有一份。Stop 后再 Play，重新出生时同样只有一份挂载。运行记录在本地 `Artifacts/M7_01/UEBladeGripRuntime.json`。
 - 右手正前侧与外侧近景可见握柄贴掌。当前徒手动画的手指仍有张开，轻击第 2 段能看到刀身，默认待机视角里右臂遮住了大部分刀身。近景通过临时调整 PIE 镜头采集，已退出 PIE。截图在 `Artifacts/M7_01`，文件为 `BladeGrip_Front.png`、`BladeGrip_Side.png`、`BladeRuntime_Idle.png` 和 `BladeRuntime_Combo02.png`。
-- 第 5 节还需用实际键鼠核对闪避、锁定、暂停与正常距离的伤害，记录刀尖可见范围和真实命中的差异，并跑一次 `EmberTrial.M2.Combo.Flow`。
 
 ## 5. 分组验收
+
+2026-11-16 已完成。实机轻击每次 25 点伤害，`EmberTrial.M2.Combo.Flow` 返回 Success，键鼠操作通过。刀尖对照的单次命中或落空细节未随验收反馈记录。[完整验收](Reports/M7_01_Verification.md)
 
 | 检查 | 操作 | 通过条件 |
 | --- | --- | --- |
@@ -105,7 +106,9 @@ Combo.Flow / P 与 Stop 重开：
 
 ## 6. Commit / Push
 
-暂存本指南、`Tools/Build-CinderBlade.py`、`Introduction.md`、`Docs/Progress.md`、`Docs/Backlog.md`、`Docs/AssetManifest.csv`，以及第 5 节验收后确认的源 `.blend`、交接 `.fbx`、UE 武器目录和 `BP_ThirdPersonCharacter.uasset`。Blender 源文件、FBX、UE 网格和三个材质的来源、路径与 SHA-256 已登记。UE 资产、Blend 和 FBX 已由仓库 Git LFS 规则覆盖。截图、临时模型和日志留在 `Artifacts`。
+生成器、资产清单与首版指南已随 `a9f7683` 提交，源 `.blend`、交接 `.fbx`、UE 武器目录和 `BP_ThirdPersonCharacter.uasset` 随 `676e8fc` 提交。验收文档的暂存范围和提交文案见 [M7-01 验收报告](Reports/M7_01_Verification.md)。
+
+原资产提交文案
 
 - 英文 `feat(art): model and attach the player cinder blade prototype`
 - 中文 `feat(art): 制作灰烬短刃原型并挂载到玩家右手`

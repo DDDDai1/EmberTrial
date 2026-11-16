@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-M0 至 M6 已验收。最新 Win64 Development 包包含完整三场试炼、六件遗物、四类设置、胜利结算与版本化存档。M7-01 已完成 Blender 短刃试做与 UE 右手挂载，待实机命中对照与短回归。[当前进度](Docs/Progress.md) · [M7-01 指南](Docs/M7_01_CinderBladeBlenderTrial.md)
+M0 至 M6 已验收。最新 Win64 Development 包包含完整三场试炼、六件遗物、四类设置、胜利结算与版本化存档。M7-01 的 Blender 短刃试做、UE 右手挂载与玩法短回归已验收。[当前进度](Docs/Progress.md) · [M7-01 验收](Docs/Reports/M7_01_Verification.md)
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -868,4 +868,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-M7-01 验收后提交主武器源资产、UE 资源、生成脚本与文档。[暂存清单](Docs/M7_01_CinderBladeBlenderTrial.md#6-commit--push)
+M7-01 主武器源资产、UE 资源和生成脚本已提交，验收记录随进度文档补交。[验收提交建议](Docs/Reports/M7_01_Verification.md)
