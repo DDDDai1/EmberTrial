@@ -1,8 +1,8 @@
 # 当前开发进度
 
-更新于 2026-11-16。M7-01 灰烬短刃验收通过，已验证正式地图上的右手随动、近战实际伤害与连段回归。下一项美术任务为核心遗物祭坛建模。[M7-01 验收](Reports/M7_01_Verification.md) · [M6-06 验收](Reports/M6_06_Verification.md)
+更新于 2026-11-16。M7-01 灰烬短刃验收通过。M7-02 双槽遗物祭坛已完成 Blender 回读和 UE 网格、材质导入，待替换正式路线的灰盒并复验交互。[M7-02 指南](M7_02_RelicAltarModel.md) · [M7-01 验收](Reports/M7_01_Verification.md) · [M6-06 验收](Reports/M6_06_Verification.md)
 
-- 正式工程有 280 份 Source、164 个 cpp（Core 119 / UI 42 / Editor 3）、60 个自动化入口、337 份 Content。资产来源表已登记灰烬短刃的 Blender 源文件、FBX、UE 网格和三个材质。
+- 正式工程有 280 份 Source、164 个 cpp（Core 119 / UI 42 / Editor 3）、60 个自动化入口、341 份 Content。来源清单已登记灰烬短刃和双槽遗物祭坛的 Blender 源文件、FBX、UE 网格与材质。
 - C2正式工程500条、峰值6个活动条目、每面板最多12个实例、156次复用。两轮清理与正式六件P重开通过。
 - 最新性能验收包为 `M6_06/Attempt02`。M6-04／05 的音频对照与加载归因使用 `M6_02/Attempt01`。完整存档验收包为 `M5_04/Attempt01`，60 项打包前回归、配置检查、UAT 与三个进程的存档闭环通过。
 - M4远程守卫已在正式地图验证追击、停步发射与命中。M4-02交付独立战斗室的近战与远程生成、清场开门和Retry重置。
@@ -15,4 +15,4 @@ M6-04 手动 20 分钟，M6-05 复用本次采样。M6-06 由助手操作，UAT 
 
 ## 当前批次 Commit / Push
 
-武器源件、UE 资源与生成脚本已提交。本次暂存验收报告、操作指南、进度、Backlog 与 Introduction。[验收提交建议](Reports/M7_01_Verification.md)
+M7-01 资产及验收文档已提交。M7-02 的源件、生成器、UE 资源与验收文档按本章清单提交。[M7-02 暂存与提交文案](M7_02_RelicAltarModel.md#5-commit--push)
