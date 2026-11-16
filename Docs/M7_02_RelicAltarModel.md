@@ -1,6 +1,6 @@
 # M7-02 核心遗物祭坛建模与接入
 
-把正式路线的圆柱灰盒替换为一座双槽祭坛。两个下凹槽位呼应装备界面的槽 A、槽 B。玄武岩控制整体明度，铜边勾出轮廓，琥珀色刻纹延续灰烬短刃的配色。Blender 源件、UE 静态网格和三个材质已就绪，可从第 3 节开始替换蓝图中的灰盒。
+正式路线已用双槽祭坛替换圆柱灰盒。下凹槽位呼应装备界面的槽 A、槽 B。玄武岩、铜边和琥珀色刻纹延续灰烬短刃的配色。[M7-02 验收报告](Reports/M7_02_Verification.md)
 
 ## 1. 已交付的 Blender 源件
 
@@ -48,11 +48,13 @@ Set-Location 'E:/UE_Project/Demo'
 
 1. 打开 `/Game/EmberTrial/Blueprints/Interaction/BP_ETRelicAltar`。在 **Components** 选已有的 **Marker**。把 **Static Mesh** 从 Cylinder 改为 `SM_ET_RelicAltar`。在 **Transform** 中将相对 **Location = 0 / 0 / 0**、**Rotation = 0 / 0 / 0**、**Scale = 1 / 1 / 1**。原圆柱的 Z=30 和 Scale=.6 必须改掉。
 2. 在同一组件上核对 **Collision Presets = NoCollision**、**Generate Overlap Events = False**、**Can Ever Affect Navigation = False**。Material Overrides 如果仍指向灰盒材质，清除覆盖，让网格使用其三个材质槽。选 **Label**，勾 **Hidden In Game**，保留正式路线地图中单独摆放的 `RELIC ALTAR [E]` 指示。**Compile → Save**。
-3. 打开正式地图 `/Game/EmberTrial/Maps/L_ET_TrialRoute`。在 Outliner 选 **RelicAltar_A**，确认仍是同一个实例，原位置 **-970 / -270 / 0**、Yaw **90°**、Scale **1 / 1 / 1**。如果 Marker 仍显示 Cylinder 或旧缩放，检查实例中 Marker 对应属性有无覆盖，恢复为刚保存的蓝图默认值。
-4. 从 **Checkpoint_A 到祭坛** 的方向看正面符号。若正面朝侧面，在该实例的 **Marker → Relative Rotation → Z / Yaw** 用 90° 或 180° 调整，每次从同一方向确认，记录实际值。Actor 的世界 Transform 沿用原值。地面原点和法线正确时，底座应贴地、台面不会与上方的 `RELIC ALTAR [E]` 重叠。
+3. 打开正式地图 `/Game/EmberTrial/Maps/L_ET_TrialRoute`。在 Outliner 选 **RelicAltar_A**，确认仍是同一个实例，位置 **-970 / -270 / 0**、Actor Yaw **0°**、Scale **1 / 1 / 1**。如果 Marker 仍显示 Cylinder 或旧缩放，检查实例中 Marker 对应属性有无覆盖，恢复为保存的蓝图默认值。
+4. 从 **Checkpoint_A 到祭坛** 的方向看正面符号。正式图的 **Marker → Relative Rotation → Z / Yaw** 已核对为 **0°**。底座应贴地，正面朝向玩家接近的一侧，台面与上方 `RELIC ALTAR [E]` 保持间距。测试图 `L_ET_VerticalSlice` 保留自身的 Actor Yaw **90°**。
 5. 核对祭坛 **Enabled=True、Interaction Radius=180、Max Vertical Distance=180、Sight Point Offset=(0,0,80)**。原生的 `AltarRoot`、`RangePreview`、`Marker`、`Label` 均保留。保存本次实际有改动的资源。蓝图默认外观更新后，其他继承默认值的测试地图也会显示新模型。
 
 ## 4. 分组验收
+
+2026-11-16 实机与专项均通过。日志确认槽 A 装备生息余烬、槽 B 装备裂势印，普通 P 使用暂停模式，重开正式图后 E 仍可打开。[验收报告和本地截图路径](Reports/M7_02_Verification.md)
 
 | 检查 | 操作与通过条件 |
 | --- | --- |
@@ -86,3 +88,10 @@ RelicAltar自动化 / Stop重开：
 
 - 英文 `feat(art): model and integrate the two-slot relic altar`
 - 中文 `feat(art): 制作并接入双槽遗物祭坛`
+
+### 5.3 验收文档
+
+资产已随 `b43112b` 提交。本次只暂存报告、指南、来源表和三份进度文档。[文档暂存清单](Reports/M7_02_Verification.md#本次文档-commit--push)
+
+- 英文 `docs(art): record relic altar integration and interaction verification`
+- 中文 `docs(art): 记录遗物祭坛接入与交互验收`
