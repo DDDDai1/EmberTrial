@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-M0 至 M6 已验收。最新 Win64 Development 包包含完整三场试炼、六件遗物、四类设置、胜利结算与版本化存档。M7-01 灰烬短刃与 M7-02 双槽祭坛已在正式路线通过复验。M7-03 正在为玩家和三类敌人配置独立材质。[当前进度](Docs/Progress.md) · [M7-03 指南](Docs/M7_03_CharacterPalettes.md)
+M0 至 M6 已验收。最新 Win64 Development 包包含完整三场试炼、六件遗物、四类设置、胜利结算与版本化存档。M7-01 至 M7-03 的武器、祭坛与角色材质已在正式路线复验。M7-04 开始场景材质与光照打磨。[当前进度](Docs/Progress.md) · [M7-04 指南](Docs/M7_04_RouteLightingAndSurfaces.md)
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -870,4 +870,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-M7-02 双槽祭坛资产和验收文档已提交。M7-03 的角色材质与四份蓝图按本章清单提交。[M7-03 暂存清单](Docs/M7_03_CharacterPalettes.md#4-commit--push)
+M7-03 角色材质与四份蓝图已提交。补交验收文档后，M7-04 按场景材质与地图清单提交。[M7-03 文档 Commit](Docs/Reports/M7_03_Verification.md#本次文档-commit--push) · [M7-04 暂存清单](Docs/M7_04_RouteLightingAndSurfaces.md#5-commit--push)

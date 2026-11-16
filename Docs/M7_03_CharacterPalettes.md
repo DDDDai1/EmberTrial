@@ -1,6 +1,6 @@
 # M7-03 玩家与三类敌人的材质区分
 
-用护甲色与明度区分玩家、近战守卫、远程守卫和守关者。四者目前使用同一套 Quinn 网格与动画。采用独立材质实例，沿用模板法线、贴图、两材质槽和原骨架。预计手动 **20–30 分钟**，包括四份蓝图配置和战斗短查。
+用护甲色与明度区分玩家、近战守卫、远程守卫和守关者。四者使用同一套 Quinn 网格与动画，通过独立材质实例配色。本批已完成蓝图配置与实机复验，手动 **35 分钟**。[验收报告](Reports/M7_03_Verification.md)
 
 ## 1. 已生成的角色材质
 
@@ -34,6 +34,8 @@
 5. 如果有半身颜色异常或纹理对不上，先按表核对 **Element 0 → _01**、**Element 1 → _02**，再在正确的材质实例中核对 **Parent**。如果四份颜色在场景光下靠得太近，留同一位置和视角的截图，后续按实测调各角色的 `Tint`。
 
 ## 3. 分组验收
+
+2026-11-16 已通过。两槽配置、混合遭遇同框、守关者二阶段与两项自动化均已核对。[日志与截图路径](Reports/M7_03_Verification.md)
 
 | 组别 | 操作 | 通过条件 |
 | --- | --- | --- |
@@ -73,3 +75,10 @@ Combo.Flow / Guardian.Phase：
 
 - 英文 `feat(art): distinguish the player and enemies with Quinn palettes`
 - 中文 `feat(art): 为玩家与敌人配置可区分的 Quinn 材质配色`
+
+### 4.3 验收文档
+
+材质与蓝图已随 `82a58cd` 提交。本次补交验收记录。[暂存清单](Reports/M7_03_Verification.md#本次文档-commit--push)
+
+- 英文 `docs(art): record character palette and combat verification`
+- 中文 `docs(art): 记录角色材质区分与战斗复验`
