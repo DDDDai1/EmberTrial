@@ -1,6 +1,6 @@
 # 当前开发进度
 
-更新于 2026-11-17。M7-03 四类角色材质通过实机与战斗回归。M7-04 的 PBR 样板已保存到正式图，覆盖地面、第一场闸门两侧和第二场闸门。下一步配置剩余八面墙、两座闸门和灯光，再做实机验收。[M7-03 验收](Reports/M7_03_Verification.md) · [M7-04 指南](M7_04_RouteLightingAndSurfaces.md) · [M6-06 验收](Reports/M6_06_Verification.md)
+更新于 2026-11-17。M7-04 正式路线的 14 处 PBR 材质与灯光通过验收，清场开门、祭坛 E 与 `Encounter.Mixed` 通过。进入 M7-05A，打磨战斗 HUD 布局和视觉层级，诊断面板按需显示。[M7-04 验收](Reports/M7_04_Verification.md) · [M7-05A 指南](M7_05A_CombatHUDPolish.md) · [M6-06 验收](Reports/M6_06_Verification.md)
 
 - 正式工程有 280 份 Source、164 个 cpp（Core 119 / UI 42 / Editor 3）、60 个自动化入口、366 份 Content。来源清单已登记路线的三份纯色材质实例、九张 PBR 贴图、两个主材质及三个 PBR 实例。
 - C2正式工程500条、峰值6个活动条目、每面板最多12个实例、156次复用。两轮清理与正式六件P重开通过。
@@ -11,10 +11,10 @@
 
 ## 工时
 
-M6-04 手动 20 分钟，M6-05 复用本次采样。M6-06 由助手操作，UAT 自动执行 57 秒。M7-01 报告手动 25 分钟，M7-02 和 M7-03 各 35 分钟。项目累计用户手动 7469 分钟（124 小时 29 分钟），已记录用户构建等待 680 分钟（11 小时 20 分钟）。
+M6-04 手动 20 分钟，M6-05 复用本次采样。M6-06 由助手操作，UAT 自动执行 57 秒。M7-01 手动 25 分钟，M7-02 和 M7-03 各 35 分钟，M7-04 手动 25 分钟。项目累计用户手动 **7494 分钟（124 小时 54 分钟）**，已记录用户构建等待 680 分钟（11 小时 20 分钟）。
 
 ## 当前批次 Commit / Push
 
-M7-03 材质及蓝图已提交，待补验收文档。M7-04 按本章清单暂存文档与实物。[M7-03 文档 Commit](Reports/M7_03_Verification.md#本次文档-commit--push) · [M7-04 Commit / Push](M7_04_RouteLightingAndSurfaces.md#5-commit--push)
+M7-04 终版地图和路线资产已提交。暂存 M7-04 验收文档与 M7-05A 操作指南。[M7-04 文档 Commit](Reports/M7_04_Verification.md#本次文档-commit--push) · [M7-05A 提交清单](M7_05A_CombatHUDPolish.md#4-commit--push)
 
 后续批次验收通过后，保存报告并直接启动下一项。遇到验收缺口时先补验或修复。
