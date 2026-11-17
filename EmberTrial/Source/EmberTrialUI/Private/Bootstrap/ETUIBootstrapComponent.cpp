@@ -98,6 +98,10 @@ void UETUIBootstrapComponent::RebuildStatusWidget()
         return;
     }
     RemoveStatusWidget();
+    if (!bShowLifecycleStatus)
+    {
+        return;
+    }
     APlayerController* Controller = ResolveLocalUIController();
     if (!Controller)
     {

@@ -94,6 +94,10 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI")
     TSubclassOf<UETLifecycleStatusWidget> StatusWidgetClass;
 
+    // 开发诊断按需开启，默认不创建视图。
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|UI|Diagnostics")
+    bool bShowLifecycleStatus = false;
+
     UPROPERTY(Transient)
     TObjectPtr<UETLifecycleStatusWidget> StatusWidget;
 
