@@ -1,6 +1,6 @@
 # M7-07 Win64 Shipping 发布候选验证
 
-以 `26832f0` 的正式资产和源码验证首次 Shipping 候选。先检查构建、Cook 和启动，再用独立进程走完首屏、两处存档与通关。预计手动 **30–45 分钟**，构建与 Cook 另计。[M7-06A 验收](Reports/M7_06A_Verification.md)
+以 `26832f0` 的正式资产和源码构建的首次 Shipping 候选已通过三轮实机。用户记录手动 **10 分钟**、等待 **2 分钟**。[M7-07 验收](Reports/M7_07_Verification.md) · [M7-06A 验收](Reports/M7_06A_Verification.md)
 
 ## 1. 构建与证据
 

@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新于 2026-11-19。M7-06A 命中音效实机验收通过，进入 M7-07 Shipping 发布候选验证。[M7-06A 验收](Reports/M7_06A_Verification.md) · [M7-07](M7_07_ShippingCandidate.md)
+更新于 2026-11-20。M7-07 Shipping 发布候选通过三轮独立实机，验收已归档。[M7-07 验收](Reports/M7_07_Verification.md) · [候选包指南](M7_07_ShippingCandidate.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -191,7 +191,7 @@
 | M7-05B | [菜单、暂停与遗物界面打磨](M7_05B_MenuAndRelicPolish.md) | 助手设计，用户配置 | 对照基线 | 样式统一已提交，最终反馈归入 M7-05B-2。 |
 | M7-05B-2 | [主菜单、暂停与祭坛重设计](Reports/M7_05B_2_Verification.md) | 助手实施，用户实机验收 | 完成 | 双分辨率与交互通过，总工时 120 分钟。两份菜单导航已补交。 |
 | M7-06A | [灰烬短刃命中音效](Reports/M7_06A_Verification.md) | 助手接入，用户实机试听 | 完成 | 单次扣血、连击听感、音乐和音效路由通过，实机 15 分钟。 |
-| M7-07 | [Win64 Shipping 发布候选](M7_07_ShippingCandidate.md) | 助手构建，用户实机验收 | 进行中 | 包含配置校验、60 项 Editor 自动化、Shipping 启动及三轮独立进程。 |
+| M7-07 | [Win64 Shipping 发布候选](Reports/M7_07_Verification.md) | 助手构建，用户实机验收 | 完成 | 60 项自动化、UAT 和三轮实机通过。跨进程恢复 B、重试、胜利与重开正常。手动 10 分钟，等待 2 分钟。 |
 
 表内规模和工时为各阶段验收时点。当前性能验证包为 `M6_06/Attempt02`。[当前进度](Progress.md)
 
@@ -213,7 +213,7 @@
 | M4阶段完成 | 完整路线、胜利结算和 Win64 Development 独立包已验收 |
 | M5交付基线 | 独立包验证 v2 保存、跨进程恢复、重试与通关结束 |
 | M7 美术接入 | 主武器和双槽祭坛已在正式路线验收。两份 Blender 源件、FBX 与 UE 资产已纳入来源清单。 |
-| M7 当前 | 界面与轻击命中音效均通过实机验收。进入 Shipping 集成验证。 |
+| M7 当前 | Win64 Shipping `M7_07/Attempt01` 已通过三轮集成实机。 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -221,4 +221,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-本轮提交命中音效验收、发布候选指南、路线入口和启动脚本。[M7-07 提交清单](M7_07_ShippingCandidate.md#4-commit--push)
+本轮提交 Shipping 验收报告、发布候选指南与进度入口。[M7-07 提交清单](Reports/M7_07_Verification.md#本次文档-commit--push)
