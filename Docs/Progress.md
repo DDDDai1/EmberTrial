@@ -1,6 +1,6 @@
 # 当前开发进度
 
-更新于 2026-11-17。M7-05A 战斗 HUD 已验收，生命、体力、治疗与破势的动态状态、暂停恢复、诊断开关和两项专项通过。进入 M7-05B，统一菜单、暂停、祭坛、设置及胜败页的样式。[M7-05A 验收](Reports/M7_05A_Verification.md) · [M7-05B 指南](M7_05B_MenuAndRelicPolish.md) · [M6-06 验收](Reports/M6_06_Verification.md)
+更新于 2026-11-19。M7-05B-2 主菜单、暂停、祭坛及设置通过本地实机验收。已推送的提交待补两份菜单导航源码。进入 M7-06A，接入灰烬短刃的真实命中音效。[M7-05B-2 验收](Reports/M7_05B_2_Verification.md) · [M7-06A](M7_06A_CinderBladeHitAudio.md)
 
 - 正式工程有 280 份 Source、164 个 cpp（Core 119 / UI 42 / Editor 3）、60 个自动化入口、366 份 Content。来源清单已登记路线的三份纯色材质实例、九张 PBR 贴图、两个主材质及三个 PBR 实例。
 - C2正式工程500条、峰值6个活动条目、每面板最多12个实例、156次复用。两轮清理与正式六件P重开通过。
@@ -15,6 +15,6 @@ M6-04 手动 20 分钟，M6-05 复用本次采样。M6-06 由助手操作，UAT 
 
 ## 当前批次 Commit / Push
 
-M7-05A 源码与资产已提交。本轮暂存 M7-05A 验收报告、来源清单及 M7-05B 指南。[文档 Commit](Reports/M7_05A_Verification.md#本次文档-commit--push) · [M7-05B 提交清单](M7_05B_MenuAndRelicPolish.md#8-commit--push)
+两份菜单导航源码先补提交。本轮验收记录与战斗音效改动按各自清单提交。[M7-05B-2 交付清单](Reports/M7_05B_2_Verification.md#本次文档-commit--push) · [M7-06A 提交清单](M7_06A_CinderBladeHitAudio.md#4-commit--push)
 
 后续批次验收通过后，保存报告并直接启动下一项。遇到验收缺口时先补验或修复。

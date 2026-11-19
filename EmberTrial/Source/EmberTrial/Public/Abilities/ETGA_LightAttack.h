@@ -13,6 +13,7 @@ class USkeletalMeshComponent;
 class UETCombatTraceComponent;
 class UAbilityTask_PlayMontageAndWait;
 class UGameplayEffect;
+class USoundBase;
 struct FHitResult;
 struct FAnimMontageInstance;
 
@@ -88,6 +89,10 @@ private:
     TSubclassOf<UGameplayEffect> DamageEffectClass;
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Attack", meta = (ClampMin = "0.0"))
     float AttackDamage = 25.0f;
+
+    // Optional presentation for confirmed damage in any stage of this ability.
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Audio")
+    TObjectPtr<USoundBase> ConfirmedHitSound;
 
     UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Combo")
     bool bEnableCombo = false;

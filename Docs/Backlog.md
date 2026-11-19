@@ -1,6 +1,6 @@
 # 开发任务板
 
-更新于 2026-11-17。M7-05A 战斗 HUD 已验收，进入 M7-05B 菜单、暂停与遗物界面打磨。[M7-05A 验收](Reports/M7_05A_Verification.md) · [M7-05B 指南](M7_05B_MenuAndRelicPolish.md)
+更新于 2026-11-19。M7-05B-2 界面实机验收通过，Git 交付待补两份原生源码。当前进入 M7-06A 战斗音效。[M7-05B-2 验收](Reports/M7_05B_2_Verification.md) · [M7-06A](M7_06A_CinderBladeHitAudio.md)
 
 状态使用“完成 / 待用户操作 / 待开始 / 进行中 / 待验证 / 待补修”。只有有对应证据时才标记完成。
 
@@ -188,7 +188,9 @@
 | M7-03 | [玩家与敌人材质区分](M7_03_CharacterPalettes.md) | 助手生成材质实例，用户配置角色蓝图并实机验收 | 完成 | 混合遭遇同框可辨、守关者实机二阶段、Combo.Flow 与 Guardian.Phase 通过。[验收](Reports/M7_03_Verification.md) |
 | M7-04 | [正式路线场景材质与光照](M7_04_RouteLightingAndSurfaces.md) | 助手制作并验证材质样板，用户配置其余表面、灯光与实机检查 | 完成 | 地面、十墙、三门使用实例覆盖，清场和祭坛交互通过。手动 25 分钟。[验收](Reports/M7_04_Verification.md) |
 | M7-05A | [战斗 HUD 正式布局](M7_05A_CombatHUDPolish.md) | 助手设计与样式配置，用户实现与实机检查 | 完成 | 左下四卡、诊断开关、动态资源与两项专项通过。手动 30 / 等待 5 分钟。[验收](Reports/M7_05A_Verification.md) |
-| M7-05B | [菜单、暂停与遗物界面打磨](M7_05B_MenuAndRelicPolish.md) | 助手设计，用户配置与实机检查 | 进行中 | 十份已有 WBP 统一字体、背景与按钮样式，复验详情滚动、设置焦点及小窗可读性。 |
+| M7-05B | [菜单、暂停与遗物界面打磨](M7_05B_MenuAndRelicPolish.md) | 助手设计，用户配置 | 对照基线 | 样式统一已提交，最终反馈归入 M7-05B-2。 |
+| M7-05B-2 | [主菜单、暂停与祭坛重设计](Reports/M7_05B_2_Verification.md) | 助手实施，用户实机验收 | 实机通过，交付待补 | 双分辨率和交互通过，总工时 120 分钟，两份菜单导航源码待补提交。 |
+| M7-06A | [灰烬短刃命中音效](M7_06A_CinderBladeHitAudio.md) | 助手接入，用户实机试听 | 进行中 | 以轻击真实扣血为播放条件，经音效总线校准实际听感。 |
 
 表内规模和工时为各阶段验收时点。当前性能验证包为 `M6_06/Attempt02`。[当前进度](Progress.md)
 
@@ -210,7 +212,7 @@
 | M4阶段完成 | 完整路线、胜利结算和 Win64 Development 独立包已验收 |
 | M5交付基线 | 独立包验证 v2 保存、跨进程恢复、重试与通关结束 |
 | M7 美术接入 | 主武器和双槽祭坛已在正式路线验收。两份 Blender 源件、FBX 与 UE 资产已纳入来源清单。 |
-| M7 当前 | 战斗 HUD 已验收。统一菜单、暂停、祭坛、四类设置和胜败页样式，再进入音效及集成发布复验。 |
+| M7 当前 | 界面实机验收通过。先校准轻击命中音效，再做集成发布复验。 |
 
 有引用的Practice、诊断命令和Tests资源保留；目录名或阶段编号不能作为删除依据。版本管理始终由用户操作，清理前后的Git状态与未提交文件有本地快照，Raw / 构建产物不上传。
 
@@ -218,4 +220,4 @@
 
 ## 当前批次 Commit / Push（固定放在最后）
 
-本批补交 M7-05A 验收文档与来源清单，下发 M7-05B 操作指南。[文档 Commit](Reports/M7_05A_Verification.md#本次文档-commit--push) · [M7-05B 提交清单](M7_05B_MenuAndRelicPolish.md#8-commit--push)
+先补交两份菜单导航源码，再提交界面验收文档与音效批次改动。[M7-05B-2 交付清单](Reports/M7_05B_2_Verification.md#本次文档-commit--push) · [M7-06A 提交清单](M7_06A_CinderBladeHitAudio.md#4-commit--push)

@@ -13,6 +13,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Combat/ETCombatDamage.h"
+#include "Sound/SoundBase.h"
 #include "Combat/ETCombatTraceComponent.h"
 #include "GameplayEffect.h"
 #include "AIController.h"
@@ -846,10 +847,19 @@ void UETGA_LightAttack::HandleTraceHit(uint32 Serial, const FHitResult& Hit)
                Result.bActiveHandle ? 1 : 0);
         return;
     }
+    const float ActualDamage = FMath::Max(0.0f, Result.HealthBefore - Result.HealthAfter);
     UE_LOG(LogETLightAttack, Display,
            TEXT("[M1-04B2] Damage Serial=%u Source=%s Target=%s Requested=%.1f Applied=%d "
                 "ActiveHandle=%d Before=%.1f After=%.1f BaseAfter=%.1f Max=%.1f Actual=%.1f"),
            Serial, *SourceName, *TargetName, RequestedDamage, Result.bApplied ? 1 : 0,
            Result.bActiveHandle ? 1 : 0, Result.HealthBefore, Result.HealthAfter, Result.BaseAfter,
-           Result.MaxAfter, FMath::Max(0.0f, Result.HealthBefore - Result.HealthAfter));
+           Result.MaxAfter, ActualDamage);
+
+    // The trace already deduplicates contacts per stage. Use the health delta to exclude rejected hits.
+    if (ConfirmedHitSound && Result.bApplied && ActualDamage > 0.0f && IsValid(Source))
+    {
+        UGameplayStatics::PlaySoundAtLocation(Source, ConfirmedHitSound, Hit.ImpactPoint);
+        UE_LOG(LogETLightAttack, Verbose, TEXT("Confirmed hit sound Serial=%u Sound=%s"),
+               Serial, *GetNameSafe(ConfirmedHitSound));
+    }
 }
