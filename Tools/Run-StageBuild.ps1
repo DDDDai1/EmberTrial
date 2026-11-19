@@ -7,7 +7,7 @@ param(
     [int]$Width = 1280,
     [ValidateRange(480, 4320)]
     [int]$Height = 720,
-    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06', 'M5_04', 'M6_01', 'M6_02', 'M6_03', 'M6_04', 'M6_06')]
+    [ValidateSet('M1_07A', 'M1_07C3', 'Cleanup', 'M2_07A', 'M2_07B', 'M3_06A', 'M3_06C3', 'M4_06', 'M5_04', 'M6_01', 'M6_02', 'M6_03', 'M6_04', 'M6_06', 'M7_07')]
     [string]$EvidenceStage = 'M1_07A',
     [switch]$Trace,
     [switch]$PerformanceBaseline,
@@ -21,7 +21,9 @@ $ErrorActionPreference = 'Stop'
 ## 阶段集成包使用显式目录和独立的个人设置文件。
 $stageRepo = Split-Path $PSScriptRoot -Parent
 $stageUsesIsolatedRun = $EvidenceStage -in @('M6_01', 'M6_02', 'M6_03', 'M6_04', 'M6_06')
-$stageUsesSeparateSettings = $stageUsesIsolatedRun -or $EvidenceStage -in @('M3_06A', 'M3_06C3', 'M4_06', 'M5_04')
+$stageShipping = $EvidenceStage -eq 'M7_07'
+$stageSharedUserProfile = $EvidenceStage -in @('M5_04', 'M7_07')
+$stageUsesSeparateSettings = $stageUsesIsolatedRun -or $stageSharedUserProfile -or $EvidenceStage -in @('M3_06A', 'M3_06C3', 'M4_06')
 $stageHasAudioCallbackOverride = $PSBoundParameters.ContainsKey('AudioCallbackFrames')
 if ($stageHasAudioCallbackOverride -ne ($EvidenceStage -eq 'M6_04')) {
     throw 'Specify -AudioCallbackFrames 512 or 1024 for EvidenceStage M6_04 only.'
@@ -47,7 +49,7 @@ if ([string]::IsNullOrWhiteSpace($BuildDirectory)) {
     $BuildDirectory = Join-Path $stageRepo 'Artifacts\Builds\M1_07A\Attempt01'
 }
 $stageBuild = (Resolve-Path -LiteralPath $BuildDirectory).Path
-if ($stageUsesIsolatedRun -or $EvidenceStage -in @('M3_06C3', 'M4_06', 'M5_04')) {
+if ($stageUsesIsolatedRun -or $stageSharedUserProfile -or $EvidenceStage -in @('M3_06C3', 'M4_06')) {
     $stagePackageStages = switch ($EvidenceStage) {
         'M6_01' { 'M5_04' }
         'M6_02' { 'M5_04'; 'M6_02' }
@@ -70,6 +72,10 @@ if (!(Test-Path -LiteralPath $stageExe -PathType Leaf)) {
 if (!$WhatIfPreference -and (Get-Process -Name UnrealEditor -ErrorAction SilentlyContinue)) {
     throw 'Save and close Unreal Editor before checking the standalone package.'
 }
+if ($stageShipping -and !$WhatIfPreference -and
+    (Get-Process -Name 'EmberTrial-Win64-Shipping' -ErrorAction SilentlyContinue)) {
+    throw 'Quit the running EmberTrial Shipping instance before reusing the QA save profile.'
+}
 ## 日志 / Trace / 元数据按同一唯一前缀关联；记录不是Gameplay验收结果。
 ## 历史性能命令仍归档到M1；显式M2_07B使用自己的证据目录。
 $stageEvidenceStage =
@@ -77,10 +83,13 @@ if ($PerformanceBaseline -and !$stageUsesIsolatedRun -and $EvidenceStage -notin 
 $stageOutput = Join-Path $stageRepo ("Artifacts\$stageEvidenceStage\Runtime")
 $stageStamp = Get-Date -Format 'yyyyMMdd_HHmmss_fff'
 $stageBase = "${RunName}_${stageStamp}"
-$stageLog = Join-Path $stageOutput ($stageBase + '.log')
+$stageLog = if (!$stageShipping) { Join-Path $stageOutput ($stageBase + '.log') }
 $stageMeta = Join-Path $stageOutput ($stageBase + '.json')
 $stageTrace = Join-Path $stageOutput ($stageBase + '.utrace')
-$stageArguments = @('-windowed', "-ResX=$Width", "-ResY=$Height", '-log', ('"-abslog=' + $stageLog + '"'))
+$stageArguments = @('-windowed', "-ResX=$Width", "-ResY=$Height")
+if ($stageLog) {
+    $stageArguments += @('-log', ('"-abslog=' + $stageLog + '"'))
+}
 if ($NoSound) {
     $stageArguments += '-nosound'
 }
@@ -100,12 +109,13 @@ if ($stageUsesSeparateSettings) {
         'M6_03' { $stageBase + '_GameUserSettings.ini' }
         'M6_04' { $stageBase + '_GameUserSettings.ini' }
         'M6_06' { $stageBase + '_GameUserSettings.ini' }
+        'M7_07' { (Split-Path $stageBuild -Leaf) + '_GameUserSettings.ini' }
         default { 'M3PackageUser.ini' }
     }
     $stageSettingsIni = Join-Path $stageOutput $stageSettingsName
     $stageArguments += ('"-GameUserSettingsINI=' + $stageSettingsIni + '"')
 }
-if ($stageUsesIsolatedRun -or $EvidenceStage -eq 'M5_04') {
+if ($stageUsesIsolatedRun -or $stageSharedUserProfile) {
     $stageUserDir = Join-Path $stageOutput (Join-Path (Split-Path $stageBuild -Leaf) 'User')
     if ($stageUsesIsolatedRun) {
         $stageUserDir = Join-Path $stageUserDir $stageBase
@@ -128,7 +138,9 @@ if ($Trace) {
     $stageArguments += @("-trace=$stageTraceChannels", '-statnamedevents', ('"-tracefile=' + $stageTrace + '"'))
 }
 Write-Host "Executable: $stageExe"
-Write-Host "Log: $stageLog"
+if ($stageLog) {
+    Write-Host "Log: $stageLog"
+}
 if ($stageUserDir) {
     Write-Host "User directory: $stageUserDir"
 }
@@ -142,21 +154,23 @@ if ($Trace) {
     Write-Host "Trace: $stageTrace"
 }
 ## WhatIf必须在任何目录 / 证据写入和进程启动之前退出。
-if (!$PSCmdlet.ShouldProcess($stageExe, 'Start packaged EmberTrial with a distinct runtime log')) {
+if (!$PSCmdlet.ShouldProcess($stageExe, 'Start packaged EmberTrial and record launch metadata')) {
     return
 }
 New-Item -ItemType Directory -Path $stageOutput -Force | Out-Null
-if ((Test-Path -LiteralPath $stageLog) -or (Test-Path -LiteralPath $stageMeta) -or
+if (($stageLog -and (Test-Path -LiteralPath $stageLog)) -or (Test-Path -LiteralPath $stageMeta) -or
     ($stageSeedSavePath -and (Test-Path -LiteralPath $stageUserDir))) {
     throw 'The generated evidence filename already exists; run again to get a fresh timestamp.'
 }
 $stageGameExeHash = $null
 $stageGameContentTocHash = $null
-if ($stageUsesIsolatedRun) {
-    $stageGameExe = Join-Path $stageBuild 'Windows\EmberTrial\Binaries\Win64\EmberTrial.exe'
+$stageGameExe = $null
+if ($stageUsesIsolatedRun -or $stageShipping) {
+    $stageBinaryName = if ($stageShipping) { 'EmberTrial-Win64-Shipping.exe' } else { 'EmberTrial.exe' }
+    $stageGameExe = Join-Path $stageBuild "Windows\EmberTrial\Binaries\Win64\$stageBinaryName"
     $stageGameExeHash = (Get-FileHash -LiteralPath $stageGameExe -Algorithm SHA256).Hash
 }
-if ($EvidenceStage -in @('M6_02', 'M6_03', 'M6_04', 'M6_06')) {
+if ($EvidenceStage -in @('M6_02', 'M6_03', 'M6_04', 'M6_06', 'M7_07')) {
     # 地图修改仅影响 Cook 内容，运行二进制可能完全相同。
     $stageContentToc = Join-Path $stageBuild 'Windows\EmberTrial\Content\Paks\EmberTrial-Windows.utoc'
     $stageGameContentTocHash = (Get-FileHash -LiteralPath $stageContentToc -Algorithm SHA256).Hash
@@ -177,6 +191,7 @@ $stageProcess = Start-Process -FilePath $stageExe -WorkingDirectory (Split-Path 
     StartedAt = [DateTimeOffset]::Now.ToString('o')
     Executable = $stageExe
     ExecutableSHA256 = (Get-FileHash -LiteralPath $stageExe -Algorithm SHA256).Hash
+    GameExecutable = $stageGameExe
     GameExecutableSHA256 = $stageGameExeHash
     GameContentTocSHA256 = $stageGameContentTocHash
     SeedCheckpointSaveSHA256 = $stageSeedSaveHash

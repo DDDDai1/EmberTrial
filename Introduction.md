@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-M0 至 M6 已验收。最新性能验收用 Win64 Development 包包含完整三场试炼、六件遗物、四类设置、胜利结算与版本化存档。M7-01 至 M7-04 的武器、祭坛、角色材质及路线材质与光照已在正式图复验。M7-05B-2 的主菜单、暂停与祭坛重设计通过实机验收，进入灰烬短刃的命中音效。[当前进度](Docs/Progress.md) · [M7-05B-2 验收](Docs/Reports/M7_05B_2_Verification.md) · [M7-06A](Docs/M7_06A_CinderBladeHitAudio.md)
+M0 至 M6 已验收。最新性能验收用 Win64 Development 包包含完整三场试炼、六件遗物、四类设置、胜利结算与版本化存档。M7 的武器、祭坛、角色材质、路线光照、界面重设计和轻击命中音效均已通过各自的实机验收。进入 M7-07 Shipping 发布候选验证。[当前进度](Docs/Progress.md) · [M7-06A 验收](Docs/Reports/M7_06A_Verification.md) · [M7-07](Docs/M7_07_ShippingCandidate.md)
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -872,4 +872,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-先补提交 M7-05B-2 的两份菜单导航源码，再提交验收报告、来源清单与音效批次改动。[M7-05B-2 交付清单](Docs/Reports/M7_05B_2_Verification.md#本次文档-commit--push) · [M7-06A 提交清单](Docs/M7_06A_CinderBladeHitAudio.md#4-commit--push)
+本轮提交命中音效验收、发布候选指南、路线入口和启动脚本。[M7-07 提交清单](Docs/M7_07_ShippingCandidate.md#4-commit--push)

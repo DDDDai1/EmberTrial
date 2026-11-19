@@ -1,6 +1,6 @@
 # M7-05B-2 界面重设计验收
 
-**本地实机通过。Git 交付待补两份原生源码。** 用户于 2026-11-19 确认第 5 节各项完成，总工时 **120 分钟**。[设计与验收矩阵](../M7_05B_2_MenuPauseRelicRedesign.md#5-最终验收与反馈)
+**通过。** 用户于 2026-11-19 确认第 5 节各项完成，总工时 **120 分钟**。两份菜单导航源码已随 `ca16ce7` 补交。[设计与验收矩阵](../M7_05B_2_MenuPauseRelicRedesign.md#5-最终验收与反馈)
 
 | 检查 | 结果 |
 | --- | --- |
@@ -15,16 +15,10 @@
 
 ## 提交核对
 
-M7-05B 对照基线为 `8784016`。重设计提交为 `cfd45c3`，当前 `origin/main` 跟踪引用指向该提交。提交包含八份 WBP、四份 UI 美术资产、背景 PNG、字体 TTF 和 OFL 文本。十二份 UE 资产的本机 SHA-256 与提交里的 Git LFS OID 一致。
+M7-05B 对照基线为 `8784016`。初版重设计提交 `cfd45c3` 包含八份 WBP、四份 UI 美术资产、背景 PNG、字体 TTF 和 OFL 文本。首次验收时，十二份 UE 资产的本机 SHA-256 与该提交里的 Git LFS OID 一致。
 
-以下文件在工作区存在，且被已提交的两个菜单头文件直接引用。需随补充提交进入远程仓库，供干净克隆构建。
-
-- `EmberTrial/Source/EmberTrialUI/Public/Widgets/ETMenuPagesWidget.h`
-- `EmberTrial/Source/EmberTrialUI/Private/Widgets/ETMenuPagesWidget.cpp`
+两个菜单使用的 `ETMenuPagesWidget.h` 和 `ETMenuPagesWidget.cpp` 已随 `ca16ce7` 提交。后续三份布局资产随 `2baa408` 提交，本机 SHA-256 与其 Git LFS OID 相符。最终布局数值随 `26832f0` 更新到原指南。以上提交均在本地 `origin/main` 的祖先记录中。
 
 ## 本次文档 Commit / Push
 
-先提交上述两份源码，再提交本报告与本次更新的来源清单、进度和路线入口。
-
-- 源码 `fix(ui): track native menu navigation widgets` / `fix(ui): 补提交菜单导航原生代码`
-- 文档 `docs(ui): record menu redesign verification` / `docs(ui): 记录菜单界面重设计验收`
+初版报告已随 `4b333d0` 提交。本次同步补交状态与发布候选资料。[当前提交清单](../M7_07_ShippingCandidate.md#4-commit--push)
