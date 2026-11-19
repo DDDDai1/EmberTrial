@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "Widgets/ETMenuPagesWidget.h"
 #include "Inventory/ETRelicPresenter.h"
 #include "ETPauseWidget.generated.h"
 
@@ -17,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETPauseActionRequested);
 
 // 暂停View只发继续 / 返回菜单意图；世界暂停、输入模式和生命判断由Flow拥有。
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
-class EMBERTRIALUI_API UETPauseWidget : public UUserWidget
+class EMBERTRIALUI_API UETPauseWidget : public UETMenuPagesWidget
 {
     GENERATED_BODY()
 
@@ -39,6 +39,7 @@ public:
 
 protected:
     // 每个实例只在初始化绑定按钮；不在Construct重复注册业务。
+    virtual void LeaveAltar() override { HandleResumeClicked(); }
     virtual void NativeOnInitialized() override;
     virtual void NativeDestruct() override;
     virtual FReply NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;

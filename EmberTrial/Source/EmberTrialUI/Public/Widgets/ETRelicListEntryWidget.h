@@ -29,6 +29,8 @@ private:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UBorder> SelectionBorder;
     UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UBorder> SelectionLine;
+    UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> ItemNameText;
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> EquippedText;

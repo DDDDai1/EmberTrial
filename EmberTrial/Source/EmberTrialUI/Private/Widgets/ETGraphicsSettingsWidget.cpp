@@ -141,6 +141,11 @@ bool UETGraphicsSettingsWidget::CanEdit() const
         World->GetNetMode() == NM_Standalone;
 }
 
+void UETGraphicsSettingsWidget::DiscardPageDraft()
+{
+    if (bViewActive && Draft.IsDirty()) ReadCurrent(FText::GetEmpty());
+}
+
 void UETGraphicsSettingsWidget::SetHostBusy(const bool bBusy)
 {
     bHostBusy = bBusy;
@@ -331,7 +336,7 @@ void UETGraphicsSettingsWidget::HandleDefaults()
 FReply UETGraphicsSettingsWidget::NativeOnPreviewKeyDown(
     const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-    if (HasRequiredLayout() && InKeyEvent.GetKey() == EKeys::Escape &&
+    if (HasRequiredLayout() && InKeyEvent.GetKey() == EKeys::Escape && Draft.IsDirty() &&
         !QualityCombo->IsOpen() && !FrameRateCombo->IsOpen())
     {
         HandleRevert();

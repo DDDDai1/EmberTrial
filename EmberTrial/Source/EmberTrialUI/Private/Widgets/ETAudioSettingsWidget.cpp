@@ -133,6 +133,11 @@ bool UETAudioSettingsWidget::CanEdit() const
         World->GetNetMode() == NM_Standalone;
 }
 
+void UETAudioSettingsWidget::DiscardPageDraft()
+{
+    if (bViewActive && Draft.IsDirty()) ReadCurrent(FText::GetEmpty());
+}
+
 void UETAudioSettingsWidget::SetHostBusy(const bool bBusy)
 {
     bHostBusy = bBusy;
@@ -311,7 +316,7 @@ void UETAudioSettingsWidget::HandleDefaults()
 FReply UETAudioSettingsWidget::NativeOnPreviewKeyDown(
     const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-    if (InKeyEvent.GetKey() == EKeys::Escape)
+    if (InKeyEvent.GetKey() == EKeys::Escape && Draft.IsDirty())
     {
         HandleRevert();
         return FReply::Handled();

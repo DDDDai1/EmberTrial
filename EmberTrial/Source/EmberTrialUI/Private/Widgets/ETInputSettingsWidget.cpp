@@ -81,6 +81,11 @@ bool UETInputSettingsWidget::HasLiveHost() const
     return false;
 }
 
+void UETInputSettingsWidget::DiscardPageDraft()
+{
+    if (bViewActive && Draft.IsDirty()) ReadCurrent(FText::GetEmpty());
+}
+
 void UETInputSettingsWidget::SetHostBusy(const bool bBusy)
 {
     bHostBusy = bBusy;
@@ -212,7 +217,7 @@ void UETInputSettingsWidget::HandleDefaults()
 FReply UETInputSettingsWidget::NativeOnPreviewKeyDown(
     const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-    if (InKeyEvent.GetKey() == EKeys::Escape)
+    if (InKeyEvent.GetKey() == EKeys::Escape && Draft.IsDirty())
     {
         HandleRevert();
         return FReply::Handled();

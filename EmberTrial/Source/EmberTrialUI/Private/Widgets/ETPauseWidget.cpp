@@ -14,7 +14,7 @@
 
 bool UETPauseWidget::HasRequiredLayout() const
 {
-    return IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) &&
+    return HasNavigationLayout(true) && IsValid(BTN_Resume.Get()) && IsValid(MainMenuButton.Get()) &&
         IsValid(StatusText.Get()) && IsValid(RelicPanel.Get()) && IsValid(InputSettingsPanel.Get()) &&
         IsValid(VideoSettingsPanel.Get()) && IsValid(GraphicsSettingsPanel.Get()) &&
         IsValid(AudioSettingsPanel.Get());
@@ -52,7 +52,7 @@ void UETPauseWidget::NativeDestruct()
 
 void UETPauseWidget::ShowReady()
 {
-    ApplyState(false, FText::FromString(TEXT("松开 P 或选择继续游戏返回。")));
+    ApplyState(false, FText::FromString(TEXT("P  继续")));
 }
 
 
@@ -70,6 +70,7 @@ void UETPauseWidget::ApplyState(bool bPending, const FText& Message)
 {
     // 先写本地状态，布局无效时也不能绕过pending继续发请求。
     bBusy = bPending;
+    SetNavigationBusy(bPending);
     if (RelicPanel)
     {
         RelicPanel->SetCommandBusy(bBusy);
@@ -102,6 +103,12 @@ void UETPauseWidget::ApplyState(bool bPending, const FText& Message)
 
 void UETPauseWidget::FocusResume()
 {
+    if (!IsHome())
+    {
+        if (IsSettingsPage()) FocusCurrentCategory();
+        else FocusRelicReturn();
+        return;
+    }
     APlayerController* Controller = GetOwningPlayer();
     if (!bBusy && IsValid(BTN_Resume.Get()) && IsValid(Controller))
     {
@@ -140,7 +147,7 @@ FReply UETPauseWidget::NativeOnKeyUp(const FGeometry& InGeometry, const FKeyEven
 FReply UETPauseWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry,
                                                const FPointerEvent& InMouseEvent)
 {
-    if (!bBusy && IsValid(BTN_Resume.Get()) &&
+    if (IsHome() && !bBusy && IsValid(BTN_Resume.Get()) &&
         InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
     {
         // 背景左键只将焦点还给继续按钮，不自动继续；按钮自身处理自己的点击。
@@ -159,6 +166,7 @@ void UETPauseWidget::ConfigureRelicCommands(FETRelicCanSubmit CanSubmit, FETReli
 
 void UETPauseWidget::ShowAltarReady()
 {
+    OpenAltarPage();
     ApplyState(false, FText::FromString(
         TEXT("遗物祭坛 · 比较后确认装备或卸下目标槽；松开 P 或选择继续游戏返回。")));
 }

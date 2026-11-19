@@ -8,6 +8,7 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Inventory/ETRelicEquipmentComponent.h"
+#include "Inventory/ETRelicDefinition.h"
 #include "Inventory/ETRelicInventorySubsystem.h"
 #include "Lifecycle/ETUILocalPlayerSubsystem.h"
 #include "Templates/UnrealTemplate.h"
@@ -18,6 +19,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogETRelicPresenter, Log, All);
 bool FETRelicPanelData::operator==(const FETRelicPanelData& Other) const
 {
     return State == Other.State && PreviewState == Other.PreviewState && SelectedId == Other.SelectedId &&
+           SlotAName.EqualTo(Other.SlotAName) && SlotBName.EqualTo(Other.SlotBName) &&
            Name.EqualTo(Other.Name) && Description.EqualTo(Other.Description) && bSlotB == Other.bSlotB &&
            BeforeMax == Other.BeforeMax && AfterMax == Other.AfterMax &&
                BeforeAttack == Other.BeforeAttack && AfterAttack == Other.AfterAttack &&
@@ -326,6 +328,11 @@ FETRelicPanelData UETRelicPresenter::BuildData() const
         CanSubmitCommand.Execute(Equipment);
     UETRelicInventorySubsystem* Inventory = BoundInventory.Get();
     const FETRelicInventorySnapshot Current = Inventory ? Inventory->GetSnapshot() : FETRelicInventorySnapshot{};
+    if (Inventory)
+    {
+        if (const auto* A = Inventory->FindDefinition(Current.Equipped.SlotA)) Data.SlotAName = A->GetDisplayName();
+        if (const auto* B = Inventory->FindDefinition(Current.Equipped.SlotB)) Data.SlotBName = B->GetDisplayName();
+    }
     Data.bCanUnequip = bAllowed && !(bSlotB ? Current.Equipped.SlotB : Current.Equipped.SlotA).IsNone();
     // 无搜索结果仍可卸下目标槽，但不能把空选择误当成装备请求。
     if (SelectedId.IsNone())

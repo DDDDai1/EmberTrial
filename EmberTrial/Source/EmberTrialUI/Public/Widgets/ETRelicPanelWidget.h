@@ -9,6 +9,7 @@
 class UButton;
 class UEditableTextBox;
 class UListView;
+class UGridPanel;
 class UTextBlock;
 class UVerticalBox;
 class UETRelicPresenter;
@@ -109,6 +110,10 @@ private:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> CommandResultText;
 
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UGridPanel> ComparisonGrid;
+
+    void ShowSlot(UButton* Button, const TCHAR* Prefix, const FText& Item, bool bSelected);
     FETRelicCanSubmit CanSubmitCommand;
     FETRelicSubmit SubmitCommand;
     bool bCommandBusy = false;

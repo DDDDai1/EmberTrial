@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "Widgets/ETMenuPagesWidget.h"
 #include "ETMainMenuWidget.generated.h"
 
 class UButton;
@@ -15,7 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FETMenuActionRequested);
 
 // 只展示状态并发出意图；不保存检查点、不查ASC、不执行切图。
 UCLASS(Abstract, Blueprintable, meta = (DisableNativeTick))
-class EMBERTRIALUI_API UETMainMenuWidget : public UUserWidget
+class EMBERTRIALUI_API UETMainMenuWidget : public UETMenuPagesWidget
 {
     GENERATED_BODY()
 

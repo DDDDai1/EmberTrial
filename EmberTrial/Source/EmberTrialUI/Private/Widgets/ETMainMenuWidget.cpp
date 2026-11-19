@@ -14,7 +14,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogETMainMenuView, Log, All);
 
 bool UETMainMenuWidget::HasRequiredLayout() const
 {
-    return IsValid(StartButton.Get()) && IsValid(ContinueButton.Get()) &&
+    return HasNavigationLayout(false) && IsValid(StartButton.Get()) && IsValid(ContinueButton.Get()) &&
         IsValid(QuitButton.Get()) && IsValid(StatusText.Get()) && IsValid(InputSettingsPanel.Get()) &&
         IsValid(VideoSettingsPanel.Get()) && IsValid(GraphicsSettingsPanel.Get()) &&
         IsValid(AudioSettingsPanel.Get());
@@ -135,6 +135,9 @@ void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
     {
         return;
     }
+    SetNavigationBusy(bBusy || bConfirmingNewRun);
+    SetPrimary(ContinueButton, bContinueAvailable || bConfirmingNewRun);
+    SetPrimary(StartButton, !bContinueAvailable && !bConfirmingNewRun);
     StartButton->SetIsEnabled(!bBusy);
     ContinueButton->SetIsEnabled(!bBusy && (bContinueAvailable || bConfirmingNewRun));
     QuitButton->SetIsEnabled(!bBusy && !bConfirmingNewRun);
@@ -145,10 +148,15 @@ void UETMainMenuWidget::ApplyState(bool bPending, const FText& Message)
 
 void UETMainMenuWidget::FocusStartButton()
 {
+    if (!IsHome())
+    {
+        FocusCurrentCategory();
+        return;
+    }
     APlayerController* Controller = GetOwningPlayer();
     if (!bBusy && IsValid(StartButton.Get()) && IsValid(Controller))
     {
-        StartButton->SetUserFocus(Controller);
+        FocusButton(bContinueAvailable ? ContinueButton.Get() : StartButton.Get());
     }
 }
 

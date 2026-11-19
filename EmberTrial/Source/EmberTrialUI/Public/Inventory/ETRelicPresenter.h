@@ -39,6 +39,8 @@ struct EMBERTRIALUI_API FETRelicPanelData
     FName SelectedId = NAME_None;
     FText Name;
     FText Description;
+    FText SlotAName;
+    FText SlotBName;
     bool bSlotB = false;
     bool bHasCommands = false;
     bool bCanEquip = false;

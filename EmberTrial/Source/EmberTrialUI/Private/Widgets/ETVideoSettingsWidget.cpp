@@ -116,6 +116,12 @@ void UETVideoSettingsWidget::CancelOwnedPreview()
     }
 }
 
+void UETVideoSettingsWidget::DiscardPageDraft()
+{
+    CancelOwnedPreview();
+    if (bViewActive && Draft.IsDirty()) ReadCurrent(FText::GetEmpty());
+}
+
 void UETVideoSettingsWidget::SetHostBusy(const bool bBusy)
 {
     bHostBusy = bBusy;
@@ -420,7 +426,7 @@ void UETVideoSettingsWidget::HandleCancel()
 FReply UETVideoSettingsWidget::NativeOnPreviewKeyDown(
     const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-    if (HasRequiredLayout() && InKeyEvent.GetKey() == EKeys::Escape &&
+    if (HasRequiredLayout() && InKeyEvent.GetKey() == EKeys::Escape && (Draft.IsDirty() || PreviewSerial != 0) &&
         !ModeCombo->IsOpen() && !ResolutionCombo->IsOpen())
     {
         if (PreviewSerial != 0) HandleCancel();

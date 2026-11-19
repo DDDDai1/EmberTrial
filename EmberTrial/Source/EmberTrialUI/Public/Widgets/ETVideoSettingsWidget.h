@@ -20,6 +20,7 @@ class EMBERTRIALUI_API UETVideoSettingsWidget : public UUserWidget
 
 public:
     bool HasRequiredLayout() const;
+    void DiscardPageDraft();
     void SetHostBusy(bool bBusy);
     void CloseView(); // 宿主移除时立即封口；子控件稍后Destruct可重复调用。
 

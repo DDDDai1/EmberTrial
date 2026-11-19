@@ -4,6 +4,8 @@
 #include "Components/EditableTextBox.h"
 #include "Components/ListView.h"
 #include "Components/TextBlock.h"
+#include "Components/GridPanel.h"
+#include "Components/GridSlot.h"
 #include "Components/VerticalBox.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/PlayerController.h"
@@ -169,37 +171,67 @@ void UETRelicPanelWidget::Render(const FETRelicPanelData& Data)
     DetailNameText->SetText(Data.SelectedId.IsNone()
         ? NSLOCTEXT("ETRelics", "NoMatches", "没有符合条件的遗物") : Data.Name);
     DetailDescriptionText->SetText(Data.Description);
-    SlotText->SetText(FText::FromString(Data.bSlotB ? TEXT("比较目标：槽 B") : TEXT("比较目标：槽 A")));
+    SlotText->SetText(FText::FromString(Data.bSlotB ? TEXT("比较槽 B") : TEXT("比较槽 A")));
+    ShowSlot(SlotAButton, TEXT("槽 A"), Data.SlotAName, !Data.bSlotB);
+    ShowSlot(SlotBButton, TEXT("槽 B"), Data.SlotBName, Data.bSlotB);
     CommandContent->SetVisibility(Data.bHasCommands ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
     ConfirmEquipButton->SetIsEnabled(!bCommandBusy && Data.bCanEquip);
     UnequipButton->SetIsEnabled(!bCommandBusy && Data.bCanUnequip);
     CommandResultText->SetText(Data.CommandMessage.IsEmpty()
         ? FText::FromString(TEXT("选择目标槽位与遗物后确认。")) : Data.CommandMessage);
-    if (Data.PreviewState == EETRelicPreviewState::Available ||
-        Data.PreviewState == EETRelicPreviewState::AlreadyEquipped)
+    const bool bShowStats = Data.PreviewState == EETRelicPreviewState::Available ||
+        Data.PreviewState == EETRelicPreviewState::AlreadyEquipped;
+    if (ComparisonGrid)
     {
-        const FNumberFormattingOptions NumberFormat = FNumberFormattingOptions().SetMaximumFractionalDigits(1);
-        PreviewText->SetText(FText::Format(
-            NSLOCTEXT("ETRelics", "EquipmentStatsWithBreakPulse",
-                      "最大生命 {0} → {1}\n首段轻击 {2} → {3}\n装备治疗加成 {4} → {5}\n"
-                      "装备体力恢复加成（点/秒） {6} → {7}\n装备破势加成（F） {8} → {9}{10}"),
-            FText::AsNumber(Data.BeforeMax, &NumberFormat),
-            FText::AsNumber(Data.AfterMax, &NumberFormat),
-            FText::AsNumber(Data.BeforeAttack, &NumberFormat),
-            FText::AsNumber(Data.AfterAttack, &NumberFormat),
-            FText::AsNumber(Data.BeforeHealingBonus, &NumberFormat),
-            FText::AsNumber(Data.AfterHealingBonus, &NumberFormat),
-            FText::AsNumber(Data.BeforeStaminaRecoveryBonus, &NumberFormat),
-            FText::AsNumber(Data.AfterStaminaRecoveryBonus, &NumberFormat),
-            FText::AsNumber(Data.BeforeBreakPulsePoiseBonus, &NumberFormat),
-            FText::AsNumber(Data.AfterBreakPulsePoiseBonus, &NumberFormat),
-            Data.PreviewState == EETRelicPreviewState::AlreadyEquipped
-                ? FText::FromString(TEXT("\n该槽已装备此遗物")) : FText::GetEmpty()));
+        ComparisonGrid->SetVisibility(bShowStats ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+        if (bShowStats)
+        {
+            const float Before[] = {Data.BeforeMax, Data.BeforeAttack, Data.BeforeHealingBonus,
+                Data.BeforeStaminaRecoveryBonus, Data.BeforeBreakPulsePoiseBonus};
+            const float After[] = {Data.AfterMax, Data.AfterAttack, Data.AfterHealingBonus,
+                Data.AfterStaminaRecoveryBonus, Data.AfterBreakPulsePoiseBonus};
+            FNumberFormattingOptions Format;
+            Format.SetMaximumFractionalDigits(1);
+            // Row zero holds the headings. The first column holds the stat labels.
+            for (int32 Index = 0; Index < ComparisonGrid->GetChildrenCount(); ++Index)
+            {
+                UTextBlock* Cell = Cast<UTextBlock>(ComparisonGrid->GetChildAt(Index));
+                UGridSlot* CellSlot = Cell ? Cast<UGridSlot>(Cell->Slot) : nullptr;
+                if (!CellSlot) continue;
+                const int32 Row = CellSlot->GetRow() - 1;
+                const int32 Col = CellSlot->GetColumn();
+                if (Row < 0 || Row >= UE_ARRAY_COUNT(Before) || Col < 1 || Col > 3) continue;
+                const float Delta = After[Row] - Before[Row];
+                const float Value = Col == 1 ? Before[Row] : Col == 2 ? After[Row] : Delta;
+                FText Text = FText::AsNumber(Value, &Format);
+                if (Col == 3)
+                {
+                    if (FMath::IsNearlyZero(Delta)) Text = FText::FromString(TEXT("—"));
+                    else if (Delta > 0) Text = FText::Format(INVTEXT("+{0}"), Text);
+                    const FColor Tint = FMath::IsNearlyZero(Delta) ? FColor(189,182,171) :
+                        Delta > 0 ? FColor(178,202,141) : FColor(229,161,140);
+                    Cell->SetColorAndOpacity(FSlateColor(FLinearColor::FromSRGBColor(Tint)));
+                }
+                Cell->SetText(Text);
+            }
+        }
     }
-    else
+    const bool bMessage = Data.PreviewState != EETRelicPreviewState::Available;
+    PreviewText->SetVisibility(bMessage ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Collapsed);
+    if (bMessage)
+        PreviewText->SetText(FText::FromString(bShowStats ? TEXT("该槽已装备此遗物") :
+            Data.PreviewState == EETRelicPreviewState::Rejected ? TEXT("此方案不符合装备规则。") :
+            TEXT("当前没有可用的属性比较。")));
+}
+
+void UETRelicPanelWidget::ShowSlot(UButton* Button, const TCHAR* Prefix, const FText& Item, bool bSelected)
+{
+    if (auto* Label = Cast<UTextBlock>(Button->GetContent()))
     {
-        PreviewText->SetText(FText::FromString(Data.PreviewState == EETRelicPreviewState::Rejected
-            ? TEXT("此方案不符合装备规则，例如同一遗物不能占两槽。") : TEXT("当前没有可用的属性比较。")));
+        Label->SetText(FText::Format(INVTEXT("{0}  {1}"), FText::FromString(Prefix),
+            Item.IsEmpty() ? INVTEXT("未装备") : Item));
+        Label->SetColorAndOpacity(FSlateColor(FLinearColor::FromSRGBColor(
+            bSelected ? FColor(242,200,135) : FColor(189,182,171))));
     }
 }
 // ---- 原生页面命令桥；View只发意图，不能自己Apply GE ----

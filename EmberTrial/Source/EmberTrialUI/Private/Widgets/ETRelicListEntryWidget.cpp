@@ -17,10 +17,14 @@ void UETRelicListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 void UETRelicListEntryWidget::NativeOnItemSelectionChanged(const bool bIsSelected)
 {
+    if (SelectionLine)
+    {
+        SelectionLine->SetVisibility(bIsSelected ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Hidden);
+    }
     if (SelectionBorder)
     {
-        SelectionBorder->SetBrushColor(bIsSelected ? FLinearColor(.22f, .16f, .07f, 1.0f)
-                                                  : FLinearColor(.055f, .055f, .055f, 1.0f));
+        SelectionBorder->SetBrushColor(bIsSelected ? FLinearColor::FromSRGBColor(FColor(54, 47, 39))
+                                                  : FLinearColor::FromSRGBColor(FColor(26, 30, 34)));
     }
     IUserObjectListEntry::NativeOnItemSelectionChanged(bIsSelected);
 }

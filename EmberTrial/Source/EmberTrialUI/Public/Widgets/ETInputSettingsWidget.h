@@ -18,6 +18,7 @@ class EMBERTRIALUI_API UETInputSettingsWidget : public UUserWidget
 
 public:
     bool HasRequiredLayout() const;
+    void DiscardPageDraft();
     void SetHostBusy(bool bBusy);
 
 protected:

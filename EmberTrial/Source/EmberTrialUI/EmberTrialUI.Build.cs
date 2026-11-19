@@ -5,6 +5,8 @@ public class EmberTrialUI : ModuleRules
     public EmberTrialUI(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        RuntimeDependencies.Add("$(ProjectDir)/Content/ThirdPartyNotices/SourceHanSerif-OFL.txt",
+            StagedFileType.NonUFS);
 
         // 原生Widget公开头继承UMG类型；公开依赖供消费该模块头文件的代码使用。
         PublicDependencyModuleNames.AddRange(new string[]
