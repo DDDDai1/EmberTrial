@@ -4,7 +4,7 @@
 
 > 项目目标：交付一个能独立运行、完整通关、经得起代码追问和现场修改的第三人称动作 Demo，用可操作的功能、可阅读的工程和可复现的记录覆盖所提供 JD 的每项技术要求。本文描述最终目标；实际实现与验收以 [Progress](Docs/Progress.md) 为准。M0 已完成，后续功能与性能目标仍须逐批验证。
 
-M0 至 M6 已验收。最新 Win64 Development 包包含完整三场试炼、六件遗物、四类设置、胜利结算与版本化存档。M7-01 至 M7-04 的武器、祭坛、角色材质及路线材质与光照已在正式图复验。当前进入 M7-05A 战斗 HUD 打磨。[当前进度](Docs/Progress.md) · [M7-04 验收](Docs/Reports/M7_04_Verification.md) · [M7-05A 指南](Docs/M7_05A_CombatHUDPolish.md)
+M0 至 M6 已验收。最新 Win64 Development 包包含完整三场试炼、六件遗物、四类设置、胜利结算与版本化存档。M7-01 至 M7-04 的武器、祭坛、角色材质及路线材质与光照已在正式图复验。M7-05A 战斗 HUD 已验收，进入菜单与遗物界面打磨。[当前进度](Docs/Progress.md) · [M7-05A 验收](Docs/Reports/M7_05A_Verification.md) · [M7-05B 指南](Docs/M7_05B_MenuAndRelicPolish.md)
 
 > 求职判断：这份作品应提高简历筛选和技术面试中的说服力，但无法据此承诺“大概率录用”或给出通过率。学历、专业、岗位是否仍开放、招聘名额、候选人竞争和现场表达等因素不能由 Demo 替代。目标是让面试官能清楚确认：你能把需求落实成稳定功能，并理解自己的实现。
 
@@ -475,7 +475,7 @@ UE 5.5 官方工具链页面列出 VS 2022 17.8+、推荐 17.10，以及对应 M
 
 M7-01 和 M7-02 用户手动共 60 分钟。M7-03 角色外观沿用 Quinn 网格和绑定，用两槽材质实例区分玩家、近战、远程与守关者。该批在正式镜头中验证辨识度，并复查原战斗和挂载。[角色材质指南](Docs/M7_03_CharacterPalettes.md)
 
-M7-04 用 Poly Haven CC0 石板、砌石和锈蚀金属贴图覆盖正式路线地面、十墙和三门，按同机位截图复查暖光与阴影下的场景可读性。M7-05A 先统一战斗 HUD 四卡，再打磨交互界面。[路线材质验收](Docs/Reports/M7_04_Verification.md) · [战斗 HUD 指南](Docs/M7_05A_CombatHUDPolish.md)
+M7-04 用 Poly Haven CC0 石板、砌石和锈蚀金属贴图覆盖正式路线地面、十墙和三门，按同机位截图复查暖光与阴影下的场景可读性。M7-05A 的左下四张战斗 HUD 和按需诊断面板已验收。M7-05B 统一菜单、暂停、祭坛、设置和胜败页的样式，并复验长文本、小窗和键盘焦点。[路线材质验收](Docs/Reports/M7_04_Verification.md) · [HUD 验收](Docs/Reports/M7_05A_Verification.md) · [界面打磨指南](Docs/M7_05B_MenuAndRelicPolish.md)
 
 **动画路线已在 M0 验证。**共享模板骨架 + Control Rig 占位 + 原地 Montage + CharacterMovement 位移已通过组合演示与首次包内运行，详见 [动画结论](Docs/Reports/M0_05C3_Verification.md)。按用户确认的约人民币 100 元总资源预算继续以零成本方案推进；具体短板出现后再评估素材，不预先安排购买。正式武器 / 死亡 / 命中观感仍需制作与验证。
 
@@ -872,4 +872,4 @@ M0 启动时已建立 `Docs/M0_Setup.md`、`Docs/IssueTemplate.md`、`Docs/Progr
 
 ## 18. 当前开发批次 Commit / Push（固定放在最后）
 
-M7-04 正式路线材质和地图已提交。本次暂存 M7-04 验收文档与 M7-05A 指南。[M7-04 文档 Commit](Docs/Reports/M7_04_Verification.md#本次文档-commit--push) · [M7-05A 暂存清单](Docs/M7_05A_CombatHUDPolish.md#4-commit--push)
+M7-05A 源码与资产已提交。本次暂存 HUD 验收报告、来源清单与 M7-05B 指南。[文档 Commit](Docs/Reports/M7_05A_Verification.md#本次文档-commit--push) · [下一批暂存清单](Docs/M7_05B_MenuAndRelicPolish.md#8-commit--push)
