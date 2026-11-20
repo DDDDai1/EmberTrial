@@ -1,6 +1,6 @@
 # EmberTrial · 烬火试炼
 
-UE 5.5.4 / Windows / 离线单人的第三人称动作 Demo。正式试炼串联主菜单、三场遭遇、祭坛、两处检查点和胜利结算。Win64 Development 包已通过跨进程存档恢复与通关验证，当前采集正式试炼性能基线。[M5-04 验收](Docs/Reports/M5_04_Verification.md) · [M6-01 指南](Docs/M6_01_TrialPerformanceBaseline.md)
+UE 5.5.4 / Windows / 离线单人的第三人称动作 Demo。正式试炼串联主菜单、三场遭遇、祭坛、两处检查点和胜利结算。Win64 Shipping 候选已通过跨进程存档恢复与通关验证。M8 规划动作、关卡、角色与武器升级，M9 负责作品交付与面试准备。[M7-07 验收](Docs/Reports/M7_07_Verification.md) · [M8 路线](Docs/M8_Roadmap.md)
 
 ## 已实现的体验
 
@@ -13,7 +13,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作 Demo。正式试炼串联
 - 生命 / 体力 / 治疗次数 / 破势冷却HUD，独立主菜单、暂停、失败重试和本次进程内的检查点继续。
 - 自由镜头输入偏好：0.25–3倍灵敏度与Y轴反转，个人设置可本地保存 / 重启读取；主菜单 / 暂停 / 祭坛页复用草稿、应用 / 取消与默认卡片。
 
-六件遗物提供稳定ID / 参数 / 槽位校验、GI库存与版本、身体自有GE和资源恢复；祭坛E打开同一遗物页，支持真实列表 / 中文搜索 / 排序筛选 / 两槽比较，确认后装备或卸装，普通P只读。初始空槽100生命 / 25伤害；生息与砺锋装备后上限120 / 伤害30；逆焰单件上限80 / 伤害35，与砺锋组合实际40；回生护符使正式Q固定增加10治疗，移除后恢复基础40。凝息护符使每秒体力恢复增加5点，裂势印使F架势伤害由60提高到80。存活换装不治疗。Retry / 本进程Continue保留配装，新身体按最终上限恢复；NewRun空槽。角色和动画仍为UE模板 / Control Rig占位，磁盘进度存档与最终美术后续，多人及手柄交付不在范围。
+六件遗物提供稳定ID / 参数 / 槽位校验、GI库存与版本、身体自有GE和资源恢复；祭坛E打开同一遗物页，支持真实列表 / 中文搜索 / 排序筛选 / 两槽比较，确认后装备或卸装，普通P只读。初始空槽100生命 / 25伤害；生息与砺锋装备后上限120 / 伤害30；逆焰单件上限80 / 伤害35，与砺锋组合实际40；回生护符使正式Q固定增加10治疗，移除后恢复基础40。凝息护符使每秒体力恢复增加5点，裂势印使F架势伤害由60提高到80。存活换装不治疗。Retry 和本进程内 Continue 保留当前配装。跨进程 Continue 恢复检查点、清场进度和上次存档时的装备与治疗次数。新试炼从入口与空槽开始。正式角色和动作升级安排在 M8。
 
 ## 获取与构建
 
@@ -28,7 +28,7 @@ UE 5.5.4 / Windows / 离线单人的第三人称动作 Demo。正式试炼串联
 
 Refresh-CLion会正常构建Editor目标并生成三个模块各自的索引信息。随后打开[EmberTrial.uproject](EmberTrial/EmberTrial.uproject)；正式试玩从`/Game/EmberTrial/Maps/L_ET_MainMenu`开始，编辑器开发地图为`L_ET_VerticalSlice`。
 
-Game Development构建、CLion打开 / 刷新、切回VS2022及源码创建说明见[IDE配置 / 切换说明](Docs/CodeEditor_CLion_VS2022.md)与[源码创建 / 索引刷新](Docs/CLion_UEClassCreation.md)。这是源码工程入口，仓库未提供可下载Release。最新本地验证包为`Artifacts/Builds/M3_06C3/Attempt01/Windows/EmberTrial.exe`，包含六件祭坛遗物、四类设置、正式战斗、锁定和检查点。43项阶段回归与两轮独立运行见[C3报告](Docs/Reports/M3_06C3_Verification.md)。完整Windows目录留本地，Cleanup / M1包只代表历史版本。
+Game Development 构建、CLion 索引与切回 VS2022 的操作见 IDE 指南。最新本地候选为 `Artifacts/Builds/M7_07/Attempt01/Windows/EmberTrial.exe`，用完整 Windows 目录启动。正式图的跨进程读档、失败重试、通关与重开均已复验。[IDE 指南](Docs/CodeEditor_CLion_VS2022.md) · [源码创建与索引](Docs/CLion_UEClassCreation.md) · [候选包本地验证](Docs/Reports/M7_07_Verification.md)
 
 ## 默认操作
 
