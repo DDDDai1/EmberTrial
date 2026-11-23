@@ -1,6 +1,6 @@
 # 当前开发进度
 
-更新于 2026-11-20。当前进入 **M8-01A 玩家移动与动画制作基准**。已读取正式角色、输入、源片根骨与 Montage 事件基线，玩家独立 AnimBP 的开发图搭建与实机验收待完成。最近一次验收包是 M7-07 Win64 Shipping 候选。[M8-01A 操作指南](M8_01A_PlayerLocomotion.md) · [M8 路线](M8_Roadmap.md) · [M7-07 验收](Reports/M7_07_Verification.md) · [候选包指南](M7_07_ShippingCandidate.md)
+更新于 2026-11-20。**M8-01A 玩家移动基准已验收**，当前推进 **M8-01B 玩家移动与锁定步态**。先制作冲刺循环，再与起停、转身、四向锁定步态一起接入测试玩家。最近一次验收包是 M7-07 Win64 Shipping 候选。[M8-01B 操作指南](M8_01B_PlayerMovement.md) · [M8-01A 基准](M8_01A_PlayerLocomotion.md) · [M8 路线](M8_Roadmap.md) · [M7-07 验收](Reports/M7_07_Verification.md)
 
 - 正式工程有 280 份 Source、164 个 cpp（Core 119 / UI 42 / Editor 3）、60 个自动化入口、366 份 Content。来源清单已登记路线的三份纯色材质实例、九张 PBR 贴图、两个主材质及三个 PBR 实例。
 - C2正式工程500条、峰值6个活动条目、每面板最多12个实例、156次复用。两轮清理与正式六件P重开通过。
@@ -15,6 +15,6 @@ M6-04 手动 20 分钟，M6-05 复用本次采样。M6-06 由助手操作，UAT 
 
 ## 当前批次 Commit / Push
 
-M8-01A 的文档、开发图测试资产和提交建议见操作指南。[本次提交清单](M8_01A_PlayerLocomotion.md#6-commit--push)
+M8-01B 的提交范围和建议见本批指南。[本次提交清单](M8_01B_PlayerMovement.md#6-commit--push)
 
 后续批次验收通过后，保存报告并直接启动下一项。遇到验收缺口时先补验或修复。

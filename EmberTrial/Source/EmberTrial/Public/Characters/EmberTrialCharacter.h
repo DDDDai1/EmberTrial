@@ -87,7 +87,11 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
     UPROPERTY(Transient)
     TObjectPtr<UETPracticeActionComponent> PracticeActionComponent;
 
-    bool CanAcceptLocomotionInput() const;
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Player Gaits")
+    bool bUsePlayerGaits = false;
+
+    UPROPERTY(EditDefaultsOnly, Category = "EmberTrial|Player Gaits")
+    TObjectPtr<UInputAction> SprintAction;
 
     // ---- 本身体拥有的ASC与资源子对象；名称是既有资产引用契约 ----
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "EmberTrial|Abilities",
@@ -233,7 +237,10 @@ class EMBERTRIAL_API AEmberTrialCharacter : public ACharacter, public IAbilitySy
 
 public:
     // ---- 只读快照 / 就绪事件与正式动作命令 ----
-    AEmberTrialCharacter();
+    AEmberTrialCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    bool UsesPlayerGaits() const { return bUsePlayerGaits; }
+    bool CanAcceptLocomotionInput() const;
+    void ReleaseSprint();
 
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 

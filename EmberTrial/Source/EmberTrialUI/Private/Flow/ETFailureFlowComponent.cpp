@@ -262,6 +262,7 @@ void UETFailureFlowComponent::PresentPause(AETRelicAltar* SourceAltar)
         }
     }
     OpeningBody->StopJumping();
+    OpeningBody->ReleaseSprint();
     Controller->bShowMouseCursor = true;
     UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller, PauseWidget.Get(),
         EMouseLockMode::DoNotLock, true);

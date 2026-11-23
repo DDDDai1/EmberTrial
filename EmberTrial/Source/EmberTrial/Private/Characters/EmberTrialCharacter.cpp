@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Characters/EmberTrialCharacter.h"
+#include "Characters/ETPlayerMovementComponent.h"
 #include "ETPracticeActionComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
@@ -44,7 +45,9 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 DEFINE_LOG_CATEGORY_STATIC(LogETAbilityFoundation, Log, All);
 // ---- 原生子对象与模板默认值；不在这里硬引用内容资产 ----
 
-AEmberTrialCharacter::AEmberTrialCharacter()
+AEmberTrialCharacter::AEmberTrialCharacter(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer.SetDefaultSubobjectClass<UETPlayerMovementComponent>(
+        ACharacter::CharacterMovementComponentName))
 {
     // 子对象名称沿用已有蓝图身份；重复创建会破坏单ASC / 单资源契约。
     AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystem"));
@@ -683,6 +686,7 @@ void AEmberTrialCharacter::PossessedBy(AController* NewController)
 
 void AEmberTrialCharacter::UnPossessed()
 {
+    ReleaseSprint();
     Super::UnPossessed();
     if (HasActorBegunPlay())
     {
@@ -705,6 +709,7 @@ void AEmberTrialCharacter::Restart()
 // ---- 结束：先封锁重入 / 撤销Ready，再取消能力与清关联，最后交还Super ----
 void AEmberTrialCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    ReleaseSprint();
     bAbilitySystemShuttingDown = true;
     SetGameplayReady(false);
 
@@ -767,6 +772,17 @@ void AEmberTrialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
             Cast<UEnhancedInputComponent>(PlayerInputComponent))
     {
 
+        if (bUsePlayerGaits && SprintAction)
+        {
+            auto* Movement = CastChecked<UETPlayerMovementComponent>(GetCharacterMovement());
+            EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, Movement,
+                                               &UETPlayerMovementComponent::BeginSprint);
+            EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, Movement,
+                                               &UETPlayerMovementComponent::ReleaseSprint);
+            EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Canceled, Movement,
+                                               &UETPlayerMovementComponent::ReleaseSprint);
+        }
+
         // Jumping
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this,
                                            &AEmberTrialCharacter::StartPracticeAwareJump);
@@ -803,6 +819,14 @@ void AEmberTrialCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 }
 
 // 移动与跳跃共用相同短路检查；正式状态通过后才查询旧Practice状态。
+void AEmberTrialCharacter::ReleaseSprint()
+{
+    if (auto* Movement = Cast<UETPlayerMovementComponent>(GetCharacterMovement()))
+    {
+        Movement->ReleaseSprint();
+    }
+}
+
 bool AEmberTrialCharacter::CanAcceptLocomotionInput() const
 {
     return IsFormalActionIdle() &&
