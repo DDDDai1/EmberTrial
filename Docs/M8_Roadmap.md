@@ -18,7 +18,7 @@ M8-01 先验证一套骨架与一个武器代理模型。可以在该批同步�
 
 ## M8-01 动作模块
 
-M8-01A 已在开发图通过玩家 AnimBP、原地步态、空中状态、Montage 和 Blender 出片流程验收。当前是 M8-01B，制作起停、转身、冲刺和锁定方向步态。随后制作玩家战斗、敌人动作并联合验收，全部通过后进入 M8-02。[M8-01A 基准](M8_01A_PlayerLocomotion.md) · [M8-01B 操作指南](M8_01B_PlayerMovement.md)
+M8-01A 已通过玩家 AnimBP、原地步态、空中状态、Montage 和 Blender 出片流程验收。M8-01B 的起停、转身、冲刺和锁定方向步态已接入正式试炼并通过验收。接下来制作玩家战斗和敌人动作，联合验收通过后进入 M8-02。[M8-01A 基准](M8_01A_PlayerLocomotion.md) · [M8-01B 验收](Reports/M8_01B_Verification.md)
 
 ### 动作交付
 
